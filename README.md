@@ -1,4 +1,4 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is the prototype amde in observable: https://observablehq.com/@cypressf/climate-change-map
 
 ## Available Scripts
 
