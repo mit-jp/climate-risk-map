@@ -1,26 +1,25 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { feature } from 'topojson-client';
+import { Objects, Topology } from 'topojson-specification';
+import { GeoJsonProperties } from 'geojson';
 import './App.css';
-import { select, line, curveCardinal } from 'd3';
+import { json } from 'd3-fetch';
+import { select } from 'd3';
 
 function App() {
-  const [data, setData] = useState<[number, number][]>([[0,25], [1,1], [4,45], [5,60], [7,23], [8,40]]);
+  const [data, setData] = useState(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  useEffect(() => { // called when dom elements are rendered
-    console.log(svgRef);
+  useEffect(() => {
     const svg = select(svgRef.current);
-    const myLine = line()
-      .x(datum => datum[0] * 50)
-      .y(datum => datum[1])
-      .curve(curveCardinal);
-    svg.selectAll("path")
-      .data([data])
-      .join("path")
-      .attr("d", value => myLine(value))
-      .attr("fill", "none")
-      .attr("stroke", "blue");
+    svg.attr("viewBox", "0, 0, 960, 960");
+    const test = json<Topology<Objects<GeoJsonProperties>>>("usa-topo.json").then(data => {
+      console.log(data);
+      console.log(feature(data, data.objects.counties))
+    });
+    console.log(test);
   }, [data]);
   return <React.Fragment>
-    <svg ref={svgRef} width="100%" height="100%"></svg>
+    <svg ref={svgRef}></svg>
     <br/>
   </React.Fragment>;
 }
