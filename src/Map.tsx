@@ -21,7 +21,7 @@ const Map = ({data}: {data: Topology<Objects<GeoJsonProperties>> | undefined}) =
             data,
             data.objects.counties as GeometryCollection<GeoJsonProperties>
         )
-        svg.attr("viewBox", "0, 0, 960, 800")
+        svg.attr("viewBox", "0, 0, 975, 610")
         .attr("id", "map")
             .append("g")
             .attr("id", "map")

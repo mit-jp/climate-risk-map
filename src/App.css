@@ -4,6 +4,11 @@ body {
     justify-content: center;
 }
 
+h1 {
+    margin: 2em;
+}
+
 svg {
     max-width: 1400px;
+    margin:2em;
 }

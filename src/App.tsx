@@ -10,7 +10,12 @@ function App() {
   useEffect(() => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa-topo.json").then(setData);
   }, []);
-  return <React.Fragment><Map data={data}/></React.Fragment>;
+  return (
+    <React.Fragment>
+      <h1>Climate Risk Map</h1>
+      <Map data={data}/>
+    </React.Fragment>
+  );
 }
 
 export default App;
