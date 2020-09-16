@@ -1,4 +1,5 @@
-This is the prototype amde in observable: https://observablehq.com/@cypressf/climate-change-map
+For now, the working version is available here: https://cypressf.com/climate-risk-map
+The prototype this is based on is here: https://observablehq.com/@cypressf/climate-change-map
 
 ## Available Scripts
 
