@@ -8,7 +8,7 @@ import { json } from 'd3-fetch';
 function App() {
   const [data, setData] = useState<Topology<Objects<GeoJsonProperties>>>();
   useEffect(() => {
-    json<Topology<Objects<GeoJsonProperties>>>("usa-topo.json").then(setData);
+    json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa-topo.json").then(setData);
   }, []);
   return <React.Fragment><Map data={data}/></React.Fragment>;
 }
