@@ -1,5 +1,5 @@
-For now, the working version is available here: https://cypressf.com/climate-risk-map
-The prototype this is based on is here: https://observablehq.com/@cypressf/climate-change-map
+- Beta: https://cypressf.com/climate-risk-map
+- Early Prototype: https://observablehq.com/@cypressf/climate-change-map
 
 ## Available Scripts
 
