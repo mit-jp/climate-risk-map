@@ -88,7 +88,12 @@ const Map = ({data}: {data: Topology<Objects<GeoJsonProperties>> | undefined}) =
             .on("touchend mouseleave", handleMouseOut);
     }, [data])
 
-    return <svg ref={svgRef}></svg>
+    return (
+        <div>
+            <h2>GDP 2018 (USD)</h2>
+            <svg ref={svgRef}></svg>
+        </div>
+    );
 }
 
 export default Map;

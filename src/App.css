@@ -4,11 +4,14 @@ body {
     justify-content: center;
 }
 
-h1 {
+h1, h2 {
+    font-weight: 200;
+}
+
+#root {
     margin: 2em;
 }
 
 svg {
     max-width: 1400px;
-    margin:2em;
 }
