@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { select, geoPath, scaleThreshold, schemeBlues, event} from 'd3';
+import { select, geoPath, scaleThreshold, event} from 'd3';
 import { feature } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
@@ -74,9 +74,8 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
             data,
             data.objects.counties as GeometryCollection<GeoJsonProperties>
         )
-        svg.attr("viewBox", "0, 0, 975, 610")
-            .append("g")
-            .attr("id", "map")
+        svg
+            .select("#map")
             .selectAll("path")
             .data(countyGeoJson.features)
             .join("path")
@@ -96,7 +95,9 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
     }, [data, selection])
 
     return (
-        <svg ref={svgRef}></svg>
+        <svg ref={svgRef} viewBox="0, 0, 975, 610">
+            <g id="map"></g>
+        </svg>
     );
 }
 
