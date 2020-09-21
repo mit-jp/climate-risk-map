@@ -3,6 +3,7 @@ import { select, geoPath, scaleThreshold, schemeBlues, event} from 'd3';
 import { feature } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
+import dataTypes from './DataTypes';
 
 const tooltip = select("body")
     .append("div")
@@ -52,9 +53,13 @@ const handleMouseOut = function(this:any, d:any) {
         .style("opacity", 0)
 }
 
-const getColor = scaleThreshold<number, string>()
-    .domain([0, 1000000, 2000000, 3000000, 10000000, 100000000, 300000000, 700000000])
-    .range(schemeBlues[9]);
+const getColor = (selection: string) => {
+    const scale = dataTypes[selection].scale;
+    const color = dataTypes[selection].color[scale.length];
+    return scaleThreshold<number, string>()
+        .domain(scale)
+        .range(color);
+}
 
 const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | undefined, selection: string}) => {
     const svgRef = useRef<SVGSVGElement>(null);
@@ -78,9 +83,9 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
             .attr("class", "county")
             .attr("fill", d => {
                 if (d.properties) {
-                    return getColor(d.properties[selection]);
+                    return getColor(selection)(d.properties[selection]);
                 } else {
-                    return getColor(0);
+                    return getColor(selection)(0);
                 }
             })
             .attr("d", geoPath());
