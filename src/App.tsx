@@ -5,15 +5,25 @@ import { GeoJsonProperties } from 'geojson';
 import './App.css';
 import { json } from 'd3-fetch';
 
-function App() {
-  const [data, setData] = useState<Topology<Objects<GeoJsonProperties>>>();
+type AppState = {
+  data: Topology<Objects<GeoJsonProperties>> | undefined,
+  selection: string
+};
+
+const App = () => {
+  const [{data, selection}, setData] = useState<AppState>({data: undefined, selection: "AWATER"});
   useEffect(() => {
-    json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa-topo.json").then(setData);
+    json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa-topo.json").then(d => setData({data: d, selection: selection}));
   }, []);
+
   return (
     <React.Fragment>
       <h1>Climate Risk Map</h1>
-      <Map data={data}/>
+      <select>
+        <option value="AWATER" selected>Water Area</option>
+        <option value="GDP2018">GDP 2018 (USD)</option>
+      </select>
+      <Map data={data} selection={selection}/>
     </React.Fragment>
   );
 }

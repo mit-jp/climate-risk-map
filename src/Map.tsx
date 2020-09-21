@@ -16,29 +16,31 @@ const tooltip = select("body")
     .style("background", "white")	
     .style("pointer-events", "none");
 
-const handleMouseOver = function(this: any, d: any) {
-    select(this)
-        .style("opacity", 0.5)
-        .style("stroke", "black")
-        .style("stroke-width", 0.5)
-
-    tooltip.transition()
-        .duration(200)
-        .style("opacity", .9)
+const handleMouseOverCreator = (selection: string) => {
+    return function(this: any, d: any) {
+        select(this)
+            .style("opacity", 0.5)
+            .style("stroke", "black")
+            .style("stroke-width", 0.5)
     
-    let value = 0
-    let name = "---"
-
-    let this_county = d.properties.GDP2018
-    if (this_county) {
-        value = this_county;
-        name = d.properties.NAME
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", .9)
+        
+        let value = 0
+        let name = "---"
+    
+        let this_county = d.properties[selection]
+        if (this_county) {
+            value = this_county;
+            name = d.properties.NAME
+        }
+    
+        tooltip.html(`${name}: ${new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(value)}`)	
+            .style("left", `${event.pageX + 20}px`)		
+            .style("top", (event.pageY - 45) + "px");
     }
-
-    tooltip.html(`${name}: ${new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(value)}`)	
-        .style("left", `${event.pageX + 20}px`)		
-        .style("top", (event.pageY - 45) + "px");
-}
+};
 
 const handleMouseOut = function(this:any, d:any) {
     select(this)
@@ -54,7 +56,7 @@ const getColor = scaleThreshold<number, string>()
     .domain([0, 1000000, 2000000, 3000000, 10000000, 100000000, 300000000, 700000000])
     .range(schemeBlues[9]);
 
-const Map = ({data}: {data: Topology<Objects<GeoJsonProperties>> | undefined}) => {
+const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | undefined, selection: string}) => {
     const svgRef = useRef<SVGSVGElement>(null);
 
     useEffect(() => {
@@ -76,7 +78,7 @@ const Map = ({data}: {data: Topology<Objects<GeoJsonProperties>> | undefined}) =
             .attr("class", "county")
             .attr("fill", d => {
                 if (d.properties) {
-                    return getColor(d.properties["GDP2018"]);
+                    return getColor(d.properties[selection]);
                 } else {
                     return getColor(0);
                 }
@@ -84,15 +86,12 @@ const Map = ({data}: {data: Topology<Objects<GeoJsonProperties>> | undefined}) =
             .attr("d", geoPath());
         svg
             .selectAll(".county")
-            .on("touchmove mousemove", handleMouseOver)
+            .on("touchmove mousemove", handleMouseOverCreator(selection))
             .on("touchend mouseleave", handleMouseOut);
-    }, [data])
+    }, [data, selection])
 
     return (
-        <div>
-            <h2>GDP 2018 (USD)</h2>
-            <svg ref={svgRef}></svg>
-        </div>
+        <svg ref={svgRef}></svg>
     );
 }
 
