@@ -37,7 +37,7 @@ const handleMouseOverCreator = (selection: string) => {
             name = d.properties.NAME
         }
     
-        tooltip.html(`${name}: ${new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(value)}`)	
+        tooltip.html(`${name}: ${dataTypes[selection].formatter(value)}`)	
             .style("left", `${event.pageX + 20}px`)		
             .style("top", (event.pageY - 45) + "px");
     }
