@@ -1,9 +1,9 @@
 import React, { useRef, useEffect } from 'react';
-import { select, geoPath, scaleThreshold, event} from 'd3';
+import { select, geoPath, event} from 'd3';
 import { feature } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
-import dataTypes, { DataName, Data } from './DataTypes';
+import dataTypes, { DataName } from './DataTypes';
 
 const tooltip = select("body")
     .append("div")
@@ -53,19 +53,6 @@ const handleMouseOut = function(this:any, d:any) {
         .style("opacity", 0)
 }
 
-const getColor = (selection: DataName) => {
-    const dataType: Data | undefined = dataTypes.get(selection);
-    if (dataType) {
-        const scale = dataType.scale;
-        const color = dataType.color[scale.length];
-        return scaleThreshold<number, string>()
-            .domain(scale)
-            .range(color);
-    } else {
-        throw "No such data type";
-    }
-}
-
 const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | undefined, selection: DataName}) => {
     const svgRef = useRef<SVGSVGElement>(null);
 
@@ -87,9 +74,9 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
             .attr("class", "county")
             .attr("fill", d => {
                 if (d.properties) {
-                    return getColor(selection)(d.properties[selection]);
+                    return dataTypes.get(selection)!.color(d.properties[DataName[selection]]);
                 } else {
-                    return getColor(selection)(0);
+                    return dataTypes.get(selection)!.color(0);
                 }
             })
             .attr("d", geoPath());
