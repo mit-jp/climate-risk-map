@@ -36,12 +36,15 @@ const handleMouseOverCreator = (selection: DataName) => {
             value = this_county;
             name = d.properties.NAME
         }
-    
-        tooltip.html(`${name}: ${dataTypes.get(selection)?.formatter(value)}`)	
+        const dataType = dataTypes.get(selection)!;
+
+        tooltip.html(`${name}: ${dataType.formatter(value) + getUnitString(dataType.units)}`)	
             .style("left", `${event.pageX + 20}px`)		
             .style("top", (event.pageY - 45) + "px");
     }
 };
+
+const getUnitString = (units: string) => units ? ` ${units}` : "";
 
 const handleMouseOut = function(this:any, d:any) {
     select(this)
