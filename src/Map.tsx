@@ -3,7 +3,7 @@ import { select, geoPath, scaleThreshold, event} from 'd3';
 import { feature } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
-import dataTypes from './DataTypes';
+import dataTypes, { DataName, Data } from './DataTypes';
 
 const tooltip = select("body")
     .append("div")
@@ -17,7 +17,7 @@ const tooltip = select("body")
     .style("background", "white")	
     .style("pointer-events", "none");
 
-const handleMouseOverCreator = (selection: string) => {
+const handleMouseOverCreator = (selection: DataName) => {
     return function(this: any, d: any) {
         select(this)
             .style("opacity", 0.5)
@@ -31,13 +31,13 @@ const handleMouseOverCreator = (selection: string) => {
         let value = 0
         let name = "---"
     
-        let this_county = d.properties[selection]
+        let this_county = d.properties[DataName[selection]]
         if (this_county) {
             value = this_county;
             name = d.properties.NAME
         }
     
-        tooltip.html(`${name}: ${dataTypes[selection].formatter(value)}`)	
+        tooltip.html(`${name}: ${dataTypes.get(selection)?.formatter(value)}`)	
             .style("left", `${event.pageX + 20}px`)		
             .style("top", (event.pageY - 45) + "px");
     }
@@ -53,15 +53,20 @@ const handleMouseOut = function(this:any, d:any) {
         .style("opacity", 0)
 }
 
-const getColor = (selection: string) => {
-    const scale = dataTypes[selection].scale;
-    const color = dataTypes[selection].color[scale.length];
-    return scaleThreshold<number, string>()
-        .domain(scale)
-        .range(color);
+const getColor = (selection: DataName) => {
+    const dataType: Data | undefined = dataTypes.get(selection);
+    if (dataType) {
+        const scale = dataType.scale;
+        const color = dataType.color[scale.length];
+        return scaleThreshold<number, string>()
+            .domain(scale)
+            .range(color);
+    } else {
+        throw "No such data type";
+    }
 }
 
-const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | undefined, selection: string}) => {
+const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | undefined, selection: DataName}) => {
     const svgRef = useRef<SVGSVGElement>(null);
 
     useEffect(() => {
