@@ -1,6 +1,6 @@
 import * as scales from 'd3-scale-chromatic';
-import { scaleThreshold, scaleLinear, scaleDiverging } from 'd3';
-import { ScaleSequential, ScaleContinuousNumeric, ScaleThreshold, ScaleDiverging } from 'd3-scale';
+import { scaleThreshold, scaleDiverging, scaleSequential } from 'd3';
+import { ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3-scale';
 
 export enum DataName {
     GDP2018,
@@ -37,7 +37,7 @@ export type Data = {
     name: string,
     units: string,
     formatter: (value: number) => string,
-    color: ScaleSequential<string> | ScaleContinuousNumeric<string, string> | ScaleThreshold<number, string> | ScaleDiverging<string>,
+    color: ScaleSequential<string> | ScaleThreshold<number, string> | ScaleDiverging<string>,
 }
 
 const regularNumber = new Intl.NumberFormat(undefined, {
@@ -100,37 +100,37 @@ dataTypes.set(DataName.dry_00_19, {
     name:"Drought Indicator 2000-2019",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 750, 1500]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 1500])
 });
 dataTypes.set(DataName.dry_80_19, {
     name:"Drought Indicator 1980-2019",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 750, 1500]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 1500])
 });
 dataTypes.set(DataName.dry_80_99, {
     name:"Drought Indicator 1980-1999",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 750, 1500]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 1500])
 });
 dataTypes.set(DataName.gw_00_19, {
     name:"Groundwater 2000-2019",
     units:"mm/month",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 20, 40]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 40])
 });
 dataTypes.set(DataName.gw_80_19, {
     name:"Groundwater 1980-2019",
     units:"mm/month",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 20, 40]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 40])
 });
 dataTypes.set(DataName.gw_80_99, {
     name:"Groundwater 1980-1999",
     units:"mm/month",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0,20, 40]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 40])
 });
 dataTypes.set(DataName.ht_00_19, {
     name:"Maximum Month Temperature 2000-2019",
@@ -154,73 +154,73 @@ dataTypes.set(DataName.pet_00_19, {
     name:"Mean Annual Potential Evapotranspiration 2000-2019",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([300, 1000, 1700]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([300, 1700])
 });
 dataTypes.set(DataName.pet_80_19, {
     name:"Mean Annual Potential Evapotranspiration 1980-2019",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([300, 1000, 1700]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([300, 1700])
 });
 dataTypes.set(DataName.pet_80_99, {
     name:"Mean Annual Potential Evapotranspiration 1980-1999",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([300, 1000, 1700]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([300, 1700])
 });
 dataTypes.set(DataName.prc_00_19, {
     name: "Mean Annual Precipitation 2000-2019",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 1100, 2200]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2200])
 });
 dataTypes.set(DataName.prc_80_19, {
     name:"Mean Annual Precipitation 1980-2019",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 1100, 2200]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2200])
 });
 dataTypes.set(DataName.prc_80_99, {
     name:"Mean Annual Precipitation 1980-1999",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 1100, 2200]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2200])
 });
 dataTypes.set(DataName.ro_00_19, {
     name:"Mean Annual Runoff 2000-2019",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 1000, 2000]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2000])
 });
 dataTypes.set(DataName.ro_80_19, {
     name:"Mean Annual Runoff 1980-2019",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 1000, 2000]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2000])
 });
 dataTypes.set(DataName.ro_80_99, {
     name:"Mean Annual Runoff 1980-1999",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 1000, 2000]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2000])
 });
 dataTypes.set(DataName.wet_00_19, {
     name:"Flood Indicator 2000-2019",
     units:"mm/month",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 250, 500]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500])
 });
 dataTypes.set(DataName.wet_80_19, {
     name:"Flood Indicator 1980-2019",
     units:"mm/month",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 250, 500]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500])
 });
 dataTypes.set(DataName.wet_80_99, {
     name:"Flood Indicator 1890-1999",
     units:"mm/month",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 250, 500]).range(scales.schemeGreys[3])
+    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500])
 });
 
 export default dataTypes;
