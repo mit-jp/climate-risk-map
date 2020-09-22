@@ -1,6 +1,6 @@
 import * as scales from 'd3-scale-chromatic';
-import { scaleThreshold, scaleLinear } from 'd3';
-import { ScaleSequential, ScaleContinuousNumeric, ScaleThreshold } from 'd3-scale';
+import { scaleThreshold, scaleLinear, scaleDiverging } from 'd3';
+import { ScaleSequential, ScaleContinuousNumeric, ScaleThreshold, ScaleDiverging } from 'd3-scale';
 
 export enum DataName {
     GDP2018,
@@ -37,7 +37,7 @@ export type Data = {
     name: string,
     units: string,
     formatter: (value: number) => string,
-    color: ScaleSequential<string> | ScaleContinuousNumeric<string, string> | ScaleThreshold<number, string>,
+    color: ScaleSequential<string> | ScaleContinuousNumeric<string, string> | ScaleThreshold<number, string> | ScaleDiverging<string>,
 }
 
 const regularNumber = new Intl.NumberFormat(undefined, {
@@ -64,37 +64,37 @@ dataTypes.set(DataName.cmi10_00_1, {
     name:"Climate Moisture Index 2000-2019",
     units:"",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([-10, 0, 10]).range(scales.schemeBrBG[3])
+    color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10])
 });
 dataTypes.set(DataName.cmi10_80_9, {
     name:"Climate Moisture Index 1980-1999",
     units:"",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([-10, 0, 10]).range(scales.schemeBrBG[3])
+    color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10])
 });
 dataTypes.set(DataName.cmi10_80_1, {
     name:"Climate Moisture Index 1980-2019",
     units:"",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([-10, 0, 10]).range(scales.schemeBrBG[3])
+    color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10])
 });
 dataTypes.set(DataName.def_00_19, {
     name:"Irrigation Deficit 2000-2019",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([-600, 0, 1600]).range([...scales.schemeBrBG[3]].reverse())
+    color: scaleDiverging<string>(x => scales.interpolateBrBG(1-x)).domain([-600, 0, 1600])
 });
 dataTypes.set(DataName.def_80_19, {
     name:"Irrigation Deficit 1980-2019",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([-600, 0, 1600]).range([...scales.schemeBrBG[3]].reverse())
+    color: scaleDiverging<string>(x => scales.interpolateBrBG(1-x)).domain([-600, 0, 1600])
 });
 dataTypes.set(DataName.def_80_99, {
     name:"Irrigation Deficit 1980-1999",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([-600, 0, 1600]).range([...scales.schemeBrBG[3]].reverse())
+    color: scaleDiverging<string>(x => scales.interpolateBrBG(1-x)).domain([-600, 0, 1600])
 });
 dataTypes.set(DataName.dry_00_19, {
     name:"Drought Indicator 2000-2019",
@@ -136,19 +136,19 @@ dataTypes.set(DataName.ht_00_19, {
     name:"Maximum Month Temperature 2000-2019",
     units:"°C",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([20, 30, 40]).range(scales.schemeGreys[3])
+    color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40])
 });
 dataTypes.set(DataName.ht_80_19, {
     name:"Maximum Month Temperature 1980-2019",
     units:"°C",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([20, 30, 40]).range(scales.schemeGreys[3])
+    color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40])
 });
 dataTypes.set(DataName.ht_80_99, {
     name:"Maximum Month Temperature 1980-1999",
     units:"°C",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([20, 30, 40]).range(scales.schemeGreys[3])
+    color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40])
 });
 dataTypes.set(DataName.pet_00_19, {
     name:"Mean Annual Potential Evapotranspiration 2000-2019",
