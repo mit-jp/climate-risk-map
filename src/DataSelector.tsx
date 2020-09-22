@@ -10,7 +10,7 @@ const getUnitString = (units: string) => units ? `(${units})` : "";
 
 const getOptions = () => {
     return Array.from(dataTypes.entries()).map(
-        ([dataName, data]) => <option value={DataName[dataName]}>{data.name} {getUnitString(data.units)}</option>
+        ([dataName, data]) => <option key={DataName[dataName]} value={DataName[dataName]}>{data.name} {getUnitString(data.units)}</option>
     )
 }
 
