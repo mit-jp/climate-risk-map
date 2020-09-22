@@ -76,7 +76,7 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
                 if (d.properties) {
                     return dataTypes.get(selection)!.color(d.properties[DataName[selection]]);
                 } else {
-                    return dataTypes.get(selection)!.color(0);
+                    return dataTypes.get(selection)!.color(NaN);
                 }
             })
             .attr("d", geoPath());

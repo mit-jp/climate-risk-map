@@ -172,55 +172,55 @@ dataTypes.set(DataName.prc_00_19, {
     name: "Mean Annual Precipitation 2000-2019",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 100, 200, 300, 400, 500, 600, 700]).range(scales.schemeGreys[8])
+    color: scaleLinear<string>().domain([0, 1100, 2200]).range(scales.schemeGreys[3])
 });
 dataTypes.set(DataName.prc_80_19, {
     name:"Mean Annual Precipitation 1980-2019",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 100, 200, 300, 400, 500, 600, 700]).range(scales.schemeGreys[8])
+    color: scaleLinear<string>().domain([0, 1100, 2200]).range(scales.schemeGreys[3])
 });
 dataTypes.set(DataName.prc_80_99, {
     name:"Mean Annual Precipitation 1980-1999",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 100, 200, 300, 400, 500, 600, 700]).range(scales.schemeGreys[8])
+    color: scaleLinear<string>().domain([0, 1100, 2200]).range(scales.schemeGreys[3])
 });
 dataTypes.set(DataName.ro_00_19, {
     name:"Mean Annual Runoff 2000-2019",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 100, 200, 300, 400, 500, 600, 700]).range(scales.schemeGreys[8])
+    color: scaleLinear<string>().domain([0, 1000, 2000]).range(scales.schemeGreys[3])
 });
 dataTypes.set(DataName.ro_80_19, {
     name:"Mean Annual Runoff 1980-2019",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 100, 200, 300, 400, 500, 600, 700]).range(scales.schemeGreys[8])
+    color: scaleLinear<string>().domain([0, 1000, 2000]).range(scales.schemeGreys[3])
 });
 dataTypes.set(DataName.ro_80_99, {
     name:"Mean Annual Runoff 1980-1999",
     units:"mm/year",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 100, 200, 300, 400, 500, 600, 700]).range(scales.schemeGreys[8])
+    color: scaleLinear<string>().domain([0, 1000, 2000]).range(scales.schemeGreys[3])
 });
 dataTypes.set(DataName.wet_00_19, {
     name:"Flood Indicator 2000-2019",
     units:"mm/month",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 100, 200, 300, 400, 500, 600, 700]).range(scales.schemeGreys[8])
+    color: scaleLinear<string>().domain([0, 250, 500]).range(scales.schemeGreys[3])
 });
 dataTypes.set(DataName.wet_80_19, {
     name:"Flood Indicator 1980-2019",
     units:"mm/month",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 100, 200, 300, 400, 500, 600, 700]).range(scales.schemeGreys[8])
+    color: scaleLinear<string>().domain([0, 250, 500]).range(scales.schemeGreys[3])
 });
 dataTypes.set(DataName.wet_80_99, {
     name:"Flood Indicator 1890-1999",
     units:"mm/month",
     formatter: value => regularNumber.format(value),
-    color: scaleLinear<string>().domain([0, 100, 200, 300, 400, 500, 600, 700]).range(scales.schemeGreys[8])
+    color: scaleLinear<string>().domain([0, 250, 500]).range(scales.schemeGreys[3])
 });
 
 export default dataTypes;
