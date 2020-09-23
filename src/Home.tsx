@@ -6,7 +6,7 @@ import { GeoJsonProperties } from 'geojson';
 import './App.css';
 import { DataName } from './DataTypes';
 import { json } from 'd3-fetch';
-import { useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 
 type AppState = {
   data: Topology<Objects<GeoJsonProperties>> | undefined,
@@ -14,16 +14,22 @@ type AppState = {
 };
 
 const Home = () => {
-  let { id } = useParams<{id: string}>();
-  console.log(id + "  :::  it's working");
+  const history = useHistory();
+  const { id } = useParams<{id: string}>();
+  console.log("the raw id: " + id);
 
-  const [{data, selection}, setState] = useState<AppState>({data: undefined, selection: DataName.GDP2018});
+  let idEnum: DataName | undefined = DataName[id as keyof typeof DataName]
+  console.log("the enum id: " + idEnum);
+
+
+  const [{data, selection}, setState] = useState<AppState>({data: undefined, selection: idEnum ? idEnum : DataName.GDP2018});
   useEffect(() => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa-topo.json").then(d => setState({data: d, selection: selection}));
   }, []);
 
 
   const onSelectionChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    history.push(event.target.value);
     setState({data: data, selection: DataName[event.target.value as keyof typeof DataName]});
   }
 
