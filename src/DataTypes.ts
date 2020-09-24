@@ -3,7 +3,6 @@ import { scaleThreshold, scaleDiverging, scaleSequential } from 'd3';
 import { ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3-scale';
 
 export enum DataName {
-    GDP2018,
     cmi10_00_1,
     cmi10_80_9,
     cmi10_80_1,
@@ -31,6 +30,16 @@ export enum DataName {
     wet_00_19,
     wet_80_19,
     wet_80_99,
+    Allindustr,
+    Farming,
+    Mining,
+    Constructi,
+    Retailtrad,
+    Informatio,
+    Wholesalet,
+    discuss,
+    PerCapitap,
+    GDP2018,
 }
 
 export type Data = {
@@ -46,20 +55,6 @@ const regularNumber = new Intl.NumberFormat(undefined, {
 });
 
 const dataTypes = new Map<DataName, Data>();
-dataTypes.set(DataName.GDP2018, {
-    name: "GDP 2018",
-    units: "USD",
-    formatter: value => new Intl.NumberFormat(
-        undefined,
-        {
-            style: 'currency',
-            currency: 'USD',
-            maximumFractionDigits: 0,
-            minimumFractionDigits: 0
-        }
-    ).format(value),
-    color: scaleThreshold<number, string>().domain([0, 1000000, 2000000, 3000000, 10000000, 100000000, 300000000, 700000000]).range(scales.schemeGreens[8])
-});
 dataTypes.set(DataName.cmi10_00_1, {
     name:"Climate Moisture Index 2000-2019",
     units:"",
@@ -221,6 +216,74 @@ dataTypes.set(DataName.wet_80_99, {
     units:"mm/month",
     formatter: value => regularNumber.format(value),
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500])
+});
+dataTypes.set(DataName.GDP2018, {
+    name: "GDP 2018",
+    units: "USD",
+    formatter: value => new Intl.NumberFormat(
+        undefined,
+        {
+            style: 'currency',
+            currency: 'USD',
+            maximumFractionDigits: 0,
+            minimumFractionDigits: 0
+        }
+    ).format(value),
+    color: scaleThreshold<number, string>().domain([0, 1000000, 2000000, 3000000, 10000000, 100000000, 300000000, 700000000]).range(scales.schemeGreens[8])
+});
+dataTypes.set(DataName.Allindustr, {
+    name:"Allindustr",
+    units:"",
+    formatter: value => regularNumber.format(value),
+    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 1000000])
+});
+dataTypes.set(DataName.Farming, {
+    name:"Farming",
+    units:"",
+    formatter: value => regularNumber.format(value),
+    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000])
+});
+dataTypes.set(DataName.Mining, {
+    name:"Mining",
+    units:"",
+    formatter: value => regularNumber.format(value),
+    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000])
+});
+dataTypes.set(DataName.Constructi, {
+    name:"Constructi",
+    units:"",
+    formatter: value => regularNumber.format(value),
+    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000])
+});
+dataTypes.set(DataName.Retailtrad, {
+    name:"Retailtrad",
+    units:"",
+    formatter: value => regularNumber.format(value),
+    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000])
+});
+dataTypes.set(DataName.Informatio, {
+    name:"Informatio",
+    units:"",
+    formatter: value => regularNumber.format(value),
+    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000])
+});
+dataTypes.set(DataName.Wholesalet, {
+    name:"Wholesalet",
+    units:"",
+    formatter: value => regularNumber.format(value),
+    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000])
+});
+dataTypes.set(DataName.discuss, {
+    name:"discuss",
+    units:"",
+    formatter: value => regularNumber.format(value),
+    color: scaleSequential<string>(scales.interpolateGreens).domain([20, 60])
+});
+dataTypes.set(DataName.PerCapitap, {
+    name:"PerCapitap",
+    units:"",
+    formatter: value => regularNumber.format(value),
+    color: scaleDiverging<string>(scales.interpolateBrBG).domain([10000, 40000, 100000])
 });
 
 export default dataTypes;
