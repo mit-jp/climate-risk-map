@@ -1,7 +1,7 @@
 {
   "name": "climate-risk-map",
   "version": "0.1.0",
-  "homepage": "https://cypressf.com/climate-risk-map",
+  "homepage": "https://svante4.mit.edu/",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
