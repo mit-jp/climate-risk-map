@@ -33,9 +33,9 @@ const handleMouseOverCreator = (selection: DataName) => {
         let name = "---"
     
         let this_county = d.properties[DataName[selection]]
-        if (this_county) {
+        if (this_county === 0 || this_county) {
             value = this_county;
-            name = d.properties.NAME
+            name = d.properties.County_Sta.replace("_", ", ")
         }
         const dataType = dataTypes.get(selection)!;
 
