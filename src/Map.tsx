@@ -1,9 +1,10 @@
 import React, { useRef, useEffect } from 'react';
-import { select, geoPath, event} from 'd3';
+import { select, geoPath, event } from 'd3';
 import { feature } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import dataTypes, { DataName } from './DataTypes';
+import { legendColor } from 'd3-svg-legend';
 
 const tooltip = select("body")
     .append("div")
@@ -69,8 +70,22 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
             data,
             data.objects.counties as GeometryCollection<GeoJsonProperties>
         )
-        svg
-            .select("#map")
+
+        // legend
+        const legendSequential = legendColor()
+            .shapeWidth(20)
+            .shapeHeight(30)
+            .shapePadding(0)
+            .orient("vertical")
+            .scale(dataTypes.get(selection)!.color)
+
+        svg.select<SVGGElement>("#legend")
+            .attr("transform", "translate(925, 320)")
+            // @ts-ignore
+            .call(legendSequential)
+
+        // colorized counties
+        svg.select("#map")
             .selectAll("path")
             .data(countyGeoJson.features)
             .join("path")
@@ -83,14 +98,19 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
                 }
             })
             .attr("d", geoPath());
+
+        // tooltips
         svg
             .selectAll(".county")
             .on("touchmove mousemove", handleMouseOverCreator(selection))
             .on("touchend mouseleave", handleMouseOut);
+        
+        console.log("TESTING THIS FOR LOOPS")
     }, [data, selection])
 
     return (
-        <svg ref={svgRef} viewBox="0, 0, 975, 610">
+        <svg ref={svgRef} viewBox="0, 0, 1275, 610">
+            <g id="legend"></g>
             <g id="map"></g>
         </svg>
     );
