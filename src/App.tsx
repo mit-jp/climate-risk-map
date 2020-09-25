@@ -9,9 +9,6 @@ const App = () => {
   return (
       <Router basename={process.env.PUBLIC_URL}>
         <Switch>
-            <Route path="/:id">
-                <Home />
-            </Route>
             <Route path="/">
                 <Home />
             </Route>

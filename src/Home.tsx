@@ -6,16 +6,21 @@ import { GeoJsonProperties } from 'geojson';
 import './App.css';
 import { DataName } from './DataTypes';
 import { json } from 'd3-fetch';
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 
 type AppState = {
   data: Topology<Objects<GeoJsonProperties>> | undefined,
   selection: DataName
 };
 
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 const Home = () => {
   const history = useHistory();
-  const { id } = useParams<{id: string}>();
+  const id = useQuery().get("id");
+
 
   let idEnum: DataName | undefined = DataName[id as keyof typeof DataName]
 
@@ -29,14 +34,14 @@ const Home = () => {
   useEffect(() => {
     console.log("id changed")
     let idEnum: DataName | undefined = DataName[id as keyof typeof DataName]
-    if (idEnum) {
+    if (idEnum !== undefined) {
       console.log("setting selection")
       setSelection(idEnum);
     }
   }, [id])
 
   const onSelectionChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    history.push(event.target.value);
+    history.push("?id=" + event.target.value);
   }
 
   return (
