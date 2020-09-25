@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { select, geoPath, event } from 'd3';
-import { feature } from 'topojson-client';
+import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import dataTypes, { DataName } from './DataTypes';
@@ -91,7 +91,7 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
             .call(legendSequential)
 
         // colorized counties
-        svg.select("#map")
+        svg.select("#counties")
             .selectAll("path")
             .data(countyGeoJson.features)
             .join("path")
@@ -103,6 +103,15 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
                     return dataType.color(NaN);
                 }
             })
+            .attr("d", geoPath());
+
+        // state borders
+        svg.select("#states")
+            .select("path")
+            .datum(mesh(data, data.objects.states as GeometryCollection))
+            .attr("fill", "none")
+            .attr("stroke", "white")
+            .attr("stroke-linejoin", "round")
             .attr("d", geoPath());
 
         // tooltips
@@ -117,7 +126,8 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
     return (
         <svg ref={svgRef} viewBox="0, 0, 1175, 610">
             <g id="legend"></g>
-            <g id="map"></g>
+            <g id="counties"></g>
+            <g id="states"><path /></g>
         </svg>
     );
 }
