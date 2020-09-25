@@ -1,29 +1,22 @@
-import React, { useEffect, useState, ChangeEvent } from 'react';
-import Map from './Map';
-import DataSelector from './DataSelector';
-import { Objects, Topology } from 'topojson-specification';
-import { GeoJsonProperties } from 'geojson';
-import './App.css';
-import { DataName } from './DataTypes';
-import { json } from 'd3-fetch';
+import React from 'react';
+import Home from './Home';
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route  } from "react-router-dom";
 
 const App = () => {
-  const [data, setData] = useState<Topology<Objects<GeoJsonProperties>> | undefined>(undefined);
-  const [selection, setSelection] = useState<DataName>(DataName.cmi10_80_1);
-  useEffect(() => {
-    json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa-topo.json").then(setData);
-  }, []);
-
-  const onSelectionChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setSelection(DataName[event.target.value as keyof typeof DataName]);
-  }
-
   return (
-    <React.Fragment>
-      <h1>Climate Risk Map</h1>
-      <DataSelector onSelectionChange={onSelectionChange} selection={selection} />
-      <Map data={data} selection={selection}/>
-    </React.Fragment>
+      <Router basename={process.env.PUBLIC_URL}>
+        <Switch>
+            <Route path="/:id">
+                <Home />
+            </Route>
+            <Route path="/">
+                <Home />
+            </Route>
+        </Switch> 
+      </Router>
   );
 }
 
