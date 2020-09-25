@@ -7,19 +7,15 @@ import './App.css';
 import { DataName } from './DataTypes';
 import { json } from 'd3-fetch';
 
-type AppState = {
-  data: Topology<Objects<GeoJsonProperties>> | undefined,
-  selection: DataName
-};
-
 const App = () => {
-  const [{data, selection}, setState] = useState<AppState>({data: undefined, selection: DataName.GDP2018});
+  const [data, setData] = useState<Topology<Objects<GeoJsonProperties>> | undefined>(undefined);
+  const [selection, setSelection] = useState<DataName>(DataName.GDP2018);
   useEffect(() => {
-    json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa-topo.json").then(d => setState({data: d, selection: selection}));
+    json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa-topo.json").then(setData);
   }, []);
 
   const onSelectionChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setState({data: data, selection: DataName[event.target.value as keyof typeof DataName]});
+    setSelection(DataName[event.target.value as keyof typeof DataName]);
   }
 
   return (
