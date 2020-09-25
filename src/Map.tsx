@@ -46,6 +46,7 @@ const handleMouseOverCreator = (selection: DataName) => {
 };
 
 const getUnitString = (units: string) => units ? ` ${units}` : "";
+const getUnitStringWithParens = (units: string) => units ? ` (${units})` : "";
 
 const handleMouseOut = function(this:any, d:any) {
     select(this)
@@ -61,6 +62,7 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
     const svgRef = useRef<SVGSVGElement>(null);
 
     useEffect(() => {
+        const dataType = dataTypes.get(selection)!;
         const svg = select(svgRef.current);
 
         if (data === undefined) {
@@ -73,11 +75,15 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
 
         // legend
         const legendSequential = legendColor()
+            .cells(5)
             .shapeWidth(20)
             .shapeHeight(30)
             .shapePadding(0)
+            .titleWidth(200)
+            .title(dataType.name + getUnitStringWithParens(dataType.units))
+            .labelFormat(dataType.formatter)
             .orient("vertical")
-            .scale(dataTypes.get(selection)!.color)
+            .scale(dataType.color)
 
         svg.select<SVGGElement>("#legend")
             .attr("transform", "translate(925, 320)")
@@ -92,9 +98,9 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
             .attr("class", "county")
             .attr("fill", d => {
                 if (d.properties) {
-                    return dataTypes.get(selection)!.color(d.properties[DataName[selection]]);
+                    return dataType.color(d.properties[DataName[selection]]);
                 } else {
-                    return dataTypes.get(selection)!.color(NaN);
+                    return dataType.color(NaN);
                 }
             })
             .attr("d", geoPath());
@@ -109,7 +115,7 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
     }, [data, selection])
 
     return (
-        <svg ref={svgRef} viewBox="0, 0, 1275, 610">
+        <svg ref={svgRef} viewBox="0, 0, 1175, 610">
             <g id="legend"></g>
             <g id="map"></g>
         </svg>
