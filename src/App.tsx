@@ -9,7 +9,7 @@ import { json } from 'd3-fetch';
 
 const App = () => {
   const [data, setData] = useState<Topology<Objects<GeoJsonProperties>> | undefined>(undefined);
-  const [selection, setSelection] = useState<DataName>(DataName.GDP2018);
+  const [selection, setSelection] = useState<DataName>(DataName.cmi10_80_1);
   useEffect(() => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa-topo.json").then(setData);
   }, []);
