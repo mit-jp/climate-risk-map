@@ -71,12 +71,29 @@ const Home = () => {
     if (selectionInfo.normalizedSelection !== undefined) {
       setNormalizedSelection(selectionInfo.normalizedSelection);
     }
-
-    console.log("testing loops: seetting selection");
   }
 
+  useEffect(() => {
+    if (initialSelection !== undefined) {
+      setSelection(initialSelection);
+    }
+  }, [initialSelection])
+
+  useEffect(() => {
+    if (initialNormalizedSelection !== undefined) {
+      setNormalizedSelection(initialNormalizedSelection);
+    }
+  }, [initialNormalizedSelection]);
+
+  useEffect(() => {
+    setNormalized(initialNormalized);
+  }, [initialNormalized])
+
   const onNormalizeChanged = (event: ChangeEvent<HTMLInputElement>) => {
-    setNormalized(event.target.value === "normalized")
+    const normalized = event.target.value === "normalized";
+    setNormalized(normalized);
+    const newSelection = normalized ? normalizedSelection : selection;
+    history.push("?id=" + DataName[newSelection]);
   }
 
   return (

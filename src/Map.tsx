@@ -119,8 +119,6 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
             .selectAll(".county")
             .on("touchmove mousemove", handleMouseOverCreator(selection))
             .on("touchend mouseleave", handleMouseOut);
-        
-        console.log("TESTING THIS FOR LOOPS")
     }, [data, selection])
 
     return (
