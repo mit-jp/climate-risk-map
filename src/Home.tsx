@@ -1,6 +1,7 @@
 import React, { useEffect, useState, ChangeEvent } from 'react';
 import Map from './Map';
 import DataSelector from './DataSelector';
+import NormalizeSelector from './NormalizeSelector';
 import { Objects, Topology } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import './App.css';
@@ -47,15 +48,7 @@ const Home = () => {
   return (
     <React.Fragment>
       <h1>Climate Risk Map</h1>
-      <div>
-        <input type="radio" id="raw" name="data-type" value="raw" checked={!showNormalized} onChange={onNormalizeChanged} />
-        <label htmlFor="raw">Raw Data</label>
-      </div>
-
-      <div>
-        <input type="radio" id="normalized" name="data-type" value="normalized"  checked={showNormalized} onChange={onNormalizeChanged} />
-        <label htmlFor="normalized">Normalized Data</label>
-      </div>
+      <NormalizeSelector onSelectionChange={onNormalizeChanged} showNormalized={showNormalized} />
       <DataSelector onSelectionChange={onSelectionChange} selection={selection} />
       <Map data={data} selection={selection}/>
     </React.Fragment>
