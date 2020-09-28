@@ -8,12 +8,6 @@ import { DataName } from './DataDefinitions';
 import { json } from 'd3-fetch';
 import { useHistory, useLocation } from "react-router-dom";
 
-type AppState = {
-  data: Topology<Objects<GeoJsonProperties>> | undefined,
-  selection: DataName,
-  showNormalized: boolean
-};
-
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
