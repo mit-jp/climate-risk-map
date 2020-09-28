@@ -10,7 +10,8 @@ import { useHistory, useLocation } from "react-router-dom";
 
 type AppState = {
   data: Topology<Objects<GeoJsonProperties>> | undefined,
-  selection: DataName
+  selection: DataName,
+  showNormalized: boolean
 };
 
 function useQuery() {
@@ -26,6 +27,7 @@ const Home = () => {
 
   const [data, setData] = useState<Topology<Objects<GeoJsonProperties>> | undefined>(undefined);
   const [selection, setSelection] = useState<DataName>(idEnum ? idEnum : DataName.cmi10_80_1);
+  const [showNormalized, setNormalized] = useState<boolean>(false);
 
   useEffect(() => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa-topo.json").then(setData);
@@ -44,9 +46,22 @@ const Home = () => {
     history.push("?id=" + event.target.value);
   }
 
+  const onNormalizeChanged = (event: ChangeEvent<HTMLInputElement>) => {
+    setNormalized(event.target.value === "normalized")
+  }
+
   return (
     <React.Fragment>
       <h1>Climate Risk Map</h1>
+      <div>
+        <input type="radio" id="raw" name="data-type" value="raw" checked={!showNormalized} onChange={onNormalizeChanged} />
+        <label htmlFor="raw">Raw Data</label>
+      </div>
+
+      <div>
+        <input type="radio" id="normalized" name="data-type" value="normalized"  checked={showNormalized} onChange={onNormalizeChanged} />
+        <label htmlFor="normalized">Normalized Data</label>
+      </div>
       <DataSelector onSelectionChange={onSelectionChange} selection={selection} />
       <Map data={data} selection={selection}/>
     </React.Fragment>
