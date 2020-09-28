@@ -46,14 +46,14 @@ const Home = () => {
   const dataSelectionFromUrl = getDataSelectionFromString(urlString);
   const infoFromUrl = getInfoFromSelection(dataSelectionFromUrl);
 
-  let initialSelection = infoFromUrl.selection !== undefined ? infoFromUrl.selection : DataName.def_80_19;
-  let initialNormalizedSelection = infoFromUrl.normalizedSelection !== undefined ? infoFromUrl.normalizedSelection : DataName.cmi10_80_1;
-  let initialNormalized = infoFromUrl.normalized;
+  let urlSelection = infoFromUrl.selection !== undefined ? infoFromUrl.selection : DataName.def_80_19;
+  let urlNormalizedSelection = infoFromUrl.normalizedSelection !== undefined ? infoFromUrl.normalizedSelection : DataName.cmi10_80_1;
+  let urlNormalized = infoFromUrl.normalized;
 
   const [data, setData] = useState<Topology<Objects<GeoJsonProperties>> | undefined>(undefined);
-  const [selection, setSelection] = useState<DataName>(initialSelection);
-  const [normalizedSelection, setNormalizedSelection] = useState<DataName>(initialNormalizedSelection);
-  const [showNormalized, setNormalized] = useState<boolean>(initialNormalized);
+  const [selection, setSelection] = useState<DataName>(urlSelection);
+  const [normalizedSelection, setNormalizedSelection] = useState<DataName>(urlNormalizedSelection);
+  const [showNormalized, setNormalized] = useState<boolean>(urlNormalized);
 
   useEffect(() => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa-topo.json").then(setData);
@@ -74,20 +74,20 @@ const Home = () => {
   }
 
   useEffect(() => {
-    if (initialSelection !== undefined) {
-      setSelection(initialSelection);
+    if (urlSelection !== undefined) {
+      setSelection(urlSelection);
     }
-  }, [initialSelection])
+  }, [urlSelection])
 
   useEffect(() => {
-    if (initialNormalizedSelection !== undefined) {
-      setNormalizedSelection(initialNormalizedSelection);
+    if (urlNormalizedSelection !== undefined) {
+      setNormalizedSelection(urlNormalizedSelection);
     }
-  }, [initialNormalizedSelection]);
+  }, [urlNormalizedSelection]);
 
   useEffect(() => {
-    setNormalized(initialNormalized);
-  }, [initialNormalized])
+    setNormalized(urlNormalized);
+  }, [urlNormalized])
 
   const onNormalizeChanged = (event: ChangeEvent<HTMLInputElement>) => {
     const normalized = event.target.value === "normalized";
