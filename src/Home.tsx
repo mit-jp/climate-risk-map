@@ -49,7 +49,7 @@ const Home = () => {
     <React.Fragment>
       <h1>Climate Risk Map</h1>
       <NormalizeSelector onSelectionChange={onNormalizeChanged} showNormalized={showNormalized} />
-      <DataSelector onSelectionChange={onSelectionChange} selection={selection} />
+      <DataSelector onSelectionChange={onSelectionChange} selection={selection} showNormalized={showNormalized} />
       <Map data={data} selection={selection}/>
     </React.Fragment>
   );
