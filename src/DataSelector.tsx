@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import dataTypes, { DataName } from './DataTypes';
+import dataDefinitions, { DataName } from './DataDefinitions';
 
 type DataSelectorProps = {
     selection: DataName,
@@ -9,7 +9,7 @@ type DataSelectorProps = {
 const getUnitString = (units: string) => units ? `(${units})` : "";
 
 const getOptions = () => {
-    return Array.from(dataTypes.entries()).map(
+    return Array.from(dataDefinitions.entries()).map(
         ([dataName, data]) => <option key={DataName[dataName]} value={DataName[dataName]}>{data.name} {getUnitString(data.units)}</option>
     )
 }

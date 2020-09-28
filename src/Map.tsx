@@ -3,7 +3,7 @@ import { select, geoPath, event } from 'd3';
 import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
-import dataTypes, { DataName } from './DataTypes';
+import dataDefinitions, { DataName } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
 
 const tooltip = select("body")
@@ -37,7 +37,7 @@ const handleMouseOverCreator = (selection: DataName) => {
             value = this_county;
             name = d.properties.County_Sta.replace("_", ", ")
         }
-        const dataType = dataTypes.get(selection)!;
+        const dataType = dataDefinitions.get(selection)!;
 
         tooltip.html(`${name}: ${dataType.formatter(value) + getUnitString(dataType.units)}`)	
             .style("left", `${event.pageX + 20}px`)		
@@ -62,7 +62,7 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
     const svgRef = useRef<SVGSVGElement>(null);
 
     useEffect(() => {
-        const dataType = dataTypes.get(selection)!;
+        const dataType = dataDefinitions.get(selection)!;
         const svg = select(svgRef.current);
 
         if (data === undefined) {

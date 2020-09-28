@@ -4,7 +4,7 @@ import DataSelector from './DataSelector';
 import { Objects, Topology } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import './App.css';
-import { DataName } from './DataTypes';
+import { DataName } from './DataDefinitions';
 import { json } from 'd3-fetch';
 import { useHistory, useLocation } from "react-router-dom";
 
