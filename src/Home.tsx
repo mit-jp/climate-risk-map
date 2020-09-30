@@ -5,6 +5,7 @@ import NormalizeSelector from './NormalizeSelector';
 import { Objects, Topology } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import './App.css';
+import DataDescription from './DataDescription';
 import DataDefinitions, { DataName } from './DataDefinitions';
 import { json } from 'd3-fetch';
 import { useHistory, useLocation } from "react-router-dom";
@@ -101,6 +102,7 @@ const Home = () => {
       <h1>Climate Risk Map</h1>
       <NormalizeSelector onSelectionChange={onNormalizeChanged} showNormalized={showNormalized} />
       <DataSelector onSelectionChange={onSelectionChange} selection={showNormalized ? normalizedSelection : selection} showNormalized={showNormalized} />
+      <DataDescription selection={showNormalized ? normalizedSelection : selection} />
       <Map data={data} selection={showNormalized ? normalizedSelection : selection} />
     </React.Fragment>
   );
