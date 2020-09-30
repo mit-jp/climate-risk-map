@@ -46,7 +46,7 @@ const Home = () => {
   const dataSelectionFromUrl = getDataSelectionFromString(urlString);
   const infoFromUrl = getInfoFromSelection(dataSelectionFromUrl);
 
-  let urlSelection = infoFromUrl.selection !== undefined ? infoFromUrl.selection : DataName.def_80_19;
+  let urlSelection = infoFromUrl.selection !== undefined ? infoFromUrl.selection : DataName.def_80_19_;
   let urlNormalizedSelection = infoFromUrl.normalizedSelection !== undefined ? infoFromUrl.normalizedSelection : DataName.cmi10_80_1;
   let urlNormalized = infoFromUrl.normalized;
 

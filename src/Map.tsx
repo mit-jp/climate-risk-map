@@ -3,8 +3,10 @@ import { select, geoPath, event } from 'd3';
 import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
-import dataDefinitions, { DataName } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataName } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
+
+const missingDataColor = "#ccc";
 
 const tooltip = select("body")
     .append("div")
@@ -29,21 +31,23 @@ const handleMouseOverCreator = (selection: DataName) => {
             .duration(200)
             .style("opacity", .9)
         
-        let value = 0
-        let name = "---"
-    
-        let this_county = d.properties[DataName[selection]]
-        if (this_county === 0 || this_county) {
-            value = this_county;
-            name = d.properties.County_Sta.replace("_", ", ")
-        }
+        let name = d.properties.County_Sta.replace("_", ", ") ?? "---";
+        let value = d.properties[DataName[selection]];
+        
         const dataType = dataDefinitions.get(selection)!;
 
-        tooltip.html(`${name}: ${dataType.formatter(value) + getUnitString(dataType.units)}`)	
+        tooltip.html(`${name}: ${format(value, dataType)}`)	
             .style("left", `${event.pageX + 20}px`)		
             .style("top", (event.pageY - 45) + "px");
     }
 };
+
+const format = (value: number | undefined, dataType: DataDefinition) => {
+    if (value === undefined) {
+        return "No data";
+    }
+    return dataType.formatter(value) + getUnitString(dataType.units);
+}
 
 const getUnitString = (units: string) => units ? ` ${units}` : "";
 const getUnitStringWithParens = (units: string) => units ? ` (${units})` : "";
@@ -98,9 +102,9 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
             .attr("class", "county")
             .attr("fill", d => {
                 if (d.properties) {
-                    return dataType.color(d.properties[DataName[selection]]);
+                    return dataType.color(d.properties[DataName[selection]]) ?? missingDataColor;
                 } else {
-                    return dataType.color(NaN);
+                    return missingDataColor;
                 }
             })
             .attr("d", geoPath());
