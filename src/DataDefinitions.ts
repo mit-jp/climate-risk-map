@@ -150,7 +150,7 @@ export enum Year {
 
 const regularNumber = format(",.0f");
 const years = [Year._1980_1999, Year._2000_2019, Year._1980_2019];
-const datasets = [Dataset.MERRA2, Dataset.ERA5, Dataset.NARR];
+const datasets = [Dataset.ERA5, Dataset.MERRA2, Dataset.NARR];
 const getClimateDataId = (params: DataIdParams) => {
     let dataIdString: string = params.dataGroup as string;
     dataIdString = params.dataset + dataIdString + "_" + params.year;
