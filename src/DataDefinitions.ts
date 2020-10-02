@@ -2,7 +2,29 @@ import * as scales from 'd3-scale-chromatic';
 import { scaleThreshold, scaleDiverging, scaleSequential, format } from 'd3';
 import { ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3-scale';
 
-export enum DataName {
+export enum DataGroup {
+    ClimateMoistureIndex = "cmi",
+    IrregationDeficit = "def",
+    DroughtIndicator = "dry",
+    Groundwater = "gw",
+    MaxTemperature = "ht",
+    Evapotranspiration = "pet",
+    Precipitation = "prc",
+    Runoff = "ro",
+    FloodIndicator = "wet",
+    AllIndustries = "Allindustr",
+    Farming = "Farming",
+    Mining = "Mining",
+    Construction = "Constructi",
+    Retail = "Retailtrad",
+    Information = "Informatio",
+    Wholesale = "Wholesalet",
+    discuss = "discuss",
+    PerCapitap = "PerCapitap",
+    GDP2018 = "GDP2018",
+}
+
+export enum DataId {
     Ecmi_00_19,
     Ecmi_80_19,
     Ecmi_80_99,
@@ -96,529 +118,256 @@ export enum DataName {
     GDP2018,
 }
 
+export type DataIdParams = {
+    year?: Year,
+    dataset?: Dataset,
+    dataGroup: DataGroup
+};
+
 export type DataDefinition = {
     name: string,
+    id: (params: DataIdParams) => DataId
     units: string,
     formatter: (n: number | { valueOf(): number }) => string,
     color: ScaleSequential<string> | ScaleThreshold<number, string> | ScaleDiverging<string>,
     normalized: boolean,
-    description: string
+    description: string,
+    years: Year[],
+    datasets: Dataset[]
+}
+
+export enum Dataset {
+    MERRA2 = "M",
+    ERA5 = "E",
+    NARR = "N"
+}
+
+export enum Year {
+    _1980_1999 = "80_99",
+    _2000_2019 = "00_19",
+    _1980_2019 = "80_19"
 }
 
 const regularNumber = format(",.0f");
+const years = [Year._1980_1999, Year._2000_2019, Year._1980_2019];
+const datasets = [Dataset.MERRA2, Dataset.ERA5];
+const getClimateDataId = (params: DataIdParams) => {
+    let dataIdString: string = params.dataGroup as string;
+    dataIdString = params.dataset + dataIdString + "_" + params.year;
+    return DataId[dataIdString as keyof typeof DataId];
+};
+const getEconDataId = (params: DataIdParams) => 
+    DataId[params.dataGroup as keyof typeof DataId];
 
-const dataDefinitions = new Map<DataName, DataDefinition>();
-dataDefinitions.set(DataName.Mcmi_00_19, {
-    name:"Climate Moisture Index 2000-2019 MERRA2",
+const dataDefinitions = new Map<DataGroup, DataDefinition>();
+dataDefinitions.set(DataGroup.ClimateMoistureIndex, {
+    name:"Climate Moisture Index",
+    id: getClimateDataId,
     units:"",
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10]),
     normalized: true,
-    description: ""
+    description: "",
+    years: years,
+    datasets: datasets
 });
-dataDefinitions.set(DataName.Ecmi_00_19, {
-    name:"Climate Moisture Index 2000-2019 ERA5",
-    units:"",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10]),
-    normalized: true,
-    description: ""
-});
-dataDefinitions.set(DataName.Mcmi_80_99, {
-    name:"Climate Moisture Index 1980-1999 MERRA2",
-    units:"",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10]),
-    normalized: true,
-    description: ""
-});
-dataDefinitions.set(DataName.Ecmi_80_99, {
-    name:"Climate Moisture Index 1980-1999 ERA5",
-    units:"",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10]),
-    normalized: true,
-    description: ""
-});
-dataDefinitions.set(DataName.Mcmi_80_19, {
-    name:"Climate Moisture Index 1980-2019 MERRA2",
-    units:"",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10]),
-    normalized: true,
-    description: ""
-});
-dataDefinitions.set(DataName.Ecmi_80_19, {
-    name:"Climate Moisture Index 1980-2019 ERA5",
-    units:"",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10]),
-    normalized: true,
-    description: ""
-});
-dataDefinitions.set(DataName.Mdef_00_19, {
-    name:"Irrigation Deficit 2000-2019 MERRA2",
+dataDefinitions.set(DataGroup.IrregationDeficit, {
+    name:"Irrigation Deficit",
+    id: getClimateDataId,
     units:"mm/year",
     formatter: regularNumber,
     color: scaleDiverging<string>(x => scales.interpolateBrBG(1-x)).domain([-600, 0, 1600]),
     normalized: false,
-    description: ""
+    description: "",
+    years: years,
+    datasets: datasets
 });
-dataDefinitions.set(DataName.Edef_00_19, {
-    name:"Irrigation Deficit 2000-2019 ERA5",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(x => scales.interpolateBrBG(1-x)).domain([-600, 0, 1600]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mdef_80_19, {
-    name:"Irrigation Deficit 1980-2019 MERRA2",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(x => scales.interpolateBrBG(1-x)).domain([-600, 0, 1600]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Edef_80_19, {
-    name:"Irrigation Deficit 1980-2019 ERA5",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(x => scales.interpolateBrBG(1-x)).domain([-600, 0, 1600]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mdef_80_99, {
-    name:"Irrigation Deficit 1980-1999 MERRA2",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(x => scales.interpolateBrBG(1-x)).domain([-600, 0, 1600]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Edef_80_99, {
-    name:"Irrigation Deficit 1980-1999 ERA5",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(x => scales.interpolateBrBG(1-x)).domain([-600, 0, 1600]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mdry_00_19, {
-    name:"Drought Indicator 2000-2019 MERRA2",
+dataDefinitions.set(DataGroup.DroughtIndicator, {
+    name:"Drought Indicator",
+    id: getClimateDataId,
     units:"mm/year",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 1500]),
     normalized: false,
-    description: ""
+    description: "",
+    years: years,
+    datasets: datasets
 });
-dataDefinitions.set(DataName.Edry_00_19, {
-    name:"Drought Indicator 2000-2019 ERA5",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 1500]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mdry_80_19, {
-    name:"Drought Indicator 1980-2019 MERRA2",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 1500]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Edry_80_19, {
-    name:"Drought Indicator 1980-2019 ERA5",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 1500]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mdry_80_99, {
-    name:"Drought Indicator 1980-1999 MERRA2",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 1500]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Edry_80_99, {
-    name:"Drought Indicator 1980-1999 ERA5",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 1500]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mgw_00_19, {
-    name:"Groundwater 2000-2019 MERRA2",
+dataDefinitions.set(DataGroup.Groundwater, {
+    name:"Groundwater",
+    id: getClimateDataId,
     units:"mm/month",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 40]),
     normalized: false,
-    description: ""
+    description: "",
+    years: years,
+    datasets: datasets
 });
-dataDefinitions.set(DataName.Egw_00_19, {
-    name:"Groundwater 2000-2019 ERA5",
-    units:"mm/month",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 40]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mgw_80_19, {
-    name:"Groundwater 1980-2019 MERRA2",
-    units:"mm/month",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 40]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Egw_80_19, {
-    name:"Groundwater 1980-2019 ERA5",
-    units:"mm/month",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 40]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mgw_80_99, {
-    name:"Groundwater 1980-1999 MERRA2",
-    units:"mm/month",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 40]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Egw_80_99, {
-    name:"Groundwater 1980-1999 ERA5",
-    units:"mm/month",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 40]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mht_00_19, {
-    name:"Maximum Month Temperature 2000-2019 MERRA2",
+dataDefinitions.set(DataGroup.MaxTemperature, {
+    name:"Maximum Month Temperature",
+    id: getClimateDataId,
     units:"°C",
     formatter: regularNumber,
     color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40]),
     normalized: false,
-    description: ""
+    description: "",
+    years: years,
+    datasets: datasets
 });
-dataDefinitions.set(DataName.Eht_00_19, {
-    name:"Maximum Month Temperature 2000-2019 ERA5",
-    units:"°C",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mht_80_19, {
-    name:"Maximum Month Temperature 1980-2019 MERRA2",
-    units:"°C",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Eht_80_19, {
-    name:"Maximum Month Temperature 1980-2019 ERA5",
-    units:"°C",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mht_80_99, {
-    name:"Maximum Month Temperature 1980-1999 MERRA2",
-    units:"°C",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Eht_80_99, {
-    name:"Maximum Month Temperature 1980-1999 ERA5",
-    units:"°C",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mpet_00_19, {
-    name:"Mean Annual Potential Evapotranspiration 2000-2019 MERRA2",
+dataDefinitions.set(DataGroup.Evapotranspiration, {
+    name:"Mean Annual Potential Evapotranspiration",
+    id: getClimateDataId,
     units:"mm/year",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([300, 1700]),
     normalized: false,
-    description: ""
+    description: "",
+    years: years,
+    datasets: datasets
 });
-dataDefinitions.set(DataName.Epet_00_19, {
-    name:"Mean Annual Potential Evapotranspiration 2000-2019 ERA5",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([300, 1700]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mpet_80_19, {
-    name:"Mean Annual Potential Evapotranspiration 1980-2019 MERRA2",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([300, 1700]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Epet_80_19, {
-    name:"Mean Annual Potential Evapotranspiration 1980-2019 ERA5",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([300, 1700]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mpet_80_99, {
-    name:"Mean Annual Potential Evapotranspiration 1980-1999 MERRA2",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([300, 1700]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Epet_80_99, {
-    name:"Mean Annual Potential Evapotranspiration 1980-1999 ERA5",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([300, 1700]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mprc_00_19, {
-    name: "Mean Annual Precipitation 2000-2019 MERRA2",
+dataDefinitions.set(DataGroup.Precipitation, {
+    name: "Mean Annual Precipitation",
+    id: getClimateDataId,
     units:"mm/year",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2200]),
     normalized: false,
-    description: ""
+    description: "",
+    years: years,
+    datasets: datasets
 });
-dataDefinitions.set(DataName.Eprc_00_19, {
-    name: "Mean Annual Precipitation 2000-2019 ERA5",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2200]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mprc_80_19, {
-    name:"Mean Annual Precipitation 1980-2019 MERRA2",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2200]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Eprc_80_19, {
-    name:"Mean Annual Precipitation 1980-2019 ERA5",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2200]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mprc_80_99, {
-    name:"Mean Annual Precipitation 1980-1999 MERRA2",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2200]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Eprc_80_99, {
-    name:"Mean Annual Precipitation 1980-1999 ERA5",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2200]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mro_00_19, {
-    name:"Mean Annual Runoff 2000-2019 MERRA2",
+dataDefinitions.set(DataGroup.Runoff, {
+    name:"Mean Annual Runoff",
+    id: getClimateDataId,
     units:"mm/year",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2000]),
     normalized: false,
-    description: ""
+    description: "",
+    years: years,
+    datasets: datasets
 });
-dataDefinitions.set(DataName.Ero_00_19, {
-    name:"Mean Annual Runoff 2000-2019 ERA5",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2000]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mro_80_19, {
-    name:"Mean Annual Runoff 1980-2019 MERRA2",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2000]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Ero_80_19, {
-    name:"Mean Annual Runoff 1980-2019 ERA5",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2000]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mro_80_99, {
-    name:"Mean Annual Runoff 1980-1999 MERRA2",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2000]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Ero_80_99, {
-    name:"Mean Annual Runoff 1980-1999 ERA5",
-    units:"mm/year",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2000]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mwet_00_19, {
-    name:"Flood Indicator 2000-2019 MERRA2",
+dataDefinitions.set(DataGroup.FloodIndicator, {
+    name:"Flood Indicator",
+    id: getClimateDataId,
     units:"mm/month",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500]),
     normalized: false,
-    description: ""
+    description: "",
+    years: years,
+    datasets: datasets
 });
-dataDefinitions.set(DataName.Ewet_00_19, {
-    name:"Flood Indicator 2000-2019 ERA5",
-    units:"mm/month",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mwet_80_19, {
-    name:"Flood Indicator 1980-2019 MERRA2",
-    units:"mm/month",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Ewet_80_19, {
-    name:"Flood Indicator 1980-2019 ERA5",
-    units:"mm/month",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Mwet_80_99, {
-    name:"Flood Indicator 1890-1999 MERRA2",
-    units:"mm/month",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.Ewet_80_99, {
-    name:"Flood Indicator 1890-1999 ERA5",
-    units:"mm/month",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500]),
-    normalized: false,
-    description: ""
-});
-dataDefinitions.set(DataName.GDP2018, {
+dataDefinitions.set(DataGroup.GDP2018, {
     name: "GDP 2018",
+    id: getEconDataId,
     units: "USD",
     formatter: format("$,.0f"),
     color: scaleThreshold<number, string>().domain([0, 1000000, 2000000, 3000000, 10000000, 100000000, 300000000, 700000000]).range(scales.schemeGreens[8]),
     normalized: false,
-    description: ""
+    description: "",
+    years: [],
+    datasets: []
 });
-dataDefinitions.set(DataName.Allindustr, {
+dataDefinitions.set(DataGroup.AllIndustries, {
     name:"Allindustr",
+    id: getEconDataId,
     units:"",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 1000000]),
     normalized: false,
-    description: ""
+    description: "",
+    years: [],
+    datasets: []
 });
-dataDefinitions.set(DataName.Farming, {
+dataDefinitions.set(DataGroup.Farming, {
     name:"Farming",
+    id: getEconDataId,
     units:"",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
-    description: ""
+    description: "",
+    years: [],
+    datasets: []
 });
-dataDefinitions.set(DataName.Mining, {
+dataDefinitions.set(DataGroup.Mining, {
     name:"Mining",
+    id: getEconDataId,
     units:"",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
-    description: ""
+    description: "",
+    years: [],
+    datasets: []
 });
-dataDefinitions.set(DataName.Constructi, {
+dataDefinitions.set(DataGroup.Construction, {
     name:"Constructi",
+    id: getEconDataId,
     units:"",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
-    description: ""
+    description: "",
+    years: [],
+    datasets: []
 });
-dataDefinitions.set(DataName.Retailtrad, {
+dataDefinitions.set(DataGroup.Retail, {
     name:"Retailtrad",
+    id: getEconDataId,
     units:"",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
-    description: ""
+    description: "",
+    years: [],
+    datasets: []
 });
-dataDefinitions.set(DataName.Informatio, {
+dataDefinitions.set(DataGroup.Information, {
     name:"Informatio",
+    id: getEconDataId,
     units:"",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
-    description: ""
+    description: "",
+    years: [],
+    datasets: []
 });
-dataDefinitions.set(DataName.Wholesalet, {
+dataDefinitions.set(DataGroup.Wholesale, {
     name:"Wholesalet",
+    id: getEconDataId,
     units:"",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
-    description: ""
+    description: "",
+    years: [],
+    datasets: []
 });
-dataDefinitions.set(DataName.discuss, {
+dataDefinitions.set(DataGroup.discuss, {
     name:"discuss",
+    id: getEconDataId,
     units:"",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([20, 60]),
     normalized: false,
-    description: ""
+    description: "",
+    years: [],
+    datasets: []
 });
-dataDefinitions.set(DataName.PerCapitap, {
+dataDefinitions.set(DataGroup.PerCapitap, {
     name:"PerCapitap",
+    id: getEconDataId,
     units:"",
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([10000, 40000, 100000]),
     normalized: false,
-    description: ""
+    description: "",
+    years: [],
+    datasets: []
 });
 
 export default dataDefinitions;

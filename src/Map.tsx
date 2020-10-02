@@ -3,7 +3,7 @@ import { select, geoPath, event } from 'd3';
 import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
-import dataDefinitions, { DataDefinition, DataName } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, DataId } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
 
 const missingDataColor = "#ccc";
@@ -20,7 +20,7 @@ const tooltip = select("body")
     .style("background", "white")	
     .style("pointer-events", "none");
 
-const handleMouseOverCreator = (selection: DataName) => {
+const handleMouseOverCreator = (selection: DataId, dataType: DataDefinition) => {
     return function(this: any, d: any) {
         select(this)
             .style("opacity", 0.5)
@@ -32,9 +32,7 @@ const handleMouseOverCreator = (selection: DataName) => {
             .style("opacity", .9)
         
         let name = d.properties.County_Sta.replace("_", ", ") ?? "---";
-        let value = d.properties[DataName[selection]];
-        
-        const dataType = dataDefinitions.get(selection)!;
+        let value = d.properties[DataId[selection]];
 
         tooltip.html(`${name}: ${format(value, dataType)}`)	
             .style("left", `${event.pageX + 20}px`)		
@@ -62,11 +60,11 @@ const handleMouseOut = function(this:any, d:any) {
         .style("opacity", 0)
 }
 
-const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | undefined, selection: DataName}) => {
+const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | undefined, selection: DataIdParams}) => {
     const svgRef = useRef<SVGSVGElement>(null);
 
     useEffect(() => {
-        const dataType = dataDefinitions.get(selection)!;
+        const dataType = dataDefinitions.get(selection.dataGroup)!;
         const svg = select(svgRef.current);
 
         if (data === undefined) {
@@ -102,7 +100,9 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
             .attr("class", "county")
             .attr("fill", d => {
                 if (d.properties) {
-                    return dataType.color(d.properties[DataName[selection]]) ?? missingDataColor;
+                    const dataId = dataType.id(selection);
+                    const value = d.properties[DataId[dataId]];
+                    return dataType.color(value) ?? missingDataColor;
                 } else {
                     return missingDataColor;
                 }
@@ -121,7 +121,7 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
         // tooltips
         svg
             .selectAll(".county")
-            .on("touchmove mousemove", handleMouseOverCreator(selection))
+            .on("touchmove mousemove", handleMouseOverCreator(dataType.id(selection), dataType))
             .on("touchend mouseleave", handleMouseOut);
     }, [data, selection])
 
