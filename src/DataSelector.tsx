@@ -40,9 +40,6 @@ const DataSelector = ({selection, onSelectionChange, showNormalized}: Props) => 
         )
     }
 
-    console.log(!getYears(selection));
-    console.log(!getDatasets(selection));
-
     return (
         <React.Fragment>
             <select value={selection.dataGroup} onChange={onDataGroupChange}>
