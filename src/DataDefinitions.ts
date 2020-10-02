@@ -3,60 +3,87 @@ import { scaleThreshold, scaleDiverging, scaleSequential, format } from 'd3';
 import { ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3-scale';
 
 export enum DataName {
-    E_cmi10_00,
-    E_cmi10_80,
-    E_cmi10_81,
-    E_def_00_1,
-    E_def_80_1,
-    E_def_80_9,
-    E_dry_00_1,
-    E_dry_80_1,
-    E_dry_80_9,
-    E_gw_00_19,
-    E_gw_80_19,
-    E_gw_80_99,
-    E_ht_00_19,
-    E_ht_80_19,
-    E_ht_80_99,
-    E_pet_00_1,
-    E_pet_80_1,
-    E_pet_80_9,
-    E_prc_00_1,
-    E_prc_80_1,
-    E_prc_80_9,
-    E_ro_00_19,
-    E_ro_80_19,
-    E_ro_80_99,
-    E_wet_00_1,
-    E_wet_80_1,
-    E_wet_80_9,
-    M_cmi10_00,
-    M_cmi10_8_,
-    M_cmi10_80,
-    M_def_00_1,
-    M_def_80_1,
-    M_def_80_9,
-    M_dry_00_1,
-    M_dry_80_1,
-    M_dry_80_9,
-    M_gw_00_19,
-    M_gw_80_19,
-    M_gw_80_99,
-    M_ht_00_19,
-    M_ht_80_19,
-    M_ht_80_99,
-    M_pet_00_1,
-    M_pet_80_1,
-    M_pet_80_9,
-    M_prc_00_1,
-    M_prc_80_1,
-    M_prc_80_9,
-    M_ro_00_19,
-    M_ro_80_19,
-    M_ro_80_99,
-    M_wet_00_1,
-    M_wet_80_1,
-    M_wet_80_9,
+    Ecmi_00_19,
+    Ecmi_80_19,
+    Ecmi_80_99,
+    Edef_00_19,
+    Edef_80_19,
+    Edef_80_99,
+    Edry_00_19,
+    Edry_80_19,
+    Edry_80_99,
+    Egw_00_19,
+    Egw_80_19,
+    Egw_80_99,
+    Eht_00_19,
+    Eht_80_19,
+    Eht_80_99,
+    Epet_00_19,
+    Epet_80_19,
+    Epet_80_99,
+    Eprc_00_19,
+    Eprc_80_19,
+    Eprc_80_99,
+    Ero_00_19,
+    Ero_80_19,
+    Ero_80_99,
+    Ewet_00_19,
+    Ewet_80_19,
+    Ewet_80_99,
+    Mcmi_00_19,
+    Mcmi_80_19,
+    Mcmi_80_99,
+    Mdef_00_19,
+    Mdef_80_19,
+    Mdef_80_99,
+    Mdry_00_19,
+    Mdry_80_19,
+    Mdry_80_99,
+    Mgw_00_19,
+    Mgw_80_19,
+    Mgw_80_99,
+    Mht_00_19,
+    Mht_80_19,
+    Mht_80_99,
+    Mpet_00_19,
+    Mpet_80_19,
+    Mpet_80_99,
+    Mprc_00_19,
+    Mprc_80_19,
+    Mprc_80_99,
+    Mro_00_19,
+    Mro_80_19,
+    Mro_80_99,
+    Mwet_00_19,
+    Mwet_80_19,
+    Mwet_80_99,
+    Ncmi_00_19,
+    Ncmi_80_19,
+    Ncmi_80_99,
+    Ndef_00_19,
+    Ndef_80_19,
+    Ndef_80_99,
+    Ndry_00_19,
+    Ndry_80_19,
+    Ndry_80_99,
+    Ngw_00_19,
+    Ngw_80_19,
+    Ngw_80_99,
+    Nht_00_19,
+    Nht_80_19,
+    Nht_80_99,
+    Npet_00_19,
+    Npet_80_19,
+    Npet_80_99,
+    Nprc_00_19,
+    Nprc_80_19,
+    Nprc_80_99,
+    Nro_00_19,
+    Nro_80_19,
+    Nro_80_99,
+    Nwet_00_19,
+    Nwet_80_19,
+    Nwet_80_99,
     Allindustr,
     Farming,
     Mining,
@@ -81,7 +108,7 @@ export type DataDefinition = {
 const regularNumber = format(",.0f");
 
 const dataDefinitions = new Map<DataName, DataDefinition>();
-dataDefinitions.set(DataName.M_cmi10_00, {
+dataDefinitions.set(DataName.Mcmi_00_19, {
     name:"Climate Moisture Index 2000-2019 MERRA2",
     units:"",
     formatter: regularNumber,
@@ -89,7 +116,7 @@ dataDefinitions.set(DataName.M_cmi10_00, {
     normalized: true,
     description: ""
 });
-dataDefinitions.set(DataName.E_cmi10_00, {
+dataDefinitions.set(DataName.Ecmi_00_19, {
     name:"Climate Moisture Index 2000-2019 ERA5",
     units:"",
     formatter: regularNumber,
@@ -97,7 +124,7 @@ dataDefinitions.set(DataName.E_cmi10_00, {
     normalized: true,
     description: ""
 });
-dataDefinitions.set(DataName.M_cmi10_80, {
+dataDefinitions.set(DataName.Mcmi_80_99, {
     name:"Climate Moisture Index 1980-1999 MERRA2",
     units:"",
     formatter: regularNumber,
@@ -105,7 +132,7 @@ dataDefinitions.set(DataName.M_cmi10_80, {
     normalized: true,
     description: ""
 });
-dataDefinitions.set(DataName.E_cmi10_80, {
+dataDefinitions.set(DataName.Ecmi_80_99, {
     name:"Climate Moisture Index 1980-1999 ERA5",
     units:"",
     formatter: regularNumber,
@@ -113,7 +140,7 @@ dataDefinitions.set(DataName.E_cmi10_80, {
     normalized: true,
     description: ""
 });
-dataDefinitions.set(DataName.M_cmi10_8_, {
+dataDefinitions.set(DataName.Mcmi_80_19, {
     name:"Climate Moisture Index 1980-2019 MERRA2",
     units:"",
     formatter: regularNumber,
@@ -121,7 +148,7 @@ dataDefinitions.set(DataName.M_cmi10_8_, {
     normalized: true,
     description: ""
 });
-dataDefinitions.set(DataName.E_cmi10_81, {
+dataDefinitions.set(DataName.Ecmi_80_19, {
     name:"Climate Moisture Index 1980-2019 ERA5",
     units:"",
     formatter: regularNumber,
@@ -129,7 +156,7 @@ dataDefinitions.set(DataName.E_cmi10_81, {
     normalized: true,
     description: ""
 });
-dataDefinitions.set(DataName.M_def_00_1, {
+dataDefinitions.set(DataName.Mdef_00_19, {
     name:"Irrigation Deficit 2000-2019 MERRA2",
     units:"mm/year",
     formatter: regularNumber,
@@ -137,7 +164,7 @@ dataDefinitions.set(DataName.M_def_00_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_def_00_1, {
+dataDefinitions.set(DataName.Edef_00_19, {
     name:"Irrigation Deficit 2000-2019 ERA5",
     units:"mm/year",
     formatter: regularNumber,
@@ -145,7 +172,7 @@ dataDefinitions.set(DataName.E_def_00_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_def_80_1, {
+dataDefinitions.set(DataName.Mdef_80_19, {
     name:"Irrigation Deficit 1980-2019 MERRA2",
     units:"mm/year",
     formatter: regularNumber,
@@ -153,7 +180,7 @@ dataDefinitions.set(DataName.M_def_80_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_def_80_1, {
+dataDefinitions.set(DataName.Edef_80_19, {
     name:"Irrigation Deficit 1980-2019 ERA5",
     units:"mm/year",
     formatter: regularNumber,
@@ -161,7 +188,7 @@ dataDefinitions.set(DataName.E_def_80_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_def_80_9, {
+dataDefinitions.set(DataName.Mdef_80_99, {
     name:"Irrigation Deficit 1980-1999 MERRA2",
     units:"mm/year",
     formatter: regularNumber,
@@ -169,7 +196,7 @@ dataDefinitions.set(DataName.M_def_80_9, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_def_80_9, {
+dataDefinitions.set(DataName.Edef_80_99, {
     name:"Irrigation Deficit 1980-1999 ERA5",
     units:"mm/year",
     formatter: regularNumber,
@@ -177,7 +204,7 @@ dataDefinitions.set(DataName.E_def_80_9, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_dry_00_1, {
+dataDefinitions.set(DataName.Mdry_00_19, {
     name:"Drought Indicator 2000-2019 MERRA2",
     units:"mm/year",
     formatter: regularNumber,
@@ -185,7 +212,7 @@ dataDefinitions.set(DataName.M_dry_00_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_dry_00_1, {
+dataDefinitions.set(DataName.Edry_00_19, {
     name:"Drought Indicator 2000-2019 ERA5",
     units:"mm/year",
     formatter: regularNumber,
@@ -193,7 +220,7 @@ dataDefinitions.set(DataName.E_dry_00_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_dry_80_1, {
+dataDefinitions.set(DataName.Mdry_80_19, {
     name:"Drought Indicator 1980-2019 MERRA2",
     units:"mm/year",
     formatter: regularNumber,
@@ -201,7 +228,7 @@ dataDefinitions.set(DataName.M_dry_80_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_dry_80_1, {
+dataDefinitions.set(DataName.Edry_80_19, {
     name:"Drought Indicator 1980-2019 ERA5",
     units:"mm/year",
     formatter: regularNumber,
@@ -209,7 +236,7 @@ dataDefinitions.set(DataName.E_dry_80_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_dry_80_9, {
+dataDefinitions.set(DataName.Mdry_80_99, {
     name:"Drought Indicator 1980-1999 MERRA2",
     units:"mm/year",
     formatter: regularNumber,
@@ -217,7 +244,7 @@ dataDefinitions.set(DataName.M_dry_80_9, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_dry_80_9, {
+dataDefinitions.set(DataName.Edry_80_99, {
     name:"Drought Indicator 1980-1999 ERA5",
     units:"mm/year",
     formatter: regularNumber,
@@ -225,7 +252,7 @@ dataDefinitions.set(DataName.E_dry_80_9, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_gw_00_19, {
+dataDefinitions.set(DataName.Mgw_00_19, {
     name:"Groundwater 2000-2019 MERRA2",
     units:"mm/month",
     formatter: regularNumber,
@@ -233,7 +260,7 @@ dataDefinitions.set(DataName.M_gw_00_19, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_gw_00_19, {
+dataDefinitions.set(DataName.Egw_00_19, {
     name:"Groundwater 2000-2019 ERA5",
     units:"mm/month",
     formatter: regularNumber,
@@ -241,7 +268,7 @@ dataDefinitions.set(DataName.E_gw_00_19, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_gw_80_19, {
+dataDefinitions.set(DataName.Mgw_80_19, {
     name:"Groundwater 1980-2019 MERRA2",
     units:"mm/month",
     formatter: regularNumber,
@@ -249,7 +276,7 @@ dataDefinitions.set(DataName.M_gw_80_19, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_gw_80_19, {
+dataDefinitions.set(DataName.Egw_80_19, {
     name:"Groundwater 1980-2019 ERA5",
     units:"mm/month",
     formatter: regularNumber,
@@ -257,7 +284,7 @@ dataDefinitions.set(DataName.E_gw_80_19, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_gw_80_99, {
+dataDefinitions.set(DataName.Mgw_80_99, {
     name:"Groundwater 1980-1999 MERRA2",
     units:"mm/month",
     formatter: regularNumber,
@@ -265,7 +292,7 @@ dataDefinitions.set(DataName.M_gw_80_99, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_gw_80_99, {
+dataDefinitions.set(DataName.Egw_80_99, {
     name:"Groundwater 1980-1999 ERA5",
     units:"mm/month",
     formatter: regularNumber,
@@ -273,7 +300,7 @@ dataDefinitions.set(DataName.E_gw_80_99, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_ht_00_19, {
+dataDefinitions.set(DataName.Mht_00_19, {
     name:"Maximum Month Temperature 2000-2019 MERRA2",
     units:"°C",
     formatter: regularNumber,
@@ -281,7 +308,7 @@ dataDefinitions.set(DataName.M_ht_00_19, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_ht_00_19, {
+dataDefinitions.set(DataName.Eht_00_19, {
     name:"Maximum Month Temperature 2000-2019 ERA5",
     units:"°C",
     formatter: regularNumber,
@@ -289,7 +316,7 @@ dataDefinitions.set(DataName.E_ht_00_19, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_ht_80_19, {
+dataDefinitions.set(DataName.Mht_80_19, {
     name:"Maximum Month Temperature 1980-2019 MERRA2",
     units:"°C",
     formatter: regularNumber,
@@ -297,7 +324,7 @@ dataDefinitions.set(DataName.M_ht_80_19, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_ht_80_19, {
+dataDefinitions.set(DataName.Eht_80_19, {
     name:"Maximum Month Temperature 1980-2019 ERA5",
     units:"°C",
     formatter: regularNumber,
@@ -305,7 +332,7 @@ dataDefinitions.set(DataName.E_ht_80_19, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_ht_80_99, {
+dataDefinitions.set(DataName.Mht_80_99, {
     name:"Maximum Month Temperature 1980-1999 MERRA2",
     units:"°C",
     formatter: regularNumber,
@@ -313,7 +340,7 @@ dataDefinitions.set(DataName.M_ht_80_99, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_ht_80_99, {
+dataDefinitions.set(DataName.Eht_80_99, {
     name:"Maximum Month Temperature 1980-1999 ERA5",
     units:"°C",
     formatter: regularNumber,
@@ -321,7 +348,7 @@ dataDefinitions.set(DataName.E_ht_80_99, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_pet_00_1, {
+dataDefinitions.set(DataName.Mpet_00_19, {
     name:"Mean Annual Potential Evapotranspiration 2000-2019 MERRA2",
     units:"mm/year",
     formatter: regularNumber,
@@ -329,7 +356,7 @@ dataDefinitions.set(DataName.M_pet_00_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_pet_00_1, {
+dataDefinitions.set(DataName.Epet_00_19, {
     name:"Mean Annual Potential Evapotranspiration 2000-2019 ERA5",
     units:"mm/year",
     formatter: regularNumber,
@@ -337,7 +364,7 @@ dataDefinitions.set(DataName.E_pet_00_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_pet_80_1, {
+dataDefinitions.set(DataName.Mpet_80_19, {
     name:"Mean Annual Potential Evapotranspiration 1980-2019 MERRA2",
     units:"mm/year",
     formatter: regularNumber,
@@ -345,7 +372,7 @@ dataDefinitions.set(DataName.M_pet_80_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_pet_80_1, {
+dataDefinitions.set(DataName.Epet_80_19, {
     name:"Mean Annual Potential Evapotranspiration 1980-2019 ERA5",
     units:"mm/year",
     formatter: regularNumber,
@@ -353,7 +380,7 @@ dataDefinitions.set(DataName.E_pet_80_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_pet_80_9, {
+dataDefinitions.set(DataName.Mpet_80_99, {
     name:"Mean Annual Potential Evapotranspiration 1980-1999 MERRA2",
     units:"mm/year",
     formatter: regularNumber,
@@ -361,7 +388,7 @@ dataDefinitions.set(DataName.M_pet_80_9, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_pet_80_9, {
+dataDefinitions.set(DataName.Epet_80_99, {
     name:"Mean Annual Potential Evapotranspiration 1980-1999 ERA5",
     units:"mm/year",
     formatter: regularNumber,
@@ -369,7 +396,7 @@ dataDefinitions.set(DataName.E_pet_80_9, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_prc_00_1, {
+dataDefinitions.set(DataName.Mprc_00_19, {
     name: "Mean Annual Precipitation 2000-2019 MERRA2",
     units:"mm/year",
     formatter: regularNumber,
@@ -377,7 +404,7 @@ dataDefinitions.set(DataName.M_prc_00_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_prc_00_1, {
+dataDefinitions.set(DataName.Eprc_00_19, {
     name: "Mean Annual Precipitation 2000-2019 ERA5",
     units:"mm/year",
     formatter: regularNumber,
@@ -385,7 +412,7 @@ dataDefinitions.set(DataName.E_prc_00_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_prc_80_1, {
+dataDefinitions.set(DataName.Mprc_80_19, {
     name:"Mean Annual Precipitation 1980-2019 MERRA2",
     units:"mm/year",
     formatter: regularNumber,
@@ -393,7 +420,7 @@ dataDefinitions.set(DataName.M_prc_80_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_prc_80_1, {
+dataDefinitions.set(DataName.Eprc_80_19, {
     name:"Mean Annual Precipitation 1980-2019 ERA5",
     units:"mm/year",
     formatter: regularNumber,
@@ -401,7 +428,7 @@ dataDefinitions.set(DataName.E_prc_80_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_prc_80_9, {
+dataDefinitions.set(DataName.Mprc_80_99, {
     name:"Mean Annual Precipitation 1980-1999 MERRA2",
     units:"mm/year",
     formatter: regularNumber,
@@ -409,7 +436,7 @@ dataDefinitions.set(DataName.M_prc_80_9, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_prc_80_9, {
+dataDefinitions.set(DataName.Eprc_80_99, {
     name:"Mean Annual Precipitation 1980-1999 ERA5",
     units:"mm/year",
     formatter: regularNumber,
@@ -417,7 +444,7 @@ dataDefinitions.set(DataName.E_prc_80_9, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_ro_00_19, {
+dataDefinitions.set(DataName.Mro_00_19, {
     name:"Mean Annual Runoff 2000-2019 MERRA2",
     units:"mm/year",
     formatter: regularNumber,
@@ -425,7 +452,7 @@ dataDefinitions.set(DataName.M_ro_00_19, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_ro_00_19, {
+dataDefinitions.set(DataName.Ero_00_19, {
     name:"Mean Annual Runoff 2000-2019 ERA5",
     units:"mm/year",
     formatter: regularNumber,
@@ -433,7 +460,7 @@ dataDefinitions.set(DataName.E_ro_00_19, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_ro_80_19, {
+dataDefinitions.set(DataName.Mro_80_19, {
     name:"Mean Annual Runoff 1980-2019 MERRA2",
     units:"mm/year",
     formatter: regularNumber,
@@ -441,7 +468,7 @@ dataDefinitions.set(DataName.M_ro_80_19, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_ro_80_19, {
+dataDefinitions.set(DataName.Ero_80_19, {
     name:"Mean Annual Runoff 1980-2019 ERA5",
     units:"mm/year",
     formatter: regularNumber,
@@ -449,7 +476,7 @@ dataDefinitions.set(DataName.E_ro_80_19, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_ro_80_99, {
+dataDefinitions.set(DataName.Mro_80_99, {
     name:"Mean Annual Runoff 1980-1999 MERRA2",
     units:"mm/year",
     formatter: regularNumber,
@@ -457,7 +484,7 @@ dataDefinitions.set(DataName.M_ro_80_99, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_ro_80_99, {
+dataDefinitions.set(DataName.Ero_80_99, {
     name:"Mean Annual Runoff 1980-1999 ERA5",
     units:"mm/year",
     formatter: regularNumber,
@@ -465,7 +492,7 @@ dataDefinitions.set(DataName.E_ro_80_99, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_wet_00_1, {
+dataDefinitions.set(DataName.Mwet_00_19, {
     name:"Flood Indicator 2000-2019 MERRA2",
     units:"mm/month",
     formatter: regularNumber,
@@ -473,7 +500,7 @@ dataDefinitions.set(DataName.M_wet_00_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_wet_00_1, {
+dataDefinitions.set(DataName.Ewet_00_19, {
     name:"Flood Indicator 2000-2019 ERA5",
     units:"mm/month",
     formatter: regularNumber,
@@ -481,7 +508,7 @@ dataDefinitions.set(DataName.E_wet_00_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_wet_80_1, {
+dataDefinitions.set(DataName.Mwet_80_19, {
     name:"Flood Indicator 1980-2019 MERRA2",
     units:"mm/month",
     formatter: regularNumber,
@@ -489,7 +516,7 @@ dataDefinitions.set(DataName.M_wet_80_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_wet_80_1, {
+dataDefinitions.set(DataName.Ewet_80_19, {
     name:"Flood Indicator 1980-2019 ERA5",
     units:"mm/month",
     formatter: regularNumber,
@@ -497,7 +524,7 @@ dataDefinitions.set(DataName.E_wet_80_1, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.M_wet_80_9, {
+dataDefinitions.set(DataName.Mwet_80_99, {
     name:"Flood Indicator 1890-1999 MERRA2",
     units:"mm/month",
     formatter: regularNumber,
@@ -505,7 +532,7 @@ dataDefinitions.set(DataName.M_wet_80_9, {
     normalized: false,
     description: ""
 });
-dataDefinitions.set(DataName.E_wet_80_9, {
+dataDefinitions.set(DataName.Ewet_80_99, {
     name:"Flood Indicator 1890-1999 ERA5",
     units:"mm/month",
     formatter: regularNumber,
@@ -538,7 +565,7 @@ dataDefinitions.set(DataName.Farming, {
     description: ""
 });
 dataDefinitions.set(DataName.Mining, {
-    name:"Mining MERRA2",
+    name:"Mining",
     units:"",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
