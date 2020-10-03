@@ -271,7 +271,7 @@ dataDefinitions.set(DataGroup.GDP2018, {
     datasets: []
 });
 dataDefinitions.set(DataGroup.AllIndustries, {
-    name:"Allindustr",
+    name:"All Industries",
     id: getEconDataId,
     units:"",
     formatter: regularNumber,
@@ -304,7 +304,7 @@ dataDefinitions.set(DataGroup.Mining, {
     datasets: []
 });
 dataDefinitions.set(DataGroup.Construction, {
-    name:"Constructi",
+    name:"Construction",
     id: getEconDataId,
     units:"",
     formatter: regularNumber,
@@ -315,7 +315,7 @@ dataDefinitions.set(DataGroup.Construction, {
     datasets: []
 });
 dataDefinitions.set(DataGroup.Retail, {
-    name:"Retailtrad",
+    name:"Retail",
     id: getEconDataId,
     units:"",
     formatter: regularNumber,
@@ -326,7 +326,7 @@ dataDefinitions.set(DataGroup.Retail, {
     datasets: []
 });
 dataDefinitions.set(DataGroup.Information, {
-    name:"Informatio",
+    name:"Information",
     id: getEconDataId,
     units:"",
     formatter: regularNumber,
@@ -337,7 +337,7 @@ dataDefinitions.set(DataGroup.Information, {
     datasets: []
 });
 dataDefinitions.set(DataGroup.Wholesale, {
-    name:"Wholesalet",
+    name:"Wholesale",
     id: getEconDataId,
     units:"",
     formatter: regularNumber,
