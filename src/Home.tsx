@@ -114,8 +114,8 @@ const Home = () => {
   return (
     <React.Fragment>
       <header>
-        <img src={logo} alt="MIT Joint Program on The Science and Policy of Global Change" />
-        <h1>Climate Risk Map</h1>
+        <a href="https://globalchange.mit.edu/"><img src={logo} alt="MIT Joint Program on The Science and Policy of Global Change" /></a>
+        <h1>MIT Climate Risk Map</h1>
       </header>
       <div id="content">
       <NormalizeSelector onSelectionChange={onNormalizeChanged} showNormalized={showNormalized} />

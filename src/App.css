@@ -11,7 +11,8 @@ body {
 }
 
 h1, h2 {
-    font-weight: 200;
+    font-weight: 500;
+    color: #11598d;
 }
 
 #root {
@@ -35,7 +36,6 @@ header img {
     float:left;
     width: 90px;
     height: 90px;
-    background:blue;
     margin-left: 1em;
 }
 
