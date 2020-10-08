@@ -113,6 +113,9 @@ const Home = () => {
       <DataSelector onSelectionChange={onSelectionChange} selection={showNormalized ? normalizedSelection : selection} showNormalized={showNormalized} />
       <DataDescription selection={showNormalized ? normalizedSelection : selection} />
       <Map data={data} selection={showNormalized ? normalizedSelection : selection} />
+      <p>
+        <a href="https://accessibility.mit.edu/">Accessibility</a>
+      </p>
     </React.Fragment>
   );
 };
