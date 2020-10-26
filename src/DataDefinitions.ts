@@ -22,6 +22,10 @@ export enum DataGroup {
     discuss = "discuss",
     PerCapitap = "PerCapitap",
     GDP2018 = "GDP2018",
+    PercentPop = "PercentPop",
+    PercentP_1 = "PercentP_1",
+    PercentNon = "PercentNon",
+    PercentofP = "PercentofP",
 }
 
 export enum DataId {
@@ -116,6 +120,10 @@ export enum DataId {
     discuss,
     PerCapitap,
     GDP2018,
+    PercentPop,
+    PercentP_1,
+    PercentNon,
+    PercentofP,
 }
 
 export type DataIdParams = {
@@ -364,6 +372,50 @@ dataDefinitions.set(DataGroup.PerCapitap, {
     units:"",
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([10000, 40000, 100000]),
+    normalized: false,
+    description: "",
+    years: [],
+    datasets: []
+});
+dataDefinitions.set(DataGroup.PercentPop, {
+    name: "Population Under 18",
+    id: getEconDataId,
+    units: "%",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
+    normalized: false,
+    description: "",
+    years: [],
+    datasets: []
+});
+dataDefinitions.set(DataGroup.PercentP_1, {
+    name: "Population Over 65",
+    id: getEconDataId,
+    units: "%",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
+    normalized: false,
+    description: "",
+    years: [],
+    datasets: []
+});
+dataDefinitions.set(DataGroup.PercentNon, {
+    name: "Nonwhite",
+    id: getEconDataId,
+    units: "%",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolatePurples).domain([0, 100]),
+    normalized: false,
+    description: "",
+    years: [],
+    datasets: []
+});
+dataDefinitions.set(DataGroup.PercentofP, {
+    name: "Population Below Poverty Level",
+    id: getEconDataId,
+    units: "%",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
     normalized: false,
     description: "",
     years: [],
