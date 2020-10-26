@@ -279,9 +279,9 @@ dataDefinitions.set(DataGroup.GDP2018, {
     datasets: []
 });
 dataDefinitions.set(DataGroup.AllIndustries, {
-    name:"All Industries",
+    name:"Employment in all industries 2007",
     id: getEconDataId,
-    units:"",
+    units:"people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 1000000]),
     normalized: false,
@@ -290,9 +290,9 @@ dataDefinitions.set(DataGroup.AllIndustries, {
     datasets: []
 });
 dataDefinitions.set(DataGroup.Farming, {
-    name:"Farming",
+    name:"Employment in farming 2007",
     id: getEconDataId,
-    units:"",
+    units:"people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
@@ -301,9 +301,9 @@ dataDefinitions.set(DataGroup.Farming, {
     datasets: []
 });
 dataDefinitions.set(DataGroup.Mining, {
-    name:"Mining",
+    name:"Employment in mining 2007",
     id: getEconDataId,
-    units:"",
+    units:"people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
@@ -312,9 +312,9 @@ dataDefinitions.set(DataGroup.Mining, {
     datasets: []
 });
 dataDefinitions.set(DataGroup.Construction, {
-    name:"Construction",
+    name:"Employment in construction 2007",
     id: getEconDataId,
-    units:"",
+    units:"people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
@@ -323,9 +323,9 @@ dataDefinitions.set(DataGroup.Construction, {
     datasets: []
 });
 dataDefinitions.set(DataGroup.Retail, {
-    name:"Retail",
+    name:"Employment in retail trade 2007",
     id: getEconDataId,
-    units:"",
+    units:"people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
@@ -334,9 +334,9 @@ dataDefinitions.set(DataGroup.Retail, {
     datasets: []
 });
 dataDefinitions.set(DataGroup.Information, {
-    name:"Information",
+    name:"Employment in information 2007",
     id: getEconDataId,
-    units:"",
+    units:"people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
@@ -345,9 +345,9 @@ dataDefinitions.set(DataGroup.Information, {
     datasets: []
 });
 dataDefinitions.set(DataGroup.Wholesale, {
-    name:"Wholesale",
+    name:"Employment in wholesale trade 2007",
     id: getEconDataId,
-    units:"",
+    units:"people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
@@ -356,9 +356,9 @@ dataDefinitions.set(DataGroup.Wholesale, {
     datasets: []
 });
 dataDefinitions.set(DataGroup.discuss, {
-    name:"discuss",
+    name:"Discuss global warming at least occasionally",
     id: getEconDataId,
-    units:"",
+    units:"% of people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([20, 60]),
     normalized: false,
@@ -380,7 +380,7 @@ dataDefinitions.set(DataGroup.PerCapitap, {
 dataDefinitions.set(DataGroup.PercentPop, {
     name: "Population Under 18",
     id: getEconDataId,
-    units: "%",
+    units: "% of people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
     normalized: false,
@@ -391,7 +391,7 @@ dataDefinitions.set(DataGroup.PercentPop, {
 dataDefinitions.set(DataGroup.PercentP_1, {
     name: "Population Over 65",
     id: getEconDataId,
-    units: "%",
+    units: "% of people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
     normalized: false,
@@ -402,7 +402,7 @@ dataDefinitions.set(DataGroup.PercentP_1, {
 dataDefinitions.set(DataGroup.PercentNon, {
     name: "Nonwhite",
     id: getEconDataId,
-    units: "%",
+    units: "% of people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 100]),
     normalized: false,
@@ -413,7 +413,7 @@ dataDefinitions.set(DataGroup.PercentNon, {
 dataDefinitions.set(DataGroup.PercentofP, {
     name: "Population Below Poverty Level",
     id: getEconDataId,
-    units: "%",
+    units: "% of people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
     normalized: false,
