@@ -183,7 +183,7 @@ dataDefinitions.set(DataGroup.ClimateMoistureIndex, {
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10]),
     normalized: false,
-    description: "",
+    description: "Calculated from mean annual precipitation and potential evapotransipiration",
     years: years,
     datasets: datasets
 });
@@ -194,7 +194,7 @@ dataDefinitions.set(DataGroup.IrregationDeficit, {
     formatter: regularNumber,
     color: scaleDiverging<string>(x => scales.interpolateBrBG(1-x)).domain([-600, 0, 1600]),
     normalized: false,
-    description: "",
+    description: "Difference between mean annual potential evapotransipiration and precipitation (def = pet - prc)",
     years: years,
     datasets: datasets
 });
@@ -205,7 +205,7 @@ dataDefinitions.set(DataGroup.DroughtIndicator, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateOranges).domain([1500, 0]),
     normalized: false,
-    description: "",
+    description: "5th percentile of annual runoff time series during the specific period",
     years: years,
     datasets: datasets
 });
@@ -216,7 +216,7 @@ dataDefinitions.set(DataGroup.Groundwater, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 40]),
     normalized: false,
-    description: "",
+    description: "Minimum of the 12 monthly runoff climatology during the specific period (40 years or 20 years. To avoid negative values, the minimum cutoff value is set to be 0.000001)",
     years: years,
     datasets: datasets
 });
@@ -227,7 +227,7 @@ dataDefinitions.set(DataGroup.MaxTemperature, {
     formatter: regularNumber,
     color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40]),
     normalized: false,
-    description: "",
+    description: "Directly calculated from the reanalysis data",
     years: years,
     datasets: datasets
 });
@@ -238,7 +238,7 @@ dataDefinitions.set(DataGroup.Evapotranspiration, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([300, 1700]),
     normalized: false,
-    description: "",
+    description: "Monthly potential evapotranspiration is calculated based on monthly mean surface air temperature, monthly mean temperature diurnal range, and monthly mean precipitation using modified Hargreaves method (Droogers and Allen, Irrigation and Drainage Systems 16: 33–45, 2002)",
     years: years,
     datasets: datasets
 });
@@ -249,7 +249,7 @@ dataDefinitions.set(DataGroup.Precipitation, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2200]),
     normalized: false,
-    description: "",
+    description: "Directly calculated from the reanalysis data",
     years: years,
     datasets: datasets
 });
@@ -260,7 +260,7 @@ dataDefinitions.set(DataGroup.Runoff, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2000]),
     normalized: false,
-    description: "",
+    description: "Monthly runoff is calculated based on the monthly precipitation and potential evapotransipiration using the Turc-Pike model (Yates, Climate Research, Vol 9, 147-155, 1997)",
     years: years,
     datasets: datasets
 });
@@ -271,7 +271,7 @@ dataDefinitions.set(DataGroup.FloodIndicator, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500]),
     normalized: false,
-    description: "",
+    description: "98th percentile of monthly runoff time series during the specific period",
     years: years,
     datasets: datasets
 });

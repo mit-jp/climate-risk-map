@@ -118,8 +118,8 @@ const Home = () => {
       <div id="content">
       <NormalizeSelector onSelectionChange={onNormalizeChanged} showNormalized={showNormalized} />
       <DataSelector onSelectionChange={onSelectionChange} selection={showNormalized ? normalizedSelection : selection} showNormalized={showNormalized} />
-      <DataDescription selection={showNormalized ? normalizedSelection : selection} />
       <Map data={data} selection={showNormalized ? normalizedSelection : selection} />
+      <DataDescription selection={showNormalized ? normalizedSelection : selection} />
       </div>
       <footer>
         <div id="address">
