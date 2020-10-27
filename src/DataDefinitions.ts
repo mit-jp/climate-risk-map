@@ -203,7 +203,7 @@ dataDefinitions.set(DataGroup.DroughtIndicator, {
     id: getClimateDataId,
     units:"mm/year",
     formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateBlues).domain([0, 1500]),
+    color: scaleSequential<string>(scales.interpolateOranges).domain([1500, 0]),
     normalized: false,
     description: "",
     years: years,
