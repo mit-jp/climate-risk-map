@@ -26,6 +26,10 @@ export enum DataGroup {
     PercentP_1 = "PercentP_1",
     PercentNon = "PercentNon",
     PercentofP = "PercentofP",
+    PercentP_2 = "PercentP_2",
+    PercentP_3 = "PercentP_3",
+    PercentN_1 = "PercentN_1",
+    Percento_1 = "Percento_1",
 }
 
 export enum DataId {
@@ -124,6 +128,10 @@ export enum DataId {
     PercentP_1,
     PercentNon,
     PercentofP,
+    PercentP_2,
+    PercentP_3,
+    PercentN_1,
+    Percento_1,
 }
 
 export type DataIdParams = {
@@ -417,6 +425,51 @@ dataDefinitions.set(DataGroup.PercentofP, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
     normalized: false,
+    description: "",
+    years: [],
+    datasets: []
+});
+
+dataDefinitions.set(DataGroup.PercentP_2, {
+    name: "Population Under 18",
+    id: getEconDataId,
+    units: "",
+    formatter: regularNumber,
+    color: scaleDiverging<string>(scales.interpolatePRGn).domain([-4, 0, 4]),
+    normalized: true,
+    description: "",
+    years: [],
+    datasets: []
+});
+dataDefinitions.set(DataGroup.PercentP_3, {
+    name: "Population Over 65",
+    id: getEconDataId,
+    units: "",
+    formatter: regularNumber,
+    color: scaleDiverging<string>(scales.interpolatePRGn).domain([-4, 0, 4]),
+    normalized: true,
+    description: "",
+    years: [],
+    datasets: []
+});
+dataDefinitions.set(DataGroup.PercentN_1, {
+    name: "Nonwhite",
+    id: getEconDataId,
+    units: "",
+    formatter: regularNumber,
+    color: scaleDiverging<string>(scales.interpolatePRGn).domain([-4, 0, 4]),
+    normalized: true,
+    description: "",
+    years: [],
+    datasets: []
+});
+dataDefinitions.set(DataGroup.Percento_1, {
+    name: "of Population Below Poverty Level",
+    id: getEconDataId,
+    units: "",
+    formatter: regularNumber,
+    color: scaleDiverging<string>(scales.interpolatePRGn).domain([-4, 0, 4]),
+    normalized: true,
     description: "",
     years: [],
     datasets: []

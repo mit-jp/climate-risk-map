@@ -49,9 +49,7 @@ const defaultSelection = {
 };
 
 const defaultNormalizedSelection = {
-  dataGroup: DataGroup.ClimateMoistureIndex,
-  year: Year._2000_2019,
-  dataset: Dataset.ERA5
+  dataGroup: DataGroup.PercentP_2,
 }
 
 const Home = () => {
