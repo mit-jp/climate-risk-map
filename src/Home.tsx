@@ -1,5 +1,6 @@
 import React, { useEffect, useState, ChangeEvent } from 'react';
 import Map from './Map';
+import Navigation from './Navigation';
 import DataSelector from './DataSelector';
 import NormalizeSelector from './NormalizeSelector';
 import { Objects, Topology } from 'topojson-specification';
@@ -115,11 +116,10 @@ const Home = () => {
         <a href="https://globalchange.mit.edu/"><img src={logo} alt="MIT Joint Program on The Science and Policy of Global Change" /></a>
         <h1>MIT Climate Risk Map</h1>
       </header>
+      <Navigation selection="combination" />
       <div id="content">
-      <NormalizeSelector onSelectionChange={onNormalizeChanged} showNormalized={showNormalized} />
       <DataSelector onSelectionChange={onSelectionChange} selection={showNormalized ? normalizedSelection : selection} showNormalized={showNormalized} />
       <Map data={data} selection={showNormalized ? normalizedSelection : selection} />
-      <DataDescription selection={showNormalized ? normalizedSelection : selection} />
       </div>
       <footer>
         <div id="address">

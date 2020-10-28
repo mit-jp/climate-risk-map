@@ -19,35 +19,47 @@ const getUnitString = (units: string) => units ? `(${units})` : "";
 
 const DataSelector = ({selection, onSelectionChange, showNormalized}: Props) => {
 
-    const onYearChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const onYearChange = (event: ChangeEvent<HTMLInputElement>) => {
         const year = event.target.value as Year;
         onSelectionChange({...selection, year});
     };
-    const onDatasetChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const onDatasetChange = (event: ChangeEvent<HTMLInputElement>) => {
         const dataset = event.target.value as Dataset;
         onSelectionChange({...selection, dataset});
     };
-    const onDataGroupChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const onDataGroupChange = (event: ChangeEvent<HTMLInputElement>) => {
         const dataGroup = event.target.value as DataGroup;
         onSelectionChange({...selection, dataGroup});
     }
 
-    const getOptions = () => {
+    const shouldShowYears = (dataGroup: DataGroup) => selection.dataGroup === dataGroup && getYears(selection).length > 0
+    const shouldShowDatasets = (dataGroup: DataGroup) => selection.dataGroup === dataGroup && getDatasets(selection).length > 0
+
+    const getDataGroups = () => {
         return Array.from(dataDefinitions.entries())
         .filter(([_, definition]) => showNormalized ? definition.normalized : !definition.normalized)
-        .map(
-            ([dataGroup, data]) => <option key={dataGroup} value={dataGroup}>{data.name} {getUnitString(data.units)}</option>
+        .map(([dataGroup, data]) =>
+            <div>
+                <input
+                    className="data-group"
+                    id={dataGroup}
+                    checked={selection.dataGroup === dataGroup}
+                    type="radio"
+                    key={dataGroup}
+                    value={dataGroup}
+                    onChange={onDataGroupChange}
+                    name="dataGroup" />
+                <label className="data-group" htmlFor={dataGroup}>{data.name} {getUnitString(data.units)}</label>
+                {shouldShowYears(dataGroup) && <YearSelector years={getYears(selection)} selectedYear={selection.year} onSelectionChange={onYearChange} />}
+                {shouldShowDatasets(dataGroup) && <DatasetSelector datasets={getDatasets(selection)} selectedDataset={selection.dataset} onSelectionChange={onDatasetChange} />}
+            </div>
         )
     }
 
     return (
-        <React.Fragment>
-            <select value={selection.dataGroup} onChange={onDataGroupChange}>
-                {getOptions()}
-            </select>
-            {getYears(selection).length > 0 && <YearSelector years={getYears(selection)} selectedYear={selection.year} onSelectionChange={onYearChange} />}
-            {getDatasets(selection).length > 0 && <DatasetSelector datasets={getDatasets(selection)} selectedDataset={selection.dataset} onSelectionChange={onDatasetChange} />}
-        </React.Fragment>
+        <form id="data-selector">
+            {getDataGroups()}
+        </form>
     )
 }
 

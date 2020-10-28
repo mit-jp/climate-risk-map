@@ -7,7 +7,8 @@ body {
     background-attachment: scroll;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    padding-bottom: 20px;
+    padding: 0;
+    margin: 0;
 }
 
 h1, h2 {
@@ -18,9 +19,11 @@ h1, h2 {
 #root {
     margin: 0;
     width: 100%;
-    max-width: 1400px;
+    max-width: 1800px;
     background: #fff;
     box-shadow: 0px 1px 13px -2px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
 }
 
 header {
@@ -39,18 +42,87 @@ header img {
     margin-left: 1em;
 }
 
+nav ul {
+    display: flex;
+}
+
+nav ul {
+    margin:0;
+    padding:0;
+    list-style: none;
+}
+
+nav a {
+    display: block;
+    color: #000;
+    text-decoration: none;
+    padding: 1em;
+    text-transform: capitalize;
+}
+
+nav li a:hover {
+    background:#e3eaf1;
+    color: #435e7c;
+}
+
+nav li.selected a {
+    background:#435e7c;
+    color: #fff;
+}
+
+.sub-selector {
+    display: flex;
+    background:#eee;
+    padding:0 0 0 1em;
+}
+
+.sub-selector input {
+    display: none;
+}
+
+.sub-selector label {
+    display: block;
+    border:1px;
+    padding:1em;
+    cursor: pointer;
+}
+
+.sub-selector label:hover, .sub-selector input:checked + label {
+    text-decoration:underline;
+}
+
+#data-selector {
+    overflow: auto;
+    max-height: 900px;
+}
+
+label.data-group {
+    display: block;
+    padding: 1em 1em;
+    margin: 0;
+    cursor: pointer;
+}
+
+label.data-group:hover {
+    text-decoration: underline;
+}
+
+input.data-group {
+    display:none;
+}
+
+input.data-group:checked + label {
+    text-decoration: underline;
+    background: #eee;
+}
+
 #content {
     margin: 0 1em;
-    clear: both;
+    display:flex;
 }
 
 svg {
     max-width: 1400px;
-}
-
-select {
-    margin: 1em 0;
-    font-size: 1em;
 }
 
 #description {
