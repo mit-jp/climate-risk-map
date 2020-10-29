@@ -1,4 +1,4 @@
-import React, { useEffect, useState, ChangeEvent } from 'react';
+import React, { useEffect, useState, MouseEvent } from 'react';
 import Map from './Map';
 import Navigation from './Navigation';
 import DataSelector from './DataSelector';
@@ -12,7 +12,7 @@ import icon_twitter  from './icon_twitter.png';
 import icon_rss  from './icon_rss.png';
 import icon_mail  from './icon_mail.png';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataGroup, DataIdParams, Dataset, Year } from './DataDefinitions';
+import dataDefinitions, { DataGroup, DataIdParams, Dataset, DataType, Year } from './DataDefinitions';
 import { json } from 'd3-fetch';
 import { useHistory, useLocation } from "react-router-dom";
 
@@ -103,11 +103,9 @@ const Home = () => {
     setNormalized(urlNormalized);
   }, [urlNormalized])
 
-  const onNormalizeChanged = (event: ChangeEvent<HTMLInputElement>) => {
-    const normalized = event.target.value === "normalized";
-    setNormalized(normalized);
-    // const newSelection = normalized ? normalizedSelection : selection;
-    // history.push("?id=" + DataName[newSelection]);
+  const onDataTypeChanged = (event: MouseEvent<HTMLLIElement>) => {
+    console.log(event);
+    setNormalized(event.currentTarget.textContent === DataType.Normalized);
   }
 
   return (
@@ -116,7 +114,7 @@ const Home = () => {
         <a href="https://globalchange.mit.edu/"><img src={logo} alt="MIT Joint Program on The Science and Policy of Global Change" /></a>
         <h1>MIT Climate Risk Map</h1>
       </header>
-      <Navigation selection="combination" />
+      <Navigation selection={showNormalized ? DataType.Normalized : DataType.Raw} onDataTypeChanged={onDataTypeChanged} />
       <div id="content">
       <DataSelector onSelectionChange={onSelectionChange} selection={showNormalized ? normalizedSelection : selection} showNormalized={showNormalized} />
       <Map data={data} selection={showNormalized ? normalizedSelection : selection} />

@@ -1,15 +1,20 @@
-import React from 'react';
+import React, { MouseEvent } from 'react';
+import dataDefinitions, { DataType } from './DataDefinitions';
 
-const items = ["social", "economic", "climate", "combination"];
+type Props = {
+    selection: DataType,
+    onDataTypeChanged: (event: MouseEvent<HTMLLIElement>) => void
+}
 
-const listItems = (selection: string) =>
-    items.map(item => <li className={selection === item ? "selected" : undefined}><a href={"?type="+item}>{item}</a></li>)
+const dataTypes = [DataType.Raw, DataType.Normalized];
 
+const listDataTypes = ({selection, onDataTypeChanged}: Props) =>
+    dataTypes.map(item => <li className={selection === item ? "selected" : undefined} onClick={onDataTypeChanged}>{item}</li>)
 
-const Navigation = ({selection}: {selection: string}) =>
+const Navigation = (props: Props) =>
     <nav>
         <ul>
-            {listItems(selection)}
+            {listDataTypes(props)}
         </ul>
     </nav>
 

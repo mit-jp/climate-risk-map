@@ -2,6 +2,11 @@ import * as scales from 'd3-scale-chromatic';
 import { scaleThreshold, scaleDiverging, scaleSequential, format } from 'd3';
 import { ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3-scale';
 
+export enum DataType {
+    Raw = "raw data",
+    Normalized = "normalized data",
+}
+
 export enum DataGroup {
     ClimateMoistureIndex = "cmi",
     IrregationDeficit = "def",
@@ -464,7 +469,7 @@ dataDefinitions.set(DataGroup.PercentN_1, {
     datasets: []
 });
 dataDefinitions.set(DataGroup.Percento_1, {
-    name: "of Population Below Poverty Level",
+    name: "Population Below Poverty Level",
     id: getEconDataId,
     units: "",
     formatter: regularNumber,

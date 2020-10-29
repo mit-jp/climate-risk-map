@@ -52,7 +52,8 @@ nav ul {
     list-style: none;
 }
 
-nav a {
+nav li {
+    cursor: pointer;
     display: block;
     color: #000;
     text-decoration: none;
@@ -60,12 +61,12 @@ nav a {
     text-transform: capitalize;
 }
 
-nav li a:hover {
+nav li:hover {
     background:#e3eaf1;
     color: #435e7c;
 }
 
-nav li.selected a {
+nav li.selected {
     background:#435e7c;
     color: #fff;
 }
@@ -94,6 +95,7 @@ nav li.selected a {
 #data-selector {
     overflow: auto;
     max-height: 900px;
+    min-width:500px
 }
 
 label.data-group {
@@ -117,12 +119,12 @@ input.data-group:checked + label {
 }
 
 #content {
-    margin: 0 1em;
+    margin: 0;
     display:flex;
 }
 
-svg {
-    max-width: 1400px;
+#map {
+    min-width: 500px;
 }
 
 #description {
