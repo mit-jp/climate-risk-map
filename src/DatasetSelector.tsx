@@ -21,10 +21,9 @@ const readable = (dataset: Dataset) => {
 const DatasetSelector = ({ datasets, selectedDataset, onSelectionChange }: Props) => {
     const getDatasets = () => {
         return datasets.map(dataset =>
-            <React.Fragment>
+            <React.Fragment key={dataset}>
             <input
                 type="radio"
-                key={dataset}
                 value={dataset}
                 id={dataset}
                 onChange={onSelectionChange}

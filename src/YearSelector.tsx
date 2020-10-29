@@ -21,10 +21,9 @@ const readable = (year: Year) => {
 const YearSelector = ({ years, selectedYear, onSelectionChange }: Props) => {
     const getYears = () => {
         return years.map(year =>
-            <React.Fragment>
+            <React.Fragment key={year}>
             <input
                 type="radio"
-                key={year}
                 value={year}
                 id={year}
                 onChange={onSelectionChange}

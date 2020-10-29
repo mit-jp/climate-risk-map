@@ -39,13 +39,12 @@ const DataSelector = ({selection, onSelectionChange, dataType}: Props) => {
         return Array.from(dataDefinitions.entries())
         .filter(([_, definition]) => dataType === definition.type)
         .map(([dataGroup, data]) =>
-            <div>
+            <div key={dataGroup}>
                 <input
                     className="data-group"
                     id={dataGroup}
                     checked={selection.dataGroup === dataGroup}
                     type="radio"
-                    key={dataGroup}
                     value={dataGroup}
                     onChange={onDataGroupChange}
                     name="dataGroup" />
