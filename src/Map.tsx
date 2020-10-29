@@ -3,6 +3,7 @@ import { select, geoPath, event } from 'd3';
 import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
+import DataDescription from './DataDescription';
 import dataDefinitions, { DataDefinition, DataIdParams, DataId } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
 
@@ -126,11 +127,14 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
     }, [data, selection])
 
     return (
+        <div id="map">
         <svg ref={svgRef} viewBox="0, 0, 1175, 610">
             <g id="legend"></g>
             <g id="counties"></g>
             <g id="states"><path /></g>
         </svg>
+        <DataDescription selection={selection} />
+        </div>
     );
 }
 

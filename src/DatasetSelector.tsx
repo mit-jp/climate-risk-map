@@ -4,7 +4,7 @@ import { Dataset } from './DataDefinitions';
 type Props = {
     datasets: Dataset[],
     selectedDataset: string | undefined,
-    onSelectionChange: (event: ChangeEvent<HTMLSelectElement>) => void
+    onSelectionChange: (event: ChangeEvent<HTMLInputElement>) => void
 };
 
 const readable = (dataset: Dataset) => {
@@ -20,12 +20,25 @@ const readable = (dataset: Dataset) => {
 
 const DatasetSelector = ({ datasets, selectedDataset, onSelectionChange }: Props) => {
     const getDatasets = () => {
-        return datasets.map(dataset => <option key={dataset} value={dataset}>{readable(dataset)}</option>)
+        return datasets.map(dataset =>
+            <React.Fragment>
+            <input
+                type="radio"
+                key={dataset}
+                value={dataset}
+                id={dataset}
+                onChange={onSelectionChange}
+                checked={dataset === selectedDataset}
+            />
+            <label htmlFor={dataset}>{readable(dataset)}</label>
+            </React.Fragment>
+        )
     }
     return (
-        <select value={selectedDataset} onChange={onSelectionChange}>
+        <div className="sub-selector">
+            <p>Dataset:</p>
             {getDatasets()}
-        </select>
+        </div>
     );
 };
 
