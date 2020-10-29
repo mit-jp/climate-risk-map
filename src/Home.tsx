@@ -44,6 +44,8 @@ const Home = () => {
   const [data, setData] = useState<Topology<Objects<GeoJsonProperties>> | undefined>(undefined);
   const [selections, setSelections] = useState<Map<DataType, DataIdParams>>(defaultSelections);
   const [dataType, setDataType] = useState<DataType>(DataType.Climate);
+  const [showDatasetDescription, setShowDatasetDescription] = useState<boolean>(false);
+  const [showDataDescription, setShowDataDescription] = useState<boolean>(false);
 
   useEffect(() => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa-topo.json").then(setData);
@@ -63,6 +65,14 @@ const Home = () => {
     setDataType(newDataType);
   }
 
+  const onDatasetDescriptionToggled = () => {
+    setShowDatasetDescription(!showDatasetDescription);
+  }
+
+  const onDataDescriptionToggled = () => {
+    setShowDataDescription(!showDataDescription);
+  }
+
   return (
     <React.Fragment>
       <header>
@@ -72,7 +82,14 @@ const Home = () => {
       <Navigation selection={dataType} onDataTypeChanged={onDataTypeChanged} />
       <div id="content">
       <DataSelector onSelectionChange={onSelectionChange} dataType={dataType} selection={selections.get(dataType)!} />
-      <MapUI data={data} selection={selections.get(dataType)!} />
+      <MapUI
+        data={data}
+        selection={selections.get(dataType)!}
+        showDatasetDescription={showDatasetDescription}
+        onDatasetDescriptionClicked={onDatasetDescriptionToggled}
+        showDataDescription={showDataDescription}
+        onDataDescriptionClicked={onDataDescriptionToggled}
+      />
       </div>
       <footer>
         <div id="address">

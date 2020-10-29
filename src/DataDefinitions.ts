@@ -163,7 +163,16 @@ export type DataDefinition = {
 export enum Dataset {
     MERRA2 = "M",
     ERA5 = "E",
-    NARR = "N"
+    NARR = "N",
+    Yale = "yale",
+    BEA = "bea",
+    Census = "census"
+}
+
+export type DatasetDefinition = {
+    name: string,
+    description: string,
+    link: string
 }
 
 export enum Year {
@@ -175,7 +184,7 @@ export enum Year {
 const regularNumber = format(",.0f");
 const money = format("$,.0f");
 const years = [Year._1980_1999, Year._2000_2019, Year._1980_2019];
-const datasets = [Dataset.ERA5, Dataset.MERRA2, Dataset.NARR];
+const climateDatasets = [Dataset.ERA5, Dataset.MERRA2, Dataset.NARR];
 const getClimateDataId = (params: DataIdParams) => {
     let dataIdString: string = params.dataGroup as string;
     dataIdString = params.dataset + dataIdString + "_" + params.year;
@@ -183,6 +192,38 @@ const getClimateDataId = (params: DataIdParams) => {
 };
 const getEconDataId = (params: DataIdParams) => 
     DataId[params.dataGroup as keyof typeof DataId];
+
+export const datasetDefinitions = new Map<Dataset, DatasetDefinition>();
+datasetDefinitions.set(Dataset.MERRA2, {
+    name: "MERRA-2",
+    description: "The Modern-Era Retrospective analysis for Research and Applications, Version 2 (MERRA-2) provides data beginning in 1980 at a spatial resolution of 0.625° × 0.5°. In comparison with the original MERRA dataset, MERRA-2 represents the advances made in both the Goddard Earth Observing System Model, Version 5 (GEOS- 5) and the Global Statistical Interpolation (GSI) assimilation system that enable assimilation of modern hyperspectral radiance and microwave observations, along with GPS-Radio Occultation datasets. MERRA-2 is the first long-term global reanalysis to assimilate space- based observations of aerosols and represent their interactions with other physical processes in the climate system.",
+    link: "https://gmao.gsfc.nasa.gov/reanalysis/MERRA-2/"
+});
+datasetDefinitions.set(Dataset.ERA5, {
+    name: "ERA5",
+    description: "ERA5 is the fifth generation of ECMWF atmospheric reanalyses and provides hourly estimates of a large number of global atmospheric, land and oceanic climate variables from 1979 to present. The data cover the Earth on a 30km grid (0.25º of the operational model) and resolve the atmosphere using 137 levels from the surface up to a height of 80km, with additional information about uncertainties for all variables at reduced spatial and temporal resolutions. ERA5 combines vast amounts of historical observations into global estimates using advanced modelling (CY41r2 of ECMWF's Integrated Forecast System) and data assimilation (ten member 4D-Var ensemble) systems. Improvements to ERA5, compared to ERA-Interim, include use of HadISST.2, reprocessed ECMWF climate data records (CDR), and implementation of RTTOV11 radiative transfer. Variational bias corrections have not only been applied to satellite radiances, but also ozone retrievals, aircraft observations, surface pressure, and radiosonde profiles.",
+    link: "https://www.ecmwf.int/en/forecasts/datasets/reanalysis-datasets/era5"
+});
+datasetDefinitions.set(Dataset.NARR, {
+    name: "NARR",
+    description: "The NCEP North American Regional Reanalysis (NARR) is a high-resolution (32 km) data set focused upon the North American domain and spanning from 1979 to near present. The NARR uses the high resolution NCEP Eta Model (32km/45 layer) together with the Regional Data Assimilation System (RDAS) which directly assimilates observed precipitation along with other variables. Relative to the NCEP-DOE Global Reanalysis 2, it has a much improved land-hydrology, diurnal cycle and land-atmosphere interaction.",
+    link: "https://psl.noaa.gov/data/gridded/data.narr.html"
+});
+datasetDefinitions.set(Dataset.Yale, {
+    name: "Yale Climate Opinion Maps",
+    description: "",
+    link: "https://climatecommunication.yale.edu/visualizations-data/ycom-us/"
+});
+datasetDefinitions.set(Dataset.BEA, {
+    name: "US Bureau of Economic Analysis",
+    description: "The Bureau of Economic Analysis provides official macroeconomic and industry statistics, most notably reports about the gross domestic product of the United States and its various units—states, cities/towns/townships/villages/counties and metropolitan areas.",
+    link: "https://www.bea.gov/data/"
+});
+datasetDefinitions.set(Dataset.Census, {
+    name: "US Census Bureau",
+    description: "The Census Bureau is responsible for producing data about the American people and economy. It continually conducts over 130 surveys and programs a year, including the American Community Survey, the U.S. Economic Census, and the Current Population Survey.",
+    link: "https://www.census.gov/data.html"
+});
 
 const dataDefinitions = new Map<DataGroup, DataDefinition>();
 dataDefinitions.set(DataGroup.ClimateMoistureIndex, {
@@ -195,7 +236,7 @@ dataDefinitions.set(DataGroup.ClimateMoistureIndex, {
     type: DataType.Climate,
     description: "Calculated from mean annual precipitation and potential evapotransipiration",
     years: years,
-    datasets: datasets
+    datasets: climateDatasets
 });
 dataDefinitions.set(DataGroup.IrregationDeficit, {
     name:"Irrigation Deficit",
@@ -207,7 +248,7 @@ dataDefinitions.set(DataGroup.IrregationDeficit, {
     type: DataType.Climate,
     description: "Difference between mean annual potential evapotransipiration and precipitation (def = pet - prc)",
     years: years,
-    datasets: datasets
+    datasets: climateDatasets
 });
 dataDefinitions.set(DataGroup.DroughtIndicator, {
     name:"Drought Indicator",
@@ -219,7 +260,7 @@ dataDefinitions.set(DataGroup.DroughtIndicator, {
     type: DataType.Climate,
     description: "5th percentile of annual runoff time series during the specific period",
     years: years,
-    datasets: datasets
+    datasets: climateDatasets
 });
 dataDefinitions.set(DataGroup.Groundwater, {
     name:"Groundwater",
@@ -231,7 +272,7 @@ dataDefinitions.set(DataGroup.Groundwater, {
     type: DataType.Climate,
     description: "Minimum of the 12 monthly runoff climatology during the specific period (40 years or 20 years. To avoid negative values, the minimum cutoff value is set to be 0.000001)",
     years: years,
-    datasets: datasets
+    datasets: climateDatasets
 });
 dataDefinitions.set(DataGroup.MaxTemperature, {
     name:"Maximum Month Temperature",
@@ -243,7 +284,7 @@ dataDefinitions.set(DataGroup.MaxTemperature, {
     type: DataType.Climate,
     description: "Directly calculated from the reanalysis data",
     years: years,
-    datasets: datasets
+    datasets: climateDatasets
 });
 dataDefinitions.set(DataGroup.Evapotranspiration, {
     name:"Mean Annual Potential Evapotranspiration",
@@ -255,7 +296,7 @@ dataDefinitions.set(DataGroup.Evapotranspiration, {
     type: DataType.Climate,
     description: "Monthly potential evapotranspiration is calculated based on monthly mean surface air temperature, monthly mean temperature diurnal range, and monthly mean precipitation using modified Hargreaves method (Droogers and Allen, Irrigation and Drainage Systems 16: 33–45, 2002)",
     years: years,
-    datasets: datasets
+    datasets: climateDatasets
 });
 dataDefinitions.set(DataGroup.Precipitation, {
     name: "Mean Annual Precipitation",
@@ -267,7 +308,7 @@ dataDefinitions.set(DataGroup.Precipitation, {
     type: DataType.Climate,
     description: "Directly calculated from the reanalysis data",
     years: years,
-    datasets: datasets
+    datasets: climateDatasets
 });
 dataDefinitions.set(DataGroup.Runoff, {
     name:"Mean Annual Runoff",
@@ -279,7 +320,7 @@ dataDefinitions.set(DataGroup.Runoff, {
     type: DataType.Climate,
     description: "Monthly runoff is calculated based on the monthly precipitation and potential evapotransipiration using the Turc-Pike model (Yates, Climate Research, Vol 9, 147-155, 1997)",
     years: years,
-    datasets: datasets
+    datasets: climateDatasets
 });
 dataDefinitions.set(DataGroup.FloodIndicator, {
     name:"Flood Indicator",
@@ -291,7 +332,7 @@ dataDefinitions.set(DataGroup.FloodIndicator, {
     type: DataType.Climate,
     description: "98th percentile of monthly runoff time series during the specific period",
     years: years,
-    datasets: datasets
+    datasets: climateDatasets
 });
 dataDefinitions.set(DataGroup.GDP2018, {
     name: "GDP 2018",
@@ -303,7 +344,7 @@ dataDefinitions.set(DataGroup.GDP2018, {
     type: DataType.Economic,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.BEA]
 });
 dataDefinitions.set(DataGroup.AllIndustries, {
     name:"Employment in all industries 2007",
@@ -315,7 +356,7 @@ dataDefinitions.set(DataGroup.AllIndustries, {
     type: DataType.Economic,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.BEA]
 });
 dataDefinitions.set(DataGroup.Farming, {
     name:"Employment in farming 2007",
@@ -327,7 +368,7 @@ dataDefinitions.set(DataGroup.Farming, {
     type: DataType.Economic,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.BEA]
 });
 dataDefinitions.set(DataGroup.Mining, {
     name:"Employment in mining 2007",
@@ -339,7 +380,7 @@ dataDefinitions.set(DataGroup.Mining, {
     type: DataType.Economic,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.BEA]
 });
 dataDefinitions.set(DataGroup.Construction, {
     name:"Employment in construction 2007",
@@ -351,7 +392,7 @@ dataDefinitions.set(DataGroup.Construction, {
     type: DataType.Economic,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.BEA]
 });
 dataDefinitions.set(DataGroup.Retail, {
     name:"Employment in retail trade 2007",
@@ -363,7 +404,7 @@ dataDefinitions.set(DataGroup.Retail, {
     type: DataType.Economic,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.BEA]
 });
 dataDefinitions.set(DataGroup.Information, {
     name:"Employment in information 2007",
@@ -375,7 +416,7 @@ dataDefinitions.set(DataGroup.Information, {
     type: DataType.Economic,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.BEA]
 });
 dataDefinitions.set(DataGroup.Wholesale, {
     name:"Employment in wholesale trade 2007",
@@ -387,7 +428,7 @@ dataDefinitions.set(DataGroup.Wholesale, {
     type: DataType.Economic,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.BEA]
 });
 dataDefinitions.set(DataGroup.discuss, {
     name:"Discuss global warming at least occasionally",
@@ -399,7 +440,7 @@ dataDefinitions.set(DataGroup.discuss, {
     type: DataType.Demographic,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.BEA]
 });
 dataDefinitions.set(DataGroup.PerCapitap, {
     name:"Per capita personal income 2018",
@@ -408,10 +449,10 @@ dataDefinitions.set(DataGroup.PerCapitap, {
     formatter: money,
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([10000, 40000, 100000]),
     normalized: false,
-    type: DataType.Demographic,
+    type: DataType.Economic,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.BEA]
 });
 dataDefinitions.set(DataGroup.PercentPop, {
     name: "Population Under 18",
@@ -423,7 +464,7 @@ dataDefinitions.set(DataGroup.PercentPop, {
     type: DataType.Demographic,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.Census]
 });
 dataDefinitions.set(DataGroup.PercentP_1, {
     name: "Population Over 65",
@@ -435,7 +476,7 @@ dataDefinitions.set(DataGroup.PercentP_1, {
     type: DataType.Demographic,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.Census]
 });
 dataDefinitions.set(DataGroup.PercentNon, {
     name: "Nonwhite",
@@ -447,7 +488,7 @@ dataDefinitions.set(DataGroup.PercentNon, {
     type: DataType.Demographic,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.Census]
 });
 dataDefinitions.set(DataGroup.PercentofP, {
     name: "Population Below Poverty Level",
@@ -456,59 +497,59 @@ dataDefinitions.set(DataGroup.PercentofP, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
     normalized: false,
-    type: DataType.Demographic,
+    type: DataType.Economic,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.Census]
 });
 
 dataDefinitions.set(DataGroup.PercentP_2, {
     name: "Population Under 18",
     id: getEconDataId,
-    units: "",
+    units: "Standard deviations",
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolatePRGn).domain([-4, 0, 4]),
     normalized: true,
     type: DataType.Normalized,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.Census]
 });
 dataDefinitions.set(DataGroup.PercentP_3, {
     name: "Population Over 65",
     id: getEconDataId,
-    units: "",
+    units: "Standard deviations",
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolatePRGn).domain([-4, 0, 4]),
     normalized: true,
     type: DataType.Normalized,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.Census]
 });
 dataDefinitions.set(DataGroup.PercentN_1, {
     name: "Nonwhite",
     id: getEconDataId,
-    units: "",
+    units: "Standard deviations",
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolatePRGn).domain([-4, 0, 4]),
     normalized: true,
     type: DataType.Normalized,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.Census]
 });
 dataDefinitions.set(DataGroup.Percento_1, {
     name: "Population Below Poverty Level",
     id: getEconDataId,
-    units: "",
+    units: "Standard deviations",
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolatePRGn).domain([-4, 0, 4]),
     normalized: true,
     type: DataType.Normalized,
     description: "",
     years: [],
-    datasets: []
+    datasets: [Dataset.Census]
 });
 
 export default dataDefinitions;

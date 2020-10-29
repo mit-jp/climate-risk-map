@@ -6,6 +6,7 @@ import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
 import dataDefinitions, { DataDefinition, DataIdParams, DataId } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
+import DatasetDescription from './DatasetDescription';
 
 const missingDataColor = "#ccc";
 
@@ -61,7 +62,21 @@ const handleMouseOut = function(this:any, d:any) {
         .style("opacity", 0)
 }
 
-const MapUI = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | undefined, selection: DataIdParams}) => {
+type Props = {
+    data: Topology<Objects<GeoJsonProperties>> | undefined,
+    selection: DataIdParams,
+    showDatasetDescription: boolean,
+    onDatasetDescriptionClicked: () => void,
+    showDataDescription: boolean,
+    onDataDescriptionClicked: () => void,
+};
+
+const getDataset = (selection: DataIdParams) => {
+    // get the selected dataset, or the first one, if there's none selected
+    return selection.dataset ?? dataDefinitions.get(selection.dataGroup)!.datasets[0];
+}
+
+const MapUI = ({data, selection, showDatasetDescription, onDatasetDescriptionClicked, showDataDescription, onDataDescriptionClicked}: Props) => {
     const svgRef = useRef<SVGSVGElement>(null);
 
     useEffect(() => {
@@ -124,7 +139,7 @@ const MapUI = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | 
             .selectAll(".county")
             .on("touchmove mousemove", handleMouseOverCreator(dataType.id(selection), dataType))
             .on("touchend mouseleave", handleMouseOut);
-    }, [data, selection])
+    }, [data, selection]);
 
     return (
         <div id="map">
@@ -133,7 +148,16 @@ const MapUI = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | 
             <g id="counties"></g>
             <g id="states"><path /></g>
         </svg>
-        <DataDescription selection={selection} />
+        <DataDescription
+            selection={selection}
+            shouldShow={showDataDescription}
+            showClicked={onDataDescriptionClicked}
+        />
+        <DatasetDescription
+            dataset={getDataset(selection)}
+            shouldShow={showDatasetDescription}
+            showClicked={onDatasetDescriptionClicked}
+        />
         </div>
     );
 }

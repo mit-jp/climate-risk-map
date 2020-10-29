@@ -32,8 +32,8 @@ const DataSelector = ({selection, onSelectionChange, dataType}: Props) => {
         onSelectionChange({...selection, dataGroup});
     }
 
-    const shouldShowYears = (dataGroup: DataGroup) => selection.dataGroup === dataGroup && getYears(selection).length > 0
-    const shouldShowDatasets = (dataGroup: DataGroup) => selection.dataGroup === dataGroup && getDatasets(selection).length > 0
+    const shouldShowYears = (dataGroup: DataGroup) => selection.dataGroup === dataGroup && getYears(selection).length > 1
+    const shouldShowDatasets = (dataGroup: DataGroup) => selection.dataGroup === dataGroup && getDatasets(selection).length > 1
 
     const getDataGroups = () => {
         return Array.from(dataDefinitions.entries())
