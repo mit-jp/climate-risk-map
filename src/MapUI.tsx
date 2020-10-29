@@ -61,7 +61,7 @@ const handleMouseOut = function(this:any, d:any) {
         .style("opacity", 0)
 }
 
-const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | undefined, selection: DataIdParams}) => {
+const MapUI = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | undefined, selection: DataIdParams}) => {
     const svgRef = useRef<SVGSVGElement>(null);
 
     useEffect(() => {
@@ -138,4 +138,4 @@ const Map = ({data, selection}: {data: Topology<Objects<GeoJsonProperties>> | un
     );
 }
 
-export default Map;
+export default MapUI;
