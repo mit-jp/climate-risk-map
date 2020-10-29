@@ -1,12 +1,12 @@
 import React, { ChangeEvent } from 'react';
-import dataDefinitions, { DataIdParams, Year, Dataset, DataGroup } from './DataDefinitions';
+import dataDefinitions, { DataIdParams, Year, Dataset, DataGroup, DataType } from './DataDefinitions';
 import YearSelector from './YearSelector';
 import DatasetSelector from './DatasetSelector';
 
 type Props = {
     selection: DataIdParams,
     onSelectionChange: (event: DataIdParams) => void,
-    showNormalized: boolean
+    dataType: DataType
 };
 
 const getYears = (selection: DataIdParams) =>
@@ -17,7 +17,7 @@ const getDatasets = (selection: DataIdParams) =>
 
 const getUnitString = (units: string) => units ? `(${units})` : "";
 
-const DataSelector = ({selection, onSelectionChange, showNormalized}: Props) => {
+const DataSelector = ({selection, onSelectionChange, dataType}: Props) => {
 
     const onYearChange = (event: ChangeEvent<HTMLInputElement>) => {
         const year = event.target.value as Year;
@@ -37,7 +37,7 @@ const DataSelector = ({selection, onSelectionChange, showNormalized}: Props) => 
 
     const getDataGroups = () => {
         return Array.from(dataDefinitions.entries())
-        .filter(([_, definition]) => showNormalized ? definition.normalized : !definition.normalized)
+        .filter(([_, definition]) => dataType === definition.type)
         .map(([dataGroup, data]) =>
             <div>
                 <input

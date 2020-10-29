@@ -3,8 +3,10 @@ import { scaleThreshold, scaleDiverging, scaleSequential, format } from 'd3';
 import { ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3-scale';
 
 export enum DataType {
-    Raw = "raw data",
-    Normalized = "normalized data",
+    Climate = "climate",
+    Economic = "economic",
+    Demographic = "demographic",
+    Normalized = "normalized",
 }
 
 export enum DataGroup {
@@ -152,6 +154,7 @@ export type DataDefinition = {
     formatter: (n: number | { valueOf(): number }) => string,
     color: ScaleSequential<string> | ScaleThreshold<number, string> | ScaleDiverging<string>,
     normalized: boolean,
+    type: DataType,
     description: string,
     years: Year[],
     datasets: Dataset[]
@@ -170,6 +173,7 @@ export enum Year {
 }
 
 const regularNumber = format(",.0f");
+const money = format("$,.0f");
 const years = [Year._1980_1999, Year._2000_2019, Year._1980_2019];
 const datasets = [Dataset.ERA5, Dataset.MERRA2, Dataset.NARR];
 const getClimateDataId = (params: DataIdParams) => {
@@ -188,6 +192,7 @@ dataDefinitions.set(DataGroup.ClimateMoistureIndex, {
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10]),
     normalized: false,
+    type: DataType.Climate,
     description: "Calculated from mean annual precipitation and potential evapotransipiration",
     years: years,
     datasets: datasets
@@ -199,6 +204,7 @@ dataDefinitions.set(DataGroup.IrregationDeficit, {
     formatter: regularNumber,
     color: scaleDiverging<string>(x => scales.interpolateBrBG(1-x)).domain([-600, 0, 1600]),
     normalized: false,
+    type: DataType.Climate,
     description: "Difference between mean annual potential evapotransipiration and precipitation (def = pet - prc)",
     years: years,
     datasets: datasets
@@ -210,6 +216,7 @@ dataDefinitions.set(DataGroup.DroughtIndicator, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateOranges).domain([1500, 0]),
     normalized: false,
+    type: DataType.Climate,
     description: "5th percentile of annual runoff time series during the specific period",
     years: years,
     datasets: datasets
@@ -221,6 +228,7 @@ dataDefinitions.set(DataGroup.Groundwater, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 40]),
     normalized: false,
+    type: DataType.Climate,
     description: "Minimum of the 12 monthly runoff climatology during the specific period (40 years or 20 years. To avoid negative values, the minimum cutoff value is set to be 0.000001)",
     years: years,
     datasets: datasets
@@ -232,6 +240,7 @@ dataDefinitions.set(DataGroup.MaxTemperature, {
     formatter: regularNumber,
     color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40]),
     normalized: false,
+    type: DataType.Climate,
     description: "Directly calculated from the reanalysis data",
     years: years,
     datasets: datasets
@@ -243,6 +252,7 @@ dataDefinitions.set(DataGroup.Evapotranspiration, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([300, 1700]),
     normalized: false,
+    type: DataType.Climate,
     description: "Monthly potential evapotranspiration is calculated based on monthly mean surface air temperature, monthly mean temperature diurnal range, and monthly mean precipitation using modified Hargreaves method (Droogers and Allen, Irrigation and Drainage Systems 16: 33–45, 2002)",
     years: years,
     datasets: datasets
@@ -254,6 +264,7 @@ dataDefinitions.set(DataGroup.Precipitation, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2200]),
     normalized: false,
+    type: DataType.Climate,
     description: "Directly calculated from the reanalysis data",
     years: years,
     datasets: datasets
@@ -265,6 +276,7 @@ dataDefinitions.set(DataGroup.Runoff, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2000]),
     normalized: false,
+    type: DataType.Climate,
     description: "Monthly runoff is calculated based on the monthly precipitation and potential evapotransipiration using the Turc-Pike model (Yates, Climate Research, Vol 9, 147-155, 1997)",
     years: years,
     datasets: datasets
@@ -276,6 +288,7 @@ dataDefinitions.set(DataGroup.FloodIndicator, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500]),
     normalized: false,
+    type: DataType.Climate,
     description: "98th percentile of monthly runoff time series during the specific period",
     years: years,
     datasets: datasets
@@ -284,9 +297,10 @@ dataDefinitions.set(DataGroup.GDP2018, {
     name: "GDP 2018",
     id: getEconDataId,
     units: "USD",
-    formatter: format("$,.0f"),
+    formatter: money,
     color: scaleThreshold<number, string>().domain([0, 1000000, 2000000, 3000000, 10000000, 100000000, 300000000, 700000000]).range(scales.schemeGreens[8]),
     normalized: false,
+    type: DataType.Economic,
     description: "",
     years: [],
     datasets: []
@@ -298,6 +312,7 @@ dataDefinitions.set(DataGroup.AllIndustries, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 1000000]),
     normalized: false,
+    type: DataType.Economic,
     description: "",
     years: [],
     datasets: []
@@ -309,6 +324,7 @@ dataDefinitions.set(DataGroup.Farming, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
+    type: DataType.Economic,
     description: "",
     years: [],
     datasets: []
@@ -320,6 +336,7 @@ dataDefinitions.set(DataGroup.Mining, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
+    type: DataType.Economic,
     description: "",
     years: [],
     datasets: []
@@ -331,6 +348,7 @@ dataDefinitions.set(DataGroup.Construction, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
+    type: DataType.Economic,
     description: "",
     years: [],
     datasets: []
@@ -342,6 +360,7 @@ dataDefinitions.set(DataGroup.Retail, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
+    type: DataType.Economic,
     description: "",
     years: [],
     datasets: []
@@ -353,6 +372,7 @@ dataDefinitions.set(DataGroup.Information, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
+    type: DataType.Economic,
     description: "",
     years: [],
     datasets: []
@@ -364,6 +384,7 @@ dataDefinitions.set(DataGroup.Wholesale, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalized: false,
+    type: DataType.Economic,
     description: "",
     years: [],
     datasets: []
@@ -375,17 +396,19 @@ dataDefinitions.set(DataGroup.discuss, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([20, 60]),
     normalized: false,
+    type: DataType.Demographic,
     description: "",
     years: [],
     datasets: []
 });
 dataDefinitions.set(DataGroup.PerCapitap, {
-    name:"PerCapitap",
+    name:"Per capita personal income 2018",
     id: getEconDataId,
-    units:"",
-    formatter: regularNumber,
+    units:"USD",
+    formatter: money,
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([10000, 40000, 100000]),
     normalized: false,
+    type: DataType.Demographic,
     description: "",
     years: [],
     datasets: []
@@ -397,6 +420,7 @@ dataDefinitions.set(DataGroup.PercentPop, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
     normalized: false,
+    type: DataType.Demographic,
     description: "",
     years: [],
     datasets: []
@@ -408,6 +432,7 @@ dataDefinitions.set(DataGroup.PercentP_1, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
     normalized: false,
+    type: DataType.Demographic,
     description: "",
     years: [],
     datasets: []
@@ -419,6 +444,7 @@ dataDefinitions.set(DataGroup.PercentNon, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 100]),
     normalized: false,
+    type: DataType.Demographic,
     description: "",
     years: [],
     datasets: []
@@ -430,6 +456,7 @@ dataDefinitions.set(DataGroup.PercentofP, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
     normalized: false,
+    type: DataType.Demographic,
     description: "",
     years: [],
     datasets: []
@@ -442,6 +469,7 @@ dataDefinitions.set(DataGroup.PercentP_2, {
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolatePRGn).domain([-4, 0, 4]),
     normalized: true,
+    type: DataType.Normalized,
     description: "",
     years: [],
     datasets: []
@@ -453,6 +481,7 @@ dataDefinitions.set(DataGroup.PercentP_3, {
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolatePRGn).domain([-4, 0, 4]),
     normalized: true,
+    type: DataType.Normalized,
     description: "",
     years: [],
     datasets: []
@@ -464,6 +493,7 @@ dataDefinitions.set(DataGroup.PercentN_1, {
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolatePRGn).domain([-4, 0, 4]),
     normalized: true,
+    type: DataType.Normalized,
     description: "",
     years: [],
     datasets: []
@@ -475,6 +505,7 @@ dataDefinitions.set(DataGroup.Percento_1, {
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolatePRGn).domain([-4, 0, 4]),
     normalized: true,
+    type: DataType.Normalized,
     description: "",
     years: [],
     datasets: []
