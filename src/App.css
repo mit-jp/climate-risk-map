@@ -125,6 +125,7 @@ input.data-group:checked + label {
 
 #map {
     min-width: 500px;
+    width:100%;
 }
 
 #description {
