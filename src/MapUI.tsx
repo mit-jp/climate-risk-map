@@ -97,7 +97,7 @@ const getTitle = (selectedDataDefinitions: DataDefinition[]) => {
         return dataDefinition.name + getUnitStringWithParens(dataDefinition.units);
     } else {
         const names = selectedDataDefinitions.map(dataDefinition => dataDefinition.name);
-        return names.join(" + ");
+        return "Mean of " + names.join(", ");
     }
 }
 

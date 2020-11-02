@@ -231,12 +231,12 @@ dataDefinitions.set(DataGroup.ClimateMoistureIndex, {
     id: getClimateDataId,
     units:"",
     formatter: regularNumber,
-    color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10]),
-    normalized: false,
-    type: DataType.Climate,
+    color: scaleDiverging<string>(scales.interpolatePRGn).domain([-4, 0, 4]),
+    normalized: true,
+    type: DataType.Normalized,
     description: "Calculated from mean annual precipitation and potential evapotransipiration",
-    years: years,
-    datasets: climateDatasets
+    years: [Year._2000_2019],
+    datasets: [Dataset.ERA5]
 });
 dataDefinitions.set(DataGroup.IrregationDeficit, {
     name:"Irrigation Deficit",
