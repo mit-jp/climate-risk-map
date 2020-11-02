@@ -1,10 +1,13 @@
 import React from 'react';
 import { Dataset, datasetDefinitions } from './DataDefinitions';
 
-type Props = {dataset: Dataset, shouldShow: boolean, showClicked: () => void};
+type Props = {datasets: Dataset[], shouldShow: boolean, showClicked: () => void};
 
-const DatasetDescription = ({dataset, shouldShow, showClicked}: Props) => {
-    const datasetDefinition = datasetDefinitions.get(dataset)!;
+const DatasetDescription = ({datasets, shouldShow, showClicked}: Props) => {
+    if (datasets.length !== 1) {
+        return null;
+    }
+    const datasetDefinition = datasetDefinitions.get(datasets[0])!;
     return <div id="dataset-description">
         <button
             onClick={showClicked}

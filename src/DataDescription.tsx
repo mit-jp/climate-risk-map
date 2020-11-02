@@ -1,10 +1,13 @@
 import React from 'react';
 import dataDefinitions, { DataIdParams } from './DataDefinitions';
 
-type Props = {selection: DataIdParams, shouldShow: boolean, showClicked: () => void};
+type Props = {selections: DataIdParams[], shouldShow: boolean, showClicked: () => void};
 
-const DataDescription = ({selection, shouldShow, showClicked}: Props) => {
-    const dataDefinition = dataDefinitions.get(selection.dataGroup);
+const DataDescription = ({selections, shouldShow, showClicked}: Props) => {
+    if (selections.length !== 1) {
+        return null;
+    }
+    const dataDefinition = dataDefinitions.get(selections[0].dataGroup);
     const description = dataDefinition!.description;
     const name = dataDefinition!.name;
 

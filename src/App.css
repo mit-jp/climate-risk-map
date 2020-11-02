@@ -123,6 +123,10 @@ input.data-group:checked + label {
     display:flex;
 }
 
+.data-missing {
+    padding: 0 1em 1em 1em;
+}
+
 #map {
     min-width: 500px;
     width:100%;
