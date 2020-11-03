@@ -14,6 +14,7 @@ body {
 h1, h2 {
     font-weight: 500;
     color: #11598d;
+    font-family: 'Merriweather', serif;
 }
 
 #root {
