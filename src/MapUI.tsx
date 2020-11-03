@@ -131,18 +131,46 @@ const getProcessedData = (dataIds: DataId[], features: Feature<Geometry, GeoJson
     }));
 }
 
-
 const MapUI = ({data, selections, showDatasetDescription, onDatasetDescriptionClicked, showDataDescription, onDataDescriptionClicked}: Props) => {
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
-        if (data === undefined || selections.length === 0) {
+        if (data === undefined) {
             return;
         }
-
         const features = feature(
             data,
             data.objects.counties as GeometryCollection<GeoJsonProperties>
         ).features;
+        if (selections.length == 0) {
+            const svg = select(svgRef.current);        
+            // legend
+            const legendSequential = legendColor();
+
+            svg.select<SVGGElement>("#legend")
+                .attr("transform", "translate(-925, 220)")
+                // @ts-ignore
+                .call(legendSequential)
+            // colorized counties
+            svg.select("#counties")
+                .selectAll("path")
+                .data(features)
+                .join("path")
+                .attr("class", "county")
+                .attr("fill", d => {
+                    return missingDataColor;
+                })
+                .attr("d", geoPath());
+        
+            // state borders
+            svg.select("#states")
+                .select("path")
+                .datum(mesh(data, data.objects.states as GeometryCollection))
+                .attr("fill", "none")
+                .attr("stroke", "white")
+                .attr("stroke-linejoin", "round")
+                .attr("d", geoPath());
+            return;
+        }
         const processedData = getProcessedData(getDataIds(selections), features);
         const selectedDataDefinitions = getDataDefinitions(selections);
         const title = getTitle(selectedDataDefinitions);
@@ -198,9 +226,6 @@ const MapUI = ({data, selections, showDatasetDescription, onDatasetDescriptionCl
 
     if (data === undefined) {
         return <div id="map"><p className="data-missing">Loading</p></div>;
-    }
-    if (selections.length === 0) {
-        return <div id="map"><p className="data-missing">Please select data</p></div>
     }
 
     return (
