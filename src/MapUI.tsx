@@ -5,7 +5,7 @@ import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, DataId } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, DataId, DataType } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
 import DatasetDescription from './DatasetDescription';
 import { Map } from 'immutable';
@@ -91,6 +91,14 @@ const getDataIds = (selections: DataIdParams[]) => {
     return selections.map(selection => dataDefinitions.get(selection.dataGroup)!.id(selection));
 }
 
+const getLegendCells = (selectedDataDefinitions: DataDefinition[]) => {
+    if (selectedDataDefinitions[0].type === DataType.Normalized) {
+        return 9;
+    } else {
+        return 5;
+    }
+}
+
 const getTitle = (selectedDataDefinitions: DataDefinition[]) => {
     if (selectedDataDefinitions.length === 1) {
         const dataDefinition = selectedDataDefinitions[0];
@@ -140,11 +148,12 @@ const MapUI = ({data, selections, showDatasetDescription, onDatasetDescriptionCl
         const title = getTitle(selectedDataDefinitions);
         const formatter = getFormatter(selectedDataDefinitions);
         const colorScheme = getColorScheme(selectedDataDefinitions);
+        const legendCells = getLegendCells(selectedDataDefinitions);
 
         const svg = select(svgRef.current);        
         // legend
         const legendSequential = legendColor()
-            .cells(5)
+            .cells(legendCells)
             .shapeWidth(20)
             .shapeHeight(30)
             .shapePadding(0)
@@ -155,7 +164,7 @@ const MapUI = ({data, selections, showDatasetDescription, onDatasetDescriptionCl
             .scale(colorScheme)
 
         svg.select<SVGGElement>("#legend")
-            .attr("transform", "translate(925, 320)")
+            .attr("transform", "translate(925, 220)")
             // @ts-ignore
             .call(legendSequential)
 
