@@ -29,17 +29,32 @@ h1, h2 {
 header {
     margin-bottom: 1em;
     display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
-header h1 {
-    margin-left: 1em
+#mst-title {
+    display:flex;
+    align-items: center;
+    flex-grow: 1;
 }
 
-header img {
-    float:left;
-    width: 90px;
-    height: 90px;
+#mst-title h1 {
     margin-left: 1em;
+}
+
+#mst-logo {
+    height: 120px;
+    margin-left: 1em;
+}
+
+#joint-program-logo {
+    height: 100px;
+    margin: 0 1em;
+}
+
+#mit-logo {
+    margin: 0 1em;
 }
 
 nav ul {
