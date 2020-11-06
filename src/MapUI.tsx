@@ -141,7 +141,7 @@ const MapUI = ({data, selections, showDatasetDescription, onDatasetDescriptionCl
             data,
             data.objects.counties as GeometryCollection<GeoJsonProperties>
         ).features;
-        if (selections.length == 0) {
+        if (selections.length === 0) {
             const svg = select(svgRef.current);        
             // legend
             const legendSequential = legendColor();
