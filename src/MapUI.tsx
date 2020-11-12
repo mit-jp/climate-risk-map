@@ -5,10 +5,20 @@ import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, DataId, DataType } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, DataId, DataType, DataGroup } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
 import DatasetDescription from './DatasetDescription';
 import { Map } from 'immutable';
+
+type Props = {
+    data: Topology<Objects<GeoJsonProperties>> | undefined,
+    selections: DataIdParams[],
+    showDatasetDescription: boolean,
+    onDatasetDescriptionClicked: () => void,
+    showDataDescription: boolean,
+    onDataDescriptionClicked: () => void,
+    dataWeights: Map<DataGroup, number>,
+};
 
 const missingDataColor = "#ccc";
 
@@ -69,15 +79,6 @@ const handleMouseOut = function(this:any, d:any) {
         .style("opacity", 0)
 }
 
-type Props = {
-    data: Topology<Objects<GeoJsonProperties>> | undefined,
-    selections: DataIdParams[],
-    showDatasetDescription: boolean,
-    onDatasetDescriptionClicked: () => void,
-    showDataDescription: boolean,
-    onDataDescriptionClicked: () => void,
-};
-
 const getDataset = (selection: DataIdParams) => {
     // get the selected dataset, or the first one, if there's none selected
     return selection.dataset ?? dataDefinitions.get(selection.dataGroup)!.datasets[0];
@@ -117,21 +118,21 @@ const getColorScheme = (selectedDataDefinitions: DataDefinition[]) => {
     return selectedDataDefinitions[0].color;
 }
 
-const getProcessedData = (dataIds: DataId[], features: Feature<Geometry, GeoJsonProperties>[]) => {
-    return Map(features.map(feature => {
-        let value = undefined;
-        if (feature.properties) {
-            const values = [];
-            for (const dataId of dataIds) {
-                values.push(feature.properties[DataId[dataId]]);
+const MapUI = ({data, selections, showDatasetDescription, onDatasetDescriptionClicked, showDataDescription, onDataDescriptionClicked, dataWeights}: Props) => {
+    const getProcessedData = (selections: DataIdParams[], features: Feature<Geometry, GeoJsonProperties>[]) => {
+        return Map(features.map(feature => {
+            let value = undefined;
+            if (feature.properties) {
+                const values = [];
+                for (const selection of selections) {
+                    const dataId = dataDefinitions.get(selection.dataGroup)!.id(selection);
+                    values.push(feature.properties[DataId[dataId]] * (dataWeights.get(selection.dataGroup) ?? 1));
+                }
+                value = mean(values);
             }
-            value = mean(values);
-        }
-        return [feature.id as number, value];
-    }));
-}
-
-const MapUI = ({data, selections, showDatasetDescription, onDatasetDescriptionClicked, showDataDescription, onDataDescriptionClicked}: Props) => {
+            return [feature.id as number, value];
+        }));
+    }
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
         if (data === undefined) {
@@ -171,7 +172,7 @@ const MapUI = ({data, selections, showDatasetDescription, onDatasetDescriptionCl
                 .attr("d", geoPath());
             return;
         }
-        const processedData = getProcessedData(getDataIds(selections), features);
+        const processedData = getProcessedData(selections, features);
         const selectedDataDefinitions = getDataDefinitions(selections);
         const title = getTitle(selectedDataDefinitions);
         const formatter = getFormatter(selectedDataDefinitions);
@@ -222,7 +223,7 @@ const MapUI = ({data, selections, showDatasetDescription, onDatasetDescriptionCl
             .selectAll(".county")
             .on("touchmove mousemove", handleMouseOverCreator(selectedDataDefinitions, processedData))
             .on("touchend mouseleave", handleMouseOut);
-    }, [data, selections]);
+    }, [data, selections, dataWeights]);
 
     if (data === undefined) {
         return <div id="map"><p className="data-missing">Loading</p></div>;

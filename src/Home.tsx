@@ -24,6 +24,7 @@ const defaultSelectionMap = Map<DataType, DataIdParams[]>([
 const Home = () => {
   const [data, setData] = useState<Topology<Objects<GeoJsonProperties>> | undefined>(undefined);
   const [dataSelections, setDataSelections] = useState<Map<DataType, DataIdParams[]>>(defaultSelectionMap);
+  const [dataWeights, setDataWeights] = useState<Map<DataGroup, number>>(Map<DataGroup, number>());
   const [dataType, setDataType] = useState<DataType>(DataType.Climate);
   const [showDatasetDescription, setShowDatasetDescription] = useState<boolean>(false);
   const [showDataDescription, setShowDataDescription] = useState<boolean>(false);
@@ -34,6 +35,10 @@ const Home = () => {
 
   const onSelectionChange = (dataIds: DataIdParams[], dataType: DataType) => {
     setDataSelections(dataSelections.set(dataType, dataIds));
+  }
+
+  const onWeightChange = (dataGroup: DataGroup, weight: number) => {
+    setDataWeights(dataWeights.set(dataGroup, weight));
   }
 
   const onDataTypeChanged = (event: MouseEvent<HTMLLIElement>) => {
@@ -54,10 +59,17 @@ const Home = () => {
       <Header />
       <Navigation selection={dataType} onDataTypeChanged={onDataTypeChanged} />
       <div id="content">
-      <DataSelector onSelectionChange={onSelectionChange} dataType={dataType} selection={dataSelections.get(dataType)!} />
+      <DataSelector
+        onSelectionChange={onSelectionChange}
+        dataType={dataType}
+        selection={dataSelections.get(dataType)!}
+        onWeightChange={onWeightChange}
+        dataWeights={dataWeights}
+      />
       <MapUI
         data={data}
         selections={dataSelections.get(dataType)!}
+        dataWeights={dataWeights}
         showDatasetDescription={showDatasetDescription}
         onDatasetDescriptionClicked={onDatasetDescriptionToggled}
         showDataDescription={showDataDescription}

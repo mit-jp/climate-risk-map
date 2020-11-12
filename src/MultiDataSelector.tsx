@@ -7,7 +7,9 @@ import { Map } from 'immutable';
 type Props = {
     selection: DataIdParams[],
     onSelectionChange: (dataIds: DataIdParams[], dataType: DataType) => void,
-    dataType: DataType
+    onWeightChange: (dataGroup: DataGroup, weight: number) => void,
+    dataType: DataType,
+    dataWeights: Map<DataGroup, number>,
 };
 
 const getYears = (dataGroup: DataGroup) =>
@@ -18,7 +20,7 @@ const getDatasets = (dataGroup: DataGroup) =>
 
 const getUnitString = (units: string) => units ? `(${units})` : "";
 
-const MultiDataSelector = ({selection: dataSelections, onSelectionChange, dataType}: Props) => {
+const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeightChange, dataType, dataWeights}: Props) => {
     const selectionMap = Map(dataSelections.map(selection => [selection.dataGroup, selection]));
 
     const onYearChange = (dataGroup: DataGroup) => (event: ChangeEvent<HTMLInputElement>) => {
@@ -39,6 +41,11 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, dataTy
             selectionMap.delete(dataGroup);
         
         onSelectionChange(Array.from(changedSelections.values()), dataType);
+    }
+
+    const onDataGroupWeightChange = (dataGroup: DataGroup) => (event: ChangeEvent<HTMLInputElement>) => {
+        const weight = parseFloat(event.target.value);
+        onWeightChange(dataGroup, weight);
     }
 
     const shouldShowYears = (dataGroup: DataGroup) => shouldBeChecked(dataGroup) && getYears(dataGroup).length > 1
@@ -62,6 +69,15 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, dataTy
                     onChange={onSelectionToggled}
                     name="dataGroup" />
                 <label className="data-group" htmlFor={dataGroup}>{data.name} {getUnitString(data.units)}</label>
+                <input
+                    type="range"
+                    name="weight"
+                    id={dataGroup + "weight"}
+                    min="-1"
+                    max="1"
+                    step="0.1"
+                    onChange={onDataGroupWeightChange(dataGroup)}
+                    value={dataWeights.get(dataGroup) ?? 1} />
                 {shouldShowYears(dataGroup) &&
                     <YearSelector
                         years={getYears(dataGroup)}
@@ -74,6 +90,7 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, dataTy
                         selectedDataset={selectionMap.get(dataGroup)!.dataset}
                         onSelectionChange={onDatasetChange(dataGroup)}
                     />}
+                
             </div>
         )
     }
