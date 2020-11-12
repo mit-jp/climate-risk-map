@@ -3,6 +3,8 @@ import dataDefinitions, { DataIdParams, Year, Dataset, DataGroup, DataType } fro
 import YearSelector from './YearSelector';
 import DatasetSelector from './DatasetSelector';
 import { Map } from 'immutable';
+import Slider from 'rc-slider';
+import 'rc-slider/assets/index.css';
 
 type Props = {
     selection: DataIdParams[],
@@ -43,8 +45,7 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
         onSelectionChange(Array.from(changedSelections.values()), dataType);
     }
 
-    const onDataGroupWeightChange = (dataGroup: DataGroup) => (event: ChangeEvent<HTMLInputElement>) => {
-        const weight = parseFloat(event.target.value);
+    const onDataGroupWeightChange = (dataGroup: DataGroup) => (weight: number) => {
         onWeightChange(dataGroup, weight);
     }
 
@@ -59,7 +60,7 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
         return Array.from(dataDefinitions.entries())
         .filter(([_, definition]) => dataType === definition.type)
         .map(([dataGroup, data]) =>
-            <div key={dataGroup}>
+            <div key={dataGroup} className={shouldBeChecked(dataGroup) ? "selected-group" : undefined}>
                 <input
                     className="data-group"
                     id={dataGroup}
@@ -69,15 +70,14 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
                     onChange={onSelectionToggled}
                     name="dataGroup" />
                 <label className="data-group" htmlFor={dataGroup}>{data.name} {getUnitString(data.units)}</label>
-                <input
-                    type="range"
-                    name="weight"
-                    id={dataGroup + "weight"}
-                    min="-1"
-                    max="1"
-                    step="0.1"
+                {shouldBeChecked(dataGroup) && <Slider
+                    marks={{0:0, 0.1:0.1, 0.2:0.2,0.3:0.3,0.4:0.4,0.5:0.5,0.6:0.6,0.7:0.7,0.8:0.8,0.9:0.9, 1:1}}
+                    className="slider"
+                    min={0}
+                    max={1}
+                    step={0.1}
                     onChange={onDataGroupWeightChange(dataGroup)}
-                    value={dataWeights.get(dataGroup) ?? 1} />
+                    value={dataWeights.get(dataGroup) ?? 1} />}
                 {shouldShowYears(dataGroup) &&
                     <YearSelector
                         years={getYears(dataGroup)}

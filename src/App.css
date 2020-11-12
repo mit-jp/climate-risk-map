@@ -211,3 +211,14 @@ footer #navigation {
 footer #navigation li {
     margin-right: 2em;
 }
+
+.slider {
+    margin-left:1em;
+    margin-right: 1em;
+    width: auto;
+    padding-bottom:2em;
+}
+
+.selected-group {
+    background: #eee;
+}
