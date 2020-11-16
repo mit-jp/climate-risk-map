@@ -21,6 +21,7 @@ type Props = {
 };
 
 const missingDataColor = "#ccc";
+const noDataSelectedColor = "#eee";
 
 const tooltip = select("body")
     .append("div")
@@ -157,9 +158,7 @@ const MapUI = ({data, selections, showDatasetDescription, onDatasetDescriptionCl
                 .data(features)
                 .join("path")
                 .attr("class", "county")
-                .attr("fill", d => {
-                    return missingDataColor;
-                })
+                .attr("fill", noDataSelectedColor)
                 .attr("d", geoPath());
         
             // state borders
