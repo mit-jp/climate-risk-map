@@ -1,5 +1,5 @@
 import React, { useEffect, useState, MouseEvent } from 'react';
-import MapUI from './MapUI';
+import MapUI, { Aggregation } from './MapUI';
 import Footer from './Footer';
 import Header from './Header';
 import Navigation from './Navigation';
@@ -10,6 +10,7 @@ import './App.css';
 import { Map } from 'immutable';
 import { DataGroup, DataIdParams, Dataset, DataType, Year } from './DataDefinitions';
 import { json } from 'd3-fetch';
+import { ToggleButton, ToggleButtonGroup } from '@material-ui/core';
 
 const defaultSelectionMap = Map<DataType, DataIdParams[]>([
   [DataType.Climate, [{
@@ -21,6 +22,7 @@ const defaultSelectionMap = Map<DataType, DataIdParams[]>([
   [DataType.Demographic, [{dataGroup: DataGroup.PercentPop}]],
   [DataType.Normalized, [{dataGroup: DataGroup.PercentP_2}]],
 ]);
+
 const Home = () => {
   const [data, setData] = useState<Topology<Objects<GeoJsonProperties>> | undefined>(undefined);
   const [dataSelections, setDataSelections] = useState<Map<DataType, DataIdParams[]>>(defaultSelectionMap);
@@ -28,6 +30,7 @@ const Home = () => {
   const [dataType, setDataType] = useState<DataType>(DataType.Climate);
   const [showDatasetDescription, setShowDatasetDescription] = useState<boolean>(false);
   const [showDataDescription, setShowDataDescription] = useState<boolean>(false);
+  const [aggregation, setAggregation] = useState<Aggregation>(Aggregation.County);
 
   useEffect(() => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa-topo.json").then(setData);
@@ -54,10 +57,22 @@ const Home = () => {
     setShowDataDescription(!showDataDescription);
   }
 
+  const onAggregationChange = (_: any, value: Aggregation) => {
+    setAggregation(value);
+  }
+
   return (
     <React.Fragment>
       <Header />
       <Navigation selection={dataType} onDataTypeChanged={onDataTypeChanged} />
+      <ToggleButtonGroup size="small" value={aggregation} exclusive onChange={onAggregationChange}>
+        <ToggleButton value={Aggregation.County}>
+          County
+        </ToggleButton>
+        <ToggleButton value={Aggregation.State}>
+          State
+        </ToggleButton>
+      </ToggleButtonGroup>
       <div id="content">
       <DataSelector
         onSelectionChange={onSelectionChange}
@@ -67,6 +82,7 @@ const Home = () => {
         dataWeights={dataWeights}
       />
       <MapUI
+        aggregation={aggregation}
         data={data}
         selections={dataSelections.get(dataType)!}
         dataWeights={dataWeights}

@@ -222,3 +222,9 @@ footer #navigation li {
 .selected-group {
     background: #eee;
 }
+
+.MuiToggleButtonGroup-root {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    margin-left: 1em;
+}
