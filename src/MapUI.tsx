@@ -41,7 +41,7 @@ const tooltip = select("body")
     .style("background", "white")	
     .style("pointer-events", "none");
 
-const handleMouseOverCreator = (selectedDataDefinitions: DataDefinition[], processedData: ImmutableMap<string, number | undefined>) => {
+const handleCountyMouseOver = (selectedDataDefinitions: DataDefinition[], processedCountyData: ImmutableMap<string, number | undefined>) => {
     return function(this: any, d: any) {
         select(this)
             .style("opacity", 0.5)
@@ -53,9 +53,25 @@ const handleMouseOverCreator = (selectedDataDefinitions: DataDefinition[], proce
             .style("opacity", .9)
         
         let name = d.properties.County_Sta.replace("_", ", ") ?? "---";
-        let value = processedData.get(d.id);
+        let value = processedCountyData.get(d.id);
 
         tooltip.html(`${name}: ${format(value, selectedDataDefinitions)}`)	
+            .style("left", `${event.pageX + 20}px`)		
+            .style("top", (event.pageY - 45) + "px");
+    }
+};
+
+const handleStateMouseOver = (selectedDataDefinitions: DataDefinition[], processedStateData: ImmutableMap<string, number | undefined>) => {
+    return function(this: any, d: any) {
+        select(this).style("opacity", 0.5)
+    
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", .9)
+        
+        let value = processedStateData.get(d.id);
+
+        tooltip.html(`${format(value, selectedDataDefinitions)}`)	
             .style("left", `${event.pageX + 20}px`)		
             .style("top", (event.pageY - 45) + "px");
     }
@@ -192,6 +208,10 @@ const MapUI = ({
                 .attr("fill", noDataSelectedColor)
                 .attr("d", geoPath());
             svg.select("#counties").selectAll("path").attr("fill", "none");
+            svg
+                .selectAll(".state")
+                .on("touchmove mousemove", null)
+                .on("touchend mouseleave", null);
             return;
         }
         const processedData = getProcessedCountyData(selections, countyFeatures);
@@ -250,7 +270,12 @@ const MapUI = ({
         // tooltips
         svg
             .selectAll(".county")
-            .on("touchmove mousemove", handleMouseOverCreator(selectedDataDefinitions, processedData))
+            .on("touchmove mousemove", handleCountyMouseOver(selectedDataDefinitions, processedData))
+            .on("touchend mouseleave", handleMouseOut);
+
+        svg
+            .selectAll(".state")
+            .on("touchmove mousemove", handleStateMouseOver(selectedDataDefinitions, processedStateData))
             .on("touchend mouseleave", handleMouseOut);
     }, [data, selections, dataWeights, aggregation]);
 
