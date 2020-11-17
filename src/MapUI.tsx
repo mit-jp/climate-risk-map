@@ -8,7 +8,7 @@ import DataDescription from './DataDescription';
 import dataDefinitions, { DataDefinition, DataIdParams, DataId, DataType, DataGroup } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
 import DatasetDescription from './DatasetDescription';
-import { Map } from 'immutable';
+import { Map as ImmutableMap } from 'immutable';
 
 type Props = {
     data: Topology<Objects<GeoJsonProperties>> | undefined,
@@ -17,7 +17,13 @@ type Props = {
     onDatasetDescriptionClicked: () => void,
     showDataDescription: boolean,
     onDataDescriptionClicked: () => void,
-    dataWeights: Map<DataGroup, number>,
+    dataWeights: ImmutableMap<DataGroup, number>,
+    aggregation: Aggregation,
+};
+
+export enum Aggregation {
+    State = "state",
+    County = "county",
 };
 
 const missingDataColor = "#ccc";
@@ -35,7 +41,7 @@ const tooltip = select("body")
     .style("background", "white")	
     .style("pointer-events", "none");
 
-const handleMouseOverCreator = (selectedDataDefinitions: DataDefinition[], processedData: Map<number, number | undefined>) => {
+const handleMouseOverCreator = (selectedDataDefinitions: DataDefinition[], processedData: ImmutableMap<string, number | undefined>) => {
     return function(this: any, d: any) {
         select(this)
             .style("opacity", 0.5)
@@ -119,9 +125,32 @@ const getColorScheme = (selectedDataDefinitions: DataDefinition[]) => {
     return selectedDataDefinitions[0].color;
 }
 
-const MapUI = ({data, selections, showDatasetDescription, onDatasetDescriptionClicked, showDataDescription, onDataDescriptionClicked, dataWeights}: Props) => {
-    const getProcessedData = (selections: DataIdParams[], features: Feature<Geometry, GeoJsonProperties>[]) => {
-        return Map(features.map(feature => {
+const getProcessedStateData = (processedCountyData: ImmutableMap<string, number | undefined>) => {
+    const stateData = new Map<string, number[]>();
+    for (const countyId of processedCountyData.keys()) {
+        const countyData = processedCountyData.get(countyId);
+        const stateId = countyId.slice(0, 2)
+        if (stateData.has(stateId)) {
+            stateData.get(stateId)!.push(countyData ?? 0);
+        } else {
+            stateData.set(stateId, [countyData ?? 0]);
+        }
+    }
+    return ImmutableMap(Array.from(stateData.entries(), ([stateId, dataList]) => [stateId, mean(dataList)]));
+}
+
+const MapUI = ({
+    data,
+    selections,
+    showDatasetDescription,
+    onDatasetDescriptionClicked,
+    showDataDescription,
+    onDataDescriptionClicked,
+    dataWeights,
+    aggregation,
+}: Props) => {
+    const getProcessedCountyData = (selections: DataIdParams[], features: Feature<Geometry, GeoJsonProperties>[]) => {
+        return ImmutableMap(features.map(feature => {
             let value = undefined;
             if (feature.properties) {
                 const values = [];
@@ -131,54 +160,52 @@ const MapUI = ({data, selections, showDatasetDescription, onDatasetDescriptionCl
                 }
                 value = mean(values);
             }
-            return [feature.id as number, value];
+            return [feature.id as string, value];
         }));
     }
+
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
         if (data === undefined) {
             return;
         }
-        const features = feature(
+        const countyFeatures = feature(
             data,
             data.objects.counties as GeometryCollection<GeoJsonProperties>
         ).features;
-        if (selections.length === 0) {
-            const svg = select(svgRef.current);        
-            // legend
+        const stateFeatures = feature(
+            data,
+            data.objects.states as GeometryCollection<GeoJsonProperties>
+        ).features;
+        const svg = select(svgRef.current);        
+        // state borders
+        svg.select("#state-borders")
+            .select("path")
+            .datum(mesh(data, data.objects.states as GeometryCollection, (a, b) => a !== b))
+            .attr("fill", "none")
+            .attr("stroke", "white")
+            .attr("stroke-linejoin", "round")
+            .attr("d", geoPath());
+        if (selections.length === 0) {      
+            // hide legend by moving it off screen
             const legendSequential = legendColor();
-
             svg.select<SVGGElement>("#legend")
                 .attr("transform", "translate(-925, 220)")
                 // @ts-ignore
                 .call(legendSequential)
-            // colorized counties
-            svg.select("#counties")
-                .selectAll("path")
-                .data(features)
-                .join("path")
-                .attr("class", "county")
-                .attr("fill", noDataSelectedColor)
-                .attr("d", geoPath());
-        
-            // state borders
-            svg.select("#states")
-                .select("path")
-                .datum(mesh(data, data.objects.states as GeometryCollection))
-                .attr("fill", "none")
-                .attr("stroke", "white")
-                .attr("stroke-linejoin", "round")
-                .attr("d", geoPath());
+
+            svg.select("#states").selectAll("path").attr("fill", noDataSelectedColor);
+            svg.select("#counties").selectAll("path").attr("fill", "none");
             return;
         }
-        const processedData = getProcessedData(selections, features);
+        const processedData = getProcessedCountyData(selections, countyFeatures);
+        const processedStateData = getProcessedStateData(processedData);
         const selectedDataDefinitions = getDataDefinitions(selections);
         const title = getTitle(selectedDataDefinitions);
         const formatter = getFormatter(selectedDataDefinitions);
         const colorScheme = getColorScheme(selectedDataDefinitions);
         const legendCells = getLegendCells(selectedDataDefinitions);
 
-        const svg = select(svgRef.current);        
         // legend
         const legendSequential = legendColor()
             .cells(legendCells)
@@ -196,33 +223,40 @@ const MapUI = ({data, selections, showDatasetDescription, onDatasetDescriptionCl
             // @ts-ignore
             .call(legendSequential)
 
-        // colorized counties
-        svg.select("#counties")
-            .selectAll("path")
-            .data(features)
-            .join("path")
-            .attr("class", "county")
-            .attr("fill", d => {
-                const value = processedData.get(d.id as number);
-                return colorScheme(value as any) ?? missingDataColor;
-            })
-            .attr("d", geoPath());
-
-        // state borders
-        svg.select("#states")
-            .select("path")
-            .datum(mesh(data, data.objects.states as GeometryCollection))
-            .attr("fill", "none")
-            .attr("stroke", "white")
-            .attr("stroke-linejoin", "round")
-            .attr("d", geoPath());
+        if (aggregation === Aggregation.County) {
+            // colorized counties
+            svg.select("#counties")
+                .selectAll("path")
+                .data(countyFeatures)
+                .join("path")
+                .attr("class", "county")
+                .attr("fill", d => {
+                    const value = processedData.get(d.id as string);
+                    return colorScheme(value as any) ?? missingDataColor;
+                })
+                .attr("d", geoPath());
+            svg.select("#states").selectAll("path").attr("fill", "none");
+        } else if (aggregation === Aggregation.State) {
+            // colorized states
+            svg.select("#states")
+                .selectAll("path")
+                .data(stateFeatures)
+                .join("path")
+                .attr("class", "state")
+                .attr("fill", d => {
+                    const value = processedStateData.get(d.id as string);
+                    return colorScheme(value as any) ?? missingDataColor;
+                })
+                .attr("d", geoPath());
+            svg.select("#counties").selectAll("path").attr("fill", "none");
+        }
 
         // tooltips
         svg
             .selectAll(".county")
             .on("touchmove mousemove", handleMouseOverCreator(selectedDataDefinitions, processedData))
             .on("touchend mouseleave", handleMouseOut);
-    }, [data, selections, dataWeights]);
+    }, [data, selections, dataWeights, aggregation]);
 
     if (data === undefined) {
         return <div id="map"><p className="data-missing">Loading</p></div>;
@@ -233,7 +267,8 @@ const MapUI = ({data, selections, showDatasetDescription, onDatasetDescriptionCl
         <svg ref={svgRef} viewBox="0, 0, 1175, 610">
             <g id="legend"></g>
             <g id="counties"></g>
-            <g id="states"><path /></g>
+            <g id="states"></g>
+            <g id="state-borders"><path /></g>
         </svg>
         <DataDescription
             selections={selections}
