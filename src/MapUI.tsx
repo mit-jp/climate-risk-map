@@ -151,6 +151,21 @@ const getProcessedStateData = (processedCountyData: ImmutableMap<string, number 
     return ImmutableMap(Array.from(stateData.entries(), ([stateId, dataList]) => [stateId, mean(dataList)]));
 }
 
+const getProcessedCountyData = (selections: DataIdParams[], features: Feature<Geometry, GeoJsonProperties>[], dataWeights: ImmutableMap<DataGroup, number>) => {
+    return ImmutableMap(features.map(feature => {
+        let value = undefined;
+        if (feature.properties) {
+            const values = [];
+            for (const selection of selections) {
+                const dataId = dataDefinitions.get(selection.dataGroup)!.id(selection);
+                values.push(feature.properties[DataId[dataId]] * (dataWeights.get(selection.dataGroup) ?? 1));
+            }
+            value = mean(values);
+        }
+        return [feature.id as string, value];
+    }));
+}
+
 const MapUI = ({
     data,
     selections,
@@ -161,20 +176,7 @@ const MapUI = ({
     dataWeights,
     aggregation,
 }: Props) => {
-    const getProcessedCountyData = (selections: DataIdParams[], features: Feature<Geometry, GeoJsonProperties>[]) => {
-        return ImmutableMap(features.map(feature => {
-            let value = undefined;
-            if (feature.properties) {
-                const values = [];
-                for (const selection of selections) {
-                    const dataId = dataDefinitions.get(selection.dataGroup)!.id(selection);
-                    values.push(feature.properties[DataId[dataId]] * (dataWeights.get(selection.dataGroup) ?? 1));
-                }
-                value = mean(values);
-            }
-            return [feature.id as string, value];
-        }));
-    }
+
 
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
@@ -214,7 +216,7 @@ const MapUI = ({
                 .on("touchend mouseleave", null);
             return;
         }
-        const processedData = getProcessedCountyData(selections, countyFeatures);
+        const processedData = getProcessedCountyData(selections, countyFeatures, dataWeights);
         const processedStateData = getProcessedStateData(processedData);
         const selectedDataDefinitions = getDataDefinitions(selections);
         const title = getTitle(selectedDataDefinitions);
