@@ -187,14 +187,14 @@ const MapUI = ({
             .attr("stroke-linejoin", "round")
             .attr("d", geoPath());
         if (selections.length === 0) {      
-            // hide legend by moving it off screen
-            const legendSequential = legendColor();
-            svg.select<SVGGElement>("#legend")
-                .attr("transform", "translate(-925, 220)")
-                // @ts-ignore
-                .call(legendSequential)
-
-            svg.select("#states").selectAll("path").attr("fill", noDataSelectedColor);
+            svg.select("#legend").selectAll("*").remove();
+            svg.select("#states")
+                .selectAll("path")
+                .data(stateFeatures)
+                .join("path")
+                .attr("class", "state")
+                .attr("fill", noDataSelectedColor)
+                .attr("d", geoPath());
             svg.select("#counties").selectAll("path").attr("fill", "none");
             return;
         }
