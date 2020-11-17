@@ -95,10 +95,6 @@ const getDataDefinitions = (selections: DataIdParams[]) => {
     return selections.map(selection => dataDefinitions.get(selection.dataGroup)!);
 }
 
-const getDataIds = (selections: DataIdParams[]) => {
-    return selections.map(selection => dataDefinitions.get(selection.dataGroup)!.id(selection));
-}
-
 const getLegendCells = (selectedDataDefinitions: DataDefinition[]) => {
     if (selectedDataDefinitions[0].type === DataType.Normalized) {
         return 9;
