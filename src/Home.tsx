@@ -11,6 +11,7 @@ import { Map } from 'immutable';
 import { DataGroup, DataIdParams, Dataset, DataType, Year } from './DataDefinitions';
 import { json } from 'd3-fetch';
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/core';
+import { State } from './States';
 
 const defaultSelectionMap = Map<DataType, DataIdParams[]>([
   [DataType.Climate, [{
@@ -31,6 +32,7 @@ const Home = () => {
   const [showDatasetDescription, setShowDatasetDescription] = useState<boolean>(false);
   const [showDataDescription, setShowDataDescription] = useState<boolean>(false);
   const [aggregation, setAggregation] = useState<Aggregation>(Aggregation.County);
+  const [state, setState] = useState<State | undefined>(undefined);
 
   useEffect(() => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa-topo.json").then(setData);
@@ -85,11 +87,13 @@ const Home = () => {
         aggregation={aggregation}
         data={data}
         selections={dataSelections.get(dataType)!}
+        state={state}
         dataWeights={dataWeights}
         showDatasetDescription={showDatasetDescription}
         onDatasetDescriptionClicked={onDatasetDescriptionToggled}
         showDataDescription={showDataDescription}
         onDataDescriptionClicked={onDataDescriptionToggled}
+        onStateChange={setState}
       />
       </div>
       <Footer />
