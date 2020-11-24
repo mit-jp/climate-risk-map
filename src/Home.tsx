@@ -9,9 +9,10 @@ import { GeoJsonProperties } from 'geojson';
 import './App.css';
 import { Map } from 'immutable';
 import { DataGroup, DataIdParams, Dataset, DataType, Year } from './DataDefinitions';
-import { json } from 'd3-fetch';
+import { json, csv } from 'd3-fetch';
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/core';
 import { State } from './States';
+import { DSVRowArray } from 'd3';
 
 const defaultSelectionMap = Map<DataType, DataIdParams[]>([
   [DataType.Climate, [{
@@ -25,7 +26,8 @@ const defaultSelectionMap = Map<DataType, DataIdParams[]>([
 ]);
 
 const Home = () => {
-  const [data, setData] = useState<Topology<Objects<GeoJsonProperties>> | undefined>(undefined);
+  const [map, setMap] = useState<Topology<Objects<GeoJsonProperties>> | undefined>(undefined);
+  const [climate, setClimate] = useState<DSVRowArray<string> | undefined>(undefined);
   const [dataSelections, setDataSelections] = useState<Map<DataType, DataIdParams[]>>(defaultSelectionMap);
   const [dataWeights, setDataWeights] = useState<Map<DataGroup, number>>(Map<DataGroup, number>());
   const [dataType, setDataType] = useState<DataType>(DataType.Climate);
@@ -35,7 +37,8 @@ const Home = () => {
   const [state, setState] = useState<State | undefined>(undefined);
 
   useEffect(() => {
-    json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa-topo.json").then(setData);
+    json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa.json").then(setMap);
+    csv(process.env.PUBLIC_URL + "/climate.csv").then(setClimate);
   }, []);
 
   const onSelectionChange = (dataIds: DataIdParams[], dataType: DataType) => {
@@ -85,7 +88,8 @@ const Home = () => {
       />
       <MapUI
         aggregation={aggregation}
-        data={data}
+        map={map}
+        data={climate}
         selections={dataSelections.get(dataType)!}
         state={state}
         dataWeights={dataWeights}

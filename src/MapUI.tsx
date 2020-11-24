@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { select, geoPath, event, mean } from 'd3';
+import { select, geoPath, event, mean, DSVRowArray } from 'd3';
 import { Feature, Geometry } from 'geojson';
 import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
@@ -9,7 +9,8 @@ import dataDefinitions, { DataDefinition, DataIdParams, DataId, DataType, DataGr
 import { legendColor } from 'd3-svg-legend';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
-import { State } from './States';
+import states, { State } from './States';
+import  Counties from './Counties';
 
 export enum Aggregation {
     State = "state",
@@ -17,7 +18,8 @@ export enum Aggregation {
 };
 
 type Props = {
-    data: Topology<Objects<GeoJsonProperties>> | undefined,
+    map: Topology<Objects<GeoJsonProperties>> | undefined,
+    data: DSVRowArray<string> | undefined,
     selections: DataIdParams[],
     showDatasetDescription: boolean,
     onDatasetDescriptionClicked: () => void,
@@ -30,6 +32,7 @@ type Props = {
 };
 
 const MapUI = ({
+    map,
     data,
     selections,
     showDatasetDescription,
@@ -41,25 +44,34 @@ const MapUI = ({
     state,
     onStateChange,
 }: Props) => {
+    let dataMap: ImmutableMap<string, any> | undefined;
+    if (data !== undefined) {
+        dataMap = ImmutableMap(data.map(row => [row["STATEFP"]! + row["COUNTYFP"]!, {...row}]));
+    } else {
+        dataMap = undefined;
+    }
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
-        if (data === undefined) {
+        if (map === undefined) {
+            return;
+        }
+        if (dataMap === undefined) {
             return;
         }
         const countyFeatures = feature(
-            data,
-            data.objects.counties as GeometryCollection<GeoJsonProperties>
+            map,
+            map.objects.counties as GeometryCollection<GeoJsonProperties>
         ).features.filter(stateFilter(state));
         const stateFeatures = feature(
-            data,
-            data.objects.states as GeometryCollection<GeoJsonProperties>
+            map,
+            map.objects.states as GeometryCollection<GeoJsonProperties>
         ).features.filter(stateFilter(state));
         const svg = select(svgRef.current);
         const path = geoPath();
         // state borders
         svg.select("#state-borders")
             .select("path")
-            .datum(mesh(data, data.objects.states as GeometryCollection, (a, b) => a !== b))
+            .datum(mesh(map, map.objects.states as GeometryCollection, (a, b) => a !== b))
             .attr("fill", "none")
             .attr("stroke", "white")
             .attr("stroke-linejoin", "round")
@@ -80,8 +92,8 @@ const MapUI = ({
                 .on("touchend mouseleave", null);
             return;
         }
-        const processedData = getProcessedCountyData(selections, countyFeatures, dataWeights);
-        const processedStateData = getProcessedStateData(processedData);
+        const processedData = getProcessedCountyData(selections, dataMap, dataWeights);
+        // const processedStateData = getProcessedStateData(processedData);
         const selectedDataDefinitions = getDataDefinitions(selections);
         const title = getTitle(selectedDataDefinitions);
         const formatter = getFormatter(selectedDataDefinitions);
@@ -124,17 +136,17 @@ const MapUI = ({
                 .attr("transform", "translate(0)scale(1)");
         } else if (aggregation === Aggregation.State) {
             // colorized states
-            svg.select("#states")
-                .selectAll("path")
-                .data(stateFeatures)
-                .join("path")
-                .attr("class", "state")
-                .attr("fill", d => {
-                    const value = processedStateData.get(d.id as string);
-                    return colorScheme(value as any) ?? missingDataColor;
-                })
-                .attr("d", path);
-            svg.select("#counties").selectAll("path").attr("fill", "none");
+            // svg.select("#states")
+            //     .selectAll("path")
+            //     .data(stateFeatures)
+            //     .join("path")
+            //     .attr("class", "state")
+            //     .attr("fill", d => {
+            //         const value = processedStateData.get(d.id as string);
+            //         return colorScheme(value as any) ?? missingDataColor;
+            //     })
+            //     .attr("d", path);
+            // svg.select("#counties").selectAll("path").attr("fill", "none");
         }
 
         if (state !== undefined) {
@@ -157,7 +169,6 @@ const MapUI = ({
                 .transition()
                 .duration(200)
                 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
-
         }
 
         // tooltips
@@ -166,13 +177,13 @@ const MapUI = ({
             .on("touchmove mousemove", handleCountyMouseOver(selectedDataDefinitions, processedData))
             .on("touchend mouseleave", handleMouseOut);
 
-        svg
-            .selectAll(".state")
-            .on("touchmove mousemove", handleStateMouseOver(selectedDataDefinitions, processedStateData))
-            .on("touchend mouseleave", handleMouseOut);
-    }, [data, selections, dataWeights, aggregation, state, onStateChange]);
+        // svg
+        //     .selectAll(".state")
+        //     .on("touchmove mousemove", handleStateMouseOver(selectedDataDefinitions, processedStateData))
+        //     .on("touchend mouseleave", handleMouseOut);
+    }, [map, selections, dataWeights, aggregation, state, onStateChange, dataMap]);
 
-    if (data === undefined) {
+    if (map === undefined) {
         return <div id="map"><p className="data-missing">Loading</p></div>;
     }
 
@@ -224,7 +235,12 @@ const handleCountyMouseOver = (selectedDataDefinitions: DataDefinition[], proces
             .duration(200)
             .style("opacity", .9)
         
-        let name = d.properties.County_Sta.replace("_", ", ") ?? "---";
+        let county = Counties.get(d.id);
+        let state = states.get(d.id.slice(0,2) as State);
+        let name = "---";
+        if (state && county) {
+            name = county + ", " + state;
+        }
         let value = processedCountyData.get(d.id);
 
         tooltip.html(`${name}: ${format(value, selectedDataDefinitions)}`)	
@@ -323,19 +339,22 @@ const getProcessedStateData = (processedCountyData: ImmutableMap<string, number 
     return ImmutableMap(Array.from(stateData.entries(), ([stateId, dataList]) => [stateId, mean(dataList)]));
 }
 
-const getProcessedCountyData = (selections: DataIdParams[], features: Feature<Geometry, GeoJsonProperties>[], dataWeights: ImmutableMap<DataGroup, number>) => {
-    return ImmutableMap(features.map(feature => {
+const getProcessedCountyData = (selections: DataIdParams[], data: ImmutableMap<string, any>, dataWeights: ImmutableMap<DataGroup, number>) => {
+    let valuesById: [string, number | undefined][] = [];
+    for (const [key, datum] of data.entries()) {
         let value = undefined;
-        if (feature.properties) {
-            const values = [];
-            for (const selection of selections) {
-                const dataId = dataDefinitions.get(selection.dataGroup)!.id(selection);
-                values.push(feature.properties[DataId[dataId]] * (dataWeights.get(selection.dataGroup) ?? 1));
+        const values: number[] = [];
+        for (const selection of selections) {
+            const dataId = dataDefinitions.get(selection.dataGroup)!.id(selection);
+            if (datum[DataId[dataId]]) {
+                values.push(+datum[DataId[dataId]] * (dataWeights.get(selection.dataGroup) ?? 1));
             }
-            value = mean(values);
         }
-        return [feature.id as string, value];
-    }));
+        value = mean(values);
+
+        valuesById.push([key as string, value]);
+    }
+    return ImmutableMap<string, number | undefined>(valuesById);
 }
 
 const stateFilter = (state: State | undefined) => (feature: Feature<Geometry, GeoJsonProperties>) => {
