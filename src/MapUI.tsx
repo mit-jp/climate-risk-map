@@ -19,7 +19,7 @@ export enum Aggregation {
 
 type Props = {
     map: Topology<Objects<GeoJsonProperties>> | undefined,
-    data: DSVRowArray<string> | undefined,
+    data: ImmutableMap<string, {[key: string]: string | number | undefined}> | undefined,
     selections: DataIdParams[],
     showDatasetDescription: boolean,
     onDatasetDescriptionClicked: () => void,
@@ -44,18 +44,12 @@ const MapUI = ({
     state,
     onStateChange,
 }: Props) => {
-    let dataMap: ImmutableMap<string, any> | undefined;
-    if (data !== undefined) {
-        dataMap = ImmutableMap(data.map(row => [row["STATEFP"]! + row["COUNTYFP"]!, {...row}]));
-    } else {
-        dataMap = undefined;
-    }
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
         if (map === undefined) {
             return;
         }
-        if (dataMap === undefined) {
+        if (data === undefined) {
             return;
         }
         const countyFeatures = feature(
@@ -92,7 +86,7 @@ const MapUI = ({
                 .on("touchend mouseleave", null);
             return;
         }
-        const processedData = getProcessedCountyData(selections, dataMap, dataWeights);
+        const processedData = getProcessedCountyData(selections, data, dataWeights);
         // const processedStateData = getProcessedStateData(processedData);
         const selectedDataDefinitions = getDataDefinitions(selections);
         const title = getTitle(selectedDataDefinitions);
@@ -181,7 +175,7 @@ const MapUI = ({
         //     .selectAll(".state")
         //     .on("touchmove mousemove", handleStateMouseOver(selectedDataDefinitions, processedStateData))
         //     .on("touchend mouseleave", handleMouseOut);
-    }, [map, selections, dataWeights, aggregation, state, onStateChange, dataMap]);
+    }, [map, selections, dataWeights, aggregation, state, onStateChange, data]);
 
     if (map === undefined) {
         return <div id="map"><p className="data-missing">Loading</p></div>;

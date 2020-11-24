@@ -12,7 +12,7 @@ import { DataGroup, DataIdParams, Dataset, DataType, Year } from './DataDefiniti
 import { json, csv } from 'd3-fetch';
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/core';
 import { State } from './States';
-import { DSVRowArray } from 'd3';
+import { DSVRowString } from 'd3';
 
 const defaultSelectionMap = Map<DataType, DataIdParams[]>([
   [DataType.Climate, [{
@@ -25,9 +25,26 @@ const defaultSelectionMap = Map<DataType, DataIdParams[]>([
   [DataType.Normalized, [{dataGroup: DataGroup.PercentP_2}]],
 ]);
 
+const convertCsv = (csv: {[key: string]: string | number | undefined}[]) =>
+   Map(csv.map(row => {
+    return [(row["STATEFP"] as string)! + (row["COUNTYFP"] as string)!, row];
+  }));
+
+const convertToNumbers = (rawRow: DSVRowString, index: number, columns: string[]) => {
+  const newRows: {[key: string]: string | number | undefined} = {};
+  for (let [key, value] of Object.entries(rawRow)) {
+    if (key === "STATEFP" || key === "COUNTYFP") {
+      newRows[key] = value;
+    } else {
+      newRows[key] = value !== undefined ? +value : undefined;
+    }
+  }
+  return newRows;
+}
+
 const Home = () => {
   const [map, setMap] = useState<Topology<Objects<GeoJsonProperties>> | undefined>(undefined);
-  const [climate, setClimate] = useState<DSVRowArray<string> | undefined>(undefined);
+  const [climate, setClimate] = useState<Map<string, {[key: string]: string | number | undefined}> | undefined>(undefined);
   const [dataSelections, setDataSelections] = useState<Map<DataType, DataIdParams[]>>(defaultSelectionMap);
   const [dataWeights, setDataWeights] = useState<Map<DataGroup, number>>(Map<DataGroup, number>());
   const [dataType, setDataType] = useState<DataType>(DataType.Climate);
@@ -38,7 +55,9 @@ const Home = () => {
 
   useEffect(() => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa.json").then(setMap);
-    csv(process.env.PUBLIC_URL + "/climate.csv").then(setClimate);
+    csv(process.env.PUBLIC_URL + "/climate.csv", convertToNumbers).then(csv => {
+      setClimate(convertCsv(csv));
+    });
   }, []);
 
   const onSelectionChange = (dataIds: DataIdParams[], dataType: DataType) => {
