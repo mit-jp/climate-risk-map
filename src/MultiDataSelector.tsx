@@ -24,15 +24,15 @@ const getUnitString = (units: string) => units ? `(${units})` : "";
 const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeightChange, dataWeights}: Props) => {
     const selectionMap = Map(dataSelections.map(selection => [selection.dataGroup, selection]));
 
-    const onYearChange = (dataGroup: DataGroup) => (event: ChangeEvent<HTMLInputElement>) => {
+    const onYearChange = (event: ChangeEvent<HTMLInputElement>, dataGroup: DataGroup) => {
         const year = event.target.value as Year;
-        selectionMap.get(dataGroup)!.year = year;
-        onSelectionChange(dataSelections);
+        const changedSelections = selectionMap.set(dataGroup, {...selectionMap.get(dataGroup)!, year});
+        onSelectionChange(Array.from(changedSelections.values()));
     };
-    const onDatasetChange = (dataGroup: DataGroup) => (event: ChangeEvent<HTMLInputElement>) => {
+    const onDatasetChange = (event: ChangeEvent<HTMLInputElement>, dataGroup: DataGroup) => {
         const dataset = event.target.value as Dataset;
-        selectionMap.get(dataGroup)!.dataset = dataset;
-        onSelectionChange(dataSelections);
+        const changedSelections = selectionMap.set(dataGroup, {...selectionMap.get(dataGroup)!, dataset});
+        onSelectionChange(Array.from(changedSelections.values()));
     };
     const onSelectionToggled = (event: ChangeEvent<HTMLInputElement>) => {
         const dataGroup = event.target.value as DataGroup;
@@ -79,15 +79,17 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
                     value={dataWeights.get(dataGroup) ?? 1} />}
                 {shouldShowYears(dataGroup) &&
                     <YearSelector
+                        id={dataGroup}
                         years={getYears(dataGroup)}
                         selectedYear={selectionMap.get(dataGroup)!.year}
-                        onSelectionChange={onYearChange(dataGroup)}
+                        onSelectionChange={e => onYearChange(e, dataGroup)}
                     />}
                 {shouldShowDatasets(dataGroup) &&
                     <DatasetSelector
+                        id={dataGroup}
                         datasets={getDatasets(dataGroup)}
                         selectedDataset={selectionMap.get(dataGroup)!.dataset}
-                        onSelectionChange={onDatasetChange(dataGroup)}
+                        onSelectionChange={e => onDatasetChange(e, dataGroup)}
                     />}
                 
             </div>

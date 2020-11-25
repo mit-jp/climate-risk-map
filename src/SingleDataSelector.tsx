@@ -54,8 +54,8 @@ const SingleDataSelector = ({selection, onSelectionChange, dataTab}: Props) => {
                     onChange={onDataGroupChange}
                     name="dataGroup" />
                 <label className="data-group" htmlFor={dataGroup}>{data.name} {getUnitString(data.units)}</label>
-                {shouldShowYears(dataGroup) && <YearSelector years={getYears(selection)} selectedYear={selection.year} onSelectionChange={onYearChange} />}
-                {shouldShowDatasets(dataGroup) && <DatasetSelector datasets={getDatasets(selection)} selectedDataset={selection.dataset} onSelectionChange={onDatasetChange} />}
+                {shouldShowYears(dataGroup) && <YearSelector id={dataGroup} years={getYears(selection)} selectedYear={selection.year} onSelectionChange={onYearChange} />}
+                {shouldShowDatasets(dataGroup) && <DatasetSelector id={dataGroup} datasets={getDatasets(selection)} selectedDataset={selection.dataset} onSelectionChange={onDatasetChange} />}
             </div>
         )
     }

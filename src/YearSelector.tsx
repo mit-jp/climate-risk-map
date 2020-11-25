@@ -4,7 +4,8 @@ import { Year } from './DataDefinitions';
 type Props = {
     years: Year[],
     selectedYear: Year | undefined,
-    onSelectionChange: (event: ChangeEvent<HTMLInputElement>) => void
+    onSelectionChange: (event: ChangeEvent<HTMLInputElement>) => void,
+    id: string,
 };
 
 const readable = (year: Year) => {
@@ -18,18 +19,18 @@ const readable = (year: Year) => {
     }
 }
 
-const YearSelector = ({ years, selectedYear, onSelectionChange }: Props) => {
+const YearSelector = ({ years, selectedYear, onSelectionChange, id }: Props) => {
     const getYears = () => {
         return years.map(year =>
             <React.Fragment key={year}>
             <input
                 type="radio"
                 value={year}
-                id={year}
+                id={id + year}
                 onChange={onSelectionChange}
                 checked={year === selectedYear}
             />
-            <label htmlFor={year}>{readable(year)}</label>
+            <label htmlFor={id + year}>{readable(year)}</label>
             </React.Fragment>
         )
     }
