@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { select, geoPath, event, mean, DSVRowArray } from 'd3';
+import { select, geoPath, event, mean } from 'd3';
 import { Feature, Geometry } from 'geojson';
 import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
@@ -11,6 +11,8 @@ import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
 import states, { State } from './States';
 import  Counties from './Counties';
+import { CsvFile, Data } from './Home';
+import counties from './Counties';
 
 export enum Aggregation {
     State = "state",
@@ -19,7 +21,7 @@ export enum Aggregation {
 
 type Props = {
     map: Topology<Objects<GeoJsonProperties>> | undefined,
-    data: ImmutableMap<string, {[key: string]: string | number | undefined}> | undefined,
+    data: Data,
     selections: DataIdParams[],
     showDatasetDescription: boolean,
     onDatasetDescriptionClicked: () => void,
@@ -49,9 +51,6 @@ const MapUI = ({
         if (map === undefined) {
             return;
         }
-        if (data === undefined) {
-            return;
-        }
         const countyFeatures = feature(
             map,
             map.objects.counties as GeometryCollection<GeoJsonProperties>
@@ -70,7 +69,10 @@ const MapUI = ({
             .attr("stroke", "white")
             .attr("stroke-linejoin", "round")
             .attr("d", path);
-        if (selections.length === 0) {      
+
+        const csvFiles = getTablesForSelections(selections);
+
+        if (selections.length === 0 || !dataLoaded(csvFiles.values(), data)) {      
             svg.select("#legend").selectAll("*").remove();
             svg.select("#states")
                 .selectAll("path")
@@ -86,6 +88,7 @@ const MapUI = ({
                 .on("touchend mouseleave", null);
             return;
         }
+
         const processedData = getProcessedCountyData(selections, data, dataWeights);
         // const processedStateData = getProcessedStateData(processedData);
         const selectedDataDefinitions = getDataDefinitions(selections);
@@ -294,7 +297,7 @@ const getDataDefinitions = (selections: DataIdParams[]) => {
 }
 
 const getLegendCells = (selectedDataDefinitions: DataDefinition[]) => {
-    if (selectedDataDefinitions[0].type === DataType.Normalized) {
+    if (selectedDataDefinitions[0].normalized) {
         return 9;
     } else {
         return 5;
@@ -333,22 +336,74 @@ const getProcessedStateData = (processedCountyData: ImmutableMap<string, number 
     return ImmutableMap(Array.from(stateData.entries(), ([stateId, dataList]) => [stateId, mean(dataList)]));
 }
 
-const getProcessedCountyData = (selections: DataIdParams[], data: ImmutableMap<string, any>, dataWeights: ImmutableMap<DataGroup, number>) => {
-    let valuesById: [string, number | undefined][] = [];
-    for (const [key, datum] of data.entries()) {
-        let value = undefined;
-        const values: number[] = [];
-        for (const selection of selections) {
-            const dataId = dataDefinitions.get(selection.dataGroup)!.id(selection);
-            if (datum[DataId[dataId]]) {
-                values.push(+datum[DataId[dataId]] * (dataWeights.get(selection.dataGroup) ?? 1));
-            }
+const dataLoaded = (csvFiles: IterableIterator<CsvFile>, data: Data) => {
+    for (const csvFile of csvFiles) {
+        if (data.get(csvFile) === undefined) {
+            return false;
         }
-        value = mean(values);
+    }
+    return true;
+}
 
-        valuesById.push([key as string, value]);
+const getProcessedCountyData = (
+    selections: DataIdParams[],
+    data: Data,
+    dataWeights: ImmutableMap<DataGroup, number>,
+) => {
+    const selectionToDataId =  getDataIdsForSelections(selections);
+    const selectionToTable = getTablesForSelections(selections);
+    let valuesById: [string, number | undefined][] = [];
+    for (const countyId of counties.keys()) {
+        const values = getDataForSelections(
+            countyId,
+            selections,
+            selectionToTable,
+            selectionToDataId,
+            data,
+            dataWeights
+        );
+        valuesById.push([countyId, mean(values)]);
     }
     return ImmutableMap<string, number | undefined>(valuesById);
+}
+
+const getDataForSelections = (
+    countyId: string,
+    selections: DataIdParams[],
+    selectionToTable: ImmutableMap<DataIdParams, CsvFile>,
+    selectionToDataId: ImmutableMap<DataIdParams, DataId>,
+    data: Data,
+    dataWeights: ImmutableMap<DataGroup, number>,
+    ) => {
+    return selections.map(selection => {
+        const tableName = selectionToTable.get(selection)!;
+        const dataId = selectionToDataId.get(selection)!;
+        const table = data.get(tableName)!;
+        const county = table.get(countyId);
+        if (county === undefined) {
+            return undefined;
+        }
+        const value = county[DataId[dataId]];
+        if (value === undefined) {
+            return undefined;
+        }
+        return +value * (dataWeights.get(selection.dataGroup) ?? 1);
+    });
+}
+
+const getDataIdsForSelections = (selections: DataIdParams[]) =>
+    ImmutableMap(selections.map(selection =>
+        [selection, dataDefinitions.get(selection.dataGroup)!.id(selection)]
+    ));
+
+const getTablesForSelections = (selections: DataIdParams[]) => {
+    return ImmutableMap(selections.map(selection => {
+        const dataDefinition = dataDefinitions.get(selection.dataGroup)!
+        const prefix = dataDefinition.type === DataType.Climate ? "climate" : "demographics";
+        const suffix = dataDefinition.normalized ? "_normalized_by_nation.csv" : ".csv";
+        const csvFile: CsvFile = (prefix + suffix) as CsvFile;
+        return [selection, csvFile];
+    }));
 }
 
 const stateFilter = (state: State | undefined) => (feature: Feature<Geometry, GeoJsonProperties>) => {

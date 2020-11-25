@@ -1,12 +1,13 @@
 import React, { ChangeEvent } from 'react';
-import dataDefinitions, { DataIdParams, Year, Dataset, DataGroup, DataType } from './DataDefinitions';
+import dataDefinitions, { DataIdParams, Year, Dataset, DataGroup, DataDefinition } from './DataDefinitions';
 import YearSelector from './YearSelector';
 import DatasetSelector from './DatasetSelector';
+import { DataTab, TabToTypeMap } from './Navigation';
 
 type Props = {
     selection: DataIdParams,
     onSelectionChange: (event: DataIdParams) => void,
-    dataType: DataType
+    dataTab: DataTab
 };
 
 const getYears = (selection: DataIdParams) =>
@@ -17,7 +18,7 @@ const getDatasets = (selection: DataIdParams) =>
 
 const getUnitString = (units: string) => units ? `(${units})` : "";
 
-const SingleDataSelector = ({selection, onSelectionChange, dataType}: Props) => {
+const SingleDataSelector = ({selection, onSelectionChange, dataTab}: Props) => {
 
     const onYearChange = (event: ChangeEvent<HTMLInputElement>) => {
         const year = event.target.value as Year;
@@ -35,9 +36,13 @@ const SingleDataSelector = ({selection, onSelectionChange, dataType}: Props) => 
     const shouldShowYears = (dataGroup: DataGroup) => selection.dataGroup === dataGroup && getYears(selection).length > 1
     const shouldShowDatasets = (dataGroup: DataGroup) => selection.dataGroup === dataGroup && getDatasets(selection).length > 1
 
+    const matchesDataTab = ([_, definition]: [DataGroup, DataDefinition]) => {
+        return !definition.normalized && TabToTypeMap.get(dataTab) === definition.type;
+    }
+
     const getDataGroups = () => {
         return Array.from(dataDefinitions.entries())
-        .filter(([_, definition]) => dataType === definition.type)
+        .filter(matchesDataTab)
         .map(([dataGroup, data]) =>
             <div key={dataGroup}>
                 <input

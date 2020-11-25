@@ -2,28 +2,36 @@ import React, { useEffect, useState, MouseEvent } from 'react';
 import MapUI, { Aggregation } from './MapUI';
 import Footer from './Footer';
 import Header from './Header';
-import Navigation from './Navigation';
+import Navigation, { DataTab } from './Navigation';
 import DataSelector from './DataSelector';
 import { Objects, Topology } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import './App.css';
 import { Map } from 'immutable';
-import { DataGroup, DataIdParams, Dataset, DataType, Year } from './DataDefinitions';
+import { DataGroup, DataIdParams, Dataset, Year } from './DataDefinitions';
 import { json, csv } from 'd3-fetch';
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/core';
 import { State } from './States';
 import { DSVRowString } from 'd3';
 
-const defaultSelectionMap = Map<DataType, DataIdParams[]>([
-  [DataType.Climate, [{
+const csvFiles: CsvFile[] = [
+  "climate_normalized_by_nation.csv",
+  "climate.csv",
+  "demographics_normalized_by_nation.csv",
+  "demographics.csv"
+];
+
+const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
+  [DataTab.Climate, [{
     dataGroup: DataGroup.IrregationDeficit,
     year: Year._2000_2019,
     dataset: Dataset.ERA5
   }]],
-  [DataType.Economic, [{dataGroup: DataGroup.AllIndustries}]],
-  [DataType.Demographic, [{dataGroup: DataGroup.PercentPop}]],
-  [DataType.Normalized, [{dataGroup: DataGroup.PercentP_2}]],
+  [DataTab.Economic, [{dataGroup: DataGroup.AllIndustries}]],
+  [DataTab.Demographic, [{dataGroup: DataGroup.PercentPopulationUnder18}]],
+  [DataTab.Normalized, [{dataGroup: DataGroup.PercentPopulationUnder18Std}]],
 ]);
+const defaultData = Map<CsvFile, undefined>(csvFiles.map(csv_file => [csv_file, undefined]));
 
 const convertCsv = (csv: {[key: string]: string | number | undefined}[]) =>
    Map(csv.map(row => {
@@ -41,36 +49,45 @@ const convertToNumbers = (rawRow: DSVRowString, index: number, columns: string[]
   }
   return newRows;
 }
+export type CsvFile = "climate_normalized_by_nation.csv" | "climate.csv" | "demographics_normalized_by_nation.csv" | "demographics.csv";
+type CountyToDataMap = Map<string, {[key: string]: string | number | undefined}>;
+export type Data = Map<CsvFile, CountyToDataMap | undefined>;
 
 const Home = () => {
   const [map, setMap] = useState<Topology<Objects<GeoJsonProperties>> | undefined>(undefined);
-  const [climate, setClimate] = useState<Map<string, {[key: string]: string | number | undefined}> | undefined>(undefined);
-  const [dataSelections, setDataSelections] = useState<Map<DataType, DataIdParams[]>>(defaultSelectionMap);
-  const [dataWeights, setDataWeights] = useState<Map<DataGroup, number>>(Map<DataGroup, number>());
-  const [dataType, setDataType] = useState<DataType>(DataType.Climate);
-  const [showDatasetDescription, setShowDatasetDescription] = useState<boolean>(false);
-  const [showDataDescription, setShowDataDescription] = useState<boolean>(false);
-  const [aggregation, setAggregation] = useState<Aggregation>(Aggregation.County);
+  const [data, setData] = useState<Data>(defaultData);
+  const [dataSelections, setDataSelections] = useState(defaultSelectionMap);
+  const [dataWeights, setDataWeights] = useState(Map<DataGroup, number>());
+  const [dataTab, setDataTab] = useState(DataTab.Climate);
+  const [showDatasetDescription, setShowDatasetDescription] = useState(false);
+  const [showDataDescription, setShowDataDescription] = useState(false);
+  const [aggregation, setAggregation] = useState(Aggregation.County);
   const [state, setState] = useState<State | undefined>(undefined);
 
   useEffect(() => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa.json").then(setMap);
-    csv(process.env.PUBLIC_URL + "/climate.csv", convertToNumbers).then(csv => {
-      setClimate(convertCsv(csv));
+    const loadingCsvs = csvFiles.map(csvFile => csv(process.env.PUBLIC_URL + "/" + csvFile, convertToNumbers));
+    Promise.all(loadingCsvs).then(loadedCsvs => {
+      const convertedCsvs = loadedCsvs.map(convertCsv);
+      const filenameToData: [CsvFile, CountyToDataMap][] = [];
+      for (let i = 0; i < csvFiles.length; i++) {
+        filenameToData[i] = [csvFiles[i], convertedCsvs[i]];
+      }
+      setData(Map(filenameToData));
     });
   }, []);
 
-  const onSelectionChange = (dataIds: DataIdParams[], dataType: DataType) => {
-    setDataSelections(dataSelections.set(dataType, dataIds));
+  const onSelectionChange = (dataIds: DataIdParams[], dataTab: DataTab) => {
+    setDataSelections(dataSelections.set(dataTab, dataIds));
   }
 
   const onWeightChange = (dataGroup: DataGroup, weight: number) => {
     setDataWeights(dataWeights.set(dataGroup, weight));
   }
 
-  const onDataTypeChanged = (event: MouseEvent<HTMLLIElement>) => {
-    const newDataType = event.currentTarget.textContent as DataType;
-    setDataType(newDataType);
+  const onDataTabChanged = (event: MouseEvent<HTMLLIElement>) => {
+    const newDataTab = event.currentTarget.textContent as DataTab;
+    setDataTab(newDataTab);
   }
 
   const onDatasetDescriptionToggled = () => {
@@ -88,7 +105,7 @@ const Home = () => {
   return (
     <React.Fragment>
       <Header />
-      <Navigation selection={dataType} onDataTypeChanged={onDataTypeChanged} />
+      <Navigation selection={dataTab} onDataTabChanged={onDataTabChanged} />
       <ToggleButtonGroup size="small" value={aggregation} exclusive onChange={onAggregationChange}>
         <ToggleButton value={Aggregation.County}>
           County
@@ -100,16 +117,16 @@ const Home = () => {
       <div id="content">
       <DataSelector
         onSelectionChange={onSelectionChange}
-        dataType={dataType}
-        selection={dataSelections.get(dataType)!}
+        dataTab={dataTab}
+        selection={dataSelections.get(dataTab)!}
         onWeightChange={onWeightChange}
         dataWeights={dataWeights}
       />
       <MapUI
         aggregation={aggregation}
         map={map}
-        data={climate}
-        selections={dataSelections.get(dataType)!}
+        data={data}
+        selections={dataSelections.get(dataTab)!}
         state={state}
         dataWeights={dataWeights}
         showDatasetDescription={showDatasetDescription}

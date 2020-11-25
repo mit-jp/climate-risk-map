@@ -1,22 +1,36 @@
 import React, { MouseEvent } from 'react';
+import { Map } from 'immutable';
 import { DataType } from './DataDefinitions';
 
 type Props = {
-    selection: DataType,
-    onDataTypeChanged: (event: MouseEvent<HTMLLIElement>) => void
+    selection: DataTab,
+    onDataTabChanged: (event: MouseEvent<HTMLLIElement>) => void
 }
 
-const dataTypes = Object.values(DataType);
+export enum DataTab {
+    Climate = "climate",
+    Economic = "economic",
+    Demographic = "demographic",
+    Normalized = "normalized",
+}
 
-const listDataTypes = ({selection, onDataTypeChanged}: Props) =>
-    dataTypes.map(dataType =>
-        <li className={selection === dataType ? "selected" : undefined} onClick={onDataTypeChanged} key={dataType}>{dataType}</li>
+export const TabToTypeMap = Map([
+    [DataTab.Climate, DataType.Climate],
+    [DataTab.Economic, DataType.Economic],
+    [DataTab.Demographic, DataType.Demographic],
+]);
+
+const dataTabs = Object.values(DataTab);
+
+const listDataTabs = ({selection, onDataTabChanged}: Props) =>
+    dataTabs.map(dataTab =>
+        <li className={selection === dataTab ? "selected" : undefined} onClick={onDataTabChanged} key={dataTab}>{dataTab}</li>
     )
 
 const Navigation = (props: Props) =>
     <nav>
         <ul>
-            {listDataTypes(props)}
+            {listDataTabs(props)}
         </ul>
     </nav>
 

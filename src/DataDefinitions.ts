@@ -6,7 +6,6 @@ export enum DataType {
     Climate = "climate",
     Economic = "economic",
     Demographic = "demographic",
-    Normalized = "normalized",
 }
 
 export enum DataGroup {
@@ -19,24 +18,24 @@ export enum DataGroup {
     Precipitation = "prc",
     Runoff = "ro",
     FloodIndicator = "wet",
-    AllIndustries = "Allindustr",
+    AllIndustries = "Allindustries",
     Farming = "Farming",
     Mining = "Mining",
-    Construction = "Constructi",
-    Retail = "Retailtrad",
-    Information = "Informatio",
-    Wholesale = "Wholesalet",
+    Construction = "Construction",
+    Retail = "Retailtrade",
+    Information = "Information",
+    Wholesale = "Wholesaletrade",
     discuss = "discuss",
-    PerCapitap = "PerCapitap",
+    PerCapitapersonalincome2018 = "PerCapitapersonalincome2018",
     GDP2018 = "GDP2018",
-    PercentPop = "PercentPop",
-    PercentP_1 = "PercentP_1",
-    PercentNon = "PercentNon",
-    PercentofP = "PercentofP",
-    PercentP_2 = "PercentP_2",
-    PercentP_3 = "PercentP_3",
-    PercentN_1 = "PercentN_1",
-    Percento_1 = "Percento_1",
+    PercentPopulationUnder18 = "PercentPopulationUnder18",
+    PercentPopulationOver65 = "PercentPopulationOver65",
+    PercentNonwhite = "PercentNonwhite",
+    PercentofPopulationBelowPovertyLevel = "PercentofPopulationBelowPovertyLevel",
+    PercentPopulationUnder18Std = "PercentPopulationUnder18Std",
+    PercentPopulationOver65Std = "PercentPopulationOver65Std",
+    PercentNonwhiteStd = "PercentNonwhiteStd",
+    PercentofPopulationBelowPovertyLevelStd = "PercentofPopulationBelowPovertyLevelStd",
 }
 
 export enum DataId {
@@ -121,24 +120,24 @@ export enum DataId {
     Nwet_00_19,
     Nwet_80_19,
     Nwet_80_99,
-    Allindustr,
+    Allindustries,
     Farming,
     Mining,
-    Constructi,
-    Retailtrad,
-    Informatio,
-    Wholesalet,
+    Construction,
+    Retailtrade,
+    Information,
+    Wholesaletrade,
     discuss,
-    PerCapitap,
+    PerCapitapersonalincome2018,
     GDP2018,
-    PercentPop,
-    PercentP_1,
-    PercentNon,
-    PercentofP,
-    PercentP_2,
-    PercentP_3,
-    PercentN_1,
-    Percento_1,
+    PercentPopulationUnder18,
+    PercentPopulationOver65,
+    PercentNonwhite,
+    PercentofPopulationBelowPovertyLevel,
+    PercentPopulationUnder18Std,
+    PercentPopulationOver65Std,
+    PercentNonwhiteStd,
+    PercentofPopulationBelowPovertyLevelStd ,
 }
 
 export type DataIdParams = {
@@ -233,7 +232,7 @@ dataDefinitions.set(DataGroup.ClimateMoistureIndex, {
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]),
     normalized: true,
-    type: DataType.Normalized,
+    type: DataType.Climate,
     description: "Calculated from mean annual precipitation and potential evapotransipiration",
     years: [Year._2000_2019],
     datasets: [Dataset.ERA5]
@@ -442,7 +441,7 @@ dataDefinitions.set(DataGroup.discuss, {
     years: [],
     datasets: [Dataset.BEA]
 });
-dataDefinitions.set(DataGroup.PerCapitap, {
+dataDefinitions.set(DataGroup.PerCapitapersonalincome2018, {
     name:"Per capita personal income 2018",
     id: getEconDataId,
     units:"USD",
@@ -454,7 +453,7 @@ dataDefinitions.set(DataGroup.PerCapitap, {
     years: [],
     datasets: [Dataset.BEA]
 });
-dataDefinitions.set(DataGroup.PercentPop, {
+dataDefinitions.set(DataGroup.PercentPopulationUnder18, {
     name: "Population Under 18",
     id: getEconDataId,
     units: "% of people",
@@ -466,7 +465,7 @@ dataDefinitions.set(DataGroup.PercentPop, {
     years: [],
     datasets: [Dataset.Census]
 });
-dataDefinitions.set(DataGroup.PercentP_1, {
+dataDefinitions.set(DataGroup.PercentPopulationOver65, {
     name: "Population Over 65",
     id: getEconDataId,
     units: "% of people",
@@ -478,7 +477,7 @@ dataDefinitions.set(DataGroup.PercentP_1, {
     years: [],
     datasets: [Dataset.Census]
 });
-dataDefinitions.set(DataGroup.PercentNon, {
+dataDefinitions.set(DataGroup.PercentNonwhite, {
     name: "Nonwhite",
     id: getEconDataId,
     units: "% of people",
@@ -490,63 +489,63 @@ dataDefinitions.set(DataGroup.PercentNon, {
     years: [],
     datasets: [Dataset.Census]
 });
-dataDefinitions.set(DataGroup.PercentofP, {
+dataDefinitions.set(DataGroup.PercentofPopulationBelowPovertyLevel, {
     name: "Population Below Poverty Level",
     id: getEconDataId,
     units: "% of people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
     normalized: false,
-    type: DataType.Economic,
+    type: DataType.Demographic,
     description: "",
     years: [],
     datasets: [Dataset.Census]
 });
 
-dataDefinitions.set(DataGroup.PercentP_2, {
+dataDefinitions.set(DataGroup.PercentPopulationUnder18Std, {
     name: "Population Under 18",
     id: getEconDataId,
     units: "Standard deviations",
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]),
     normalized: true,
-    type: DataType.Normalized,
+    type: DataType.Demographic,
     description: "",
     years: [],
     datasets: [Dataset.Census]
 });
-dataDefinitions.set(DataGroup.PercentP_3, {
+dataDefinitions.set(DataGroup.PercentPopulationOver65Std, {
     name: "Population Over 65",
     id: getEconDataId,
     units: "Standard deviations",
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]),
     normalized: true,
-    type: DataType.Normalized,
+    type: DataType.Demographic,
     description: "",
     years: [],
     datasets: [Dataset.Census]
 });
-dataDefinitions.set(DataGroup.PercentN_1, {
+dataDefinitions.set(DataGroup.PercentNonwhiteStd, {
     name: "Nonwhite",
     id: getEconDataId,
     units: "Standard deviations",
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]),
     normalized: true,
-    type: DataType.Normalized,
+    type: DataType.Demographic,
     description: "",
     years: [],
     datasets: [Dataset.Census]
 });
-dataDefinitions.set(DataGroup.Percento_1, {
+dataDefinitions.set(DataGroup.PercentofPopulationBelowPovertyLevelStd, {
     name: "Population Below Poverty Level",
     id: getEconDataId,
     units: "Standard deviations",
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]),
     normalized: true,
-    type: DataType.Normalized,
+    type: DataType.Economic,
     description: "",
     years: [],
     datasets: [Dataset.Census]

@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import dataDefinitions, { DataIdParams, Year, Dataset, DataGroup, DataType } from './DataDefinitions';
+import dataDefinitions, { DataIdParams, Year, Dataset, DataGroup } from './DataDefinitions';
 import YearSelector from './YearSelector';
 import DatasetSelector from './DatasetSelector';
 import { Map } from 'immutable';
@@ -8,9 +8,8 @@ import 'rc-slider/assets/index.css';
 
 type Props = {
     selection: DataIdParams[],
-    onSelectionChange: (dataIds: DataIdParams[], dataType: DataType) => void,
+    onSelectionChange: (dataIds: DataIdParams[]) => void,
     onWeightChange: (dataGroup: DataGroup, weight: number) => void,
-    dataType: DataType,
     dataWeights: Map<DataGroup, number>,
 };
 
@@ -22,18 +21,18 @@ const getDatasets = (dataGroup: DataGroup) =>
 
 const getUnitString = (units: string) => units ? `(${units})` : "";
 
-const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeightChange, dataType, dataWeights}: Props) => {
+const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeightChange, dataWeights}: Props) => {
     const selectionMap = Map(dataSelections.map(selection => [selection.dataGroup, selection]));
 
     const onYearChange = (dataGroup: DataGroup) => (event: ChangeEvent<HTMLInputElement>) => {
         const year = event.target.value as Year;
         selectionMap.get(dataGroup)!.year = year;
-        onSelectionChange(dataSelections, dataType);
+        onSelectionChange(dataSelections);
     };
     const onDatasetChange = (dataGroup: DataGroup) => (event: ChangeEvent<HTMLInputElement>) => {
         const dataset = event.target.value as Dataset;
         selectionMap.get(dataGroup)!.dataset = dataset;
-        onSelectionChange(dataSelections, dataType);
+        onSelectionChange(dataSelections);
     };
     const onSelectionToggled = (event: ChangeEvent<HTMLInputElement>) => {
         const dataGroup = event.target.value as DataGroup;
@@ -42,7 +41,7 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
             selectionMap.set(dataGroup, {dataGroup, year: getYears(dataGroup)[0], dataset: getDatasets(dataGroup)[0]}) :
             selectionMap.delete(dataGroup);
         
-        onSelectionChange(Array.from(changedSelections.values()), dataType);
+        onSelectionChange(Array.from(changedSelections.values()));
     }
 
     const onDataGroupWeightChange = (dataGroup: DataGroup) => (weight: number) => {
@@ -58,18 +57,18 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
 
     const getDataGroups = () => {
         return Array.from(dataDefinitions.entries())
-        .filter(([_, definition]) => dataType === definition.type)
-        .map(([dataGroup, data]) =>
+        .filter(([_, definition]) => definition.normalized)
+        .map(([dataGroup, definition]) =>
             <div key={dataGroup} className={shouldBeChecked(dataGroup) ? "selected-group" : undefined}>
                 <input
                     className="data-group"
                     id={dataGroup}
                     checked={shouldBeChecked(dataGroup)}
-                    type={dataType === DataType.Normalized ? "checkbox" : "radio"}
+                    type="checkbox"
                     value={dataGroup}
                     onChange={onSelectionToggled}
                     name="dataGroup" />
-                <label className="data-group" htmlFor={dataGroup}>{data.name} {getUnitString(data.units)}</label>
+                <label className="data-group" htmlFor={dataGroup}>{definition.name} {getUnitString(definition.units)}</label>
                 {shouldBeChecked(dataGroup) && <Slider
                     marks={{0:0, 0.1:0.1, 0.2:0.2,0.3:0.3,0.4:0.4,0.5:0.5,0.6:0.6,0.7:0.7,0.8:0.8,0.9:0.9, 1:1}}
                     className="slider"
