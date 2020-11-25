@@ -1,5 +1,5 @@
 import React from 'react';
-import { DataGroup, DataIdParams } from './DataDefinitions';
+import { DataGroup, DataIdParams, Normalization } from './DataDefinitions';
 import { Map } from 'immutable';
 import MultiDataSelector from './MultiDataSelector';
 import SingleDataSelector from './SingleDataSelector';
@@ -21,6 +21,7 @@ const DataSelector = ({dataTab, selection, onSelectionChange, onWeightChange, da
             onSelectionChange={selection => onSelectionChange(selection, DataTab.Normalized)}
             onWeightChange={onWeightChange}
             dataWeights={dataWeights}
+            normalization={Normalization.StandardDeviations}
         /> :
         <SingleDataSelector
             dataTab={dataTab}

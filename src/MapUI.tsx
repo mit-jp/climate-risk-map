@@ -5,7 +5,7 @@ import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, DataId, DataType, DataGroup, Normalization, percentileColorScheme, standardDeviationColorScheme } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, DataId, DataType, DataGroup, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
@@ -92,7 +92,7 @@ const MapUI = ({
         const processedData = getProcessedCountyData(selections, data, dataWeights);
         // const processedStateData = getProcessedStateData(processedData);
         const selectedDataDefinitions = getDataDefinitions(selections);
-        const title = getTitle(selectedDataDefinitions);
+        const title = getTitle(selectedDataDefinitions, selections);
         const formatter = getFormatter(selectedDataDefinitions);
         const colorScheme = getColorScheme(selectedDataDefinitions, selections);
         const legendCells = getLegendCells(selections);
@@ -158,7 +158,7 @@ const MapUI = ({
         // tooltips
         svg
             .selectAll(".county")
-            .on("touchmove mousemove", handleCountyMouseOver(selectedDataDefinitions, processedData))
+            .on("touchmove mousemove", handleCountyMouseOver(selectedDataDefinitions, processedData, selections))
             .on("touchend mouseleave", handleMouseOut);
     }, [map, selections, dataWeights, aggregation, state, onStateChange, data]);
 
@@ -203,7 +203,7 @@ const tooltip = select("body")
     .style("background", "white")	
     .style("pointer-events", "none");
 
-const handleCountyMouseOver = (selectedDataDefinitions: DataDefinition[], processedCountyData: ImmutableMap<string, number | undefined>) => {
+const handleCountyMouseOver = (selectedDataDefinitions: DataDefinition[], processedCountyData: ImmutableMap<string, number | undefined>, selections: DataIdParams[]) => {
     return function(this: any, d: any) {
         select(this)
             .style("opacity", 0.5)
@@ -222,35 +222,21 @@ const handleCountyMouseOver = (selectedDataDefinitions: DataDefinition[], proces
         }
         let value = processedCountyData.get(d.id);
 
-        tooltip.html(`${name}: ${format(value, selectedDataDefinitions)}`)	
+        tooltip.html(`${name}: ${format(value, selectedDataDefinitions, selections)}`)	
             .style("left", `${event.pageX + 20}px`)		
             .style("top", (event.pageY - 45) + "px");
     }
 };
 
-const handleStateMouseOver = (selectedDataDefinitions: DataDefinition[], processedStateData: ImmutableMap<string, number | undefined>) => {
-    return function(this: any, d: any) {
-        select(this).style("opacity", 0.5)
-    
-        tooltip.transition()
-            .duration(200)
-            .style("opacity", .9)
-        
-        let value = processedStateData.get(d.id);
 
-        tooltip.html(`${format(value, selectedDataDefinitions)}`)	
-            .style("left", `${event.pageX + 20}px`)		
-            .style("top", (event.pageY - 45) + "px");
-    }
-};
-
-const format = (value: number | undefined, selectedDataDefinitions: DataDefinition[]) => {
+const format = (value: number | undefined, selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
     const formatter = getFormatter(selectedDataDefinitions);
     if (value === undefined) {
         return "No data";
     }
     if (selectedDataDefinitions.length === 1) {
-        return formatter(value) + getUnitString(selectedDataDefinitions[0].units);
+        let units = getUnits(selectedDataDefinitions[0], selections[0].normalization);
+        return formatter(value) + getUnitString(units);
     } else {
         return formatter(value);
     }
@@ -286,10 +272,11 @@ const getLegendCells = (selections: DataIdParams[]) => {
     }
 }
 
-const getTitle = (selectedDataDefinitions: DataDefinition[]) => {
+const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
     if (selectedDataDefinitions.length === 1) {
         const dataDefinition = selectedDataDefinitions[0];
-        return dataDefinition.name + getUnitStringWithParens(dataDefinition.units);
+        const units = getUnits(dataDefinition, selections[0].normalization);
+        return dataDefinition.name + getUnitStringWithParens(units);
     } else {
         const names = selectedDataDefinitions.map(dataDefinition => dataDefinition.name);
         return "Mean of " + names.join(", ");

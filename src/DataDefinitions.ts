@@ -285,7 +285,17 @@ export enum Normalization {
 export const standardDeviationColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]);
 export const percentileColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([0, 0.5, 1]);
 
-
+export const getUnits = (dataDefinition: DataDefinition, normalization: Normalization) => {
+    let units = "";
+    if (normalization === Normalization.Raw) {
+        units = dataDefinition.units;
+    } else if (normalization === Normalization.Percentile) {
+        units = "Percentile";
+    } else if (normalization === Normalization.StandardDeviations) {
+        units = "Standard Deviations";
+    }
+    return units;
+}
 const raw = Set([Normalization.Raw]);
 const rawAndStdDev = Set([Normalization.Raw, Normalization.StandardDeviations]);
 const stdDev = Set([Normalization.StandardDeviations]);
