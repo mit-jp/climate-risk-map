@@ -26,7 +26,6 @@ export enum DataGroup {
     Retail = "Retailtrade",
     Information = "Information",
     Wholesale = "Wholesaletrade",
-    discuss = "discuss",
     PerCapitapersonalincome2018 = "PerCapitapersonalincome2018",
     GDP2018 = "GDP2018",
     PercentPopulationUnder18 = "PercentPopulationUnder18",
@@ -37,6 +36,64 @@ export enum DataGroup {
     PercentPopulationOver65Std = "PercentPopulationOver65Std",
     PercentNonwhiteStd = "PercentNonwhiteStd",
     PercentofPopulationBelowPovertyLevelStd = "PercentofPopulationBelowPovertyLevelStd",
+    discuss = "discuss",
+    discussOppose = "discussOppose",
+    reducetax = "reducetax",
+    reducetaxOppose = "reducetaxOppose",
+    CO2limits = "CO2limits",
+    CO2limitsOppose = "CO2limitsOppose",
+    localofficials = "localofficials",
+    localofficialsOppose = "localofficialsOppose",
+    governor = "governor",
+    governorOppose = "governorOppose",
+    congress = "congress",
+    congressOppose = "congressOppose",
+    president = "president",
+    presidentOppose = "presidentOppose",
+    corporations = "corporations",
+    corporationsOppose = "corporationsOppose",
+    citizens = "citizens",
+    citizensOppose = "citizensOppose",
+    regulate = "regulate",
+    regulateOppose = "regulateOppose",
+    supportRPS = "supportRPS",
+    supportRPSOppose = "supportRPSOppose",
+    drilloffshore = "drilloffshore",
+    drilloffshoreOppose = "drilloffshoreOppose",
+    drillANWR = "drillANWR",
+    drillANWROppose = "drillANWROppose",
+    fundrenewables = "fundrenewables",
+    fundrenewablesOppose = "fundrenewablesOppose",
+    rebates = "rebates",
+    rebatesOppose = "rebatesOppose",
+    mediaweekly = "mediaweekly",
+    mediaweeklyOppose = "mediaweeklyOppose",
+    prienv = "prienv",
+    prienvOppose = "prienvOppose",
+    teachGW = "teachGW",
+    teachGWOppose = "teachGWOppose",
+    happening = "happening",
+    happeningOppose = "happeningOppose",
+    human = "human",
+    humanOppose = "humanOppose",
+    consensus = "consensus",
+    consensusOppose = "consensusOppose",
+    worried = "worried",
+    worriedOppose = "worriedOppose",
+    personal = "personal",
+    personalOppose = "personalOppose",
+    harmUS = "harmUS",
+    harmUSOppose = "harmUSOppose",
+    devharm = "devharm",
+    devharmOppose = "devharmOppose",
+    futuregen = "futuregen",
+    futuregenOppose = "futuregenOppose",
+    harmplants = "harmplants",
+    harmplantsOppose = "harmplantsOppose",
+    timing = "timing",
+    timingOppose = "timingOppose",
+    affectweather = "affectweather",
+    affectweatherOppose = "affectweatherOppose",
 }
 
 export enum DataId {
@@ -128,7 +185,6 @@ export enum DataId {
     Retailtrade,
     Information,
     Wholesaletrade,
-    discuss,
     PerCapitapersonalincome2018,
     GDP2018,
     PercentPopulationUnder18,
@@ -138,7 +194,65 @@ export enum DataId {
     PercentPopulationUnder18Std,
     PercentPopulationOver65Std,
     PercentNonwhiteStd,
-    PercentofPopulationBelowPovertyLevelStd ,
+    PercentofPopulationBelowPovertyLevelStd,
+    discuss,
+    discussOppose,
+    reducetax,
+    reducetaxOppose,
+    CO2limits,
+    CO2limitsOppose,
+    localofficials,
+    localofficialsOppose,
+    governor,
+    governorOppose,
+    congress,
+    congressOppose,
+    president,
+    presidentOppose,
+    corporations,
+    corporationsOppose,
+    citizens,
+    citizensOppose,
+    regulate,
+    regulateOppose,
+    supportRPS,
+    supportRPSOppose,
+    drilloffshore,
+    drilloffshoreOppose,
+    drillANWR,
+    drillANWROppose,
+    fundrenewables,
+    fundrenewablesOppose,
+    rebates,
+    rebatesOppose,
+    mediaweekly,
+    mediaweeklyOppose,
+    prienv,
+    prienvOppose,
+    teachGW,
+    teachGWOppose,
+    happening,
+    happeningOppose,
+    human,
+    humanOppose,
+    consensus,
+    consensusOppose,
+    worried,
+    worriedOppose,
+    personal,
+    personalOppose,
+    harmUS,
+    harmUSOppose,
+    devharm,
+    devharmOppose,
+    futuregen,
+    futuregenOppose,
+    harmplants,
+    harmplantsOppose,
+    timing,
+    timingOppose,
+    affectweather,
+    affectweatherOppose,
 }
 
 export type DataIdParams = {
@@ -440,7 +554,7 @@ dataDefinitions.set(DataGroup.discuss, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.BEA]
+    datasets: [Dataset.Yale]
 });
 dataDefinitions.set(DataGroup.PerCapitapersonalincome2018, {
     name:"Per capita personal income 2018",
@@ -550,6 +664,702 @@ dataDefinitions.set(DataGroup.PercentofPopulationBelowPovertyLevelStd, {
     description: "",
     years: [],
     datasets: [Dataset.Census]
+});
+dataDefinitions.set(DataGroup.discuss, {
+    name: "Discuss global warming at least occasionally",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.discussOppose, {
+    name: "Don’t discuss global warming at least occasionally",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.reducetax, {
+    name: "Support requiring fossil fuel companies to pay a carbon tax",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.reducetaxOppose, {
+    name: "Opposed to requiring fossil fuel companies to pay a carbon tax ",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.CO2limits, {
+    name: "Support setting strict CO2 limits on existing coal-fired power plants",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.CO2limitsOppose, {
+    name: "Opposed to setting strict CO2 limits on existing coal-fired power plants",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.localofficials, {
+    name: "Agree that your local officials should do more to address global warming",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.localofficialsOppose, {
+    name: "Disagree that your local officials should do more to address global warming",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.governor, {
+    name: "Agree that your governor should do more to address global warming",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.governorOppose, {
+    name: "Disagree that your governor should do more to address global warming",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.congress, {
+    name: "Agree that congress should do more to address global warming",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.congressOppose, {
+    name: "Disagree that congress should do more to address global warming",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.president, {
+    name: "Agree that the president should do more to address global warming",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.presidentOppose, {
+    name: "Disagree that the president should do more to address global warming",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.corporations, {
+    name: "Agree that corporations and industry should do more to address global warming",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.corporationsOppose, {
+    name: "Disagree that corporations and industry should do more to address global warming",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.citizens, {
+    name: "Agree that citizens themselves should do more to address global warming",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.citizensOppose, {
+    name: "Disagree that citizens themselves should do more to address global warming",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.regulate, {
+    name: "Support regulating CO2 as a pollutant",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.regulateOppose, {
+    name: "Opposed to regulating CO2 as a pollutant",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.supportRPS, {
+    name: " Support requiring utilities to produce 20% electricity from renewable sources",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.supportRPSOppose, {
+    name: "Opposed to requiring utilities to produce 20% electricity from renewable sources",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.drilloffshore, {
+    name: "Support expanding offshore drilling for oil and natural gas off the U.S. coast",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.drilloffshoreOppose, {
+    name: "Opposed to expanding offshore drilling for oil and natural gas off the U.S. coast",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.drillANWR, {
+    name: "Support drilling for oil in the Arctic National Wildlife Refuge",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.drillANWROppose, {
+    name: "Opposed to drilling for oil in the Arctic National Wildlife Refuge",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.fundrenewables, {
+    name: "Support funding research into renewable energy sources",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.fundrenewablesOppose, {
+    name: "Opposed to funding research into renewable energy sources",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.rebates, {
+    name: "Support providing tax rebates",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.rebatesOppose, {
+    name: "Opposed to providing tax rebates",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.mediaweekly, {
+    name: "Hear about global warming in the media at least once a week ",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.mediaweeklyOppose, {
+    name: "Hear about global warming in the media less than once a week",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.prienv, {
+    name: "Agree that global warming should be a high priority for the next president and Congress",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.prienvOppose, {
+    name: "Disagree that global warming should be a high priority for the next president and Congress",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.teachGW, {
+    name: "Agree that schools should teach about global warming ",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.teachGWOppose, {
+    name: "Disagree that schools should teach about global warming ",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.happening, {
+    name: "Agree that global warming is happening",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.happeningOppose, {
+    name: "Disagree that global warming is happening",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.human, {
+    name: "Agree that global warming is caused mostly by human activities",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.humanOppose, {
+    name: "Disagree that global warming is caused mostly by human activities",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.consensus, {
+    name: "Agree that most scientists think global warming is happening",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.consensusOppose, {
+    name: "Disagree that most scientists think global warming is happening",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.worried, {
+    name: "Are worried about global warming",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.worriedOppose, {
+    name: "Are not worried about global warming",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.personal, {
+    name: "Think that global warming will harm me personally",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.personalOppose, {
+    name: "Do not think that global warming will harm me personally",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.harmUS, {
+    name: "Think that global warming is already harming people in the US",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.harmUSOppose, {
+    name: "Do not think that global warming is already harming people in the US",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.devharm, {
+    name: "Think that global warming will harm people in developing countries",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.devharmOppose, {
+    name: "Do not think that global warming will harm people in developing countries",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.futuregen, {
+    name: "Think that global warming will harm future generations",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.futuregenOppose, {
+    name: "Do not think that global warming will harm future generations",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.harmplants, {
+    name: "Think that global warming will harm plants and animals ",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.harmplantsOppose, {
+    name: "Do not think that global warming will harm plants and animals ",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.timing, {
+    name: "Think a candidate’s views on global warming are important to their vote",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.timingOppose, {
+    name: "Do not think a candidate’s views on global warming are important to their vote ",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.affectweather, {
+    name: "Think that global warming is affecting the weather in the United States",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
+});
+dataDefinitions.set(DataGroup.affectweatherOppose, {
+    name: "Do not think that global warming is affecting the weather in the United States",
+    id: getEconDataId,
+    units: "% of people",
+    formatter: regularNumber,
+    color: scaleSequential<string>(scales.interpolateGreys).domain([0, 100]),
+    normalized: false,
+    type: DataType.ClimateSurvey,
+    description: "",
+    years: [],
+    datasets: [Dataset.Yale]
 });
 
 export default dataDefinitions;
