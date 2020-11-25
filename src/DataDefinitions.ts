@@ -367,11 +367,11 @@ datasetDefinitions.set(Dataset.Census, {
 
 const dataDefinitions = new Map<DataGroup, DataDefinition>();
 dataDefinitions.set(DataGroup.ClimateMoistureIndex, {
-    name:"Climate Dryness Index",
+    name:"Climate Moisture Index",
     id: getClimateDataId,
     units:"",
     formatter: regularNumber,
-    color: scaleDiverging<string>(scales.interpolateBrBG).domain([10, 0, -10]),
+    color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10]),
     normalizations: rawAndStdDev,
     type: DataType.Climate,
     description: "Calculated from mean annual precipitation and potential evapotransipiration",
