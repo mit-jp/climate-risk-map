@@ -365,8 +365,8 @@ dataDefinitions.set(DataGroup.ClimateMoistureIndex, {
     normalizations: rawAndStdDev,
     type: DataType.Climate,
     description: "Calculated from mean annual precipitation and potential evapotransipiration",
-    years: [Year._2000_2019],
-    datasets: [Dataset.ERA5]
+    years: years,
+    datasets: climateDatasets
 });
 dataDefinitions.set(DataGroup.IrregationDeficit, {
     name:"Irrigation Deficit",
