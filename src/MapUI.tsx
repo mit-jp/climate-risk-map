@@ -5,7 +5,7 @@ import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, DataId, DataType, DataGroup } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, DataId, DataType, DataGroup, Normalization, percentileColorScheme, standardDeviationColorScheme } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
@@ -94,8 +94,8 @@ const MapUI = ({
         const selectedDataDefinitions = getDataDefinitions(selections);
         const title = getTitle(selectedDataDefinitions);
         const formatter = getFormatter(selectedDataDefinitions);
-        const colorScheme = getColorScheme(selectedDataDefinitions);
-        const legendCells = getLegendCells(selectedDataDefinitions);
+        const colorScheme = getColorScheme(selectedDataDefinitions, selections);
+        const legendCells = getLegendCells(selections);
 
         // legend
         const legendSequential = legendColor()
@@ -278,8 +278,8 @@ const getDataDefinitions = (selections: DataIdParams[]) => {
     return selections.map(selection => dataDefinitions.get(selection.dataGroup)!);
 }
 
-const getLegendCells = (selectedDataDefinitions: DataDefinition[]) => {
-    if (selectedDataDefinitions[0].normalized) {
+const getLegendCells = (selections: DataIdParams[]) => {
+    if (selections[0].normalization !== Normalization.Raw) {
         return 9;
     } else {
         return 5;
@@ -300,22 +300,13 @@ const getFormatter = (selectedDataDefinitions: DataDefinition[]) => {
     return selectedDataDefinitions[0].formatter;
 }
 
-const getColorScheme = (selectedDataDefinitions: DataDefinition[]) => {
-    return selectedDataDefinitions[0].color;
-}
-
-const getProcessedStateData = (processedCountyData: ImmutableMap<string, number | undefined>) => {
-    const stateData = new Map<string, number[]>();
-    for (const countyId of processedCountyData.keys()) {
-        const countyData = processedCountyData.get(countyId);
-        const stateId = countyId.slice(0, 2)
-        if (stateData.has(stateId)) {
-            stateData.get(stateId)!.push(countyData ?? 0);
-        } else {
-            stateData.set(stateId, [countyData ?? 0]);
-        }
-    }
-    return ImmutableMap(Array.from(stateData.entries(), ([stateId, dataList]) => [stateId, mean(dataList)]));
+const getColorScheme = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
+    const normalization = selections[0].normalization;
+    switch(normalization) {
+        case Normalization.Raw: return selectedDataDefinitions[0].color;
+        case Normalization.Percentile: return percentileColorScheme;
+        case Normalization.StandardDeviations: return standardDeviationColorScheme;
+    }        
 }
 
 const dataLoaded = (csvFiles: IterableIterator<CsvFile>, data: Data) => {
@@ -378,11 +369,17 @@ const getDataIdsForSelections = (selections: DataIdParams[]) =>
         [selection, dataDefinitions.get(selection.dataGroup)!.id(selection)]
     ));
 
+const normalizationToFile = ImmutableMap([
+    [Normalization.Raw, ".csv"],
+    [Normalization.Percentile, "_normalized_by_nation.csv"],
+    [Normalization.StandardDeviations, "_normalized_by_nation_stdv.csv"],
+]);
+
 const getTablesForSelections = (selections: DataIdParams[]) => {
     return ImmutableMap(selections.map(selection => {
         const dataDefinition = dataDefinitions.get(selection.dataGroup)!
         const prefix = dataDefinition.type === DataType.Climate ? "climate" : "demographics";
-        const suffix = dataDefinition.normalized ? "_normalized_by_nation.csv" : ".csv";
+        const suffix = normalizationToFile.get(selection.normalization);
         const csvFile: CsvFile = (prefix + suffix) as CsvFile;
         return [selection, csvFile];
     }));

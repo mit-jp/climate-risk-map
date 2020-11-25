@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import dataDefinitions, { DataIdParams, Year, Dataset, DataGroup } from './DataDefinitions';
+import dataDefinitions, { DataIdParams, Year, Dataset, DataGroup, Normalization } from './DataDefinitions';
 import YearSelector from './YearSelector';
 import DatasetSelector from './DatasetSelector';
 import { Map } from 'immutable';
@@ -38,7 +38,7 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
         const dataGroup = event.target.value as DataGroup;
         const checked = event.target.checked;
         const changedSelections = checked ?
-            selectionMap.set(dataGroup, {dataGroup, year: getYears(dataGroup)[0], dataset: getDatasets(dataGroup)[0]}) :
+            selectionMap.set(dataGroup, {dataGroup, year: getYears(dataGroup)[0], dataset: getDatasets(dataGroup)[0], normalization: Normalization.StandardDeviations}) :
             selectionMap.delete(dataGroup);
         
         onSelectionChange(Array.from(changedSelections.values()));
@@ -57,7 +57,7 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
 
     const getDataGroups = () => {
         return Array.from(dataDefinitions.entries())
-        .filter(([_, definition]) => definition.normalized)
+        .filter(([_, definition]) => definition.normalizations.contains(Normalization.StandardDeviations) || definition.normalizations.contains(Normalization.Percentile))
         .map(([dataGroup, definition]) =>
             <div key={dataGroup} className={shouldBeChecked(dataGroup) ? "selected-group" : undefined}>
                 <input

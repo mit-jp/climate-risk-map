@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import dataDefinitions, { DataIdParams, Year, Dataset, DataGroup, DataDefinition } from './DataDefinitions';
+import dataDefinitions, { DataIdParams, Year, Dataset, DataGroup, DataDefinition, Normalization } from './DataDefinitions';
 import YearSelector from './YearSelector';
 import DatasetSelector from './DatasetSelector';
 import { DataTab, TabToTypeMap } from './Navigation';
@@ -37,7 +37,7 @@ const SingleDataSelector = ({selection, onSelectionChange, dataTab}: Props) => {
     const shouldShowDatasets = (dataGroup: DataGroup) => selection.dataGroup === dataGroup && getDatasets(selection).length > 1
 
     const matchesDataTab = ([_, definition]: [DataGroup, DataDefinition]) => {
-        return !definition.normalized && TabToTypeMap.get(dataTab) === definition.type;
+        return definition.normalizations.contains(Normalization.Raw) && TabToTypeMap.get(dataTab) === definition.type;
     }
 
     const getDataGroups = () => {

@@ -8,16 +8,15 @@ import { Objects, Topology } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import './App.css';
 import { Map } from 'immutable';
-import { DataGroup, DataIdParams, Dataset, Year } from './DataDefinitions';
+import { DataGroup, DataIdParams, Dataset, Normalization, Year } from './DataDefinitions';
 import { json, csv } from 'd3-fetch';
-import { ToggleButton, ToggleButtonGroup } from '@material-ui/core';
 import { State } from './States';
 import { DSVRowString } from 'd3';
 
 const csvFiles: CsvFile[] = [
-  "climate_normalized_by_nation.csv",
+  "climate_normalized_by_nation_stdv.csv",
   "climate.csv",
-  "demographics_normalized_by_nation.csv",
+  "demographics_normalized_by_nation_stdv.csv",
   "demographics.csv"
 ];
 
@@ -25,12 +24,13 @@ const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
   [DataTab.Climate, [{
     dataGroup: DataGroup.IrregationDeficit,
     year: Year._2000_2019,
-    dataset: Dataset.ERA5
+    dataset: Dataset.ERA5,
+    normalization: Normalization.Raw
   }]],
-  [DataTab.Economic, [{dataGroup: DataGroup.AllIndustries}]],
-  [DataTab.Demographic, [{dataGroup: DataGroup.PercentPopulationUnder18}]],
-  [DataTab.Normalized, [{dataGroup: DataGroup.PercentPopulationUnder18Std}]],
-  [DataTab.ClimateSurvey, [{dataGroup: DataGroup.discuss}]],
+  [DataTab.Economic, [{dataGroup: DataGroup.AllIndustries, normalization: Normalization.Raw}]],
+  [DataTab.Demographic, [{dataGroup: DataGroup.PercentPopulationUnder18, normalization: Normalization.Raw}]],
+  [DataTab.Normalized, [{dataGroup: DataGroup.PercentPopulationUnder18Std, normalization: Normalization.StandardDeviations}]],
+  [DataTab.ClimateSurvey, [{dataGroup: DataGroup.discuss, normalization: Normalization.Raw}]],
 ]);
 const defaultData = Map<CsvFile, undefined>(csvFiles.map(csv_file => [csv_file, undefined]));
 
@@ -50,7 +50,7 @@ const convertToNumbers = (rawRow: DSVRowString, index: number, columns: string[]
   }
   return newRows;
 }
-export type CsvFile = "climate_normalized_by_nation.csv" | "climate.csv" | "demographics_normalized_by_nation.csv" | "demographics.csv";
+export type CsvFile = "climate_normalized_by_nation_stdv.csv" | "climate.csv" | "demographics_normalized_by_nation_stdv.csv" | "demographics.csv";
 type CountyToDataMap = Map<string, {[key: string]: string | number | undefined}>;
 export type Data = Map<CsvFile, CountyToDataMap | undefined>;
 
