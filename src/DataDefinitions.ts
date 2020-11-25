@@ -6,6 +6,7 @@ export enum DataType {
     Climate = "climate",
     Economic = "economic",
     Demographic = "demographic",
+    ClimateSurvey = "climate survey",
 }
 
 export enum DataGroup {
@@ -436,7 +437,7 @@ dataDefinitions.set(DataGroup.discuss, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateGreens).domain([20, 60]),
     normalized: false,
-    type: DataType.Demographic,
+    type: DataType.ClimateSurvey,
     description: "",
     years: [],
     datasets: [Dataset.BEA]
@@ -496,7 +497,7 @@ dataDefinitions.set(DataGroup.PercentofPopulationBelowPovertyLevel, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
     normalized: false,
-    type: DataType.Demographic,
+    type: DataType.Economic,
     description: "",
     years: [],
     datasets: [Dataset.Census]
