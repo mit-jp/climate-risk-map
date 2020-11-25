@@ -106,14 +106,6 @@ const Home = () => {
     <React.Fragment>
       <Header />
       <Navigation selection={dataTab} onDataTabChanged={onDataTabChanged} />
-      <ToggleButtonGroup size="small" value={aggregation} exclusive onChange={onAggregationChange}>
-        <ToggleButton value={Aggregation.County}>
-          County
-        </ToggleButton>
-        <ToggleButton value={Aggregation.State}>
-          State
-        </ToggleButton>
-      </ToggleButtonGroup>
       <div id="content">
       <DataSelector
         onSelectionChange={onSelectionChange}

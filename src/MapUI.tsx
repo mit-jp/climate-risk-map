@@ -131,19 +131,6 @@ const MapUI = ({
                 .transition()
                 .duration(200)
                 .attr("transform", "translate(0)scale(1)");
-        } else if (aggregation === Aggregation.State) {
-            // colorized states
-            // svg.select("#states")
-            //     .selectAll("path")
-            //     .data(stateFeatures)
-            //     .join("path")
-            //     .attr("class", "state")
-            //     .attr("fill", d => {
-            //         const value = processedStateData.get(d.id as string);
-            //         return colorScheme(value as any) ?? missingDataColor;
-            //     })
-            //     .attr("d", path);
-            // svg.select("#counties").selectAll("path").attr("fill", "none");
         }
 
         if (state !== undefined) {
@@ -173,11 +160,6 @@ const MapUI = ({
             .selectAll(".county")
             .on("touchmove mousemove", handleCountyMouseOver(selectedDataDefinitions, processedData))
             .on("touchend mouseleave", handleMouseOut);
-
-        // svg
-        //     .selectAll(".state")
-        //     .on("touchmove mousemove", handleStateMouseOver(selectedDataDefinitions, processedStateData))
-        //     .on("touchend mouseleave", handleMouseOut);
     }, [map, selections, dataWeights, aggregation, state, onStateChange, data]);
 
     if (map === undefined) {
