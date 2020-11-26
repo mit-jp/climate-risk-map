@@ -125,7 +125,7 @@ const MapUI = ({
                     const value = processedData.get(d.id as string);
                     return colorScheme(value as any) ?? missingDataColor;
                 })
-                .attr("d", path).on("click", feature => onStateChange((feature?.id as string).slice(0,2) as State));
+                .attr("d", path).on("click", (_, feature) => onStateChange((feature?.id as string).slice(0,2) as State));
             svg.select("#states").selectAll("path").attr("fill", "none");
             svg.select("#counties")
                 .transition()
