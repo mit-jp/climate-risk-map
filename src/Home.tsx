@@ -11,9 +11,10 @@ import { Map } from 'immutable';
 import { DataGroup, DataIdParams, Dataset, Normalization, Year } from './DataDefinitions';
 import { json, csv } from 'd3-fetch';
 import { State } from './States';
-import { DSVRowString, randomNormal, randomPareto } from 'd3';
+import { DSVRowString, randomNormal, randomPareto, mean } from 'd3';
 import ProbabilityDensity from './ProbabilityDensity';
 import Slider from '@material-ui/core/Slider';
+import DataProcessor, { ProcessedData } from './DataProcessor';
 
 const csvFiles: CsvFile[] = [
   "climate_normalized_by_nation_stdv.csv",
@@ -87,6 +88,7 @@ const Home = () => {
   const [normalization, setNormalization] = useState(Normalization.StandardDeviations);
   const [state, setState] = useState<State | undefined>(undefined);
   const [bandwidth, setBandwidth] = useState(2.5);
+  const [processedData, setProcessedData] = useState<ProcessedData | undefined>(undefined);
 
   useEffect(() => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa.json").then(setMap);
@@ -97,21 +99,28 @@ const Home = () => {
       for (let i = 0; i < csvFiles.length; i++) {
         filenameToData[i] = [csvFiles[i], convertedCsvs[i]];
       }
-      setData(Map(filenameToData));
+      const loadedData = Map(filenameToData);
+      setData(loadedData);
+      setProcessedData(DataProcessor(loadedData, dataSelections.get(dataTab)!, dataWeights));
     });
   }, []);
 
   const onSelectionChange = (dataIds: DataIdParams[], dataTab: DataTab) => {
-    setDataSelections(dataSelections.set(dataTab, dataIds));
+    const newDataSelections = dataSelections.set(dataTab, dataIds);
+    setDataSelections(newDataSelections);
+    setProcessedData(DataProcessor(data, newDataSelections.get(dataTab)!, dataWeights));
   }
 
   const onWeightChange = (dataGroup: DataGroup, weight: number) => {
-    setDataWeights(dataWeights.set(dataGroup, weight));
+    const newDataWeight = dataWeights.set(dataGroup, weight);
+    setDataWeights(newDataWeight);
+    setProcessedData(DataProcessor(data, dataSelections.get(dataTab)!, newDataWeight));
   }
 
   const onDataTabChanged = (event: MouseEvent<HTMLLIElement>) => {
     const newDataTab = event.currentTarget.textContent as DataTab;
     setDataTab(newDataTab);
+    setProcessedData(DataProcessor(data, dataSelections.get(newDataTab)!, dataWeights));
   }
 
   const onDatasetDescriptionToggled = () => {
@@ -152,10 +161,9 @@ const Home = () => {
       <MapUI
         aggregation={aggregation}
         map={map}
-        data={data}
+        processedData={processedData}
         selections={dataSelections.get(dataTab)!}
         state={state}
-        dataWeights={dataWeights}
         showDatasetDescription={showDatasetDescription}
         onDatasetDescriptionClicked={onDatasetDescriptionToggled}
         showDataDescription={showDataDescription}
