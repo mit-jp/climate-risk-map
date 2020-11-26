@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { select, geoPath, event, mean } from 'd3';
+import { select, geoPath, mean } from 'd3';
 import { Feature, Geometry } from 'geojson';
 import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
@@ -159,7 +159,7 @@ const MapUI = ({
         svg
             .selectAll(".county")
             .on("touchmove mousemove", handleCountyMouseOver(selectedDataDefinitions, processedData, selections))
-            .on("touchend mouseleave", handleMouseOut);
+            .on("touchend mouseleave", (event, d) => {console.log(event);});
     }, [map, selections, dataWeights, aggregation, state, onStateChange, data]);
 
     if (map === undefined) {
@@ -203,8 +203,11 @@ const tooltip = select("body")
     .style("background", "white")	
     .style("pointer-events", "none");
 
-const handleCountyMouseOver = (selectedDataDefinitions: DataDefinition[], processedCountyData: ImmutableMap<string, number | undefined>, selections: DataIdParams[]) => {
-    return function(this: any, d: any) {
+const handleCountyMouseOver = (
+    selectedDataDefinitions: DataDefinition[],
+    processedCountyData: ImmutableMap<string, number | undefined>,
+    selections: DataIdParams[]) => {
+    return function(this: any, event: any, d: any) {
         select(this)
             .style("opacity", 0.5)
             .style("stroke", "black")
