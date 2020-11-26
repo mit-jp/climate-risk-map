@@ -5,7 +5,7 @@ import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits, percentileFormatter, standardDeviationFormatter } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';

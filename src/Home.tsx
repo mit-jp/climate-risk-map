@@ -1,5 +1,6 @@
 import React, { useEffect, useState, MouseEvent } from 'react';
 import MapUI, { Aggregation } from './MapUI';
+import * as scales from 'd3-scale-chromatic';
 import Footer from './Footer';
 import Header from './Header';
 import Navigation, { DataTab } from './Navigation';
@@ -11,10 +12,11 @@ import { Map } from 'immutable';
 import { DataGroup, DataIdParams, Dataset, Normalization, Year } from './DataDefinitions';
 import { json, csv } from 'd3-fetch';
 import { State } from './States';
-import { DSVRowString, randomNormal, randomPareto, mean } from 'd3';
+import { DSVRowString, ScaleSequential, ScaleThreshold, ScaleDiverging, scaleDiverging } from 'd3';
 import ProbabilityDensity from './ProbabilityDensity';
 import Slider from '@material-ui/core/Slider';
 import DataProcessor, { ProcessedData } from './DataProcessor';
+import Title from './Title';
 
 const csvFiles: CsvFile[] = [
   "climate_normalized_by_nation_stdv.csv",
@@ -28,9 +30,6 @@ const csvFiles: CsvFile[] = [
   "demographics_normalized_by_state.csv",
   "demographics.csv"
 ];
-
-const randomizer = randomPareto(5);
-const pdfdata = Array.from({length:3000}, randomizer);
 
 const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
   [DataTab.Climate, [{
@@ -51,7 +50,7 @@ const convertCsv = (csv: {[key: string]: string | number | undefined}[]) =>
     return [(row["STATEFP"] as string)! + (row["COUNTYFP"] as string)!, row];
   }));
 
-const convertToNumbers = (rawRow: DSVRowString, index: number, columns: string[]) => {
+const convertToNumbers = (rawRow: DSVRowString) => {
   const newRows: {[key: string]: string | number | undefined} = {};
   for (let [key, value] of Object.entries(rawRow)) {
     if (key === "STATEFP" || key === "COUNTYFP") {
@@ -75,6 +74,7 @@ export type CsvFile =
 | "demographics.csv";
 type CountyToDataMap = Map<string, {[key: string]: string | number | undefined}>;
 export type Data = Map<CsvFile, CountyToDataMap | undefined>;
+export type ColorScheme = ScaleSequential<string, never> | ScaleThreshold<number, string, never> | ScaleDiverging<string, never>;
 
 const Home = () => {
   const [map, setMap] = useState<Topology<Objects<GeoJsonProperties>> | undefined>(undefined);
@@ -84,11 +84,10 @@ const Home = () => {
   const [dataTab, setDataTab] = useState(DataTab.Climate);
   const [showDatasetDescription, setShowDatasetDescription] = useState(false);
   const [showDataDescription, setShowDataDescription] = useState(false);
-  const [aggregation, setAggregation] = useState(Aggregation.County);
   const [normalization, setNormalization] = useState(Normalization.StandardDeviations);
   const [state, setState] = useState<State | undefined>(undefined);
-  const [bandwidth, setBandwidth] = useState(2.5);
   const [processedData, setProcessedData] = useState<ProcessedData | undefined>(undefined);
+  const [title, setTitle] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa.json").then(setMap);
@@ -101,7 +100,9 @@ const Home = () => {
       }
       const loadedData = Map(filenameToData);
       setData(loadedData);
+
       setProcessedData(DataProcessor(loadedData, dataSelections.get(dataTab)!, dataWeights));
+      setTitle(Title(dataSelections.get(dataTab)!));
     });
   }, []);
 
@@ -109,6 +110,7 @@ const Home = () => {
     const newDataSelections = dataSelections.set(dataTab, dataIds);
     setDataSelections(newDataSelections);
     setProcessedData(DataProcessor(data, newDataSelections.get(dataTab)!, dataWeights));
+    setTitle(Title(newDataSelections.get(dataTab)!));
   }
 
   const onWeightChange = (dataGroup: DataGroup, weight: number) => {
@@ -121,6 +123,7 @@ const Home = () => {
     const newDataTab = event.currentTarget.textContent as DataTab;
     setDataTab(newDataTab);
     setProcessedData(DataProcessor(data, dataSelections.get(newDataTab)!, dataWeights));
+    setTitle(Title(dataSelections.get(newDataTab)!));
   }
 
   const onDatasetDescriptionToggled = () => {
@@ -131,9 +134,6 @@ const Home = () => {
     setShowDataDescription(!showDataDescription);
   }
 
-  const onAggregationChange = (_: any, value: Aggregation) => {
-    setAggregation(value);
-  }
 
   const getArrayOfData = () => {
     if (processedData === undefined) {
@@ -148,15 +148,7 @@ const Home = () => {
     <React.Fragment>
       <Header />
       <Navigation selection={dataTab} onDataTabChanged={onDataTabChanged} />
-      <Slider
-        value={bandwidth}
-        max={20}
-        min={1}
-        step={0.1}
-        valueLabelDisplay="auto"
-        onChange={(event, value) => {setBandwidth(value as number)}}
-        aria-labelledby="continuous-slider" />
-      <ProbabilityDensity data={getArrayOfData()} bandwidth={bandwidth} />
+      <ProbabilityDensity data={getArrayOfData()} title={title} selections={dataSelections.get(dataTab)} />
       <div id="content">
       <DataSelector
         onSelectionChange={onSelectionChange}
@@ -168,7 +160,7 @@ const Home = () => {
         onNormalizationChange={setNormalization}
       />
       <MapUI
-        aggregation={aggregation}
+        aggregation={Aggregation.County}
         map={map}
         processedData={processedData}
         selections={dataSelections.get(dataTab)!}

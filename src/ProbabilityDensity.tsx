@@ -1,45 +1,40 @@
 import React, { useEffect, useRef } from 'react';
-import {scaleLinear, extent, bin, select, line, curveBasis, mean, max, axisBottom, axisLeft } from 'd3';
-const height = 150;
+import { scaleLinear, extent, bin, select, mean, max, axisBottom, axisLeft } from 'd3';
+import { DataIdParams } from './DataDefinitions';
+import Color from './Color';
+const height = 200;
 const width = 300;
-const margin = ({top: 20, right: 30, bottom: 30, left: 40});
-function kde(kernel:(x: number) => number, thresholds:number[], data:number[]) {
-    return thresholds.map(t => [t, mean(data, d => kernel(t - d))]);
-}
-function epanechnikov(bandwidth: number) {
-    return (x: number) => Math.abs(x /= bandwidth) <= 1 ? 0.75 * (1 - x * x) / bandwidth : 0;
-}
+const margin = ({ top: 20, right: 30, bottom: 30, left: 40 });
+type Props = {
+    data: number[] | undefined,
+    title: string | undefined,
+    selections: DataIdParams[] | undefined,
+};
 
-const ProbabilityDensity = ({data, bandwidth}: {data: number[] | undefined, bandwidth: number}) => {
+const ProbabilityDensity = ({ data, title, selections }: Props) => {
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
-        if (data === undefined) {
+        if (data === undefined || selections === undefined) {
             return;
         }
         const svg = select(svgRef.current);
+        const color = Color(selections);
         svg.select("#pdf")
-            .attr("fill", "#bbb")
             .selectAll("rect")
             .data(bins)
+            .attr("fill", d => color(mean([d.x1!, d.x0!]) as any))
             .join("rect")
-            .attr("x", d => x(d!.x0!) + 1)
-            .attr("y", d => y(d!.length / data.length))
-            .attr("width", d => x(d!.x1!) - x(d.x0!) - 1)
+            .attr("x", d => x(d.x0!) + 1)
+            .attr("y", d => y(d.length / data.length))
+            .attr("width", d => x(d.x1!) - x(d.x0!) - 1)
             .attr("height", d => y(0) - y(d.length / data.length));
-        svg.select("#kde")
-            .datum(density)
-            .attr("fill", "none")
-            .attr("stroke", "#000")
-            .attr("stroke-width", 1.5)
-            .attr("stroke-linejoin", "round")
-            .attr("d", aline as any);
         svg.select("#xAxis")
             .call(xAxis);
         svg.select("#yAxis")
             .call(yAxis);
-    }, [data, bandwidth]);
+    }, [data, title, selections]);
 
-    if (data === undefined) {
+    if (data === undefined || selections === undefined) {
         return null;
     }
     const x = scaleLinear()
@@ -55,31 +50,20 @@ const ProbabilityDensity = ({data, bandwidth}: {data: number[] | undefined, band
         .domain([0, max(bins, d => d.length)! / data.length])
         .range([height - margin.bottom, margin.top]);
 
-    const aline = line()
-        .curve(curveBasis)
-        .x(d => x(d[0]))
-        .y(d => y(d[1]));
-    const density = kde(epanechnikov(bandwidth), thresholds, data);
-
     const xAxis = (g: any) => g
         .attr("transform", `translate(0,${height - margin.bottom})`)
         .call(axisBottom(x))
-        .call((g: any) => g.append("text")
-            .attr("x", width - margin.right)
-            .attr("y", -6)
-            .attr("fill", "#000")
-            .attr("text-anchor", "end")
-            .attr("font-weight", "bold")
-            .text("data"))
-    
     const yAxis = (g: any) => g
         .attr("transform", `translate(${margin.left},0)`)
         .call(axisLeft(y).ticks(null, "%"))
         .call((g: any) => g.select(".domain").remove())
 
-    return <svg ref={svgRef} viewBox="0, 0, 300, 150" width={300} height={150}>
+    return <svg
+        ref={svgRef}
+        viewBox={"[0, 0," + width.toString() + "," + height.toString() + "]"}
+        width={width}
+        height={height}>
         <g id="pdf"></g>
-        <path id="kde"></path>
         <g id="xAxis"></g>
         <g id="yAxis"></g>
     </svg>
