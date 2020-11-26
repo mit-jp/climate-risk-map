@@ -11,7 +11,9 @@ import { Map } from 'immutable';
 import { DataGroup, DataIdParams, Dataset, Normalization, Year } from './DataDefinitions';
 import { json, csv } from 'd3-fetch';
 import { State } from './States';
-import { DSVRowString } from 'd3';
+import { DSVRowString, randomNormal, randomPareto } from 'd3';
+import ProbabilityDensity from './ProbabilityDensity';
+import Slider from '@material-ui/core/Slider';
 
 const csvFiles: CsvFile[] = [
   "climate_normalized_by_nation_stdv.csv",
@@ -25,6 +27,9 @@ const csvFiles: CsvFile[] = [
   "demographics_normalized_by_state.csv",
   "demographics.csv"
 ];
+
+const randomizer = randomPareto(5);
+const pdfdata = Array.from({length:3000}, randomizer);
 
 const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
   [DataTab.Climate, [{
@@ -81,6 +86,7 @@ const Home = () => {
   const [aggregation, setAggregation] = useState(Aggregation.County);
   const [normalization, setNormalization] = useState(Normalization.StandardDeviations);
   const [state, setState] = useState<State | undefined>(undefined);
+  const [bandwidth, setBandwidth] = useState(2.5);
 
   useEffect(() => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa.json").then(setMap);
@@ -124,6 +130,15 @@ const Home = () => {
     <React.Fragment>
       <Header />
       <Navigation selection={dataTab} onDataTabChanged={onDataTabChanged} />
+      <Slider
+        value={bandwidth}
+        max={20}
+        min={1}
+        step={0.1}
+        valueLabelDisplay="auto"
+        onChange={(event, value) => {setBandwidth(value as number)}}
+        aria-labelledby="continuous-slider" />
+      <ProbabilityDensity data={pdfdata} bandwidth={bandwidth} />
       <div id="content">
       <DataSelector
         onSelectionChange={onSelectionChange}
