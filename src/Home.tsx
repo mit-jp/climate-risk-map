@@ -135,6 +135,15 @@ const Home = () => {
     setAggregation(value);
   }
 
+  const getArrayOfData = () => {
+    if (processedData === undefined) {
+      return undefined;
+    }
+    return Array
+      .from(processedData.valueSeq())
+      .filter(value => value !== undefined) as number[];
+  }
+
   return (
     <React.Fragment>
       <Header />
@@ -147,7 +156,7 @@ const Home = () => {
         valueLabelDisplay="auto"
         onChange={(event, value) => {setBandwidth(value as number)}}
         aria-labelledby="continuous-slider" />
-      <ProbabilityDensity data={pdfdata} bandwidth={bandwidth} />
+      <ProbabilityDensity data={getArrayOfData()} bandwidth={bandwidth} />
       <div id="content">
       <DataSelector
         onSelectionChange={onSelectionChange}

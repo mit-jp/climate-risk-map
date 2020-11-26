@@ -10,7 +10,38 @@ function epanechnikov(bandwidth: number) {
     return (x: number) => Math.abs(x /= bandwidth) <= 1 ? 0.75 * (1 - x * x) / bandwidth : 0;
 }
 
-const ProbabilityDensity = ({data, bandwidth}: {data: number[], bandwidth: number}) => {
+const ProbabilityDensity = ({data, bandwidth}: {data: number[] | undefined, bandwidth: number}) => {
+    const svgRef = useRef<SVGSVGElement>(null);
+    useEffect(() => {
+        if (data === undefined) {
+            return;
+        }
+        const svg = select(svgRef.current);
+        svg.select("#pdf")
+            .attr("fill", "#bbb")
+            .selectAll("rect")
+            .data(bins)
+            .join("rect")
+            .attr("x", d => x(d!.x0!) + 1)
+            .attr("y", d => y(d!.length / data.length))
+            .attr("width", d => x(d!.x1!) - x(d.x0!) - 1)
+            .attr("height", d => y(0) - y(d.length / data.length));
+        svg.select("#kde")
+            .datum(density)
+            .attr("fill", "none")
+            .attr("stroke", "#000")
+            .attr("stroke-width", 1.5)
+            .attr("stroke-linejoin", "round")
+            .attr("d", aline as any);
+        svg.select("#xAxis")
+            .call(xAxis);
+        svg.select("#yAxis")
+            .call(yAxis);
+    }, [data, bandwidth]);
+
+    if (data === undefined) {
+        return null;
+    }
     const x = scaleLinear()
         .domain(extent(data) as [number, number])
         .nice()
@@ -46,30 +77,6 @@ const ProbabilityDensity = ({data, bandwidth}: {data: number[], bandwidth: numbe
         .call(axisLeft(y).ticks(null, "%"))
         .call((g: any) => g.select(".domain").remove())
 
-    const svgRef = useRef<SVGSVGElement>(null);
-    useEffect(() => {
-        const svg = select(svgRef.current);
-        svg.select("#pdf")
-            .attr("fill", "#bbb")
-            .selectAll("rect")
-            .data(bins)
-            .join("rect")
-            .attr("x", d => x(d!.x0!) + 1)
-            .attr("y", d => y(d!.length / data.length))
-            .attr("width", d => x(d!.x1!) - x(d.x0!) - 1)
-            .attr("height", d => y(0) - y(d.length / data.length));
-        svg.select("#kde")
-            .datum(density)
-            .attr("fill", "none")
-            .attr("stroke", "#000")
-            .attr("stroke-width", 1.5)
-            .attr("stroke-linejoin", "round")
-            .attr("d", aline as any);
-        svg.select("#xAxis")
-            .call(xAxis);
-        svg.select("#yAxis")
-            .call(yAxis);
-    }, [bandwidth]);
     return <svg ref={svgRef} viewBox="0, 0, 300, 150" width={300} height={150}>
         <g id="pdf"></g>
         <path id="kde"></path>
