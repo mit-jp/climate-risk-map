@@ -159,7 +159,7 @@ const MapUI = ({
         svg
             .selectAll(".county")
             .on("touchmove mousemove", handleCountyMouseOver(selectedDataDefinitions, processedData, selections))
-            .on("touchend mouseleave", (event, d) => {console.log(event);});
+            .on("touchend mouseleave", handleMouseOut);
     }, [map, selections, dataWeights, aggregation, state, onStateChange, data]);
 
     if (map === undefined) {
