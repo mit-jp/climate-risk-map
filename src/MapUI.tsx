@@ -70,7 +70,7 @@ const MapUI = ({
             .attr("stroke-linejoin", "round")
             .attr("d", path);
 
-        const csvFiles = getTablesForSelections(selections);
+        const csvFiles = getTablesForSelections(selections, state);
 
         if (selections.length === 0 || !dataLoaded(csvFiles.values(), data)) {      
             svg.select("#legend").selectAll("*").remove();
@@ -89,7 +89,7 @@ const MapUI = ({
             return;
         }
 
-        const processedData = getProcessedCountyData(selections, data, dataWeights);
+        const processedData = getProcessedCountyData(selections, data, dataWeights, state);
         // const processedStateData = getProcessedStateData(processedData);
         const selectedDataDefinitions = getDataDefinitions(selections);
         const title = getTitle(selectedDataDefinitions, selections);
@@ -312,9 +312,10 @@ const getProcessedCountyData = (
     selections: DataIdParams[],
     data: Data,
     dataWeights: ImmutableMap<DataGroup, number>,
+    state: State | undefined,
 ) => {
     const selectionToDataId =  getDataIdsForSelections(selections);
-    const selectionToTable = getTablesForSelections(selections);
+    const selectionToTable = getTablesForSelections(selections, state);
     let valuesById: [string, number | undefined][] = [];
     for (const countyId of counties.keys()) {
         const values = getDataForSelections(
@@ -365,11 +366,25 @@ const normalizationToFile = ImmutableMap([
     [Normalization.StandardDeviations, "_normalized_by_nation_stdv.csv"],
 ]);
 
-const getTablesForSelections = (selections: DataIdParams[]) => {
+const normalizationToStateFile = ImmutableMap([
+    [Normalization.Raw, ".csv"],
+    [Normalization.Percentile, "_normalized_by_state.csv"],
+    [Normalization.StandardDeviations, "_normalized_by_state_stdv.csv"],
+]);
+
+const getSuffix = (normalization: Normalization, state: State | undefined) => {
+    if (state === undefined) {
+        return normalizationToFile.get(normalization);
+    } else {
+        return normalizationToStateFile.get(normalization);
+    }
+};
+
+const getTablesForSelections = (selections: DataIdParams[], state: State | undefined) => {
     return ImmutableMap(selections.map(selection => {
         const dataDefinition = dataDefinitions.get(selection.dataGroup)!
         const prefix = dataDefinition.type === DataType.Climate ? "climate" : "demographics";
-        const suffix = normalizationToFile.get(selection.normalization);
+        const suffix = getSuffix(selection.normalization, state);
         const csvFile: CsvFile = (prefix + suffix) as CsvFile;
         return [selection, csvFile];
     }));
