@@ -637,7 +637,7 @@ dataDefinitions.set(DataGroup.PercentofPopulationBelowPovertyLevel, {
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
     normalizations: raw,
-    type: DataType.Economic,
+    type: DataType.Demographic,
     description: "",
     years: [],
     datasets: [Dataset.Census]
@@ -686,7 +686,7 @@ dataDefinitions.set(DataGroup.PercentofPopulationBelowPovertyLevelStd, {
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]),
     normalizations: stdDev,
-    type: DataType.Economic,
+    type: DataType.Demographic,
     description: "",
     years: [],
     datasets: [Dataset.Census]
