@@ -24,9 +24,8 @@ export enum DataGroup {
     Farming = "Farming",
     Mining = "Mining",
     Construction = "Construction",
-    Retail = "Retailtrade",
-    Information = "Information",
-    Wholesale = "Wholesaletrade",
+    Agricultureforestryfishingandhunting = "Agricultureforestryfishingandhunting",
+    Healthcareandsocialassistance = "Healthcareandsocialassistance",
     PerCapitapersonalincome2018 = "PerCapitapersonalincome2018",
     GDP2018 = "GDP2018",
     PercentPopulationUnder18 = "PercentPopulationUnder18",
@@ -183,9 +182,8 @@ export enum DataId {
     Farming,
     Mining,
     Construction,
-    Retailtrade,
-    Information,
-    Wholesaletrade,
+    Agricultureforestryfishingandhunting,
+    Healthcareandsocialassistance,
     PerCapitapersonalincome2018,
     GDP2018,
     PercentPopulationUnder18,
@@ -534,8 +532,8 @@ dataDefinitions.set(DataGroup.Construction, {
     years: [],
     datasets: [Dataset.BEA]
 });
-dataDefinitions.set(DataGroup.Retail, {
-    name:"Employment in retail trade 2007",
+dataDefinitions.set(DataGroup.Agricultureforestryfishingandhunting, {
+    name:"Employment in agriculture, forestry, fishing, and hunting 2007",
     id: getEconDataId,
     units:"people",
     formatter: regularNumber,
@@ -546,20 +544,8 @@ dataDefinitions.set(DataGroup.Retail, {
     years: [],
     datasets: [Dataset.BEA]
 });
-dataDefinitions.set(DataGroup.Information, {
-    name:"Employment in information 2007",
-    id: getEconDataId,
-    units:"people",
-    formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
-    normalizations: raw,
-    type: DataType.Economic,
-    description: "",
-    years: [],
-    datasets: [Dataset.BEA]
-});
-dataDefinitions.set(DataGroup.Wholesale, {
-    name:"Employment in wholesale trade 2007",
+dataDefinitions.set(DataGroup.Healthcareandsocialassistance, {
+    name:"Employment in healthcare and social assistance 2007",
     id: getEconDataId,
     units:"people",
     formatter: regularNumber,
