@@ -15,8 +15,10 @@ import { DSVRowString } from 'd3';
 
 const csvFiles: CsvFile[] = [
   "climate_normalized_by_nation_stdv.csv",
+  "climate_normalized_by_state_stdv.csv",
   "climate.csv",
   "demographics_normalized_by_nation_stdv.csv",
+  "demographics_normalized_by_state_stdv.csv",
   "demographics.csv"
 ];
 
@@ -50,7 +52,7 @@ const convertToNumbers = (rawRow: DSVRowString, index: number, columns: string[]
   }
   return newRows;
 }
-export type CsvFile = "climate_normalized_by_nation_stdv.csv" | "climate.csv" | "demographics_normalized_by_nation_stdv.csv" | "demographics.csv";
+export type CsvFile = "climate_normalized_by_nation_stdv.csv" | "climate.csv" | "demographics_normalized_by_nation_stdv.csv" | "demographics.csv" | "climate_normalized_by_state_stdv.csv" | "demographics_normalized_by_state_stdv.csv";
 type CountyToDataMap = Map<string, {[key: string]: string | number | undefined}>;
 export type Data = Map<CsvFile, CountyToDataMap | undefined>;
 
