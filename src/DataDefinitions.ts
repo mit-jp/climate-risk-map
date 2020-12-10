@@ -20,22 +20,18 @@ export enum DataGroup {
     Precipitation = "prc",
     Runoff = "ro",
     FloodIndicator = "wet",
-    AllIndustries = "Allindustries",
-    Farming = "Farming",
-    Mining = "Mining",
-    Construction = "Construction",
-    Agricultureforestryfishingandhunting = "Agricultureforestryfishingandhunting",
-    Healthcareandsocialassistance = "Healthcareandsocialassistance",
+    AllIndustries = "AllindustriesE",
+    Farming = "FarmingEPercentage",
+    Mining = "MiningEPercentage",
+    Construction = "ConstructionEPercentage",
+    Agricultureforestryfishingandhunting = "AgricultureforestryfishingandhuntingEPercentage",
+    Healthcareandsocialassistance = "HealthcareandsocialassistanceEPercentage",
     PerCapitapersonalincome2018 = "PerCapitapersonalincome2018",
     GDP2018 = "GDP2018",
     PercentPopulationUnder18 = "PercentPopulationUnder18",
     PercentPopulationOver65 = "PercentPopulationOver65",
     PercentNonwhite = "PercentNonwhite",
     PercentofPopulationBelowPovertyLevel = "PercentofPopulationBelowPovertyLevel",
-    PercentPopulationUnder18Std = "PercentPopulationUnder18Std",
-    PercentPopulationOver65Std = "PercentPopulationOver65Std",
-    PercentNonwhiteStd = "PercentNonwhiteStd",
-    PercentofPopulationBelowPovertyLevelStd = "PercentofPopulationBelowPovertyLevelStd",
     discuss = "discuss",
     discussOppose = "discussOppose",
     reducetax = "reducetax",
@@ -178,22 +174,18 @@ export enum DataId {
     Nwet_00_19,
     Nwet_80_19,
     Nwet_80_99,
-    Allindustries,
-    Farming,
-    Mining,
-    Construction,
-    Agricultureforestryfishingandhunting,
-    Healthcareandsocialassistance,
+    AllindustriesE,
+    FarmingEPercentage,
+    MiningEPercentage,
+    ConstructionEPercentage,
+    AgricultureforestryfishingandhuntingEPercentage,
+    HealthcareandsocialassistanceEPercentage,
     PerCapitapersonalincome2018,
     GDP2018,
     PercentPopulationUnder18,
     PercentPopulationOver65,
     PercentNonwhite,
     PercentofPopulationBelowPovertyLevel,
-    PercentPopulationUnder18Std,
-    PercentPopulationOver65Std,
-    PercentNonwhiteStd,
-    PercentofPopulationBelowPovertyLevelStd,
     discuss,
     discussOppose,
     reducetax,
@@ -282,7 +274,7 @@ export enum Normalization {
 
 export const standardDeviationColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]);
 export const percentileColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([0, 0.5, 1]);
-const employmentDescription = "A count of full-time and part-time jobs in U.S. counties and metropolitan areas, with industry detail. Nonmetropolitan areas and rural counties are also included. These statistics cover wage and salary jobs and self-employment.";
+const employmentDescription = "A percentage of employed people in this specific industry. Nonmetropolitan areas and rural counties are also included. These statistics cover wage and salary jobs and self-employment.";
 
 export const getUnits = (dataDefinition: DataDefinition, normalization: Normalization) => {
     let units = "";
@@ -297,7 +289,6 @@ export const getUnits = (dataDefinition: DataDefinition, normalization: Normaliz
 }
 const raw = Set([Normalization.Raw]);
 const rawAndStdDev = Set([Normalization.Raw, Normalization.StandardDeviations]);
-const stdDev = Set([Normalization.StandardDeviations]);
 
 export enum Dataset {
     MERRA2 = "M",
@@ -493,16 +484,16 @@ dataDefinitions.set(DataGroup.AllIndustries, {
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 1000000]),
     normalizations: raw,
     type: DataType.Economic,
-    description: employmentDescription,
+    description: "A count of full-time and part-time jobs in U.S. counties and metropolitan areas, with industry detail. Nonmetropolitan areas and rural counties are also included. These statistics cover wage and salary jobs and self-employment.",
     years: [],
     datasets: [Dataset.BEA]
 });
 dataDefinitions.set(DataGroup.Farming, {
-    name:"Employment in farming 2007",
+    name:"Farming 2007",
     id: getEconDataId,
-    units:"people",
+    units:"% of employed people",
     formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
+    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 50]),
     normalizations: raw,
     type: DataType.Economic,
     description: employmentDescription,
@@ -510,11 +501,11 @@ dataDefinitions.set(DataGroup.Farming, {
     datasets: [Dataset.BEA]
 });
 dataDefinitions.set(DataGroup.Mining, {
-    name:"Employment in mining 2007",
+    name:"Mining 2007",
     id: getEconDataId,
-    units:"people",
+    units:"% of employed people",
     formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
+    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 50]),
     normalizations: raw,
     type: DataType.Economic,
     description: employmentDescription,
@@ -522,11 +513,11 @@ dataDefinitions.set(DataGroup.Mining, {
     datasets: [Dataset.BEA]
 });
 dataDefinitions.set(DataGroup.Construction, {
-    name:"Employment in construction 2007",
+    name:"Construction 2007",
     id: getEconDataId,
-    units:"people",
+    units:"% of employed people",
     formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
+    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 50]),
     normalizations: raw,
     type: DataType.Economic,
     description: employmentDescription,
@@ -534,11 +525,11 @@ dataDefinitions.set(DataGroup.Construction, {
     datasets: [Dataset.BEA]
 });
 dataDefinitions.set(DataGroup.Agricultureforestryfishingandhunting, {
-    name:"Employment in agriculture, forestry, fishing, and hunting 2007",
+    name:"Agriculture, forestry, fishing, and hunting 2007",
     id: getEconDataId,
-    units:"people",
+    units:"% of employed people",
     formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
+    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 50]),
     normalizations: raw,
     type: DataType.Economic,
     description: employmentDescription,
@@ -546,11 +537,11 @@ dataDefinitions.set(DataGroup.Agricultureforestryfishingandhunting, {
     datasets: [Dataset.BEA]
 });
 dataDefinitions.set(DataGroup.Healthcareandsocialassistance, {
-    name:"Employment in healthcare and social assistance 2007",
+    name:"Healthcare and social assistance 2007",
     id: getEconDataId,
-    units:"people",
+    units:"% of employed people",
     formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
+    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 50]),
     normalizations: raw,
     type: DataType.Economic,
     description: employmentDescription,
@@ -587,7 +578,7 @@ dataDefinitions.set(DataGroup.PercentPopulationUnder18, {
     units: "% of people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
-    normalizations: raw,
+    normalizations: rawAndStdDev,
     type: DataType.Demographic,
     description: "",
     years: [],
@@ -599,7 +590,7 @@ dataDefinitions.set(DataGroup.PercentPopulationOver65, {
     units: "% of people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
-    normalizations: raw,
+    normalizations: rawAndStdDev,
     type: DataType.Demographic,
     description: "",
     years: [],
@@ -611,7 +602,7 @@ dataDefinitions.set(DataGroup.PercentNonwhite, {
     units: "% of people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 100]),
-    normalizations: raw,
+    normalizations: rawAndStdDev,
     type: DataType.Demographic,
     description: "",
     years: [],
@@ -623,56 +614,7 @@ dataDefinitions.set(DataGroup.PercentofPopulationBelowPovertyLevel, {
     units: "% of people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
-    normalizations: raw,
-    type: DataType.Demographic,
-    description: "",
-    years: [],
-    datasets: [Dataset.Census]
-});
-
-dataDefinitions.set(DataGroup.PercentPopulationUnder18Std, {
-    name: "Population Under 18",
-    id: getEconDataId,
-    units: "Standard deviations",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]),
-    normalizations: stdDev,
-    type: DataType.Demographic,
-    description: "",
-    years: [],
-    datasets: [Dataset.Census]
-});
-dataDefinitions.set(DataGroup.PercentPopulationOver65Std, {
-    name: "Population Over 65",
-    id: getEconDataId,
-    units: "Standard deviations",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]),
-    normalizations: stdDev,
-    type: DataType.Demographic,
-    description: "",
-    years: [],
-    datasets: [Dataset.Census]
-});
-dataDefinitions.set(DataGroup.PercentNonwhiteStd, {
-    name: "Nonwhite",
-    id: getEconDataId,
-    units: "Standard deviations",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]),
-    normalizations: stdDev,
-    type: DataType.Demographic,
-    description: "",
-    years: [],
-    datasets: [Dataset.Census]
-});
-dataDefinitions.set(DataGroup.PercentofPopulationBelowPovertyLevelStd, {
-    name: "Population Below Poverty Level",
-    id: getEconDataId,
-    units: "Standard deviations",
-    formatter: regularNumber,
-    color: scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]),
-    normalizations: stdDev,
+    normalizations: rawAndStdDev,
     type: DataType.Demographic,
     description: "",
     years: [],
