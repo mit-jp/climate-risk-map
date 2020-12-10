@@ -282,6 +282,7 @@ export enum Normalization {
 
 export const standardDeviationColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]);
 export const percentileColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([0, 0.5, 1]);
+const employmentDescription = "A count of full-time and part-time jobs in U.S. counties and metropolitan areas, with industry detail. Nonmetropolitan areas and rural counties are also included. These statistics cover wage and salary jobs and self-employment.";
 
 export const getUnits = (dataDefinition: DataDefinition, normalization: Normalization) => {
     let units = "";
@@ -348,8 +349,8 @@ datasetDefinitions.set(Dataset.NARR, {
     link: "https://psl.noaa.gov/data/gridded/data.narr.html"
 });
 datasetDefinitions.set(Dataset.Yale, {
-    name: "Yale Climate Opinion Maps",
-    description: "Climate surveys done in 2020",
+    name: "Yale Program on Climate Change Communication",
+    description: "Statistical estimates of U.S. climate change beliefs, risk perceptions, and policy preferences at the state and local levels.",
     link: "https://climatecommunication.yale.edu/visualizations-data/ycom-us/"
 });
 datasetDefinitions.set(Dataset.BEA, {
@@ -480,7 +481,7 @@ dataDefinitions.set(DataGroup.GDP2018, {
     color: scaleThreshold<number, string>().domain([0, 1000000, 2000000, 3000000, 10000000, 100000000, 300000000, 700000000]).range(scales.schemeGreens[8]),
     normalizations: raw,
     type: DataType.Economic,
-    description: "",
+    description: "A comprehensive measure of the economies of counties, metropolitan statistical areas, and some other local areas. Gross domestic product estimates the value of the goods and services produced in an area. It can be used to compare the size and growth of county economies across the nation.",
     years: [],
     datasets: [Dataset.BEA]
 });
@@ -492,7 +493,7 @@ dataDefinitions.set(DataGroup.AllIndustries, {
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 1000000]),
     normalizations: raw,
     type: DataType.Economic,
-    description: "",
+    description: employmentDescription,
     years: [],
     datasets: [Dataset.BEA]
 });
@@ -504,7 +505,7 @@ dataDefinitions.set(DataGroup.Farming, {
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalizations: raw,
     type: DataType.Economic,
-    description: "",
+    description: employmentDescription,
     years: [],
     datasets: [Dataset.BEA]
 });
@@ -516,7 +517,7 @@ dataDefinitions.set(DataGroup.Mining, {
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalizations: raw,
     type: DataType.Economic,
-    description: "",
+    description: employmentDescription,
     years: [],
     datasets: [Dataset.BEA]
 });
@@ -528,7 +529,7 @@ dataDefinitions.set(DataGroup.Construction, {
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalizations: raw,
     type: DataType.Economic,
-    description: "",
+    description: employmentDescription,
     years: [],
     datasets: [Dataset.BEA]
 });
@@ -540,7 +541,7 @@ dataDefinitions.set(DataGroup.Agricultureforestryfishingandhunting, {
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalizations: raw,
     type: DataType.Economic,
-    description: "",
+    description: employmentDescription,
     years: [],
     datasets: [Dataset.BEA]
 });
@@ -552,7 +553,7 @@ dataDefinitions.set(DataGroup.Healthcareandsocialassistance, {
     color: scaleSequential<string>(scales.interpolateGreens).domain([0, 20000]),
     normalizations: raw,
     type: DataType.Economic,
-    description: "",
+    description: employmentDescription,
     years: [],
     datasets: [Dataset.BEA]
 });
@@ -576,7 +577,7 @@ dataDefinitions.set(DataGroup.PerCapitapersonalincome2018, {
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([10000, 40000, 100000]),
     normalizations: raw,
     type: DataType.Economic,
-    description: "",
+    description: "Income that people get from wages, proprietors' income, dividends, interest, rents, and government benefits. A person's income is counted in the county, metropolitan statistical area, or other area where they live, even if they work elsewhere.",
     years: [],
     datasets: [Dataset.BEA]
 });
