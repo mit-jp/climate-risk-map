@@ -278,7 +278,7 @@ export enum Normalization {
 
 export const standardDeviationColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]);
 export const percentileColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([1, 0.5, 0]);
-export const percentileFormatter = format(",.2f");
+export const percentileFormatter = format(".0%");
 export const standardDeviationFormatter = format(",.1f");
 const employmentDescription = "A percentage of employed people in this specific industry. Nonmetropolitan areas and rural counties are also included. These statistics cover wage and salary jobs and self-employment.";
 
@@ -465,7 +465,7 @@ dataDefinitions.set(DataGroup.FloodIndicator, {
     units:"mm/month",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Climate,
     description: "98th percentile of monthly runoff time series during the specific period",
     years: years,
