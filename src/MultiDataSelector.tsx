@@ -6,7 +6,6 @@ import { Map } from 'immutable';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import { ToggleButtonGroup, ToggleButton } from '@material-ui/core';
-import { selection } from 'd3';
 
 type Props = {
     selection: DataIdParams[],

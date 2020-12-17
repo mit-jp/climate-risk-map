@@ -12,7 +12,6 @@ import { DataGroup, DataIdParams, Dataset, Normalization, Year } from './DataDef
 import { json, csv } from 'd3-fetch';
 import { State } from './States';
 import { DSVRowString } from 'd3';
-import { ToggleButton, ToggleButtonGroup } from '@material-ui/core';
 
 const csvFiles: CsvFile[] = [
   "climate_normalized_by_nation_stdv.csv",
