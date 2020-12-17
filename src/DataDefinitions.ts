@@ -1,5 +1,5 @@
 import * as scales from 'd3-scale-chromatic';
-import { scaleThreshold, scaleDiverging, scaleSequential, format } from 'd3';
+import { scaleThreshold, scaleDiverging, scaleSequential, format, scaleDivergingLog, scaleDivergingSymlog } from 'd3';
 import { ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3-scale';
 import { Set } from 'immutable';
 
@@ -389,7 +389,7 @@ dataDefinitions.set(DataGroup.DroughtIndicator, {
     id: getClimateDataId,
     units:"mm/year",
     formatter: regularNumber,
-    color: scaleSequential<string>(scales.interpolateOranges).domain([1500, 0]),
+    color: scaleDivergingSymlog<string>(scales.interpolateBrBG).domain([0, 250, 1500]),
     normalizations: rawAndStdDev,
     type: DataType.Climate,
     description: "5th percentile of annual runoff time series during the specific period",
