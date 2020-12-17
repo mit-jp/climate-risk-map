@@ -5,7 +5,7 @@ import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, DataId, DataType, DataGroup, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, DataId, DataType, DataGroup, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits, percentileFormatter, standardDeviationFormatter } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
@@ -93,7 +93,7 @@ const MapUI = ({
         // const processedStateData = getProcessedStateData(processedData);
         const selectedDataDefinitions = getDataDefinitions(selections);
         const title = getTitle(selectedDataDefinitions, selections);
-        const formatter = getFormatter(selectedDataDefinitions);
+        const formatter = getFormatter(selectedDataDefinitions, selections);
         const colorScheme = getColorScheme(selectedDataDefinitions, selections);
         const legendCells = getLegendCells(selections);
 
@@ -233,7 +233,7 @@ const handleCountyMouseOver = (
 
 
 const format = (value: number | undefined, selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
-    const formatter = getFormatter(selectedDataDefinitions);
+    const formatter = getFormatter(selectedDataDefinitions, selections);
     if (value === undefined) {
         return "No data";
     }
@@ -286,8 +286,13 @@ const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdP
     }
 }
 
-const getFormatter = (selectedDataDefinitions: DataDefinition[]) => {
-    return selectedDataDefinitions[0].formatter;
+const getFormatter = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
+    const normalization = selections[0].normalization;
+    switch(normalization) {
+        case Normalization.Raw: return selectedDataDefinitions[0].formatter;
+        case Normalization.Percentile: return percentileFormatter;
+        case Normalization.StandardDeviations: return standardDeviationFormatter;
+    }
 }
 
 const getColorScheme = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {

@@ -5,6 +5,7 @@ import DatasetSelector from './DatasetSelector';
 import { Map } from 'immutable';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
+import { ToggleButtonGroup, ToggleButton } from '@material-ui/core';
 
 type Props = {
     selection: DataIdParams[],
@@ -12,6 +13,7 @@ type Props = {
     onWeightChange: (dataGroup: DataGroup, weight: number) => void,
     dataWeights: Map<DataGroup, number>,
     normalization: Normalization,
+    onNormalizationChange: (normalization: Normalization) => void,
 };
 
 const getYears = (dataGroup: DataGroup) =>
@@ -22,7 +24,7 @@ const getDatasets = (dataGroup: DataGroup) =>
 
 const getUnitString = (units: string) => units ? `(${units})` : "";
 
-const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeightChange, dataWeights, normalization}: Props) => {
+const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeightChange, dataWeights, normalization, onNormalizationChange}: Props) => {
     const selectionMap = Map(dataSelections.map(selection => [selection.dataGroup, selection]));
 
     const onYearChange = (event: ChangeEvent<HTMLInputElement>, dataGroup: DataGroup) => {
@@ -39,10 +41,16 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
         const dataGroup = event.target.value as DataGroup;
         const checked = event.target.checked;
         const changedSelections = checked ?
-            selectionMap.set(dataGroup, {dataGroup, year: getYears(dataGroup)[0], dataset: getDatasets(dataGroup)[0], normalization: Normalization.StandardDeviations}) :
+            selectionMap.set(dataGroup, {dataGroup, year: getYears(dataGroup)[0], dataset: getDatasets(dataGroup)[0], normalization: normalization}) :
             selectionMap.delete(dataGroup);
         
         onSelectionChange(Array.from(changedSelections.values()));
+    }
+
+    const onNormalizationChangeListener = (_: any, normalization: Normalization) => {
+        const changedSelections = dataSelections.map(selection => ({...selection, normalization}))
+        onSelectionChange(Array.from(changedSelections));
+        onNormalizationChange(normalization);
     }
 
     const onDataGroupWeightChange = (dataGroup: DataGroup) => (weight: number) => {
@@ -58,7 +66,7 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
 
     const getDataGroups = () => {
         return Array.from(dataDefinitions.entries())
-        .filter(([_, definition]) => definition.normalizations.contains(Normalization.StandardDeviations) || definition.normalizations.contains(Normalization.Percentile))
+        .filter(([_, definition]) => definition.normalizations.contains(normalization))
         .map(([dataGroup, definition]) =>
             <div key={dataGroup} className={shouldBeChecked(dataGroup) ? "selected-group" : undefined}>
                 <input
@@ -99,6 +107,14 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
 
     return (
         <form id="data-selector">
+            <ToggleButtonGroup size="small" value={normalization} exclusive onChange={onNormalizationChangeListener}>
+                <ToggleButton value={Normalization.Percentile}>
+                Percentile
+                </ToggleButton>
+                <ToggleButton value={Normalization.StandardDeviations}>
+                Standard Deviations
+                </ToggleButton>
+            </ToggleButtonGroup>
             {getDataGroups()}
         </form>
     )

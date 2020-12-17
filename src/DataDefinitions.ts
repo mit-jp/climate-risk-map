@@ -1,5 +1,5 @@
 import * as scales from 'd3-scale-chromatic';
-import { scaleThreshold, scaleDiverging, scaleSequential, format, scaleDivergingLog, scaleDivergingSymlog } from 'd3';
+import { scaleThreshold, scaleDiverging, scaleSequential, format, scaleDivergingSymlog } from 'd3';
 import { ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3-scale';
 import { Set } from 'immutable';
 
@@ -277,7 +277,9 @@ export enum Normalization {
 }
 
 export const standardDeviationColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]);
-export const percentileColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([0, 0.5, 1]);
+export const percentileColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([1, 0.5, 0]);
+export const percentileFormatter = format(".0%");
+export const standardDeviationFormatter = format(",.1f");
 const employmentDescription = "A percentage of employed people in this specific industry. Nonmetropolitan areas and rural counties are also included. These statistics cover wage and salary jobs and self-employment.";
 
 export const getUnits = (dataDefinition: DataDefinition, normalization: Normalization) => {
@@ -293,6 +295,7 @@ export const getUnits = (dataDefinition: DataDefinition, normalization: Normaliz
 }
 const raw = Set([Normalization.Raw]);
 const rawAndStdDev = Set([Normalization.Raw, Normalization.StandardDeviations]);
+const allNormalizations = Set([Normalization.Raw, Normalization.StandardDeviations, Normalization.Percentile]);
 
 export enum Dataset {
     MERRA2 = "M",
@@ -366,7 +369,7 @@ dataDefinitions.set(DataGroup.ClimateMoistureIndex, {
     units:"",
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Climate,
     description: "Calculated from mean annual precipitation and potential evapotransipiration",
     years: years,
@@ -378,7 +381,7 @@ dataDefinitions.set(DataGroup.IrregationDeficit, {
     units:"mm/year",
     formatter: regularNumber,
     color: scaleDiverging<string>(x => scales.interpolateBrBG(1-x)).domain([-600, 0, 1600]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Climate,
     description: "Difference between mean annual potential evapotransipiration and precipitation (def = pet - prc)",
     years: years,
@@ -390,7 +393,7 @@ dataDefinitions.set(DataGroup.DroughtIndicator, {
     units:"mm/year",
     formatter: regularNumber,
     color: scaleDivergingSymlog<string>(scales.interpolateBrBG).domain([0, 250, 1500]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Climate,
     description: "5th percentile of annual runoff time series during the specific period",
     years: years,
@@ -402,7 +405,7 @@ dataDefinitions.set(DataGroup.Groundwater, {
     units:"mm/month",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 40]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Climate,
     description: "Minimum of the 12 monthly runoff climatology during the specific period (40 years or 20 years. To avoid negative values, the minimum cutoff value is set to be 0.000001)",
     years: years,
@@ -414,7 +417,7 @@ dataDefinitions.set(DataGroup.MaxTemperature, {
     units:"°C",
     formatter: regularNumber,
     color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Climate,
     description: "Directly calculated from the reanalysis data",
     years: years,
@@ -462,7 +465,7 @@ dataDefinitions.set(DataGroup.FloodIndicator, {
     units:"mm/month",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Climate,
     description: "98th percentile of monthly runoff time series during the specific period",
     years: years,
@@ -582,7 +585,7 @@ dataDefinitions.set(DataGroup.PercentPopulationUnder18, {
     units: "% of people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Demographic,
     description: "",
     years: [],
@@ -594,7 +597,7 @@ dataDefinitions.set(DataGroup.PercentPopulationOver65, {
     units: "% of people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Demographic,
     description: "",
     years: [],
@@ -606,7 +609,7 @@ dataDefinitions.set(DataGroup.PercentNonwhite, {
     units: "% of people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 100]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Demographic,
     description: "",
     years: [],
@@ -618,7 +621,7 @@ dataDefinitions.set(DataGroup.PercentofPopulationBelowPovertyLevel, {
     units: "% of people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 50]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Demographic,
     description: "",
     years: [],
@@ -630,7 +633,7 @@ dataDefinitions.set(DataGroup.UnemploymentRate, {
     units: "% of people",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, 20]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Demographic,
     description: "",
     years: [],

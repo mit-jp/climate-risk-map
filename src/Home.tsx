@@ -16,9 +16,13 @@ import { DSVRowString } from 'd3';
 const csvFiles: CsvFile[] = [
   "climate_normalized_by_nation_stdv.csv",
   "climate_normalized_by_state_stdv.csv",
+  "climate_normalized_by_nation.csv",
+  "climate_normalized_by_state.csv",
   "climate.csv",
   "demographics_normalized_by_nation_stdv.csv",
   "demographics_normalized_by_state_stdv.csv",
+  "demographics_normalized_by_nation.csv",
+  "demographics_normalized_by_state.csv",
   "demographics.csv"
 ];
 
@@ -52,7 +56,17 @@ const convertToNumbers = (rawRow: DSVRowString, index: number, columns: string[]
   }
   return newRows;
 }
-export type CsvFile = "climate_normalized_by_nation_stdv.csv" | "climate.csv" | "demographics_normalized_by_nation_stdv.csv" | "demographics.csv" | "climate_normalized_by_state_stdv.csv" | "demographics_normalized_by_state_stdv.csv";
+export type CsvFile =
+  "climate_normalized_by_nation_stdv.csv"
+| "climate_normalized_by_state_stdv.csv"
+| "climate_normalized_by_nation.csv"
+| "climate_normalized_by_state.csv"
+| "climate.csv"
+| "demographics_normalized_by_nation_stdv.csv"
+| "demographics_normalized_by_state_stdv.csv"
+| "demographics_normalized_by_nation.csv"
+| "demographics_normalized_by_state.csv"
+| "demographics.csv";
 type CountyToDataMap = Map<string, {[key: string]: string | number | undefined}>;
 export type Data = Map<CsvFile, CountyToDataMap | undefined>;
 
@@ -65,6 +79,7 @@ const Home = () => {
   const [showDatasetDescription, setShowDatasetDescription] = useState(false);
   const [showDataDescription, setShowDataDescription] = useState(false);
   const [aggregation, setAggregation] = useState(Aggregation.County);
+  const [normalization, setNormalization] = useState(Normalization.StandardDeviations);
   const [state, setState] = useState<State | undefined>(undefined);
 
   useEffect(() => {
@@ -116,6 +131,8 @@ const Home = () => {
         selection={dataSelections.get(dataTab)!}
         onWeightChange={onWeightChange}
         dataWeights={dataWeights}
+        normalization={normalization}
+        onNormalizationChange={setNormalization}
       />
       <MapUI
         aggregation={aggregation}

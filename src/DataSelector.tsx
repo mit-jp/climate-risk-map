@@ -11,17 +11,20 @@ type Props = {
     dataTab: DataTab
     onWeightChange: (dataGroup: DataGroup, weight: number) => void,
     dataWeights: Map<DataGroup, number>,
+    normalization: Normalization,
+    onNormalizationChange: (Normalization: Normalization) => void,
 };
 
 
-const DataSelector = ({dataTab, selection, onSelectionChange, onWeightChange, dataWeights}: Props) =>
+const DataSelector = ({dataTab, selection, onSelectionChange, onWeightChange, dataWeights, normalization, onNormalizationChange}: Props) =>
     dataTab === DataTab.Normalized ?
         <MultiDataSelector
             selection={selection}
             onSelectionChange={selection => onSelectionChange(selection, DataTab.Normalized)}
             onWeightChange={onWeightChange}
             dataWeights={dataWeights}
-            normalization={Normalization.StandardDeviations}
+            normalization={normalization}
+            onNormalizationChange={onNormalizationChange}
         /> :
         <SingleDataSelector
             dataTab={dataTab}
