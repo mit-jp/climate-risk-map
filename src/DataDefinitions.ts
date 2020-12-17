@@ -293,6 +293,7 @@ export const getUnits = (dataDefinition: DataDefinition, normalization: Normaliz
 }
 const raw = Set([Normalization.Raw]);
 const rawAndStdDev = Set([Normalization.Raw, Normalization.StandardDeviations]);
+const allNormalizations = Set([Normalization.Raw, Normalization.StandardDeviations, Normalization.Percentile]);
 
 export enum Dataset {
     MERRA2 = "M",
@@ -366,7 +367,7 @@ dataDefinitions.set(DataGroup.ClimateMoistureIndex, {
     units:"",
     formatter: regularNumber,
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Climate,
     description: "Calculated from mean annual precipitation and potential evapotransipiration",
     years: years,
@@ -378,7 +379,7 @@ dataDefinitions.set(DataGroup.IrregationDeficit, {
     units:"mm/year",
     formatter: regularNumber,
     color: scaleDiverging<string>(x => scales.interpolateBrBG(1-x)).domain([-600, 0, 1600]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Climate,
     description: "Difference between mean annual potential evapotransipiration and precipitation (def = pet - prc)",
     years: years,
@@ -390,7 +391,7 @@ dataDefinitions.set(DataGroup.DroughtIndicator, {
     units:"mm/year",
     formatter: regularNumber,
     color: scaleDivergingSymlog<string>(scales.interpolateBrBG).domain([0, 250, 1500]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Climate,
     description: "5th percentile of annual runoff time series during the specific period",
     years: years,
@@ -402,7 +403,7 @@ dataDefinitions.set(DataGroup.Groundwater, {
     units:"mm/month",
     formatter: regularNumber,
     color: scaleSequential<string>(scales.interpolateBlues).domain([0, 40]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Climate,
     description: "Minimum of the 12 monthly runoff climatology during the specific period (40 years or 20 years. To avoid negative values, the minimum cutoff value is set to be 0.000001)",
     years: years,
@@ -414,7 +415,7 @@ dataDefinitions.set(DataGroup.MaxTemperature, {
     units:"°C",
     formatter: regularNumber,
     color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40]),
-    normalizations: rawAndStdDev,
+    normalizations: allNormalizations,
     type: DataType.Climate,
     description: "Directly calculated from the reanalysis data",
     years: years,

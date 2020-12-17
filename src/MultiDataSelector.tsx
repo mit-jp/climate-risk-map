@@ -6,6 +6,7 @@ import { Map } from 'immutable';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import { ToggleButtonGroup, ToggleButton } from '@material-ui/core';
+import { selection } from 'd3';
 
 type Props = {
     selection: DataIdParams[],
@@ -47,6 +48,12 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
         onSelectionChange(Array.from(changedSelections.values()));
     }
 
+    const onNormalizationChangeListener = (_: any, normalization: Normalization) => {
+        const changedSelections = dataSelections.map(selection => ({...selection, normalization}))
+        onSelectionChange(Array.from(changedSelections));
+        onNormalizationChange(normalization);
+    }
+
     const onDataGroupWeightChange = (dataGroup: DataGroup) => (weight: number) => {
         onWeightChange(dataGroup, weight);
     }
@@ -60,7 +67,7 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
 
     const getDataGroups = () => {
         return Array.from(dataDefinitions.entries())
-        .filter(([_, definition]) => definition.normalizations.contains(Normalization.StandardDeviations) || definition.normalizations.contains(Normalization.Percentile))
+        .filter(([_, definition]) => definition.normalizations.contains(normalization))
         .map(([dataGroup, definition]) =>
             <div key={dataGroup} className={shouldBeChecked(dataGroup) ? "selected-group" : undefined}>
                 <input
@@ -101,7 +108,7 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
 
     return (
         <form id="data-selector">
-            <ToggleButtonGroup size="small" value={normalization} exclusive onChange={(_: any, value: Normalization) => onNormalizationChange(value)}>
+            <ToggleButtonGroup size="small" value={normalization} exclusive onChange={onNormalizationChangeListener}>
                 <ToggleButton value={Normalization.Percentile}>
                 Percentile
                 </ToggleButton>

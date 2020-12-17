@@ -17,9 +17,13 @@ import { ToggleButton, ToggleButtonGroup } from '@material-ui/core';
 const csvFiles: CsvFile[] = [
   "climate_normalized_by_nation_stdv.csv",
   "climate_normalized_by_state_stdv.csv",
+  "climate_normalized_by_nation.csv",
+  "climate_normalized_by_state.csv",
   "climate.csv",
   "demographics_normalized_by_nation_stdv.csv",
   "demographics_normalized_by_state_stdv.csv",
+  "demographics_normalized_by_nation.csv",
+  "demographics_normalized_by_state.csv",
   "demographics.csv"
 ];
 
@@ -53,7 +57,17 @@ const convertToNumbers = (rawRow: DSVRowString, index: number, columns: string[]
   }
   return newRows;
 }
-export type CsvFile = "climate_normalized_by_nation_stdv.csv" | "climate.csv" | "demographics_normalized_by_nation_stdv.csv" | "demographics.csv" | "climate_normalized_by_state_stdv.csv" | "demographics_normalized_by_state_stdv.csv";
+export type CsvFile =
+  "climate_normalized_by_nation_stdv.csv"
+| "climate_normalized_by_state_stdv.csv"
+| "climate_normalized_by_nation.csv"
+| "climate_normalized_by_state.csv"
+| "climate.csv"
+| "demographics_normalized_by_nation_stdv.csv"
+| "demographics_normalized_by_state_stdv.csv"
+| "demographics_normalized_by_nation.csv"
+| "demographics_normalized_by_state.csv"
+| "demographics.csv";
 type CountyToDataMap = Map<string, {[key: string]: string | number | undefined}>;
 export type Data = Map<CsvFile, CountyToDataMap | undefined>;
 
