@@ -24,6 +24,7 @@ type Props = {
     data: Data,
     selections: DataIdParams[],
     showDatasetDescription: boolean,
+    normalization: Normalization,
     onDatasetDescriptionClicked: () => void,
     showDataDescription: boolean,
     onDataDescriptionClicked: () => void,
@@ -38,6 +39,7 @@ const MapUI = ({
     data,
     selections,
     showDatasetDescription,
+    normalization,
     onDatasetDescriptionClicked,
     showDataDescription,
     onDataDescriptionClicked,
@@ -160,7 +162,7 @@ const MapUI = ({
             .selectAll(".county")
             .on("touchmove mousemove", handleCountyMouseOver(selectedDataDefinitions, processedData, selections))
             .on("touchend mouseleave", handleMouseOut);
-    }, [map, selections, dataWeights, aggregation, state, onStateChange, data]);
+    }, [map, selections, dataWeights, aggregation, state, onStateChange, data, normalization]);
 
     if (map === undefined) {
         return <div id="map"><p className="data-missing">Loading</p></div>;

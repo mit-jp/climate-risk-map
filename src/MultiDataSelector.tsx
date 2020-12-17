@@ -5,6 +5,7 @@ import DatasetSelector from './DatasetSelector';
 import { Map } from 'immutable';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
+import { ToggleButtonGroup, ToggleButton } from '@material-ui/core';
 
 type Props = {
     selection: DataIdParams[],
@@ -12,6 +13,7 @@ type Props = {
     onWeightChange: (dataGroup: DataGroup, weight: number) => void,
     dataWeights: Map<DataGroup, number>,
     normalization: Normalization,
+    onNormalizationChange: (normalization: Normalization) => void,
 };
 
 const getYears = (dataGroup: DataGroup) =>
@@ -22,7 +24,7 @@ const getDatasets = (dataGroup: DataGroup) =>
 
 const getUnitString = (units: string) => units ? `(${units})` : "";
 
-const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeightChange, dataWeights, normalization}: Props) => {
+const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeightChange, dataWeights, normalization, onNormalizationChange}: Props) => {
     const selectionMap = Map(dataSelections.map(selection => [selection.dataGroup, selection]));
 
     const onYearChange = (event: ChangeEvent<HTMLInputElement>, dataGroup: DataGroup) => {
@@ -99,6 +101,14 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
 
     return (
         <form id="data-selector">
+            <ToggleButtonGroup size="small" value={normalization} exclusive onChange={(_: any, value: Normalization) => onNormalizationChange(value)}>
+                <ToggleButton value={Normalization.Percentile}>
+                Percentile
+                </ToggleButton>
+                <ToggleButton value={Normalization.StandardDeviations}>
+                Standard Deviations
+                </ToggleButton>
+            </ToggleButtonGroup>
             {getDataGroups()}
         </form>
     )

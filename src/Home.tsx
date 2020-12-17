@@ -12,6 +12,7 @@ import { DataGroup, DataIdParams, Dataset, Normalization, Year } from './DataDef
 import { json, csv } from 'd3-fetch';
 import { State } from './States';
 import { DSVRowString } from 'd3';
+import { ToggleButton, ToggleButtonGroup } from '@material-ui/core';
 
 const csvFiles: CsvFile[] = [
   "climate_normalized_by_nation_stdv.csv",
@@ -65,6 +66,7 @@ const Home = () => {
   const [showDatasetDescription, setShowDatasetDescription] = useState(false);
   const [showDataDescription, setShowDataDescription] = useState(false);
   const [aggregation, setAggregation] = useState(Aggregation.County);
+  const [normalization, setNormalization] = useState(Normalization.StandardDeviations);
   const [state, setState] = useState<State | undefined>(undefined);
 
   useEffect(() => {
@@ -116,6 +118,8 @@ const Home = () => {
         selection={dataSelections.get(dataTab)!}
         onWeightChange={onWeightChange}
         dataWeights={dataWeights}
+        normalization={normalization}
+        onNormalizationChange={setNormalization}
       />
       <MapUI
         aggregation={aggregation}
@@ -124,6 +128,7 @@ const Home = () => {
         selections={dataSelections.get(dataTab)!}
         state={state}
         dataWeights={dataWeights}
+        normalization={normalization}
         showDatasetDescription={showDatasetDescription}
         onDatasetDescriptionClicked={onDatasetDescriptionToggled}
         showDataDescription={showDataDescription}
