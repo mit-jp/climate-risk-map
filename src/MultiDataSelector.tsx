@@ -42,7 +42,7 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
         const dataGroup = event.target.value as DataGroup;
         const checked = event.target.checked;
         const changedSelections = checked ?
-            selectionMap.set(dataGroup, {dataGroup, year: getYears(dataGroup)[0], dataset: getDatasets(dataGroup)[0], normalization: Normalization.StandardDeviations}) :
+            selectionMap.set(dataGroup, {dataGroup, year: getYears(dataGroup)[0], dataset: getDatasets(dataGroup)[0], normalization: normalization}) :
             selectionMap.delete(dataGroup);
         
         onSelectionChange(Array.from(changedSelections.values()));
