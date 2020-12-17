@@ -142,7 +142,6 @@ const Home = () => {
         selections={dataSelections.get(dataTab)!}
         state={state}
         dataWeights={dataWeights}
-        normalization={normalization}
         showDatasetDescription={showDatasetDescription}
         onDatasetDescriptionClicked={onDatasetDescriptionToggled}
         showDataDescription={showDataDescription}

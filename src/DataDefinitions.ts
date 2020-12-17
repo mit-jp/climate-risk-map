@@ -277,7 +277,9 @@ export enum Normalization {
 }
 
 export const standardDeviationColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]);
-export const percentileColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([0, 0.5, 1]);
+export const percentileColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([1, 0.5, 0]);
+export const percentileFormatter = format(",.2f");
+export const standardDeviationFormatter = format(",.1f");
 const employmentDescription = "A percentage of employed people in this specific industry. Nonmetropolitan areas and rural counties are also included. These statistics cover wage and salary jobs and self-employment.";
 
 export const getUnits = (dataDefinition: DataDefinition, normalization: Normalization) => {
