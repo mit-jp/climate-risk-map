@@ -87,6 +87,12 @@ nav li.selected {
     color: #fff;
 }
 
+nav li a {
+    display: block;
+    text-decoration: none;
+    color: #000; 
+}
+
 .sub-selector {
     display: flex;
     background:#eee;
@@ -227,4 +233,12 @@ footer #navigation li {
     margin-top: 1em;
     margin-bottom: 1em;
     margin-left: 1em;
+}
+
+#download {
+    list-style:none;
+}
+
+h2 {
+    margin-left:1em;
 }
