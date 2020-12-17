@@ -268,7 +268,7 @@ const getDataDefinitions = (selections: DataIdParams[]) => {
 }
 
 const getLegendCells = (selections: DataIdParams[]) => {
-    if (selections[0].normalization !== Normalization.Raw) {
+    if (selections[0].normalization === Normalization.StandardDeviations) {
         return 9;
     } else {
         return 5;
