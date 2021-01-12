@@ -48,6 +48,9 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
     }
 
     const onNormalizationChangeListener = (_: any, normalization: Normalization) => {
+        if (normalization === null) {
+            return;
+        }
         const changedSelections = dataSelections.map(selection => ({...selection, normalization}))
         onSelectionChange(Array.from(changedSelections));
         onNormalizationChange(normalization);
