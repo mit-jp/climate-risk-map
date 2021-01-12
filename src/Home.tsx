@@ -51,7 +51,7 @@ const convertToNumbers = (rawRow: DSVRowString, index: number, columns: string[]
     if (key === "STATEFP" || key === "COUNTYFP") {
       newRows[key] = value;
     } else {
-      newRows[key] = value !== undefined ? +value : undefined;
+      newRows[key] = value ? +value : undefined;
     }
   }
   return newRows;
