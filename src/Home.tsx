@@ -101,7 +101,7 @@ const Home = () => {
       const loadedData = Map(filenameToData);
       setData(loadedData);
 
-      setProcessedData(DataProcessor(loadedData, dataSelections.get(dataTab)!, dataWeights));
+      setProcessedData(DataProcessor(loadedData, dataSelections.get(dataTab)!, dataWeights, state));
       setTitle(Title(dataSelections.get(dataTab)!));
     });
   }, []);
@@ -109,21 +109,26 @@ const Home = () => {
   const onSelectionChange = (dataIds: DataIdParams[], dataTab: DataTab) => {
     const newDataSelections = dataSelections.set(dataTab, dataIds);
     setDataSelections(newDataSelections);
-    setProcessedData(DataProcessor(data, newDataSelections.get(dataTab)!, dataWeights));
+    setProcessedData(DataProcessor(data, newDataSelections.get(dataTab)!, dataWeights, state));
     setTitle(Title(newDataSelections.get(dataTab)!));
   }
 
   const onWeightChange = (dataGroup: DataGroup, weight: number) => {
     const newDataWeight = dataWeights.set(dataGroup, weight);
     setDataWeights(newDataWeight);
-    setProcessedData(DataProcessor(data, dataSelections.get(dataTab)!, newDataWeight));
+    setProcessedData(DataProcessor(data, dataSelections.get(dataTab)!, newDataWeight, state));
   }
 
   const onDataTabChanged = (event: MouseEvent<HTMLLIElement>) => {
     const newDataTab = event.currentTarget.textContent as DataTab;
     setDataTab(newDataTab);
-    setProcessedData(DataProcessor(data, dataSelections.get(newDataTab)!, dataWeights));
+    setProcessedData(DataProcessor(data, dataSelections.get(newDataTab)!, dataWeights, state));
     setTitle(Title(dataSelections.get(newDataTab)!));
+  }
+
+  const onStateChanged = (state: State | undefined) => {
+    setState(state);
+    setProcessedData(DataProcessor(data, dataSelections.get(dataTab)!, dataWeights, state));
   }
 
   const onDatasetDescriptionToggled = () => {
@@ -169,7 +174,7 @@ const Home = () => {
         onDatasetDescriptionClicked={onDatasetDescriptionToggled}
         showDataDescription={showDataDescription}
         onDataDescriptionClicked={onDataDescriptionToggled}
-        onStateChange={setState}
+        onStateChange={onStateChanged}
       />
       </div>
       <Footer />
