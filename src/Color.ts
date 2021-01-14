@@ -1,4 +1,4 @@
-import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, standardDeviationColorScheme } from './DataDefinitions';
+import dataDefinitions, { DataIdParams, Normalization, percentileColorScheme, standardDeviationColorScheme } from './DataDefinitions';
 
 export default (selections: DataIdParams[]) => {
     const normalization = selections[0].normalization;

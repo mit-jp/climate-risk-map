@@ -1,6 +1,5 @@
 import React, { useEffect, useState, MouseEvent } from 'react';
 import MapUI, { Aggregation } from './MapUI';
-import * as scales from 'd3-scale-chromatic';
 import Footer from './Footer';
 import Header from './Header';
 import Navigation, { DataTab } from './Navigation';
@@ -12,9 +11,8 @@ import { Map } from 'immutable';
 import { DataGroup, DataIdParams, Dataset, Normalization, Year } from './DataDefinitions';
 import { json, csv } from 'd3-fetch';
 import { State } from './States';
-import { DSVRowString, ScaleSequential, ScaleThreshold, ScaleDiverging, scaleDiverging } from 'd3';
+import { DSVRowString, ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3';
 import ProbabilityDensity from './ProbabilityDensity';
-import Slider from '@material-ui/core/Slider';
 import DataProcessor, { ProcessedData } from './DataProcessor';
 import Title from './Title';
 
