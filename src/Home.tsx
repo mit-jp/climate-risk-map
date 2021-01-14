@@ -91,6 +91,7 @@ const Home = () => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa.json").then(setMap);
     const loadingCsvs = csvFiles.map(csvFile => csv(process.env.PUBLIC_URL + "/" + csvFile, convertToNumbers));
     Promise.all(loadingCsvs).then(loadedCsvs => {
+      console.log("loadedCsvs");
       const convertedCsvs = loadedCsvs.map(convertCsv);
       const filenameToData: [CsvFile, CountyToDataMap][] = [];
       for (let i = 0; i < csvFiles.length; i++) {
@@ -102,7 +103,7 @@ const Home = () => {
       setProcessedData(DataProcessor(loadedData, dataSelections.get(dataTab)!, dataWeights, state));
       setTitle(Title(dataSelections.get(dataTab)!));
     });
-  }, []);
+  }, [dataSelections, dataTab, dataWeights, state]);
 
   const onSelectionChange = (dataIds: DataIdParams[], dataTab: DataTab) => {
     const newDataSelections = dataSelections.set(dataTab, dataIds);
