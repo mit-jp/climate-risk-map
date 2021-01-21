@@ -12,9 +12,7 @@ import { DataGroup, DataIdParams, Dataset, Normalization, Year } from './DataDef
 import { json, csv } from 'd3-fetch';
 import { State } from './States';
 import { DSVRowString, ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3';
-import ProbabilityDensity from './ProbabilityDensity';
 import DataProcessor, { ProcessedData } from './DataProcessor';
-import Title from './Title';
 
 const csvFiles: CsvFile[] = [
   "climate_normalized_by_nation_stdv.csv",
@@ -85,7 +83,6 @@ const Home = () => {
   const [normalization, setNormalization] = useState(Normalization.StandardDeviations);
   const [state, setState] = useState<State | undefined>(undefined);
   const [processedData, setProcessedData] = useState<ProcessedData | undefined>(undefined);
-  const [title, setTitle] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa.json").then(setMap);
@@ -101,7 +98,6 @@ const Home = () => {
       setData(loadedData);
 
       setProcessedData(DataProcessor(loadedData, dataSelections.get(dataTab)!, dataWeights, state));
-      setTitle(Title(dataSelections.get(dataTab)!));
     });
   }, [dataSelections, dataTab, dataWeights, state]);
 
@@ -109,7 +105,6 @@ const Home = () => {
     const newDataSelections = dataSelections.set(dataTab, dataIds);
     setDataSelections(newDataSelections);
     setProcessedData(DataProcessor(data, newDataSelections.get(dataTab)!, dataWeights, state));
-    setTitle(Title(newDataSelections.get(dataTab)!));
   }
 
   const onWeightChange = (dataGroup: DataGroup, weight: number) => {
@@ -122,7 +117,6 @@ const Home = () => {
     const newDataTab = event.currentTarget.textContent as DataTab;
     setDataTab(newDataTab);
     setProcessedData(DataProcessor(data, dataSelections.get(newDataTab)!, dataWeights, state));
-    setTitle(Title(dataSelections.get(newDataTab)!));
   }
 
   const onStateChanged = (state: State | undefined) => {
