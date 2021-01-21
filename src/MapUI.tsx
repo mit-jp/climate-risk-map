@@ -12,6 +12,7 @@ import { Map as ImmutableMap } from 'immutable';
 import states, { State } from './States';
 import  Counties from './Counties';
 import { ProcessedData } from './DataProcessor';
+import ProbabilityDensity from './ProbabilityDensity';
 
 export enum Aggregation {
     State = "state",
@@ -159,10 +160,20 @@ const MapUI = ({
         return <div id="map"><p className="data-missing">Loading</p></div>;
     }
 
+    const getArrayOfData = () => {
+        if (processedData === undefined) {
+          return undefined;
+        }
+        return Array
+          .from(processedData.valueSeq())
+          .filter(value => value !== undefined) as number[];
+    }
+
     return (
         <div id="map">
         <svg ref={svgRef} viewBox="0, 0, 1175, 610">
             <g id="legend"></g>
+            <ProbabilityDensity data={getArrayOfData()} selections={selections} />
             <g id="counties"></g>
             <g id="states"></g>
             <g id="state-borders"><path /></g>

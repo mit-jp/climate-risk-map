@@ -138,21 +138,10 @@ const Home = () => {
     setShowDataDescription(!showDataDescription);
   }
 
-
-  const getArrayOfData = () => {
-    if (processedData === undefined) {
-      return undefined;
-    }
-    return Array
-      .from(processedData.valueSeq())
-      .filter(value => value !== undefined) as number[];
-  }
-
   return (
     <React.Fragment>
       <Header />
       <Navigation selection={dataTab} onDataTabChanged={onDataTabChanged} />
-      <ProbabilityDensity data={getArrayOfData()} title={title} selections={dataSelections.get(dataTab)} />
       <div id="content">
       <DataSelector
         onSelectionChange={onSelectionChange}

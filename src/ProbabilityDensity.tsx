@@ -7,11 +7,10 @@ const width = 300;
 const margin = ({ top: 20, right: 30, bottom: 30, left: 40 });
 type Props = {
     data: number[] | undefined,
-    title: string | undefined,
     selections: DataIdParams[] | undefined,
 };
 
-const ProbabilityDensity = ({ data, title, selections }: Props) => {
+const ProbabilityDensity = ({ data, selections }: Props) => {
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
         if (data === undefined || selections === undefined) {
@@ -32,7 +31,7 @@ const ProbabilityDensity = ({ data, title, selections }: Props) => {
             .call(xAxis);
         svg.select("#yAxis")
             .call(yAxis);
-    }, [data, title, selections]);
+    }, [data, selections]);
 
     if (data === undefined || selections === undefined) {
         return null;
@@ -62,7 +61,10 @@ const ProbabilityDensity = ({ data, title, selections }: Props) => {
         ref={svgRef}
         viewBox={"[0, 0," + width.toString() + "," + height.toString() + "]"}
         width={width}
-        height={height}>
+        height={height}
+        x={880}
+        y={420}
+        >
         <g id="pdf"></g>
         <g id="xAxis"></g>
         <g id="yAxis"></g>
