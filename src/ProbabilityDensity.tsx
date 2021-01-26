@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { scaleLinear, extent, bin, select, mean, max, axisBottom, axisLeft } from 'd3';
+import { scaleLinear, extent, bin, select, mean, max, axisBottom, axisLeft, rgb } from 'd3';
 import { DataIdParams } from './DataDefinitions';
 import Color from './Color';
 const height = 200;
@@ -41,8 +41,8 @@ const ProbabilityDensity = ({ data, selections }: Props) => {
         svg.select("#pdf")
             .selectAll("rect")
             .data(bins)
-            .attr("fill", d => color(mean([d.x1!, d.x0!]) as any))
             .join("rect")
+            .attr("fill", d => color(mean([d.x1!, d.x0!]) as any))
             .attr("x", d => x(d.x0!) + 1)
             .attr("y", d => y(d.length / data.length))
             .attr("width", d => x(d.x1!) - x(d.x0!) - 1)
@@ -58,7 +58,7 @@ const ProbabilityDensity = ({ data, selections }: Props) => {
     }
     return <svg
         ref={svgRef}
-        viewBox={"[0, 0," + width.toString() + "," + height.toString() + "]"}
+        viewBox={"0 0 " + width.toString() + " " + height.toString()}
         width={width}
         height={height}
         x={880}
