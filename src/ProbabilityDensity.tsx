@@ -16,6 +16,26 @@ const ProbabilityDensity = ({ data, selections }: Props) => {
         if (data === undefined || selections === undefined) {
             return;
         }
+        const x = scaleLinear()
+            .domain(extent(data) as [number, number])
+            .nice()
+            .range([margin.left, width - margin.right]);
+        const thresholds = x.ticks(40)
+        const bins = bin()
+            .domain(x.domain() as [number, number])
+            .thresholds(thresholds)
+            (data)
+        const y = scaleLinear()
+            .domain([0, max(bins, d => d.length)! / data.length])
+            .range([height - margin.bottom, margin.top]);
+
+        const xAxis = (g: any) => g
+            .attr("transform", `translate(0,${height - margin.bottom})`)
+            .call(axisBottom(x))
+        const yAxis = (g: any) => g
+            .attr("transform", `translate(${margin.left},0)`)
+            .call(axisLeft(y).ticks(null, "%"))
+            .call((g: any) => g.select(".domain").remove())
         const svg = select(svgRef.current);
         const color = Color(selections);
         svg.select("#pdf")
@@ -36,27 +56,6 @@ const ProbabilityDensity = ({ data, selections }: Props) => {
     if (data === undefined || selections === undefined) {
         return null;
     }
-    const x = scaleLinear()
-        .domain(extent(data) as [number, number])
-        .nice()
-        .range([margin.left, width - margin.right]);
-    const thresholds = x.ticks(40)
-    const bins = bin()
-        .domain(x.domain() as [number, number])
-        .thresholds(thresholds)
-        (data)
-    const y = scaleLinear()
-        .domain([0, max(bins, d => d.length)! / data.length])
-        .range([height - margin.bottom, margin.top]);
-
-    const xAxis = (g: any) => g
-        .attr("transform", `translate(0,${height - margin.bottom})`)
-        .call(axisBottom(x))
-    const yAxis = (g: any) => g
-        .attr("transform", `translate(${margin.left},0)`)
-        .call(axisLeft(y).ticks(null, "%"))
-        .call((g: any) => g.select(".domain").remove())
-
     return <svg
         ref={svgRef}
         viewBox={"[0, 0," + width.toString() + "," + height.toString() + "]"}
@@ -64,7 +63,7 @@ const ProbabilityDensity = ({ data, selections }: Props) => {
         height={height}
         x={880}
         y={420}
-        >
+    >
         <g id="pdf"></g>
         <g id="xAxis"></g>
         <g id="yAxis"></g>
