@@ -5,14 +5,15 @@ import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits, percentileFormatter, standardDeviationFormatter } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits, percentileFormatter, standardDeviationFormatter, DataGroup } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
 import states, { State } from './States';
 import  Counties from './Counties';
-import { ProcessedData } from './DataProcessor';
+import DataProcessor from './DataProcessor';
 import ProbabilityDensity from './ProbabilityDensity';
+import { Data } from './Home';
 
 export enum Aggregation {
     State = "state",
@@ -22,7 +23,8 @@ export enum Aggregation {
 type Props = {
     map: Topology<Objects<GeoJsonProperties>> | undefined,
     selections: DataIdParams[],
-    processedData: ProcessedData | undefined,
+    data: Data,
+    dataWeights: ImmutableMap<DataGroup, number>,
     showDatasetDescription: boolean,
     onDatasetDescriptionClicked: () => void,
     showDataDescription: boolean,
@@ -35,7 +37,8 @@ type Props = {
 const MapUI = ({
     map,
     selections,
-    processedData,
+    data,
+    dataWeights,
     showDatasetDescription,
     onDatasetDescriptionClicked,
     showDataDescription,
@@ -44,6 +47,8 @@ const MapUI = ({
     state,
     onStateChange,
 }: Props) => {
+    const processedData = DataProcessor(data, selections, dataWeights, state);
+
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
         if (map === undefined) {
@@ -67,8 +72,8 @@ const MapUI = ({
             .attr("stroke", "white")
             .attr("stroke-linejoin", "round")
             .attr("d", path);
-
-        if (processedData === undefined) {      
+        
+        if (processedData === undefined) {
             svg.select("#legend").selectAll("*").remove();
             svg.select("#states")
                 .selectAll("path")

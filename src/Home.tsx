@@ -12,7 +12,6 @@ import { DataGroup, DataIdParams, Dataset, Normalization, Year } from './DataDef
 import { json, csv } from 'd3-fetch';
 import { State } from './States';
 import { DSVRowString, ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3';
-import DataProcessor, { ProcessedData } from './DataProcessor';
 
 const csvFiles: CsvFile[] = [
   "climate_normalized_by_nation_stdv.csv",
@@ -82,7 +81,6 @@ const Home = () => {
   const [showDataDescription, setShowDataDescription] = useState(false);
   const [normalization, setNormalization] = useState(Normalization.StandardDeviations);
   const [state, setState] = useState<State | undefined>(undefined);
-  const [processedData, setProcessedData] = useState<ProcessedData | undefined>(undefined);
 
   useEffect(() => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa.json").then(setMap);
@@ -96,32 +94,22 @@ const Home = () => {
       }
       const loadedData = Map(filenameToData);
       setData(loadedData);
-
-      setProcessedData(DataProcessor(loadedData, dataSelections.get(dataTab)!, dataWeights, state));
     });
-  }, [dataSelections, dataTab, dataWeights, state]);
+  }, []);
 
   const onSelectionChange = (dataIds: DataIdParams[], dataTab: DataTab) => {
     const newDataSelections = dataSelections.set(dataTab, dataIds);
     setDataSelections(newDataSelections);
-    setProcessedData(DataProcessor(data, newDataSelections.get(dataTab)!, dataWeights, state));
   }
 
   const onWeightChange = (dataGroup: DataGroup, weight: number) => {
     const newDataWeight = dataWeights.set(dataGroup, weight);
     setDataWeights(newDataWeight);
-    setProcessedData(DataProcessor(data, dataSelections.get(dataTab)!, newDataWeight, state));
   }
 
   const onDataTabChanged = (event: MouseEvent<HTMLLIElement>) => {
     const newDataTab = event.currentTarget.textContent as DataTab;
     setDataTab(newDataTab);
-    setProcessedData(DataProcessor(data, dataSelections.get(newDataTab)!, dataWeights, state));
-  }
-
-  const onStateChanged = (state: State | undefined) => {
-    setState(state);
-    setProcessedData(DataProcessor(data, dataSelections.get(dataTab)!, dataWeights, state));
   }
 
   const onDatasetDescriptionToggled = () => {
@@ -149,14 +137,15 @@ const Home = () => {
       <MapUI
         aggregation={Aggregation.County}
         map={map}
-        processedData={processedData}
+        data={data}
+        dataWeights={dataWeights}
         selections={dataSelections.get(dataTab)!}
         state={state}
         showDatasetDescription={showDatasetDescription}
         onDatasetDescriptionClicked={onDatasetDescriptionToggled}
         showDataDescription={showDataDescription}
         onDataDescriptionClicked={onDataDescriptionToggled}
-        onStateChange={onStateChanged}
+        onStateChange={setState}
       />
       </div>
       <Footer />
