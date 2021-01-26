@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { scaleLinear, extent, bin, select, mean, max, axisBottom, axisLeft, rgb } from 'd3';
+import { scaleLinear, extent, bin, select, mean, max, axisBottom, axisLeft } from 'd3';
 import { DataIdParams } from './DataDefinitions';
 import Color from './Color';
 const height = 200;
