@@ -94,11 +94,10 @@ const MapUI = ({
         const title = getTitle(selectedDataDefinitions, selections);
         const formatter = getFormatter(selectedDataDefinitions, selections);
         const colorScheme = getColorScheme(selectedDataDefinitions, selections);
-        const legendCells = getLegendCells(selections);
 
         // legend
         const legendSequential = legendColor()
-            .cells(legendCells)
+            .cells(5)
             .shapeWidth(20)
             .shapeHeight(30)
             .shapePadding(0)
@@ -274,14 +273,6 @@ const getDataset = (selection: DataIdParams) => {
 
 const getDataDefinitions = (selections: DataIdParams[]) => {
     return selections.map(selection => dataDefinitions.get(selection.dataGroup)!);
-}
-
-const getLegendCells = (selections: DataIdParams[]) => {
-    if (selections[0].normalization === Normalization.StandardDeviations) {
-        return 9;
-    } else {
-        return 5;
-    }
 }
 
 const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
