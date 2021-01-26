@@ -1,18 +1,19 @@
 import React, { useRef, useEffect } from 'react';
-import { select, geoPath, mean } from 'd3';
+import { select, geoPath } from 'd3';
 import { Feature, Geometry } from 'geojson';
 import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, DataId, DataType, DataGroup, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits, percentileFormatter, standardDeviationFormatter } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits, percentileFormatter, standardDeviationFormatter, DataGroup } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
 import states, { State } from './States';
 import  Counties from './Counties';
-import { CsvFile, Data } from './Home';
-import counties from './Counties';
+import DataProcessor from './DataProcessor';
+import ProbabilityDensity from './ProbabilityDensity';
+import { Data } from './Home';
 
 export enum Aggregation {
     State = "state",
@@ -21,13 +22,13 @@ export enum Aggregation {
 
 type Props = {
     map: Topology<Objects<GeoJsonProperties>> | undefined,
-    data: Data,
     selections: DataIdParams[],
+    data: Data,
+    dataWeights: ImmutableMap<DataGroup, number>,
     showDatasetDescription: boolean,
     onDatasetDescriptionClicked: () => void,
     showDataDescription: boolean,
     onDataDescriptionClicked: () => void,
-    dataWeights: ImmutableMap<DataGroup, number>,
     aggregation: Aggregation,
     state: State | undefined,
     onStateChange: (state: State | undefined) => void
@@ -35,17 +36,19 @@ type Props = {
 
 const MapUI = ({
     map,
-    data,
     selections,
+    data,
+    dataWeights,
     showDatasetDescription,
     onDatasetDescriptionClicked,
     showDataDescription,
     onDataDescriptionClicked,
-    dataWeights,
     aggregation,
     state,
     onStateChange,
 }: Props) => {
+    const processedData = DataProcessor(data, selections, dataWeights, state);
+
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
         if (map === undefined) {
@@ -69,10 +72,8 @@ const MapUI = ({
             .attr("stroke", "white")
             .attr("stroke-linejoin", "round")
             .attr("d", path);
-
-        const csvFiles = getTablesForSelections(selections, state);
-
-        if (selections.length === 0 || !dataLoaded(csvFiles.values(), data)) {      
+        
+        if (processedData === undefined) {
             svg.select("#legend").selectAll("*").remove();
             svg.select("#states")
                 .selectAll("path")
@@ -89,17 +90,14 @@ const MapUI = ({
             return;
         }
 
-        const processedData = getProcessedCountyData(selections, data, dataWeights, state);
-        // const processedStateData = getProcessedStateData(processedData);
         const selectedDataDefinitions = getDataDefinitions(selections);
         const title = getTitle(selectedDataDefinitions, selections);
         const formatter = getFormatter(selectedDataDefinitions, selections);
         const colorScheme = getColorScheme(selectedDataDefinitions, selections);
-        const legendCells = getLegendCells(selections);
 
         // legend
         const legendSequential = legendColor()
-            .cells(legendCells)
+            .cells(5)
             .shapeWidth(20)
             .shapeHeight(30)
             .shapePadding(0)
@@ -160,16 +158,26 @@ const MapUI = ({
             .selectAll(".county")
             .on("touchmove mousemove", handleCountyMouseOver(selectedDataDefinitions, processedData, selections))
             .on("touchend mouseleave", handleMouseOut);
-    }, [map, selections, dataWeights, aggregation, state, onStateChange, data]);
+    }, [map, selections, aggregation, state, onStateChange, processedData]);
 
     if (map === undefined) {
         return <div id="map"><p className="data-missing">Loading</p></div>;
+    }
+
+    const getArrayOfData = () => {
+        if (processedData === undefined) {
+          return undefined;
+        }
+        return Array
+          .from(processedData.valueSeq())
+          .filter(value => value !== undefined) as number[];
     }
 
     return (
         <div id="map">
         <svg ref={svgRef} viewBox="0, 0, 1175, 610">
             <g id="legend"></g>
+            <ProbabilityDensity data={getArrayOfData()} selections={selections} />
             <g id="counties"></g>
             <g id="states"></g>
             <g id="state-borders"><path /></g>
@@ -248,7 +256,7 @@ const format = (value: number | undefined, selectedDataDefinitions: DataDefiniti
 const getUnitString = (units: string) => units ? ` ${units}` : "";
 const getUnitStringWithParens = (units: string) => units ? ` (${units})` : "";
 
-const handleMouseOut = function(this:any, d:any) {
+const handleMouseOut = function(this:any) {
     select(this)
         .style("opacity", 1)
         .style("stroke", null)
@@ -265,14 +273,6 @@ const getDataset = (selection: DataIdParams) => {
 
 const getDataDefinitions = (selections: DataIdParams[]) => {
     return selections.map(selection => dataDefinitions.get(selection.dataGroup)!);
-}
-
-const getLegendCells = (selections: DataIdParams[]) => {
-    if (selections[0].normalization === Normalization.StandardDeviations) {
-        return 9;
-    } else {
-        return 5;
-    }
 }
 
 const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
@@ -302,97 +302,6 @@ const getColorScheme = (selectedDataDefinitions: DataDefinition[], selections: D
         case Normalization.Percentile: return percentileColorScheme;
         case Normalization.StandardDeviations: return standardDeviationColorScheme;
     }        
-}
-
-const dataLoaded = (csvFiles: IterableIterator<CsvFile>, data: Data) => {
-    for (const csvFile of csvFiles) {
-        if (data.get(csvFile) === undefined) {
-            return false;
-        }
-    }
-    return true;
-}
-
-const getProcessedCountyData = (
-    selections: DataIdParams[],
-    data: Data,
-    dataWeights: ImmutableMap<DataGroup, number>,
-    state: State | undefined,
-) => {
-    const selectionToDataId =  getDataIdsForSelections(selections);
-    const selectionToTable = getTablesForSelections(selections, state);
-    let valuesById: [string, number | undefined][] = [];
-    for (const countyId of counties.keys()) {
-        const values = getDataForSelections(
-            countyId,
-            selections,
-            selectionToTable,
-            selectionToDataId,
-            data,
-            dataWeights
-        );
-        valuesById.push([countyId, mean(values)]);
-    }
-    return ImmutableMap<string, number | undefined>(valuesById);
-}
-
-const getDataForSelections = (
-    countyId: string,
-    selections: DataIdParams[],
-    selectionToTable: ImmutableMap<DataIdParams, CsvFile>,
-    selectionToDataId: ImmutableMap<DataIdParams, DataId>,
-    data: Data,
-    dataWeights: ImmutableMap<DataGroup, number>,
-    ) => {
-    return selections.map(selection => {
-        const tableName = selectionToTable.get(selection)!;
-        const dataId = selectionToDataId.get(selection)!;
-        const table = data.get(tableName)!;
-        const county = table.get(countyId);
-        if (county === undefined) {
-            return undefined;
-        }
-        const value = county[DataId[dataId]];
-        if (value === undefined) {
-            return undefined;
-        }
-        return +value * (dataWeights.get(selection.dataGroup) ?? 1);
-    });
-}
-
-const getDataIdsForSelections = (selections: DataIdParams[]) =>
-    ImmutableMap(selections.map(selection =>
-        [selection, dataDefinitions.get(selection.dataGroup)!.id(selection)]
-    ));
-
-const normalizationToFile = ImmutableMap([
-    [Normalization.Raw, ".csv"],
-    [Normalization.Percentile, "_normalized_by_nation.csv"],
-    [Normalization.StandardDeviations, "_normalized_by_nation_stdv.csv"],
-]);
-
-const normalizationToStateFile = ImmutableMap([
-    [Normalization.Raw, ".csv"],
-    [Normalization.Percentile, "_normalized_by_state.csv"],
-    [Normalization.StandardDeviations, "_normalized_by_state_stdv.csv"],
-]);
-
-const getSuffix = (normalization: Normalization, state: State | undefined) => {
-    if (state === undefined) {
-        return normalizationToFile.get(normalization);
-    } else {
-        return normalizationToStateFile.get(normalization);
-    }
-};
-
-const getTablesForSelections = (selections: DataIdParams[], state: State | undefined) => {
-    return ImmutableMap(selections.map(selection => {
-        const dataDefinition = dataDefinitions.get(selection.dataGroup)!
-        const prefix = dataDefinition.type === DataType.Climate ? "climate" : "demographics";
-        const suffix = getSuffix(selection.normalization, state);
-        const csvFile: CsvFile = (prefix + suffix) as CsvFile;
-        return [selection, csvFile];
-    }));
 }
 
 const stateFilter = (state: State | undefined) => (feature: Feature<Geometry, GeoJsonProperties>) => {

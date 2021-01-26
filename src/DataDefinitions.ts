@@ -294,7 +294,6 @@ export const getUnits = (dataDefinition: DataDefinition, normalization: Normaliz
     return units;
 }
 const raw = Set([Normalization.Raw]);
-const rawAndStdDev = Set([Normalization.Raw, Normalization.StandardDeviations]);
 const allNormalizations = Set([Normalization.Raw, Normalization.StandardDeviations, Normalization.Percentile]);
 
 export enum Dataset {

@@ -11,7 +11,7 @@ import { Map } from 'immutable';
 import { DataGroup, DataIdParams, Dataset, Normalization, Year } from './DataDefinitions';
 import { json, csv } from 'd3-fetch';
 import { State } from './States';
-import { DSVRowString } from 'd3';
+import { DSVRowString, ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3';
 
 const csvFiles: CsvFile[] = [
   "climate_normalized_by_nation_stdv.csv",
@@ -45,7 +45,7 @@ const convertCsv = (csv: {[key: string]: string | number | undefined}[]) =>
     return [(row["STATEFP"] as string)! + (row["COUNTYFP"] as string)!, row];
   }));
 
-const convertToNumbers = (rawRow: DSVRowString, index: number, columns: string[]) => {
+const convertToNumbers = (rawRow: DSVRowString) => {
   const newRows: {[key: string]: string | number | undefined} = {};
   for (let [key, value] of Object.entries(rawRow)) {
     if (key === "STATEFP" || key === "COUNTYFP") {
@@ -69,6 +69,7 @@ export type CsvFile =
 | "demographics.csv";
 type CountyToDataMap = Map<string, {[key: string]: string | number | undefined}>;
 export type Data = Map<CsvFile, CountyToDataMap | undefined>;
+export type ColorScheme = ScaleSequential<string, never> | ScaleThreshold<number, string, never> | ScaleDiverging<string, never>;
 
 const Home = () => {
   const [map, setMap] = useState<Topology<Objects<GeoJsonProperties>> | undefined>(undefined);
@@ -78,7 +79,6 @@ const Home = () => {
   const [dataTab, setDataTab] = useState(DataTab.Climate);
   const [showDatasetDescription, setShowDatasetDescription] = useState(false);
   const [showDataDescription, setShowDataDescription] = useState(false);
-  const [aggregation, setAggregation] = useState(Aggregation.County);
   const [normalization, setNormalization] = useState(Normalization.StandardDeviations);
   const [state, setState] = useState<State | undefined>(undefined);
 
@@ -86,21 +86,25 @@ const Home = () => {
     json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa.json").then(setMap);
     const loadingCsvs = csvFiles.map(csvFile => csv(process.env.PUBLIC_URL + "/" + csvFile, convertToNumbers));
     Promise.all(loadingCsvs).then(loadedCsvs => {
+      console.log("loadedCsvs");
       const convertedCsvs = loadedCsvs.map(convertCsv);
       const filenameToData: [CsvFile, CountyToDataMap][] = [];
       for (let i = 0; i < csvFiles.length; i++) {
         filenameToData[i] = [csvFiles[i], convertedCsvs[i]];
       }
-      setData(Map(filenameToData));
+      const loadedData = Map(filenameToData);
+      setData(loadedData);
     });
   }, []);
 
   const onSelectionChange = (dataIds: DataIdParams[], dataTab: DataTab) => {
-    setDataSelections(dataSelections.set(dataTab, dataIds));
+    const newDataSelections = dataSelections.set(dataTab, dataIds);
+    setDataSelections(newDataSelections);
   }
 
   const onWeightChange = (dataGroup: DataGroup, weight: number) => {
-    setDataWeights(dataWeights.set(dataGroup, weight));
+    const newDataWeight = dataWeights.set(dataGroup, weight);
+    setDataWeights(newDataWeight);
   }
 
   const onDataTabChanged = (event: MouseEvent<HTMLLIElement>) => {
@@ -114,10 +118,6 @@ const Home = () => {
 
   const onDataDescriptionToggled = () => {
     setShowDataDescription(!showDataDescription);
-  }
-
-  const onAggregationChange = (_: any, value: Aggregation) => {
-    setAggregation(value);
   }
 
   return (
@@ -135,12 +135,12 @@ const Home = () => {
         onNormalizationChange={setNormalization}
       />
       <MapUI
-        aggregation={aggregation}
+        aggregation={Aggregation.County}
         map={map}
         data={data}
+        dataWeights={dataWeights}
         selections={dataSelections.get(dataTab)!}
         state={state}
-        dataWeights={dataWeights}
         showDatasetDescription={showDatasetDescription}
         onDatasetDescriptionClicked={onDatasetDescriptionToggled}
         showDataDescription={showDataDescription}
