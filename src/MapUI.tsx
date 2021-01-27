@@ -1,11 +1,11 @@
 import React, { useRef, useEffect } from 'react';
-import { select, geoPath, scaleSqrt, max } from 'd3';
+import { select, geoPath, scaleSqrt, max, Selection, GeoPath, GeoPermissibleObjects } from 'd3';
 import { Feature, Geometry } from 'geojson';
 import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits, percentileFormatter, standardDeviationFormatter, DataGroup } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits, percentileFormatter, standardDeviationFormatter, DataGroup, MapType } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
@@ -13,7 +13,7 @@ import states, { State } from './States';
 import Counties from './Counties';
 import DataProcessor from './DataProcessor';
 import ProbabilityDensity from './ProbabilityDensity';
-import { Data } from './Home';
+import { ColorScheme, Data } from './Home';
 
 export enum Aggregation {
     State = "state",
@@ -74,19 +74,7 @@ const MapUI = ({
             .attr("d", path);
 
         if (processedData === undefined) {
-            svg.select("#legend").selectAll("*").remove();
-            svg.select("#states")
-                .selectAll("path")
-                .data(stateFeatures)
-                .join("path")
-                .attr("class", "state")
-                .attr("fill", noDataSelectedColor)
-                .attr("d", path);
-            svg.select("#counties").selectAll("path").attr("fill", "none");
-            svg
-                .selectAll(".state")
-                .on("touchmove mousemove", null)
-                .on("touchend mouseleave", null);
+            clearMap(svg, stateFeatures, path);
             return;
         }
 
@@ -112,41 +100,14 @@ const MapUI = ({
             // @ts-ignore
             .call(legendSequential)
 
+        // data
         if (aggregation === Aggregation.County) {
-            // colorized counties
-            svg.select("#counties")
-                .selectAll("path")
-                .data(countyFeatures)
-                .join("path")
-                .attr("class", "county")
-                .attr("fill", d => {
-                    const value = processedData.get(d.id as string);
-                    return colorScheme(value as any) ?? missingDataColor;
-                })
-                .attr("d", path).on("click", (_, feature) => onStateChange((feature?.id as string).slice(0, 2) as State));
-            svg.select("#states").selectAll("path").attr("fill", "none");
-            svg.select("#counties")
-                .transition()
-                .duration(200)
-                .attr("transform", "translate(0)scale(1)");
-
-            const values = countyFeatures.map(d => processedData.get(d.id as string)).filter(d => d !== undefined).map(d => d as number);
-
-            const radius = scaleSqrt([0, max(values) ?? 0], [0, 40]);
-
-            svg.select("#circles")
-                .attr("fill", "brown")
-                .attr("fill-opacity", 0.5)
-                .attr("stroke", "#fff")
-                .attr("stroke-width", 0.5)
-                .selectAll("circle")
-                .data(countyFeatures)
-                .join("circle")
-                .attr("transform", d => `translate(${path.centroid(d)})`)
-                .attr("r", d => {
-                    const value = processedData.get(d.id as string);
-                    return radius(value ?? 0);
-                });
+            const mapType = selectedDataDefinitions[0].mapType;
+            if (mapType === MapType.Choropleth) {
+                drawChoropleth(svg, countyFeatures, processedData, colorScheme, path, onStateChange);
+            } else if (mapType === MapType.Bubble) {
+                drawBubbles(countyFeatures, processedData, svg, stateFeatures, path);
+            }
         }
 
         if (state !== undefined) {
@@ -328,6 +289,78 @@ const stateFilter = (state: State | undefined) => (feature: Feature<Geometry, Ge
     }
     const stateId = (feature.id! as string).slice(0, 2);
     return stateId === state;
+}
+
+function clearMap(svg: Selection<SVGSVGElement | null, unknown, null, undefined>, stateFeatures: Feature<Geometry, GeoJsonProperties>[], path: GeoPath<any, GeoPermissibleObjects>) {
+    svg.select("#legend").selectAll("*").remove();
+    svg.select("#states")
+        .selectAll("path")
+        .data(stateFeatures)
+        .join("path")
+        .attr("class", "state")
+        .attr("fill", noDataSelectedColor)
+        .attr("d", path);
+    svg.select("#counties").selectAll("path").attr("fill", "none");
+    svg.select("#circles").selectAll("circle").attr("r", 0);
+    svg
+        .selectAll(".state")
+        .on("touchmove mousemove", null)
+        .on("touchend mouseleave", null);
+}
+
+function drawChoropleth(svg: Selection<SVGSVGElement | null, unknown, null, undefined>,
+                        countyFeatures: Feature<Geometry, GeoJsonProperties>[],
+                        processedData: ImmutableMap<string, number | undefined>,
+                        colorScheme: ColorScheme,
+                        path: GeoPath<any, GeoPermissibleObjects>,
+                        onStateChange: (state: State | undefined) => void) {
+    svg.select("#circles").selectAll("circle").attr("r", 0);
+    svg.select("#counties")
+        .selectAll("path")
+        .data(countyFeatures)
+        .join("path")
+        .attr("class", "county")
+        .attr("fill", d => {
+            const value = processedData.get(d.id as string);
+            return colorScheme(value as any) ?? missingDataColor;
+        })
+        .attr("d", path).on("click", (_, feature) => onStateChange((feature?.id as string).slice(0, 2) as State));
+    svg.select("#states").selectAll("path").attr("fill", "none");
+    svg.select("#counties")
+        .transition()
+        .duration(200)
+        .attr("transform", "translate(0)scale(1)");
+}
+
+function drawBubbles(countyFeatures: Feature<Geometry, GeoJsonProperties>[],
+                     processedData: ImmutableMap<string, number | undefined>,
+                     svg: Selection<SVGSVGElement | null, unknown, null, undefined>,
+                     stateFeatures: Feature<Geometry, GeoJsonProperties>[],
+                     path: GeoPath<any, GeoPermissibleObjects>) {
+    const values = countyFeatures.map(d => processedData.get(d.id as string)).filter(d => d !== undefined).map(d => d as number);
+
+    const radius = scaleSqrt([0, max(values) ?? 0], [0, 40]);
+    svg.select("#counties").selectAll("path").attr("fill", "none");
+    svg.select("#states")
+        .selectAll("path")
+        .data(stateFeatures)
+        .join("path")
+        .attr("class", "state")
+        .attr("fill", noDataSelectedColor)
+        .attr("d", path);
+    svg.select("#circles")
+        .selectAll("circle")
+        .data(countyFeatures)
+        .join("circle")
+        .attr("fill", "rgb(40,140,100)")
+        .attr("fill-opacity", 0.5)
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 0.5)
+        .attr("transform", d => `translate(${path.centroid(d)})`)
+        .attr("r", d => {
+            const value = processedData.get(d.id as string);
+            return radius(value ?? 0);
+        });
 }
 
 export default MapUI;

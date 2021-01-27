@@ -1,7 +1,7 @@
 import * as scales from 'd3-scale-chromatic';
 import { scaleThreshold, scaleDiverging, scaleSequential, format, scaleDivergingSymlog } from 'd3';
-import { ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3-scale';
 import { Set } from 'immutable';
+import { ColorScheme } from './Home';
 
 export enum MapType {
     Bubble,
@@ -267,7 +267,7 @@ export type DataDefinition = {
     id: (params: DataIdParams) => DataId
     units: string,
     formatter: (n: number | { valueOf(): number }) => string,
-    color: ScaleSequential<string> | ScaleThreshold<number, string> | ScaleDiverging<string>,
+    color: ColorScheme,
     normalizations: Set<Normalization>,
     type: DataType,
     description: string,
