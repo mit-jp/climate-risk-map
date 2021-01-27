@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { select, geoPath } from 'd3';
+import { select, geoPath, scaleSqrt, max } from 'd3';
 import { Feature, Geometry } from 'geojson';
 import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
@@ -10,7 +10,7 @@ import { legendColor } from 'd3-svg-legend';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
 import states, { State } from './States';
-import  Counties from './Counties';
+import Counties from './Counties';
 import DataProcessor from './DataProcessor';
 import ProbabilityDensity from './ProbabilityDensity';
 import { Data } from './Home';
@@ -72,7 +72,7 @@ const MapUI = ({
             .attr("stroke", "white")
             .attr("stroke-linejoin", "round")
             .attr("d", path);
-        
+
         if (processedData === undefined) {
             svg.select("#legend").selectAll("*").remove();
             svg.select("#states")
@@ -123,12 +123,30 @@ const MapUI = ({
                     const value = processedData.get(d.id as string);
                     return colorScheme(value as any) ?? missingDataColor;
                 })
-                .attr("d", path).on("click", (_, feature) => onStateChange((feature?.id as string).slice(0,2) as State));
+                .attr("d", path).on("click", (_, feature) => onStateChange((feature?.id as string).slice(0, 2) as State));
             svg.select("#states").selectAll("path").attr("fill", "none");
             svg.select("#counties")
                 .transition()
                 .duration(200)
                 .attr("transform", "translate(0)scale(1)");
+
+            const values = countyFeatures.map(d => processedData.get(d.id as string)).filter(d => d !== undefined).map(d => d as number);
+
+            const radius = scaleSqrt([0, max(values) ?? 0], [0, 40]);
+
+            svg.select("#circles")
+                .attr("fill", "brown")
+                .attr("fill-opacity", 0.5)
+                .attr("stroke", "#fff")
+                .attr("stroke-width", 0.5)
+                .selectAll("circle")
+                .data(countyFeatures)
+                .join("circle")
+                .attr("transform", d => `translate(${path.centroid(d)})`)
+                .attr("r", d => {
+                    const value = processedData.get(d.id as string);
+                    return radius(value ?? 0);
+                });
         }
 
         if (state !== undefined) {
@@ -166,32 +184,33 @@ const MapUI = ({
 
     const getArrayOfData = () => {
         if (processedData === undefined) {
-          return undefined;
+            return undefined;
         }
         return Array
-          .from(processedData.valueSeq())
-          .filter(value => value !== undefined) as number[];
+            .from(processedData.valueSeq())
+            .filter(value => value !== undefined) as number[];
     }
 
     return (
         <div id="map">
-        <svg ref={svgRef} viewBox="0, 0, 1175, 610">
-            <g id="legend"></g>
-            <ProbabilityDensity data={getArrayOfData()} selections={selections} />
-            <g id="counties"></g>
-            <g id="states"></g>
-            <g id="state-borders"><path /></g>
-        </svg>
-        <DataDescription
-            selections={selections}
-            shouldShow={showDataDescription}
-            showClicked={onDataDescriptionClicked}
-        />
-        <DatasetDescription
-            datasets={selections.map(getDataset)}
-            shouldShow={showDatasetDescription}
-            showClicked={onDatasetDescriptionClicked}
-        />
+            <svg ref={svgRef} viewBox="0, 0, 1175, 610">
+                <g id="legend"></g>
+                <ProbabilityDensity data={getArrayOfData()} selections={selections} />
+                <g id="counties"></g>
+                <g id="states"></g>
+                <g id="state-borders"><path /></g>
+                <g id="circles"></g>
+            </svg>
+            <DataDescription
+                selections={selections}
+                shouldShow={showDataDescription}
+                showClicked={onDataDescriptionClicked}
+            />
+            <DatasetDescription
+                datasets={selections.map(getDataset)}
+                shouldShow={showDatasetDescription}
+                showClicked={onDatasetDescriptionClicked}
+            />
         </div>
     );
 }
@@ -208,37 +227,36 @@ const tooltip = select("body")
     .style("font-family", "sans-serif")
     .style("font-weight", 600)
     .style("padding", "4px")
-    .style("background", "white")	
+    .style("background", "white")
     .style("pointer-events", "none");
 
 const handleCountyMouseOver = (
     selectedDataDefinitions: DataDefinition[],
     processedCountyData: ImmutableMap<string, number | undefined>,
     selections: DataIdParams[]) => {
-    return function(this: any, event: any, d: any) {
+    return function (this: any, event: any, d: any) {
         select(this)
             .style("opacity", 0.5)
             .style("stroke", "black")
             .style("stroke-width", 0.5)
-    
+
         tooltip.transition()
             .duration(200)
             .style("opacity", .9)
-        
+
         let county = Counties.get(d.id);
-        let state = states.get(d.id.slice(0,2) as State);
+        let state = states.get(d.id.slice(0, 2) as State);
         let name = "---";
         if (state && county) {
             name = county + ", " + state;
         }
         let value = processedCountyData.get(d.id);
 
-        tooltip.html(`${name}: ${format(value, selectedDataDefinitions, selections)}`)	
-            .style("left", `${event.pageX + 20}px`)		
+        tooltip.html(`${name}: ${format(value, selectedDataDefinitions, selections)}`)
+            .style("left", `${event.pageX + 20}px`)
             .style("top", (event.pageY - 45) + "px");
     }
 };
-
 
 const format = (value: number | undefined, selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
     const formatter = getFormatter(selectedDataDefinitions, selections);
@@ -256,20 +274,20 @@ const format = (value: number | undefined, selectedDataDefinitions: DataDefiniti
 const getUnitString = (units: string) => units ? ` ${units}` : "";
 const getUnitStringWithParens = (units: string) => units ? ` (${units})` : "";
 
-const handleMouseOut = function(this:any) {
+const handleMouseOut = function (this: any) {
     select(this)
         .style("opacity", 1)
         .style("stroke", null)
 
-    tooltip.transition()		
-        .duration(200)		
+    tooltip.transition()
+        .duration(200)
         .style("opacity", 0)
 }
 
 const getDataset = (selection: DataIdParams) => {
     // get the selected dataset, or the first one, if there's none selected
     return selection.dataset ?? dataDefinitions.get(selection.dataGroup)!.datasets[0];
-}   
+}
 
 const getDataDefinitions = (selections: DataIdParams[]) => {
     return selections.map(selection => dataDefinitions.get(selection.dataGroup)!);
@@ -288,7 +306,7 @@ const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdP
 
 const getFormatter = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
     const normalization = selections[0].normalization;
-    switch(normalization) {
+    switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].formatter;
         case Normalization.Percentile: return percentileFormatter;
         case Normalization.StandardDeviations: return standardDeviationFormatter;
@@ -297,18 +315,18 @@ const getFormatter = (selectedDataDefinitions: DataDefinition[], selections: Dat
 
 const getColorScheme = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
     const normalization = selections[0].normalization;
-    switch(normalization) {
+    switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].color;
         case Normalization.Percentile: return percentileColorScheme;
         case Normalization.StandardDeviations: return standardDeviationColorScheme;
-    }        
+    }
 }
 
 const stateFilter = (state: State | undefined) => (feature: Feature<Geometry, GeoJsonProperties>) => {
     if (state === undefined) {
         return true;
     }
-    const stateId = (feature.id! as string).slice(0,2);
+    const stateId = (feature.id! as string).slice(0, 2);
     return stateId === state;
 }
 
