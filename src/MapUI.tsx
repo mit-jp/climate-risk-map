@@ -408,7 +408,8 @@ function drawBubbles(countyFeatures: Feature<Geometry, GeoJsonProperties>[],
 }
 
 function shouldShowPdf(selections: DataIdParams[]) {
-    return getDataDefinitions(selections)[0].mapType === MapType.Choropleth;
+    const firstSelection = getDataDefinitions(selections)[0];
+    return firstSelection !== undefined && firstSelection.mapType === MapType.Choropleth;
 }
 
 export default MapUI;
