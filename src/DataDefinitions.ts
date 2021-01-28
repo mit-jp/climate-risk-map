@@ -1,7 +1,12 @@
 import * as scales from 'd3-scale-chromatic';
 import { scaleThreshold, scaleDiverging, scaleSequential, format, scaleDivergingSymlog } from 'd3';
-import { ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3-scale';
 import { Set } from 'immutable';
+import { ColorScheme } from './Home';
+
+export enum MapType {
+    Bubble,
+    Choropleth,
+}
 
 export enum DataType {
     Climate = "climate",
@@ -262,12 +267,13 @@ export type DataDefinition = {
     id: (params: DataIdParams) => DataId
     units: string,
     formatter: (n: number | { valueOf(): number }) => string,
-    color: ScaleSequential<string> | ScaleThreshold<number, string> | ScaleDiverging<string>,
+    color: ColorScheme,
     normalizations: Set<Normalization>,
     type: DataType,
     description: string,
     years: Year[],
-    datasets: Dataset[]
+    datasets: Dataset[],
+    mapType: MapType,
 }
 
 export enum Normalization {
@@ -372,7 +378,8 @@ dataDefinitions.set(DataGroup.ClimateMoistureIndex, {
     type: DataType.Climate,
     description: "Calculated from mean annual precipitation and potential evapotransipiration",
     years: years,
-    datasets: climateDatasets
+    datasets: climateDatasets,
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.IrregationDeficit, {
     name:"Irrigation Deficit",
@@ -384,7 +391,8 @@ dataDefinitions.set(DataGroup.IrregationDeficit, {
     type: DataType.Climate,
     description: "Difference between mean annual potential evapotransipiration and precipitation (def = pet - prc)",
     years: years,
-    datasets: climateDatasets
+    datasets: climateDatasets,
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.DroughtIndicator, {
     name:"Drought Indicator",
@@ -396,7 +404,8 @@ dataDefinitions.set(DataGroup.DroughtIndicator, {
     type: DataType.Climate,
     description: "5th percentile of annual runoff time series during the specific period",
     years: years,
-    datasets: climateDatasets
+    datasets: climateDatasets,
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.Groundwater, {
     name:"Groundwater",
@@ -408,7 +417,8 @@ dataDefinitions.set(DataGroup.Groundwater, {
     type: DataType.Climate,
     description: "Minimum of the 12 monthly runoff climatology during the specific period (40 years or 20 years. To avoid negative values, the minimum cutoff value is set to be 0.000001)",
     years: years,
-    datasets: climateDatasets
+    datasets: climateDatasets,
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.MaxTemperature, {
     name:"Maximum Month Temperature",
@@ -420,7 +430,8 @@ dataDefinitions.set(DataGroup.MaxTemperature, {
     type: DataType.Climate,
     description: "Directly calculated from the reanalysis data",
     years: years,
-    datasets: climateDatasets
+    datasets: climateDatasets,
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.Evapotranspiration, {
     name:"Mean Annual Potential Evapotranspiration",
@@ -432,7 +443,8 @@ dataDefinitions.set(DataGroup.Evapotranspiration, {
     type: DataType.Climate,
     description: "Monthly potential evapotranspiration is calculated based on monthly mean surface air temperature, monthly mean temperature diurnal range, and monthly mean precipitation using modified Hargreaves method (Droogers and Allen, Irrigation and Drainage Systems 16: 33–45, 2002)",
     years: years,
-    datasets: climateDatasets
+    datasets: climateDatasets,
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.Precipitation, {
     name: "Mean Annual Precipitation",
@@ -444,7 +456,8 @@ dataDefinitions.set(DataGroup.Precipitation, {
     type: DataType.Climate,
     description: "Directly calculated from the reanalysis data",
     years: years,
-    datasets: climateDatasets
+    datasets: climateDatasets,
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.Runoff, {
     name:"Mean Annual Runoff",
@@ -456,7 +469,8 @@ dataDefinitions.set(DataGroup.Runoff, {
     type: DataType.Climate,
     description: "Monthly runoff is calculated based on the monthly precipitation and potential evapotransipiration using the Turc-Pike model (Yates, Climate Research, Vol 9, 147-155, 1997)",
     years: years,
-    datasets: climateDatasets
+    datasets: climateDatasets,
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.FloodIndicator, {
     name:"Flood Indicator",
@@ -468,7 +482,8 @@ dataDefinitions.set(DataGroup.FloodIndicator, {
     type: DataType.Climate,
     description: "98th percentile of monthly runoff time series during the specific period",
     years: years,
-    datasets: climateDatasets
+    datasets: climateDatasets,
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.GDP2018, {
     name: "GDP 2018",
@@ -480,7 +495,8 @@ dataDefinitions.set(DataGroup.GDP2018, {
     type: DataType.Economic,
     description: "A comprehensive measure of the economies of counties, metropolitan statistical areas, and some other local areas. Gross domestic product estimates the value of the goods and services produced in an area. It can be used to compare the size and growth of county economies across the nation.",
     years: [],
-    datasets: [Dataset.BEA]
+    datasets: [Dataset.BEA],
+    mapType: MapType.Bubble,
 });
 dataDefinitions.set(DataGroup.AllIndustries, {
     name:"Employment in all industries 2007",
@@ -492,7 +508,8 @@ dataDefinitions.set(DataGroup.AllIndustries, {
     type: DataType.Economic,
     description: "A count of full-time and part-time jobs in U.S. counties and metropolitan areas, with industry detail. Nonmetropolitan areas and rural counties are also included. These statistics cover wage and salary jobs and self-employment.",
     years: [],
-    datasets: [Dataset.BEA]
+    datasets: [Dataset.BEA],
+    mapType: MapType.Bubble,
 });
 dataDefinitions.set(DataGroup.Farming, {
     name:"Farming 2007",
@@ -504,7 +521,8 @@ dataDefinitions.set(DataGroup.Farming, {
     type: DataType.Economic,
     description: employmentDescription,
     years: [],
-    datasets: [Dataset.BEA]
+    datasets: [Dataset.BEA],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.Mining, {
     name:"Mining 2007",
@@ -516,7 +534,8 @@ dataDefinitions.set(DataGroup.Mining, {
     type: DataType.Economic,
     description: employmentDescription,
     years: [],
-    datasets: [Dataset.BEA]
+    datasets: [Dataset.BEA],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.Construction, {
     name:"Construction 2007",
@@ -528,7 +547,8 @@ dataDefinitions.set(DataGroup.Construction, {
     type: DataType.Economic,
     description: employmentDescription,
     years: [],
-    datasets: [Dataset.BEA]
+    datasets: [Dataset.BEA],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.Agricultureforestryfishingandhunting, {
     name:"Agriculture, forestry, fishing, and hunting 2007",
@@ -540,7 +560,8 @@ dataDefinitions.set(DataGroup.Agricultureforestryfishingandhunting, {
     type: DataType.Economic,
     description: employmentDescription,
     years: [],
-    datasets: [Dataset.BEA]
+    datasets: [Dataset.BEA],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.Healthcareandsocialassistance, {
     name:"Healthcare and social assistance 2007",
@@ -552,7 +573,8 @@ dataDefinitions.set(DataGroup.Healthcareandsocialassistance, {
     type: DataType.Economic,
     description: employmentDescription,
     years: [],
-    datasets: [Dataset.BEA]
+    datasets: [Dataset.BEA],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.discuss, {
     name:"Discuss global warming at least occasionally",
@@ -564,7 +586,8 @@ dataDefinitions.set(DataGroup.discuss, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.PerCapitapersonalincome2018, {
     name:"Per capita personal income 2018",
@@ -576,7 +599,8 @@ dataDefinitions.set(DataGroup.PerCapitapersonalincome2018, {
     type: DataType.Economic,
     description: "Income that people get from wages, proprietors' income, dividends, interest, rents, and government benefits. A person's income is counted in the county, metropolitan statistical area, or other area where they live, even if they work elsewhere.",
     years: [],
-    datasets: [Dataset.BEA]
+    datasets: [Dataset.BEA],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.PercentPopulationUnder18, {
     name: "Population Under 18",
@@ -588,7 +612,8 @@ dataDefinitions.set(DataGroup.PercentPopulationUnder18, {
     type: DataType.Demographic,
     description: "",
     years: [],
-    datasets: [Dataset.Census]
+    datasets: [Dataset.Census],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.PercentPopulationOver65, {
     name: "Population Over 65",
@@ -600,7 +625,8 @@ dataDefinitions.set(DataGroup.PercentPopulationOver65, {
     type: DataType.Demographic,
     description: "",
     years: [],
-    datasets: [Dataset.Census]
+    datasets: [Dataset.Census],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.PercentNonwhite, {
     name: "Nonwhite",
@@ -612,7 +638,8 @@ dataDefinitions.set(DataGroup.PercentNonwhite, {
     type: DataType.Demographic,
     description: "",
     years: [],
-    datasets: [Dataset.Census]
+    datasets: [Dataset.Census],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.PercentofPopulationBelowPovertyLevel, {
     name: "Population Below Poverty Level",
@@ -624,7 +651,8 @@ dataDefinitions.set(DataGroup.PercentofPopulationBelowPovertyLevel, {
     type: DataType.Demographic,
     description: "",
     years: [],
-    datasets: [Dataset.Census]
+    datasets: [Dataset.Census],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.UnemploymentRate, {
     name: "Unemployment Rate",
@@ -636,7 +664,8 @@ dataDefinitions.set(DataGroup.UnemploymentRate, {
     type: DataType.Demographic,
     description: "",
     years: [],
-    datasets: [Dataset.Census]
+    datasets: [Dataset.Census],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.Populationpersquaremile2010, {
     name: "Population Density",
@@ -648,7 +677,8 @@ dataDefinitions.set(DataGroup.Populationpersquaremile2010, {
     type: DataType.Demographic,
     description: "",
     years: [],
-    datasets: [Dataset.Census]
+    datasets: [Dataset.Census],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.discuss, {
     name: "Discuss global warming at least occasionally",
@@ -660,7 +690,8 @@ dataDefinitions.set(DataGroup.discuss, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.reducetax, {
     name: "Support requiring fossil fuel companies to pay a carbon tax",
@@ -672,7 +703,8 @@ dataDefinitions.set(DataGroup.reducetax, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.CO2limits, {
     name: "Support setting strict CO2 limits on existing coal-fired power plants",
@@ -684,7 +716,8 @@ dataDefinitions.set(DataGroup.CO2limits, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.localofficials, {
     name: "Agree that your local officials should do more to address global warming",
@@ -696,7 +729,8 @@ dataDefinitions.set(DataGroup.localofficials, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.governor, {
     name: "Agree that your governor should do more to address global warming",
@@ -708,7 +742,8 @@ dataDefinitions.set(DataGroup.governor, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.congress, {
     name: "Agree that congress should do more to address global warming",
@@ -720,7 +755,8 @@ dataDefinitions.set(DataGroup.congress, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.president, {
     name: "Agree that the president should do more to address global warming",
@@ -732,7 +768,8 @@ dataDefinitions.set(DataGroup.president, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.corporations, {
     name: "Agree that corporations and industry should do more to address global warming",
@@ -744,7 +781,8 @@ dataDefinitions.set(DataGroup.corporations, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.citizens, {
     name: "Agree that citizens themselves should do more to address global warming",
@@ -756,7 +794,8 @@ dataDefinitions.set(DataGroup.citizens, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.regulate, {
     name: "Support regulating CO2 as a pollutant",
@@ -768,7 +807,8 @@ dataDefinitions.set(DataGroup.regulate, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.supportRPS, {
     name: " Support requiring utilities to produce 20% electricity from renewable sources",
@@ -780,7 +820,8 @@ dataDefinitions.set(DataGroup.supportRPS, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.drilloffshore, {
     name: "Support expanding offshore drilling for oil and natural gas off the U.S. coast",
@@ -792,7 +833,8 @@ dataDefinitions.set(DataGroup.drilloffshore, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.drillANWR, {
     name: "Support drilling for oil in the Arctic National Wildlife Refuge",
@@ -804,7 +846,8 @@ dataDefinitions.set(DataGroup.drillANWR, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.fundrenewables, {
     name: "Support funding research into renewable energy sources",
@@ -816,7 +859,8 @@ dataDefinitions.set(DataGroup.fundrenewables, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.rebates, {
     name: "Support providing tax rebates",
@@ -828,7 +872,8 @@ dataDefinitions.set(DataGroup.rebates, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.mediaweekly, {
     name: "Hear about global warming in the media at least once a week ",
@@ -840,7 +885,8 @@ dataDefinitions.set(DataGroup.mediaweekly, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.prienv, {
     name: "Agree that global warming should be a high priority for the next president and Congress",
@@ -852,7 +898,8 @@ dataDefinitions.set(DataGroup.prienv, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.teachGW, {
     name: "Agree that schools should teach about global warming ",
@@ -864,7 +911,8 @@ dataDefinitions.set(DataGroup.teachGW, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.happening, {
     name: "Agree that global warming is happening",
@@ -876,7 +924,8 @@ dataDefinitions.set(DataGroup.happening, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.human, {
     name: "Agree that global warming is caused mostly by human activities",
@@ -888,7 +937,8 @@ dataDefinitions.set(DataGroup.human, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.consensus, {
     name: "Agree that most scientists think global warming is happening",
@@ -900,7 +950,8 @@ dataDefinitions.set(DataGroup.consensus, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.worried, {
     name: "Are worried about global warming",
@@ -912,7 +963,8 @@ dataDefinitions.set(DataGroup.worried, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.personal, {
     name: "Think that global warming will harm me personally",
@@ -924,7 +976,8 @@ dataDefinitions.set(DataGroup.personal, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.harmUS, {
     name: "Think that global warming is already harming people in the US",
@@ -936,7 +989,8 @@ dataDefinitions.set(DataGroup.harmUS, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.devharm, {
     name: "Think that global warming will harm people in developing countries",
@@ -948,7 +1002,8 @@ dataDefinitions.set(DataGroup.devharm, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.futuregen, {
     name: "Think that global warming will harm future generations",
@@ -960,7 +1015,8 @@ dataDefinitions.set(DataGroup.futuregen, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.harmplants, {
     name: "Think that global warming will harm plants and animals ",
@@ -972,7 +1028,8 @@ dataDefinitions.set(DataGroup.harmplants, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.timing, {
     name: "Think a candidate’s views on global warming are important to their vote",
@@ -984,7 +1041,8 @@ dataDefinitions.set(DataGroup.timing, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 dataDefinitions.set(DataGroup.affectweather, {
     name: "Think that global warming is affecting the weather in the United States",
@@ -996,7 +1054,8 @@ dataDefinitions.set(DataGroup.affectweather, {
     type: DataType.ClimateSurvey,
     description: "",
     years: [],
-    datasets: [Dataset.Yale]
+    datasets: [Dataset.Yale],
+    mapType: MapType.Choropleth,
 });
 
 export default dataDefinitions;

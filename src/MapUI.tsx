@@ -1,19 +1,19 @@
 import React, { useRef, useEffect } from 'react';
-import { select, geoPath } from 'd3';
+import { select, geoPath, scaleSqrt, max, Selection, GeoPath, GeoPermissibleObjects, ScalePower } from 'd3';
 import { Feature, Geometry } from 'geojson';
 import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits, percentileFormatter, standardDeviationFormatter, DataGroup } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits, percentileFormatter, standardDeviationFormatter, DataGroup, MapType } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
 import states, { State } from './States';
-import  Counties from './Counties';
+import Counties from './Counties';
 import DataProcessor from './DataProcessor';
 import ProbabilityDensity from './ProbabilityDensity';
-import { Data } from './Home';
+import { ColorScheme, Data } from './Home';
 
 export enum Aggregation {
     State = "state",
@@ -72,21 +72,9 @@ const MapUI = ({
             .attr("stroke", "white")
             .attr("stroke-linejoin", "round")
             .attr("d", path);
-        
+
         if (processedData === undefined) {
-            svg.select("#legend").selectAll("*").remove();
-            svg.select("#states")
-                .selectAll("path")
-                .data(stateFeatures)
-                .join("path")
-                .attr("class", "state")
-                .attr("fill", noDataSelectedColor)
-                .attr("d", path);
-            svg.select("#counties").selectAll("path").attr("fill", "none");
-            svg
-                .selectAll(".state")
-                .on("touchmove mousemove", null)
-                .on("touchend mouseleave", null);
+            clearMap(svg, stateFeatures, path);
             return;
         }
 
@@ -94,41 +82,24 @@ const MapUI = ({
         const title = getTitle(selectedDataDefinitions, selections);
         const formatter = getFormatter(selectedDataDefinitions, selections);
         const colorScheme = getColorScheme(selectedDataDefinitions, selections);
+        const values = countyFeatures.map(d => processedData.get(d.id as string)).filter(d => d !== undefined).map(d => d as number);
+        const radius = scaleSqrt([0, max(values) ?? 0], [0, 40]);
+        const mapType = selectedDataDefinitions[0].mapType;
 
         // legend
-        const legendSequential = legendColor()
-            .cells(5)
-            .shapeWidth(20)
-            .shapeHeight(30)
-            .shapePadding(0)
-            .titleWidth(200)
-            .title(title)
-            .labelFormat(formatter)
-            .orient("vertical")
-            .scale(colorScheme)
+        if (mapType === MapType.Choropleth) {
+            drawLegend(svg, title, formatter, colorScheme);
+        } else if (mapType === MapType.Bubble) {
+            drawBubbleLegend(svg, radius, title);
+        }
 
-        svg.select<SVGGElement>("#legend")
-            .attr("transform", "translate(925, 220)")
-            // @ts-ignore
-            .call(legendSequential)
-
+        // data
         if (aggregation === Aggregation.County) {
-            // colorized counties
-            svg.select("#counties")
-                .selectAll("path")
-                .data(countyFeatures)
-                .join("path")
-                .attr("class", "county")
-                .attr("fill", d => {
-                    const value = processedData.get(d.id as string);
-                    return colorScheme(value as any) ?? missingDataColor;
-                })
-                .attr("d", path).on("click", (_, feature) => onStateChange((feature?.id as string).slice(0,2) as State));
-            svg.select("#states").selectAll("path").attr("fill", "none");
-            svg.select("#counties")
-                .transition()
-                .duration(200)
-                .attr("transform", "translate(0)scale(1)");
+            if (mapType === MapType.Choropleth) {
+                drawChoropleth(svg, countyFeatures, processedData, colorScheme, path, onStateChange);
+            } else if (mapType === MapType.Bubble) {
+                drawBubbles(countyFeatures, processedData, svg, stateFeatures, path, radius);
+            }
         }
 
         if (state !== undefined) {
@@ -166,32 +137,34 @@ const MapUI = ({
 
     const getArrayOfData = () => {
         if (processedData === undefined) {
-          return undefined;
+            return undefined;
         }
         return Array
-          .from(processedData.valueSeq())
-          .filter(value => value !== undefined) as number[];
+            .from(processedData.valueSeq())
+            .filter(value => value !== undefined) as number[];
     }
 
     return (
         <div id="map">
-        <svg ref={svgRef} viewBox="0, 0, 1175, 610">
-            <g id="legend"></g>
-            <ProbabilityDensity data={getArrayOfData()} selections={selections} />
-            <g id="counties"></g>
-            <g id="states"></g>
-            <g id="state-borders"><path /></g>
-        </svg>
-        <DataDescription
-            selections={selections}
-            shouldShow={showDataDescription}
-            showClicked={onDataDescriptionClicked}
-        />
-        <DatasetDescription
-            datasets={selections.map(getDataset)}
-            shouldShow={showDatasetDescription}
-            showClicked={onDatasetDescriptionClicked}
-        />
+            <svg ref={svgRef} viewBox="0, 0, 1175, 610">
+                <g id="legend"></g>
+                <g id="bubble-legend"></g>
+                {shouldShowPdf(selections) && <ProbabilityDensity data={getArrayOfData()} selections={selections} />}
+                <g id="counties"></g>
+                <g id="states"></g>
+                <g id="state-borders"><path /></g>
+                <g id="circles"></g>
+            </svg>
+            <DataDescription
+                selections={selections}
+                shouldShow={showDataDescription}
+                showClicked={onDataDescriptionClicked}
+            />
+            <DatasetDescription
+                datasets={selections.map(getDataset)}
+                shouldShow={showDatasetDescription}
+                showClicked={onDatasetDescriptionClicked}
+            />
         </div>
     );
 }
@@ -208,37 +181,36 @@ const tooltip = select("body")
     .style("font-family", "sans-serif")
     .style("font-weight", 600)
     .style("padding", "4px")
-    .style("background", "white")	
+    .style("background", "white")
     .style("pointer-events", "none");
 
 const handleCountyMouseOver = (
     selectedDataDefinitions: DataDefinition[],
     processedCountyData: ImmutableMap<string, number | undefined>,
     selections: DataIdParams[]) => {
-    return function(this: any, event: any, d: any) {
+    return function (this: any, event: any, d: any) {
         select(this)
             .style("opacity", 0.5)
             .style("stroke", "black")
             .style("stroke-width", 0.5)
-    
+
         tooltip.transition()
             .duration(200)
             .style("opacity", .9)
-        
+
         let county = Counties.get(d.id);
-        let state = states.get(d.id.slice(0,2) as State);
+        let state = states.get(d.id.slice(0, 2) as State);
         let name = "---";
         if (state && county) {
             name = county + ", " + state;
         }
         let value = processedCountyData.get(d.id);
 
-        tooltip.html(`${name}: ${format(value, selectedDataDefinitions, selections)}`)	
-            .style("left", `${event.pageX + 20}px`)		
+        tooltip.html(`${name}: ${format(value, selectedDataDefinitions, selections)}`)
+            .style("left", `${event.pageX + 20}px`)
             .style("top", (event.pageY - 45) + "px");
     }
 };
-
 
 const format = (value: number | undefined, selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
     const formatter = getFormatter(selectedDataDefinitions, selections);
@@ -256,20 +228,20 @@ const format = (value: number | undefined, selectedDataDefinitions: DataDefiniti
 const getUnitString = (units: string) => units ? ` ${units}` : "";
 const getUnitStringWithParens = (units: string) => units ? ` (${units})` : "";
 
-const handleMouseOut = function(this:any) {
+const handleMouseOut = function (this: any) {
     select(this)
         .style("opacity", 1)
         .style("stroke", null)
 
-    tooltip.transition()		
-        .duration(200)		
+    tooltip.transition()
+        .duration(200)
         .style("opacity", 0)
 }
 
 const getDataset = (selection: DataIdParams) => {
     // get the selected dataset, or the first one, if there's none selected
     return selection.dataset ?? dataDefinitions.get(selection.dataGroup)!.datasets[0];
-}   
+}
 
 const getDataDefinitions = (selections: DataIdParams[]) => {
     return selections.map(selection => dataDefinitions.get(selection.dataGroup)!);
@@ -288,7 +260,7 @@ const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdP
 
 const getFormatter = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
     const normalization = selections[0].normalization;
-    switch(normalization) {
+    switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].formatter;
         case Normalization.Percentile: return percentileFormatter;
         case Normalization.StandardDeviations: return standardDeviationFormatter;
@@ -297,19 +269,146 @@ const getFormatter = (selectedDataDefinitions: DataDefinition[], selections: Dat
 
 const getColorScheme = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
     const normalization = selections[0].normalization;
-    switch(normalization) {
+    switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].color;
         case Normalization.Percentile: return percentileColorScheme;
         case Normalization.StandardDeviations: return standardDeviationColorScheme;
-    }        
+    }
 }
 
 const stateFilter = (state: State | undefined) => (feature: Feature<Geometry, GeoJsonProperties>) => {
     if (state === undefined) {
         return true;
     }
-    const stateId = (feature.id! as string).slice(0,2);
+    const stateId = (feature.id! as string).slice(0, 2);
     return stateId === state;
+}
+
+function drawBubbleLegend(svg: Selection<SVGSVGElement | null, unknown, null, undefined>, radius: ScalePower<number, number, never>, title: string) {
+    svg.select("#legend").selectAll("*").remove();
+    const legend = svg
+        .select("#bubble-legend")
+        .attr("fill", "#777")
+        .attr("transform", "translate(915,508)")
+        .attr("text-anchor", "middle")
+        .style("font", "10px sans-serif")
+        .selectAll("g")
+        .data(radius.ticks(4).slice(1))
+        .join("g");    
+
+    legend.selectAll("*").remove();
+
+    svg.select("#bubble-legend")
+        .selectAll("text")
+        .data([title])
+        .join("text")
+        .attr("y", -90)
+        .text(d => d);
+
+    legend.append("circle")
+        .attr("fill", "none")
+        .attr("stroke", "#ccc")
+        .attr("cy", d => -radius(d))
+        .attr("r", radius);
+
+    legend.append("text")
+        .attr("y", d => -2 * radius(d))
+        .attr("dy", "1.3em")
+        .text(radius.tickFormat(4, "s"));
+}
+
+function drawLegend(svg: Selection<SVGSVGElement | null, unknown, null, undefined>, title: string, formatter: (n: number | { valueOf(): number; }) => string, colorScheme: ColorScheme) {
+    svg.select("#bubble-legend").selectAll("*").remove();
+    const legendSequential = legendColor()
+        .cells(5)
+        .shapeWidth(20)
+        .shapeHeight(30)
+        .shapePadding(0)
+        .titleWidth(200)
+        .title(title)
+        .labelFormat(formatter)
+        .orient("vertical")
+        .scale(colorScheme);
+
+    svg.select<SVGGElement>("#legend")
+        .attr("transform", "translate(925, 220)")
+        // @ts-ignore
+        .call(legendSequential);
+}
+
+function clearMap(svg: Selection<SVGSVGElement | null, unknown, null, undefined>, stateFeatures: Feature<Geometry, GeoJsonProperties>[], path: GeoPath<any, GeoPermissibleObjects>) {
+    svg.select("#legend").selectAll("*").remove();
+    svg.select("#bubble-legend").selectAll("*").remove();
+    svg.select("#states")
+        .selectAll("path")
+        .data(stateFeatures)
+        .join("path")
+        .attr("class", "state")
+        .attr("fill", noDataSelectedColor)
+        .attr("d", path);
+    svg.select("#counties").selectAll("path").attr("fill", "none");
+    svg.select("#circles").selectAll("circle").attr("r", 0);
+    svg
+        .selectAll(".state")
+        .on("touchmove mousemove", null)
+        .on("touchend mouseleave", null);
+}
+
+function drawChoropleth(svg: Selection<SVGSVGElement | null, unknown, null, undefined>,
+                        countyFeatures: Feature<Geometry, GeoJsonProperties>[],
+                        processedData: ImmutableMap<string, number | undefined>,
+                        colorScheme: ColorScheme,
+                        path: GeoPath<any, GeoPermissibleObjects>,
+                        onStateChange: (state: State | undefined) => void) {
+    svg.select("#circles").selectAll("circle").attr("r", 0);
+    svg.select("#counties")
+        .selectAll("path")
+        .data(countyFeatures)
+        .join("path")
+        .attr("class", "county")
+        .attr("fill", d => {
+            const value = processedData.get(d.id as string);
+            return colorScheme(value as any) ?? missingDataColor;
+        })
+        .attr("d", path).on("click", (_, feature) => onStateChange((feature?.id as string).slice(0, 2) as State));
+    svg.select("#states").selectAll("path").attr("fill", "none");
+    svg.select("#counties")
+        .transition()
+        .duration(200)
+        .attr("transform", "translate(0)scale(1)");
+}
+
+function drawBubbles(countyFeatures: Feature<Geometry, GeoJsonProperties>[],
+                     processedData: ImmutableMap<string, number | undefined>,
+                     svg: Selection<SVGSVGElement | null, unknown, null, undefined>,
+                     stateFeatures: Feature<Geometry, GeoJsonProperties>[],
+                     path: GeoPath<any, GeoPermissibleObjects>,
+                     radius: ScalePower<number, number, never>) {
+    svg.select("#counties").selectAll("path").attr("fill", "none");
+    svg.select("#states")
+        .selectAll("path")
+        .data(stateFeatures)
+        .join("path")
+        .attr("class", "state")
+        .attr("fill", noDataSelectedColor)
+        .attr("d", path);
+    svg.select("#circles")
+        .selectAll("circle")
+        .data(countyFeatures)
+        .join("circle")
+        .attr("fill", "rgb(34, 139, 69)")
+        .attr("fill-opacity", 0.5)
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 0.5)
+        .attr("transform", d => `translate(${path.centroid(d)})`)
+        .attr("r", d => {
+            const value = processedData.get(d.id as string);
+            return radius(value ?? 0);
+        });
+}
+
+function shouldShowPdf(selections: DataIdParams[]) {
+    return getDataDefinitions(selections)[0].mapType === MapType.Choropleth;
 }
 
 export default MapUI;
