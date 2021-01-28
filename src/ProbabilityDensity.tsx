@@ -34,7 +34,7 @@ const ProbabilityDensity = ({ data, selections }: Props) => {
             .call(axisBottom(x))
         const yAxis = (g: any) => g
             .attr("transform", `translate(${margin.left},0)`)
-            .call(axisLeft(y).ticks(null, "%"))
+            .call(axisLeft(y).ticks(null))
             .call((g: any) => g.select(".domain").remove())
         const svg = select(svgRef.current);
         const color = Color(selections);
