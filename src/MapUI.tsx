@@ -5,7 +5,7 @@ import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits, percentileFormatter, standardDeviationFormatter, DataGroup, MapType } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits, percentileFormatter, standardDeviationFormatter, DataGroup, MapType, DataType } from './DataDefinitions';
 import { legendColor } from 'd3-svg-legend';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
@@ -149,7 +149,7 @@ const MapUI = ({
             <svg ref={svgRef} viewBox="0, 0, 1175, 610">
                 <g id="legend"></g>
                 <g id="bubble-legend"></g>
-                {shouldShowPdf(selections) && <ProbabilityDensity data={getArrayOfData()} selections={selections} />}
+                {shouldShowPdf(selections) && <ProbabilityDensity data={getArrayOfData()} selections={selections} xRange={getPdfDomain(selections)} />}
                 <g id="counties"></g>
                 <g id="states"></g>
                 <g id="state-borders"><path /></g>
@@ -409,7 +409,21 @@ function drawBubbles(countyFeatures: Feature<Geometry, GeoJsonProperties>[],
 
 function shouldShowPdf(selections: DataIdParams[]) {
     const firstSelection = getDataDefinitions(selections)[0];
+    if (selections[0] !== undefined && selections[0].dataGroup === DataGroup.Populationpersquaremile2010) {
+        return false;
+    }
     return firstSelection !== undefined && firstSelection.mapType === MapType.Choropleth;
+}
+
+function getPdfDomain(selections: DataIdParams[]) {
+    const firstSelection = getDataDefinitions(selections)[0];
+    if (firstSelection === undefined) {
+        return undefined;
+    }
+    
+    if (firstSelection.type === DataType.ClimateSurvey) {
+        return [0, 100] as [number, number];
+    }
 }
 
 export default MapUI;
