@@ -8,16 +8,18 @@ const margin = ({ top: 20, right: 30, bottom: 30, left: 40 });
 type Props = {
     data: number[] | undefined,
     selections: DataIdParams[] | undefined,
+    xRange?: [number, number] | undefined,
 };
 
-const ProbabilityDensity = ({ data, selections }: Props) => {
+const ProbabilityDensity = ({ data, selections, xRange=undefined}: Props) => {
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
         if (data === undefined || selections === undefined) {
             return;
         }
+        const domain = xRange === undefined ? extent(data) as [number, number] : xRange;
         const x = scaleLinear()
-            .domain(extent(data) as [number, number])
+            .domain(domain)
             .nice()
             .range([margin.left, width - margin.right]);
         const thresholds = x.ticks(40)
@@ -51,7 +53,7 @@ const ProbabilityDensity = ({ data, selections }: Props) => {
             .call(xAxis);
         svg.select("#yAxis")
             .call(yAxis);
-    }, [data, selections]);
+    }, [data, selections, xRange]);
 
     if (data === undefined || selections === undefined) {
         return null;
