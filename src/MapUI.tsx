@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { select, geoPath, scaleSqrt, max, Selection, GeoPath, GeoPermissibleObjects } from 'd3';
+import { select, geoPath, scaleSqrt, max, Selection, GeoPath, GeoPermissibleObjects, ScalePower } from 'd3';
 import { Feature, Geometry } from 'geojson';
 import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
@@ -82,31 +82,23 @@ const MapUI = ({
         const title = getTitle(selectedDataDefinitions, selections);
         const formatter = getFormatter(selectedDataDefinitions, selections);
         const colorScheme = getColorScheme(selectedDataDefinitions, selections);
+        const values = countyFeatures.map(d => processedData.get(d.id as string)).filter(d => d !== undefined).map(d => d as number);
+        const radius = scaleSqrt([0, max(values) ?? 0], [0, 40]);
+        const mapType = selectedDataDefinitions[0].mapType;
 
         // legend
-        const legendSequential = legendColor()
-            .cells(5)
-            .shapeWidth(20)
-            .shapeHeight(30)
-            .shapePadding(0)
-            .titleWidth(200)
-            .title(title)
-            .labelFormat(formatter)
-            .orient("vertical")
-            .scale(colorScheme)
-
-        svg.select<SVGGElement>("#legend")
-            .attr("transform", "translate(925, 220)")
-            // @ts-ignore
-            .call(legendSequential)
+        if (mapType === MapType.Choropleth) {
+            drawLegend(svg, title, formatter, colorScheme);
+        } else if (mapType === MapType.Bubble) {
+            drawBubbleLegend(svg, radius);
+        }
 
         // data
         if (aggregation === Aggregation.County) {
-            const mapType = selectedDataDefinitions[0].mapType;
             if (mapType === MapType.Choropleth) {
                 drawChoropleth(svg, countyFeatures, processedData, colorScheme, path, onStateChange);
             } else if (mapType === MapType.Bubble) {
-                drawBubbles(countyFeatures, processedData, svg, stateFeatures, path);
+                drawBubbles(countyFeatures, processedData, svg, stateFeatures, path, radius);
             }
         }
 
@@ -156,7 +148,8 @@ const MapUI = ({
         <div id="map">
             <svg ref={svgRef} viewBox="0, 0, 1175, 610">
                 <g id="legend"></g>
-                <ProbabilityDensity data={getArrayOfData()} selections={selections} />
+                <g id="bubble-legend"></g>
+                {shouldShowPdf(selections) && <ProbabilityDensity data={getArrayOfData()} selections={selections} />}
                 <g id="counties"></g>
                 <g id="states"></g>
                 <g id="state-borders"><path /></g>
@@ -291,8 +284,54 @@ const stateFilter = (state: State | undefined) => (feature: Feature<Geometry, Ge
     return stateId === state;
 }
 
+function drawBubbleLegend(svg: Selection<SVGSVGElement | null, unknown, null, undefined>, radius: ScalePower<number, number, never>) {
+    svg.select("#legend").selectAll("*").remove();
+    const legend = svg
+        .select("#bubble-legend")
+        .attr("fill", "#777")
+        .attr("transform", "translate(915,508)")
+        .attr("text-anchor", "middle")
+        .style("font", "10px sans-serif")
+        .selectAll("g")
+        .data(radius.ticks(4).slice(1))
+        .join("g");
+
+    legend.selectAll("*").remove();
+
+    legend.append("circle")
+        .attr("fill", "none")
+        .attr("stroke", "#ccc")
+        .attr("cy", d => -radius(d))
+        .attr("r", radius);
+
+    legend.append("text")
+        .attr("y", d => -2 * radius(d))
+        .attr("dy", "1.3em")
+        .text(radius.tickFormat(4, "s"));
+}
+
+function drawLegend(svg: Selection<SVGSVGElement | null, unknown, null, undefined>, title: string, formatter: (n: number | { valueOf(): number; }) => string, colorScheme: ColorScheme) {
+    svg.select("#bubble-legend").selectAll("*").remove();
+    const legendSequential = legendColor()
+        .cells(5)
+        .shapeWidth(20)
+        .shapeHeight(30)
+        .shapePadding(0)
+        .titleWidth(200)
+        .title(title)
+        .labelFormat(formatter)
+        .orient("vertical")
+        .scale(colorScheme);
+
+    svg.select<SVGGElement>("#legend")
+        .attr("transform", "translate(925, 220)")
+        // @ts-ignore
+        .call(legendSequential);
+}
+
 function clearMap(svg: Selection<SVGSVGElement | null, unknown, null, undefined>, stateFeatures: Feature<Geometry, GeoJsonProperties>[], path: GeoPath<any, GeoPermissibleObjects>) {
     svg.select("#legend").selectAll("*").remove();
+    svg.select("#bubble-legend").selectAll("*").remove();
     svg.select("#states")
         .selectAll("path")
         .data(stateFeatures)
@@ -336,10 +375,8 @@ function drawBubbles(countyFeatures: Feature<Geometry, GeoJsonProperties>[],
                      processedData: ImmutableMap<string, number | undefined>,
                      svg: Selection<SVGSVGElement | null, unknown, null, undefined>,
                      stateFeatures: Feature<Geometry, GeoJsonProperties>[],
-                     path: GeoPath<any, GeoPermissibleObjects>) {
-    const values = countyFeatures.map(d => processedData.get(d.id as string)).filter(d => d !== undefined).map(d => d as number);
-
-    const radius = scaleSqrt([0, max(values) ?? 0], [0, 40]);
+                     path: GeoPath<any, GeoPermissibleObjects>,
+                     radius: ScalePower<number, number, never>) {
     svg.select("#counties").selectAll("path").attr("fill", "none");
     svg.select("#states")
         .selectAll("path")
@@ -352,7 +389,7 @@ function drawBubbles(countyFeatures: Feature<Geometry, GeoJsonProperties>[],
         .selectAll("circle")
         .data(countyFeatures)
         .join("circle")
-        .attr("fill", "rgb(40,140,100)")
+        .attr("fill", "rgb(34, 139, 69)")
         .attr("fill-opacity", 0.5)
         .attr("stroke", "#fff")
         .attr("stroke-width", 0.5)
@@ -361,6 +398,10 @@ function drawBubbles(countyFeatures: Feature<Geometry, GeoJsonProperties>[],
             const value = processedData.get(d.id as string);
             return radius(value ?? 0);
         });
+}
+
+function shouldShowPdf(selections: DataIdParams[]) {
+    return getDataDefinitions(selections)[0].mapType === MapType.Choropleth;
 }
 
 export default MapUI;
