@@ -90,7 +90,7 @@ const MapUI = ({
         if (mapType === MapType.Choropleth) {
             drawLegend(svg, title, formatter, colorScheme);
         } else if (mapType === MapType.Bubble) {
-            drawBubbleLegend(svg, radius);
+            drawBubbleLegend(svg, radius, title);
         }
 
         // data
@@ -284,7 +284,7 @@ const stateFilter = (state: State | undefined) => (feature: Feature<Geometry, Ge
     return stateId === state;
 }
 
-function drawBubbleLegend(svg: Selection<SVGSVGElement | null, unknown, null, undefined>, radius: ScalePower<number, number, never>) {
+function drawBubbleLegend(svg: Selection<SVGSVGElement | null, unknown, null, undefined>, radius: ScalePower<number, number, never>, title: string) {
     svg.select("#legend").selectAll("*").remove();
     const legend = svg
         .select("#bubble-legend")
@@ -294,9 +294,16 @@ function drawBubbleLegend(svg: Selection<SVGSVGElement | null, unknown, null, un
         .style("font", "10px sans-serif")
         .selectAll("g")
         .data(radius.ticks(4).slice(1))
-        .join("g");
+        .join("g");    
 
     legend.selectAll("*").remove();
+
+    svg.select("#bubble-legend")
+        .selectAll("text")
+        .data([title])
+        .join("text")
+        .attr("y", -90)
+        .text(d => d);
 
     legend.append("circle")
         .attr("fill", "none")
