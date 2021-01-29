@@ -16,8 +16,6 @@ const getYears = (selection: DataIdParams) =>
 const getDatasets = (selection: DataIdParams) =>
     dataDefinitions.get(selection.dataGroup)!.datasets;
 
-const getUnitString = (units: string) => units ? `(${units})` : "";
-
 const SingleDataSelector = ({selection, onSelectionChange, dataTab}: Props) => {
 
     const onYearChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -53,7 +51,7 @@ const SingleDataSelector = ({selection, onSelectionChange, dataTab}: Props) => {
                     value={dataGroup}
                     onChange={onDataGroupChange}
                     name="dataGroup" />
-                <label className="data-group" htmlFor={dataGroup}>{data.name} {getUnitString(getUnits(data, Normalization.Raw))}</label>
+                <label className="data-group" htmlFor={dataGroup}>{data.name}</label>
                 {shouldShowYears(dataGroup) && <YearSelector id={dataGroup} years={getYears(selection)} selectedYear={selection.year} onSelectionChange={onYearChange} />}
                 {shouldShowDatasets(dataGroup) && <DatasetSelector id={dataGroup} datasets={getDatasets(selection)} selectedDataset={selection.dataset} onSelectionChange={onDatasetChange} />}
             </div>

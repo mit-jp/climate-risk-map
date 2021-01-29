@@ -226,7 +226,6 @@ const format = (value: number | undefined, selectedDataDefinitions: DataDefiniti
 }
 
 const getUnitString = (units: string) => units ? ` ${units}` : "";
-const getUnitStringWithParens = (units: string) => units ? ` (${units})` : "";
 
 const handleMouseOut = function (this: any) {
     select(this)
@@ -251,7 +250,7 @@ const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdP
     if (selectedDataDefinitions.length === 1) {
         const dataDefinition = selectedDataDefinitions[0];
         const units = getUnits(dataDefinition, selections[0].normalization);
-        return dataDefinition.name + getUnitStringWithParens(units);
+        return getUnitString(units);
     } else {
         const names = selectedDataDefinitions.map(dataDefinition => dataDefinition.name);
         return "Mean of " + names.join(", ");

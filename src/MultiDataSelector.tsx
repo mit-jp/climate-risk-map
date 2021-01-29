@@ -22,8 +22,6 @@ const getYears = (dataGroup: DataGroup) =>
 const getDatasets = (dataGroup: DataGroup) =>
     dataDefinitions.get(dataGroup)!.datasets;
 
-const getUnitString = (units: string) => units ? `(${units})` : "";
-
 const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeightChange, dataWeights, normalization, onNormalizationChange}: Props) => {
     const selectionMap = Map(dataSelections.map(selection => [selection.dataGroup, selection]));
 
@@ -80,7 +78,7 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
                     value={dataGroup}
                     onChange={onSelectionToggled}
                     name="dataGroup" />
-                <label className="data-group" htmlFor={dataGroup}>{definition.name} {getUnitString(getUnits(definition, normalization))}</label>
+                <label className="data-group" htmlFor={dataGroup}>{definition.name}</label>
                 {shouldBeChecked(dataGroup) && <Slider
                     marks={{0:0, 0.1:0.1, 0.2:0.2,0.3:0.3,0.4:0.4,0.5:0.5,0.6:0.6,0.7:0.7,0.8:0.8,0.9:0.9, 1:1}}
                     className="slider"
