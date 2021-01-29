@@ -148,7 +148,7 @@ const MapUI = ({
         <div id="map">
             <svg ref={svgRef} viewBox="0, 0, 1175, 610">
                 <g id="bubble-legend"></g>
-                {shouldShowPdf(selections) && <ProbabilityDensity data={getArrayOfData()} selections={selections} xRange={getPdfDomain(selections)} />}
+                {shouldShowPdf(selections) && <ProbabilityDensity data={getArrayOfData()} selections={selections} xRange={getPdfDomain(selections)} formatter={getFormatter(getDataDefinitions(selections), selections)}/>}
                 <g id="counties"></g>
                 <g id="states"></g>
                 <g id="state-borders"><path /></g>
