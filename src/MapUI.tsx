@@ -6,7 +6,6 @@ import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
 import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits, percentileFormatter, standardDeviationFormatter, DataGroup, MapType, DataType } from './DataDefinitions';
-import { legendColor } from 'd3-svg-legend';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
 import states, { State } from './States';
@@ -14,6 +13,7 @@ import Counties from './Counties';
 import DataProcessor from './DataProcessor';
 import ProbabilityDensity from './ProbabilityDensity';
 import { ColorScheme, Data } from './Home';
+import { legend } from './Legend';
 
 export enum Aggregation {
     State = "state",
@@ -88,7 +88,7 @@ const MapUI = ({
 
         // legend
         if (mapType === MapType.Choropleth) {
-            drawLegend(svg, title, formatter, colorScheme);
+            drawLegend(svg, title, colorScheme, formatter);
         } else if (mapType === MapType.Bubble) {
             drawBubbleLegend(svg, radius, title);
         }
@@ -147,13 +147,13 @@ const MapUI = ({
     return (
         <div id="map">
             <svg ref={svgRef} viewBox="0, 0, 1175, 610">
-                <g id="legend"></g>
                 <g id="bubble-legend"></g>
                 {shouldShowPdf(selections) && <ProbabilityDensity data={getArrayOfData()} selections={selections} xRange={getPdfDomain(selections)} />}
                 <g id="counties"></g>
                 <g id="states"></g>
                 <g id="state-borders"><path /></g>
                 <g id="circles"></g>
+                <svg id="legend" transform="translate(550,20)"></svg>
             </svg>
             <DataDescription
                 selections={selections}
@@ -317,23 +317,14 @@ function drawBubbleLegend(svg: Selection<SVGSVGElement | null, unknown, null, un
         .text(radius.tickFormat(4, "s"));
 }
 
-function drawLegend(svg: Selection<SVGSVGElement | null, unknown, null, undefined>, title: string, formatter: (n: number | { valueOf(): number; }) => string, colorScheme: ColorScheme) {
+function drawLegend(svg: Selection<SVGSVGElement | null, unknown, null, undefined>, title: string, colorScheme: ColorScheme, formatter: (n: number | {valueOf(): number;}) => string) {
     svg.select("#bubble-legend").selectAll("*").remove();
-    const legendSequential = legendColor()
-        .cells(5)
-        .shapeWidth(20)
-        .shapeHeight(30)
-        .shapePadding(0)
-        .titleWidth(200)
-        .title(title)
-        .labelFormat(formatter)
-        .orient("vertical")
-        .scale(colorScheme);
-
-    svg.select<SVGGElement>("#legend")
-        .attr("transform", "translate(925, 220)")
-        // @ts-ignore
-        .call(legendSequential);
+    legend({
+        svg: svg.select("#legend"),
+        color: colorScheme,
+        title,
+        tickFormat: formatter
+    });
 }
 
 function clearMap(svg: Selection<SVGSVGElement | null, unknown, null, undefined>, stateFeatures: Feature<Geometry, GeoJsonProperties>[], path: GeoPath<any, GeoPermissibleObjects>) {
