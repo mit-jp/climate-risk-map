@@ -324,7 +324,7 @@ export enum Year {
 }
 
 const regularNumber = format(",.0f");
-const money = format("$,.0f");
+const money = format("$,.2s");
 const years = [Year._1980_1999, Year._2000_2019, Year._1980_2019];
 const climateDatasets = [Dataset.ERA5, Dataset.MERRA2, Dataset.NARR];
 const getClimateDataId = (params: DataIdParams) => {
