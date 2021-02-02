@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import dataDefinitions, { DataIdParams, Year, Dataset, DataGroup, Normalization, getUnits } from './DataDefinitions';
+import dataDefinitions, { DataIdParams, Year, Dataset, DataGroup, Normalization } from './DataDefinitions';
 import YearSelector from './YearSelector';
 import DatasetSelector from './DatasetSelector';
 import { Map } from 'immutable';

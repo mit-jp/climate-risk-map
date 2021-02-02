@@ -54,7 +54,7 @@ const ProbabilityDensity = ({ data, selections, xRange=undefined, width=300, hei
             .call(xAxis);
         svg.select("#yAxis")
             .call(yAxis);
-    }, [data, selections, xRange]);
+    }, [data, selections, xRange, formatter, height, width]);
 
     if (data === undefined || selections === undefined) {
         return null;
