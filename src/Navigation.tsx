@@ -8,11 +8,11 @@ type Props = {
 }
 
 export enum DataTab {
+    RiskMetrics = "risk metrics",
     Climate = "climate",
     Economic = "economic",
     ClimateSurvey = "climate survey",
     Demographic = "demographic",
-    RiskMetrics = "risk metrics",
 }
 
 export const TabToTypeMap = Map([

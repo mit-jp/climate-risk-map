@@ -76,7 +76,7 @@ const Home = () => {
   const [data, setData] = useState<Data>(defaultData);
   const [dataSelections, setDataSelections] = useState(defaultSelectionMap);
   const [dataWeights, setDataWeights] = useState(Map<DataGroup, number>());
-  const [dataTab, setDataTab] = useState(DataTab.Climate);
+  const [dataTab, setDataTab] = useState(DataTab.RiskMetrics);
   const [showDatasetDescription, setShowDatasetDescription] = useState(false);
   const [showDataDescription, setShowDataDescription] = useState(false);
   const [normalization, setNormalization] = useState(Normalization.StandardDeviations);
