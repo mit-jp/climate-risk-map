@@ -278,14 +278,11 @@ export type DataDefinition = {
 
 export enum Normalization {
     Raw,
-    StandardDeviations,
     Percentile,
 }
 
-export const standardDeviationColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([4, 0, -4]);
 export const percentileColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([1, 0.5, 0]);
 export const percentileFormatter = format(".0%");
-export const standardDeviationFormatter = format(",.1f");
 const employmentDescription = "A percentage of employed people in this specific industry. Nonmetropolitan areas and rural counties are also included. These statistics cover wage and salary jobs and self-employment.";
 
 export const getUnits = (dataDefinition: DataDefinition, normalization: Normalization) => {
@@ -294,13 +291,11 @@ export const getUnits = (dataDefinition: DataDefinition, normalization: Normaliz
         units = dataDefinition.units;
     } else if (normalization === Normalization.Percentile) {
         units = "Percentile";
-    } else if (normalization === Normalization.StandardDeviations) {
-        units = "Standard Deviations";
     }
     return units;
 }
 const raw = Set([Normalization.Raw]);
-const allNormalizations = Set([Normalization.Raw, Normalization.StandardDeviations, Normalization.Percentile]);
+const allNormalizations = Set([Normalization.Raw, Normalization.Percentile]);
 
 export enum Dataset {
     MERRA2 = "M",

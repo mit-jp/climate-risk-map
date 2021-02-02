@@ -1,5 +1,5 @@
 import React from 'react';
-import { DataGroup, DataIdParams, Normalization } from './DataDefinitions';
+import { DataGroup, DataIdParams } from './DataDefinitions';
 import { Map } from 'immutable';
 import MultiDataSelector from './MultiDataSelector';
 import SingleDataSelector from './SingleDataSelector';
@@ -11,20 +11,16 @@ type Props = {
     dataTab: DataTab
     onWeightChange: (dataGroup: DataGroup, weight: number) => void,
     dataWeights: Map<DataGroup, number>,
-    normalization: Normalization,
-    onNormalizationChange: (Normalization: Normalization) => void,
 };
 
 
-const DataSelector = ({dataTab, selection, onSelectionChange, onWeightChange, dataWeights, normalization, onNormalizationChange}: Props) =>
+const DataSelector = ({dataTab, selection, onSelectionChange, onWeightChange, dataWeights}: Props) =>
     dataTab === DataTab.RiskMetrics ?
         <MultiDataSelector
             selection={selection}
             onSelectionChange={selection => onSelectionChange(selection, DataTab.RiskMetrics)}
             onWeightChange={onWeightChange}
             dataWeights={dataWeights}
-            normalization={normalization}
-            onNormalizationChange={onNormalizationChange}
         /> :
         <SingleDataSelector
             dataTab={dataTab}

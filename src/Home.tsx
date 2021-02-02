@@ -14,13 +14,9 @@ import { State } from './States';
 import { DSVRowString, ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3';
 
 const csvFiles: CsvFile[] = [
-  "climate_normalized_by_nation_stdv.csv",
-  "climate_normalized_by_state_stdv.csv",
   "climate_normalized_by_nation.csv",
   "climate_normalized_by_state.csv",
   "climate.csv",
-  "demographics_normalized_by_nation_stdv.csv",
-  "demographics_normalized_by_state_stdv.csv",
   "demographics_normalized_by_nation.csv",
   "demographics_normalized_by_state.csv",
   "demographics.csv"
@@ -35,7 +31,7 @@ const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
   }]],
   [DataTab.Economic, [{dataGroup: DataGroup.AllIndustries, normalization: Normalization.Raw}]],
   [DataTab.EnvironmentalJustice, [{dataGroup: DataGroup.PercentPopulationUnder18, normalization: Normalization.Raw}]],
-  [DataTab.RiskMetrics, [{dataGroup: DataGroup.PercentPopulationUnder18, normalization: Normalization.StandardDeviations}]],
+  [DataTab.RiskMetrics, [{dataGroup: DataGroup.PercentPopulationUnder18, normalization: Normalization.Percentile}]],
   [DataTab.ClimateSurvey, [{dataGroup: DataGroup.discuss, normalization: Normalization.Raw}]],
 ]);
 const defaultData = Map<CsvFile, undefined>(csvFiles.map(csv_file => [csv_file, undefined]));
@@ -57,13 +53,9 @@ const convertToNumbers = (rawRow: DSVRowString) => {
   return newRows;
 }
 export type CsvFile =
-  "climate_normalized_by_nation_stdv.csv"
-| "climate_normalized_by_state_stdv.csv"
 | "climate_normalized_by_nation.csv"
 | "climate_normalized_by_state.csv"
 | "climate.csv"
-| "demographics_normalized_by_nation_stdv.csv"
-| "demographics_normalized_by_state_stdv.csv"
 | "demographics_normalized_by_nation.csv"
 | "demographics_normalized_by_state.csv"
 | "demographics.csv";
@@ -79,7 +71,6 @@ const Home = () => {
   const [dataTab, setDataTab] = useState(DataTab.RiskMetrics);
   const [showDatasetDescription, setShowDatasetDescription] = useState(false);
   const [showDataDescription, setShowDataDescription] = useState(false);
-  const [normalization, setNormalization] = useState(Normalization.StandardDeviations);
   const [state, setState] = useState<State | undefined>(undefined);
 
   useEffect(() => {
@@ -131,8 +122,6 @@ const Home = () => {
         selection={dataSelections.get(dataTab)!}
         onWeightChange={onWeightChange}
         dataWeights={dataWeights}
-        normalization={normalization}
-        onNormalizationChange={setNormalization}
       />
       <MapUI
         aggregation={Aggregation.County}

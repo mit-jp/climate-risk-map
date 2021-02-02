@@ -5,7 +5,7 @@ import { feature, mesh } from 'topojson-client';
 import { Objects, Topology, GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, standardDeviationColorScheme, getUnits, percentileFormatter, standardDeviationFormatter, DataGroup, MapType, DataType } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, getUnits, percentileFormatter, DataGroup, MapType, DataType } from './DataDefinitions';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
 import states, { State } from './States';
@@ -262,7 +262,6 @@ const getFormatter = (selectedDataDefinitions: DataDefinition[], selections: Dat
     switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].formatter;
         case Normalization.Percentile: return percentileFormatter;
-        case Normalization.StandardDeviations: return standardDeviationFormatter;
     }
 }
 
@@ -271,7 +270,6 @@ const getColorScheme = (selectedDataDefinitions: DataDefinition[], selections: D
     switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].color;
         case Normalization.Percentile: return percentileColorScheme;
-        case Normalization.StandardDeviations: return standardDeviationColorScheme;
     }
 }
 

@@ -28,13 +28,11 @@ const getTablesForSelections = (selections: DataIdParams[], state: State | undef
 const normalizationToFile = Map([
     [Normalization.Raw, ".csv"],
     [Normalization.Percentile, "_normalized_by_nation.csv"],
-    [Normalization.StandardDeviations, "_normalized_by_nation_stdv.csv"],
 ]);
 
 const normalizationToStateFile = Map([
     [Normalization.Raw, ".csv"],
     [Normalization.Percentile, "_normalized_by_state.csv"],
-    [Normalization.StandardDeviations, "_normalized_by_state_stdv.csv"],
 ]);
 
 const getDataForSelections = (
