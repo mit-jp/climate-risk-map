@@ -2,16 +2,17 @@ import React, { useEffect, useRef } from 'react';
 import { scaleLinear, extent, bin, select, mean, max, axisBottom, axisLeft } from 'd3';
 import { DataIdParams } from './DataDefinitions';
 import Color from './Color';
-const height = 200;
-const width = 300;
 const margin = ({ top: 20, right: 30, bottom: 30, left: 40 });
 type Props = {
     data: number[] | undefined,
     selections: DataIdParams[] | undefined,
     xRange?: [number, number] | undefined,
+    width?: number,
+    height?: number,
+    formatter?: any,
 };
 
-const ProbabilityDensity = ({ data, selections, xRange=undefined}: Props) => {
+const ProbabilityDensity = ({ data, selections, xRange=undefined, width=300, height=200, formatter}: Props) => {
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
         if (data === undefined || selections === undefined) {
@@ -33,7 +34,7 @@ const ProbabilityDensity = ({ data, selections, xRange=undefined}: Props) => {
 
         const xAxis = (g: any) => g
             .attr("transform", `translate(0,${height - margin.bottom})`)
-            .call(axisBottom(x))
+            .call(axisBottom(x).tickFormat(formatter))
         const yAxis = (g: any) => g
             .attr("transform", `translate(${margin.left},0)`)
             .call(axisLeft(y).ticks(null))
@@ -53,7 +54,7 @@ const ProbabilityDensity = ({ data, selections, xRange=undefined}: Props) => {
             .call(xAxis);
         svg.select("#yAxis")
             .call(yAxis);
-    }, [data, selections, xRange]);
+    }, [data, selections, xRange, formatter, height, width]);
 
     if (data === undefined || selections === undefined) {
         return null;
@@ -63,8 +64,8 @@ const ProbabilityDensity = ({ data, selections, xRange=undefined}: Props) => {
         viewBox={"0 0 " + width.toString() + " " + height.toString()}
         width={width}
         height={height}
-        x={880}
-        y={420}
+        x={850}
+        y={350}
     >
         <g id="pdf"></g>
         <g id="xAxis"></g>

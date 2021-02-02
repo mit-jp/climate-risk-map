@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import dataDefinitions, { DataIdParams, Year, Dataset, DataGroup, DataDefinition, Normalization, getUnits } from './DataDefinitions';
+import dataDefinitions, { DataIdParams, Year, Dataset, DataGroup, DataDefinition, Normalization } from './DataDefinitions';
 import YearSelector from './YearSelector';
 import DatasetSelector from './DatasetSelector';
 import { DataTab, TabToTypeMap } from './Navigation';
@@ -15,8 +15,6 @@ const getYears = (selection: DataIdParams) =>
 
 const getDatasets = (selection: DataIdParams) =>
     dataDefinitions.get(selection.dataGroup)!.datasets;
-
-const getUnitString = (units: string) => units ? `(${units})` : "";
 
 const SingleDataSelector = ({selection, onSelectionChange, dataTab}: Props) => {
 
@@ -53,7 +51,7 @@ const SingleDataSelector = ({selection, onSelectionChange, dataTab}: Props) => {
                     value={dataGroup}
                     onChange={onDataGroupChange}
                     name="dataGroup" />
-                <label className="data-group" htmlFor={dataGroup}>{data.name} {getUnitString(getUnits(data, Normalization.Raw))}</label>
+                <label className="data-group" htmlFor={dataGroup}>{data.name}</label>
                 {shouldShowYears(dataGroup) && <YearSelector id={dataGroup} years={getYears(selection)} selectedYear={selection.year} onSelectionChange={onYearChange} />}
                 {shouldShowDatasets(dataGroup) && <DatasetSelector id={dataGroup} datasets={getDatasets(selection)} selectedDataset={selection.dataset} onSelectionChange={onDatasetChange} />}
             </div>
