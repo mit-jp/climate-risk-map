@@ -17,10 +17,10 @@ type Props = {
 
 
 const DataSelector = ({dataTab, selection, onSelectionChange, onWeightChange, dataWeights, normalization, onNormalizationChange}: Props) =>
-    dataTab === DataTab.Normalized ?
+    dataTab === DataTab.RiskMetrics ?
         <MultiDataSelector
             selection={selection}
-            onSelectionChange={selection => onSelectionChange(selection, DataTab.Normalized)}
+            onSelectionChange={selection => onSelectionChange(selection, DataTab.RiskMetrics)}
             onWeightChange={onWeightChange}
             dataWeights={dataWeights}
             normalization={normalization}

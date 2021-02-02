@@ -12,7 +12,7 @@ export enum DataTab {
     Economic = "economic",
     ClimateSurvey = "climate survey",
     Demographic = "demographic",
-    Normalized = "normalized",
+    RiskMetrics = "risk metrics",
 }
 
 export const TabToTypeMap = Map([
