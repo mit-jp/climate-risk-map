@@ -12,13 +12,13 @@ export enum DataTab {
     Climate = "climate",
     Economic = "economic",
     ClimateSurvey = "climate survey",
-    Demographic = "demographic",
+    EnvironmentalJustice = "environmental justice",
 }
 
 export const TabToTypeMap = Map([
     [DataTab.Climate, DataType.Climate],
     [DataTab.Economic, DataType.Economic],
-    [DataTab.Demographic, DataType.Demographic],
+    [DataTab.EnvironmentalJustice, DataType.EnvironmentalJustice],
     [DataTab.ClimateSurvey, DataType.ClimateSurvey],
 ]);
 

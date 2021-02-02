@@ -34,7 +34,7 @@ const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
     normalization: Normalization.Raw
   }]],
   [DataTab.Economic, [{dataGroup: DataGroup.AllIndustries, normalization: Normalization.Raw}]],
-  [DataTab.Demographic, [{dataGroup: DataGroup.PercentPopulationUnder18, normalization: Normalization.Raw}]],
+  [DataTab.EnvironmentalJustice, [{dataGroup: DataGroup.PercentPopulationUnder18, normalization: Normalization.Raw}]],
   [DataTab.RiskMetrics, [{dataGroup: DataGroup.PercentPopulationUnder18, normalization: Normalization.StandardDeviations}]],
   [DataTab.ClimateSurvey, [{dataGroup: DataGroup.discuss, normalization: Normalization.Raw}]],
 ]);
