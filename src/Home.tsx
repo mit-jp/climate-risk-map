@@ -28,7 +28,7 @@ const csvFiles: CsvFile[] = [
 
 const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
   [DataTab.Climate, [{
-    dataGroup: DataGroup.IrregationDeficit,
+    dataGroup: DataGroup.IrrigationDeficit,
     year: Year._2000_2019,
     dataset: Dataset.ERA5,
     normalization: Normalization.Raw

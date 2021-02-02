@@ -17,7 +17,7 @@ export enum DataType {
 
 export enum DataGroup {
     ClimateMoistureIndex = "cmi",
-    IrregationDeficit = "def",
+    IrrigationDeficit = "def",
     DroughtIndicator = "dry",
     Groundwater = "gw",
     MaxTemperature = "ht",
@@ -381,7 +381,7 @@ dataDefinitions.set(DataGroup.ClimateMoistureIndex, {
     datasets: climateDatasets,
     mapType: MapType.Choropleth,
 });
-dataDefinitions.set(DataGroup.IrregationDeficit, {
+dataDefinitions.set(DataGroup.IrrigationDeficit, {
     name:"Irrigation Deficit",
     id: getClimateDataId,
     units:"mm/year",
