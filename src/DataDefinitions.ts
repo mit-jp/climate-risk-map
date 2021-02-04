@@ -568,7 +568,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.Healthcareandsocialassistance, employmentDefinition("Healthcare and social assistance 2007")],
     [DataGroup.PerCapitapersonalincome2018, genericDefinition({
         name: "Per capita personal income 2018",
-        units: "USD",
+        units: "USD / person",
         formatter: money,
         legendFormatter: money,
         color: scaleDiverging<string>(scales.interpolateBrBG).domain([10000, 40000, 100000]),
