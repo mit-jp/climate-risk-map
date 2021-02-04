@@ -43,13 +43,13 @@ const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
 ]);
 const defaultData = Map<CsvFile, undefined>(csvFiles.map(csv_file => [csv_file, undefined]));
 
-const convertCsv = (csv: {[key: string]: string | number | undefined}[]) =>
-   Map(csv.map(row => {
+const convertCsv = (csv: { [key: string]: string | number | undefined }[]) =>
+  Map(csv.map(row => {
     return [(row["STATEFP"] as string)! + (row["COUNTYFP"] as string)!, row];
   }));
 
 const convertToNumbers = (rawRow: DSVRowString) => {
-  const newRows: {[key: string]: string | number | undefined} = {};
+  const newRows: { [key: string]: string | number | undefined } = {};
   for (let [key, value] of Object.entries(rawRow)) {
     if (key === "STATEFP" || key === "COUNTYFP") {
       newRows[key] = value;
@@ -60,13 +60,13 @@ const convertToNumbers = (rawRow: DSVRowString) => {
   return newRows;
 }
 export type CsvFile =
-| "climate_normalized_by_nation.csv"
-| "climate_normalized_by_state.csv"
-| "climate.csv"
-| "demographics_normalized_by_nation.csv"
-| "demographics_normalized_by_state.csv"
-| "demographics.csv";
-type CountyToDataMap = Map<string, {[key: string]: string | number | undefined}>;
+  | "climate_normalized_by_nation.csv"
+  | "climate_normalized_by_state.csv"
+  | "climate.csv"
+  | "demographics_normalized_by_nation.csv"
+  | "demographics_normalized_by_state.csv"
+  | "demographics.csv";
+type CountyToDataMap = Map<string, { [key: string]: string | number | undefined }>;
 export type Data = Map<CsvFile, CountyToDataMap | undefined>;
 export type ColorScheme = ScaleSequential<string, never> | ScaleThreshold<number, string, never> | ScaleDiverging<string, never>;
 
