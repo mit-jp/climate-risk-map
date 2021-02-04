@@ -1,6 +1,6 @@
 import * as scales from 'd3-scale-chromatic';
 import { scaleThreshold, scaleDiverging, scaleSequential, format, scaleDivergingSymlog } from 'd3';
-import { Set, Map } from 'immutable';
+import { Set, OrderedMap, Map } from 'immutable';
 import { ColorScheme } from './Home';
 
 export enum MapType {
@@ -476,7 +476,7 @@ const demographicDefinition = (builder: DemographicDefinitionBuilder): DataDefin
     normalizations: allNormalizations,
 });
 
-const dataDefinitions = Map<DataGroup, DataDefinition>([
+const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.IrrigationDeficit, climateDefinition({
         name: "Irrigation Deficit",
         units: "mm/year",
@@ -506,7 +506,7 @@ const dataDefinitions = Map<DataGroup, DataDefinition>([
         units: "mm/month",
         color: scaleSequential<string>(scales.interpolateBlues).domain([0, 40]),
         normalizations: allNormalizations,
-        description: "How much precipitation we estimate soaks into the ground. Minimum of the 12 monthly runoff climatology during the specific period (40 years or 20 years. To avoid negative values, the minimum cutoff value is set to be 0.000001)",
+        description: "An estimation of the amount of precipitation that soaks into the ground (and replenishes groundwater supply). Minimum of the 12 monthly runoff climatology during the specific period (40 years or 20 years. To avoid negative values, the minimum cutoff value is set to be 0.000001)",
     })],
     [DataGroup.MaxTemperature, climateDefinition({
         name: "Maximum Month Temperature",
