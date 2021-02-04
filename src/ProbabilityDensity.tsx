@@ -34,7 +34,7 @@ const ProbabilityDensity = ({ data, selections, xRange=undefined, width=300, hei
 
         const xAxis = (g: any) => g
             .attr("transform", `translate(0,${height - margin.bottom})`)
-            .call(axisBottom(x).tickFormat(formatter))
+            .call(axisBottom(x).tickFormat(formatter).ticks(6))
         const yAxis = (g: any) => g
             .attr("transform", `translate(${margin.left},0)`)
             .call(axisLeft(y).ticks(null))

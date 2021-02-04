@@ -321,6 +321,7 @@ export enum Year {
 
 const regularNumber = format(",.0f");
 const money = format("$,.2s");
+const nearestSI = format("~s");
 const years = [Year._1980_1999, Year._2000_2019, Year._1980_2019];
 const climateDatasets = [Dataset.ERA5, Dataset.MERRA2, Dataset.NARR];
 const getClimateDataId = (params: DataIdParams) => {
@@ -474,6 +475,7 @@ const dataDefinitions = Map<DataGroup, DataDefinition>([
     [DataGroup.IrrigationDeficit, climateDefinition({
         name: "Irrigation Deficit",
         units: "mm/year",
+        legendFormatter: nearestSI,
         color: scaleDiverging<string>(x => scales.interpolateBrBG(1 - x)).domain([-600, 0, 1600]),
         normalizations: allNormalizations,
         description: "How much additional water crops may need that isn't supplied by rainfall alone. Difference between mean annual potential evapotransipiration and precipitation (def = pet - prc)",
@@ -488,6 +490,7 @@ const dataDefinitions = Map<DataGroup, DataDefinition>([
     [DataGroup.DroughtIndicator, climateDefinition({
         name: "Hydrologic Drought Indicator",
         units: "mm/year",
+        legendFormatter: nearestSI,
         color: scaleDivergingSymlog<string>(scales.interpolateBrBG).domain([0, 250, 1500]),
         normalizations: allNormalizations,
         description: "The river flow among the most severely dry years (5th percentile) during the time period.",
@@ -509,12 +512,14 @@ const dataDefinitions = Map<DataGroup, DataDefinition>([
     [DataGroup.Evapotranspiration, climateDefinition({
         name: "Mean Annual Potential Evapotranspiration",
         units: "mm/year",
+        legendFormatter: nearestSI,
         color: scaleSequential<string>(scales.interpolateBlues).domain([300, 1700]),
         description: "The maximum amount of water that the air could evaporate. Monthly potential evapotranspiration is calculated based on monthly mean surface air temperature, monthly mean temperature diurnal range, and monthly mean precipitation using modified Hargreaves method (Droogers and Allen, Irrigation and Drainage Systems 16: 33–45, 2002)",
     })],
     [DataGroup.Precipitation, climateDefinition({
         name: "Mean Annual Precipitation",
         units: "mm/year",
+        legendFormatter: nearestSI,
         color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2200]),
         description: "Directly calculated from the reanalysis data",
     })],
@@ -559,6 +564,7 @@ const dataDefinitions = Map<DataGroup, DataDefinition>([
         name: "Per capita personal income 2018",
         units: "USD",
         formatter: money,
+        legendFormatter: money,
         color: scaleDiverging<string>(scales.interpolateBrBG).domain([10000, 40000, 100000]),
         type: DataType.Economic,
         description: "Income that people get from wages, proprietors' income, dividends, interest, rents, and government benefits. A person's income is counted in the county, metropolitan statistical area, or other area where they live, even if they work elsewhere.",
