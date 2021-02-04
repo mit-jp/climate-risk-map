@@ -215,11 +215,11 @@ const format = (value: number | undefined, selectedDataDefinitions: DataDefiniti
     if (value === undefined) {
         return "No data";
     }
-    if (selectedDataDefinitions.length === 1) {
-        let units = getUnits(selectedDataDefinitions[0], selections[0].normalization);
-        return formatter(value) + getUnitString(units);
-    } else {
+    let units = getUnits(selectedDataDefinitions[0], selections[0].normalization);
+    if (units === "Percentile") {
         return formatter(value);
+    } else {
+        return formatter(value) + getUnitString(units);
     }
 }
 
@@ -245,13 +245,13 @@ const getDataDefinitions = (selections: DataIdParams[]) => {
 }
 
 const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
+    const dataDefinition = selectedDataDefinitions[0];
+    const units = getUnits(dataDefinition, selections[0].normalization);
+    const unitString = getUnitString(units);
     if (selectedDataDefinitions.length === 1) {
-        const dataDefinition = selectedDataDefinitions[0];
-        const units = getUnits(dataDefinition, selections[0].normalization);
-        return getUnitString(units);
+        return unitString;
     } else {
-        const names = selectedDataDefinitions.map(dataDefinition => dataDefinition.name);
-        return "Mean of " + names.join(", ");
+        return unitString + " of mean of selected data";
     }
 }
 
