@@ -144,9 +144,9 @@ export function legend({
         .call(g => g.append("text")
             .attr("x", marginLeft)
             .attr("y", marginTop + marginBottom - height - 6)
+            .attr("font-size", 14)
             .attr("fill", "currentColor")
             .attr("text-anchor", "start")
-            .attr("font-weight", "bold")
             .attr("class", "title")
             .text(title));
 

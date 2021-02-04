@@ -178,9 +178,6 @@ const tooltip = select("body")
     .attr("class", "tooltip")
     .style("opacity", 0)
     .style("position", "absolute")
-    .style("font-size", "0.7em")
-    .style("font-family", "sans-serif")
-    .style("font-weight", 600)
     .style("padding", "4px")
     .style("background", "white")
     .style("pointer-events", "none");
@@ -197,7 +194,7 @@ const handleCountyMouseOver = (
 
         tooltip.transition()
             .duration(200)
-            .style("opacity", .9)
+            .style("opacity", .95)
 
         let county = Counties.get(d.id);
         let state = states.get(d.id.slice(0, 2) as State);
