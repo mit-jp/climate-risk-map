@@ -81,6 +81,7 @@ const MapUI = ({
         const selectedDataDefinitions = getDataDefinitions(selections);
         const title = getTitle(selectedDataDefinitions, selections);
         const legendFormatter = getLegendFormatter(selectedDataDefinitions, selections);
+        const legendTicks = getLegendTicks(selectedDataDefinitions, selections);
         const colorScheme = getColorScheme(selectedDataDefinitions, selections);
         const values = countyFeatures.map(d => processedData.get(d.id as string)).filter(d => d !== undefined).map(d => d as number);
         const radius = scaleSqrt([0, max(values) ?? 0], [0, 40]);
@@ -88,7 +89,7 @@ const MapUI = ({
 
         // legend
         if (mapType === MapType.Choropleth) {
-            drawLegend(svg, title, colorScheme, legendFormatter);
+            drawLegend(svg, title, colorScheme, legendFormatter, legendTicks);
         } else if (mapType === MapType.Bubble) {
             drawBubbleLegend(svg, radius, title);
         }
@@ -273,6 +274,14 @@ const getLegendFormatter = (selectedDataDefinitions: DataDefinition[], selection
     }
 }
 
+const getLegendTicks = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
+    const normalization = selections[0].normalization;
+    switch (normalization) {
+        case Normalization.Raw: return selectedDataDefinitions[0].legendTicks;
+        case Normalization.Percentile: return undefined;
+    }
+}
+
 const getColorScheme = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
     const normalization = selections[0].normalization;
     switch (normalization) {
@@ -322,12 +331,16 @@ function drawBubbleLegend(svg: Selection<SVGSVGElement | null, unknown, null, un
         .text(radius.tickFormat(4, "s"));
 }
 
-function drawLegend(svg: Selection<SVGSVGElement | null, unknown, null, undefined>, title: string, colorScheme: ColorScheme, formatter: (n: number | {valueOf(): number;}) => string) {
+function drawLegend(svg: Selection<SVGSVGElement | null, unknown, null, undefined>,
+                    title: string,
+                    colorScheme: ColorScheme, formatter: (n: number | {valueOf(): number;}) => string,
+                    ticks?: number) {
     svg.select("#bubble-legend").selectAll("*").remove();
     legend({
         svg: svg.select("#legend"),
         color: colorScheme,
         title,
+        ticks,
         tickFormat: formatter
     });
 }
