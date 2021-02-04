@@ -80,7 +80,7 @@ const MapUI = ({
 
         const selectedDataDefinitions = getDataDefinitions(selections);
         const title = getTitle(selectedDataDefinitions, selections);
-        const formatter = getFormatter(selectedDataDefinitions, selections);
+        const legendFormatter = getLegendFormatter(selectedDataDefinitions, selections);
         const colorScheme = getColorScheme(selectedDataDefinitions, selections);
         const values = countyFeatures.map(d => processedData.get(d.id as string)).filter(d => d !== undefined).map(d => d as number);
         const radius = scaleSqrt([0, max(values) ?? 0], [0, 40]);
@@ -88,7 +88,7 @@ const MapUI = ({
 
         // legend
         if (mapType === MapType.Choropleth) {
-            drawLegend(svg, title, colorScheme, formatter);
+            drawLegend(svg, title, colorScheme, legendFormatter);
         } else if (mapType === MapType.Bubble) {
             drawBubbleLegend(svg, radius, title);
         }
@@ -148,7 +148,7 @@ const MapUI = ({
         <div id="map">
             <svg ref={svgRef} viewBox="0, 0, 1175, 610">
                 <g id="bubble-legend"></g>
-                {shouldShowPdf(selections) && <ProbabilityDensity data={getArrayOfData()} selections={selections} xRange={getPdfDomain(selections)} formatter={getFormatter(getDataDefinitions(selections), selections)}/>}
+                {shouldShowPdf(selections) && <ProbabilityDensity data={getArrayOfData()} selections={selections} xRange={getPdfDomain(selections)} formatter={getLegendFormatter(getDataDefinitions(selections), selections)}/>}
                 <g id="counties"></g>
                 <g id="states"></g>
                 <g id="state-borders"><path /></g>
@@ -261,6 +261,14 @@ const getFormatter = (selectedDataDefinitions: DataDefinition[], selections: Dat
     const normalization = selections[0].normalization;
     switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].formatter;
+        case Normalization.Percentile: return percentileFormatter;
+    }
+}
+
+const getLegendFormatter = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
+    const normalization = selections[0].normalization;
+    switch (normalization) {
+        case Normalization.Raw: return selectedDataDefinitions[0].legendFormatter;
         case Normalization.Percentile: return percentileFormatter;
     }
 }
