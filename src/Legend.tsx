@@ -35,7 +35,7 @@ export function legend({
     svg
         .attr("width", width)
         .attr("height", height)
-        .attr("viewBox", "[0, 0, " + width + ", " + height + "]")
+        .attr("viewBox", "0, 0, " + width + ", " + height)
         .style("overflow", "visible")
         .style("display", "block");
 
