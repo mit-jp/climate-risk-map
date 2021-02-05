@@ -117,7 +117,7 @@ nav li a {
 #data-selector {
     overflow: auto;
     max-height: 900px;
-    min-width:500px
+    min-width:410px
 }
 
 label.data-group {
