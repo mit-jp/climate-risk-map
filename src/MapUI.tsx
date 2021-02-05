@@ -154,7 +154,7 @@ const MapUI = ({
                 <g id="states"></g>
                 <g id="state-borders"><path /></g>
                 <g id="circles"></g>
-                <svg id="legend" transform="translate(550,20)"></svg>
+                <svg id="legend" x="550" y="20"></svg>
             </svg>
             <DataDescription
                 selections={selections}
