@@ -430,6 +430,10 @@ function getPdfDomain(selections: DataIdParams[]) {
     if (firstSelection.type === DataType.ClimateSurvey) {
         return [0, 100] as [number, number];
     }
+
+    if (selections[0].normalization === Normalization.Percentile) {
+        return [0, 1] as [number, number];
+    }
 }
 
 export default MapUI;
