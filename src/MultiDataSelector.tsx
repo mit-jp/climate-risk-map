@@ -68,9 +68,9 @@ const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeig
                     name="dataGroup" />
                 <label className="data-group" htmlFor={dataGroup}>{definition.name}</label>
                 {shouldBeChecked(dataGroup) && <Slider
-                    marks={{0:0, 0.1:0.1, 0.2:0.2,0.3:0.3,0.4:0.4,0.5:0.5,0.6:0.6,0.7:0.7,0.8:0.8,0.9:0.9, 1:1}}
+                    marks={{0.1:0.1, 0.2:0.2,0.3:0.3,0.4:0.4,0.5:0.5,0.6:0.6,0.7:0.7,0.8:0.8,0.9:0.9, 1:1}}
                     className="slider"
-                    min={0}
+                    min={0.1}
                     max={1}
                     step={0.1}
                     onChange={onDataGroupWeightChange(dataGroup)}
