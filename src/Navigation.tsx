@@ -11,7 +11,7 @@ export enum DataTab {
     RiskMetrics = "risk metrics",
     Climate = "climate",
     Economic = "economic",
-    ClimateSurvey = "climate survey",
+    ClimateOpinions = "climate opinions",
     EnvironmentalJustice = "environmental justice",
 }
 
@@ -19,7 +19,7 @@ export const TabToTypeMap = Map([
     [DataTab.Climate, DataType.Climate],
     [DataTab.Economic, DataType.Economic],
     [DataTab.EnvironmentalJustice, DataType.EnvironmentalJustice],
-    [DataTab.ClimateSurvey, DataType.ClimateSurvey],
+    [DataTab.ClimateOpinions, DataType.ClimateOpinions],
 ]);
 
 const dataTabs = Object.values(DataTab);

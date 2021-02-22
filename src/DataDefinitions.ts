@@ -12,7 +12,7 @@ export enum DataType {
     Climate = "climate",
     Economic = "economic",
     EnvironmentalJustice = "environmental justice",
-    ClimateSurvey = "climate survey",
+    ClimateOpinions = "climate opinions",
 }
 
 export enum DataGroup {
@@ -451,7 +451,7 @@ const surveyDefinition = (name: string): DataDefinition => genericDefinition({
     name,
     units: "% of people",
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([0, 50, 100]),
-    type: DataType.ClimateSurvey,
+    type: DataType.ClimateOpinions,
     description: "",
     dataset: Dataset.Yale,
     mapType: MapType.Choropleth,

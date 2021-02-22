@@ -427,7 +427,7 @@ function getPdfDomain(selections: DataIdParams[]) {
         return undefined;
     }
     
-    if (firstSelection.type === DataType.ClimateSurvey) {
+    if (firstSelection.type === DataType.ClimateOpinions) {
         return [0, 100] as [number, number];
     }
 
