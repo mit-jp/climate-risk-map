@@ -36,7 +36,7 @@ const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
     normalization: Normalization.Raw
   }]],
   [DataTab.Economic, [{dataGroup: DataGroup.AllIndustries, normalization: Normalization.Raw}]],
-  [DataTab.EnvironmentalJustice, [{dataGroup: DataGroup.PercentPopulationUnder18, normalization: Normalization.Raw}]],
+  [DataTab.Demographics, [{dataGroup: DataGroup.PercentPopulationUnder18, normalization: Normalization.Raw}]],
   [DataTab.ClimateOpinions, [{dataGroup: DataGroup.discuss, normalization: Normalization.Raw}]],
 ]);
 const defaultData = Map<CsvFile, undefined>(csvFiles.map(csv_file => [csv_file, undefined]));

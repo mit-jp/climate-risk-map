@@ -11,7 +11,7 @@ export enum MapType {
 export enum DataType {
     Climate = "climate",
     Economic = "economic",
-    EnvironmentalJustice = "environmental justice",
+    Demographics = "demographics",
     ClimateOpinions = "climate opinions",
 }
 
@@ -470,7 +470,7 @@ const demographicDefinition = (builder: DemographicDefinitionBuilder): DataDefin
     name: builder.name,
     units: "% of people",
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, builder.domainMax ?? 50]),
-    type: DataType.EnvironmentalJustice,
+    type: DataType.Demographics,
     description: "",
     dataset: Dataset.Census,
     normalizations: allNormalizations,
@@ -584,7 +584,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         name: "Population Density",
         units: "people / sq mile",
         color: scaleSequential<string>(scales.interpolatePurples).domain([0, 1000]),
-        type: DataType.EnvironmentalJustice,
+        type: DataType.Demographics,
         description: "",
         dataset: Dataset.Census,
     })],
