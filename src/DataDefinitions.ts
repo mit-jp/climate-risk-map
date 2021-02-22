@@ -1,5 +1,5 @@
 import * as scales from 'd3-scale-chromatic';
-import { scaleThreshold, scaleDiverging, scaleSequential, format, scaleDivergingSymlog } from 'd3';
+import { scaleThreshold, scaleDiverging, scaleSequential, format, scaleDivergingSymlog, scaleSequentialLog, scaleSequentialSqrt } from 'd3';
 import { Set, OrderedMap, Map } from 'immutable';
 import { ColorScheme } from './Home';
 
@@ -457,10 +457,13 @@ const surveyDefinition = (name: string): DataDefinition => genericDefinition({
     mapType: MapType.Choropleth,
 });
 
-const employmentDefinition = (name: string): DataDefinition => genericDefinition({
+const employmentDefinition = ({
+    name,
+    color = scaleSequential<string>(scales.interpolateGreens).domain([0, 50])
+}: {name: string, color?: ColorScheme}): DataDefinition => genericDefinition({
     name,
     units: "% of employed people",
-    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 50]),
+    color,
     type: DataType.Economic,
     description: employmentDescription,
     dataset: Dataset.BEA,
@@ -560,11 +563,25 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         dataset: Dataset.BEA,
         mapType: MapType.Bubble,
     })],
-    [DataGroup.Farming, employmentDefinition("Farming 2007")],
-    [DataGroup.Mining, employmentDefinition("Mining 2007")],
-    [DataGroup.Construction, employmentDefinition("Construction 2007")],
-    [DataGroup.Agricultureforestryfishingandhunting, employmentDefinition("Agriculture, forestry, fishing, and hunting 2007")],
-    [DataGroup.Healthcareandsocialassistance, employmentDefinition("Healthcare and social assistance 2007")],
+    [DataGroup.Farming, employmentDefinition({
+        name:"Farming 2007"
+    })],
+    [DataGroup.Mining, employmentDefinition({
+        name:"Mining 2007",
+        color: scaleSequentialSqrt([0,50], scales.interpolateGreens)
+    })],
+    [DataGroup.Construction, employmentDefinition({
+        name:"Construction 2007",
+        color: scaleSequential<string>(scales.interpolateGreens).domain([0, 25])
+    })],
+    [DataGroup.Agricultureforestryfishingandhunting, employmentDefinition({
+        name:"Agriculture, forestry, fishing, and hunting 2007",
+        color: scaleSequentialSqrt<string>(scales.interpolateGreens).domain([0, 25])
+    })],
+    [DataGroup.Healthcareandsocialassistance, employmentDefinition({
+        name:"Healthcare and social assistance 2007",
+        color: scaleSequential<string>(scales.interpolateGreens).domain([0, 25])
+    })],
     [DataGroup.PerCapitapersonalincome2018, genericDefinition({
         name: "Per capita personal income 2018",
         units: "USD / person",
