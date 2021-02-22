@@ -23,6 +23,12 @@ const csvFiles: CsvFile[] = [
 ];
 
 const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
+  [DataTab.RiskMetrics, [{
+    dataGroup: DataGroup.IrrigationDeficit,
+    year: Year._2000_2019,
+    dataset: Dataset.ERA5,
+    normalization: Normalization.Percentile
+  }]],
   [DataTab.Climate, [{
     dataGroup: DataGroup.IrrigationDeficit,
     year: Year._2000_2019,
@@ -31,7 +37,6 @@ const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
   }]],
   [DataTab.Economic, [{dataGroup: DataGroup.AllIndustries, normalization: Normalization.Raw}]],
   [DataTab.EnvironmentalJustice, [{dataGroup: DataGroup.PercentPopulationUnder18, normalization: Normalization.Raw}]],
-  [DataTab.RiskMetrics, [{dataGroup: DataGroup.PercentPopulationUnder18, normalization: Normalization.Percentile}]],
   [DataTab.ClimateSurvey, [{dataGroup: DataGroup.discuss, normalization: Normalization.Raw}]],
 ]);
 const defaultData = Map<CsvFile, undefined>(csvFiles.map(csv_file => [csv_file, undefined]));

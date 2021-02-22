@@ -489,7 +489,6 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         name: "Climate Moisture Index",
         units: "",
         color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10]),
-        normalizations: allNormalizations,
         description: "How wet or dry an area of land is averaged over many years. Values range from -10 (very dry) to +10 (very wet). Calculated from mean annual precipitation and potential evapotransipiration",
     })],
     [DataGroup.DroughtIndicator, climateDefinition({
