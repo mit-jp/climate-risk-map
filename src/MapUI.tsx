@@ -84,7 +84,7 @@ const MapUI = ({
             .attr("stroke-linejoin", "round")
             .attr("d", path);
 
-        if (showRoads && roadMap !== undefined) {
+        if (showRoads && roadMap !== undefined && state === undefined) {
             const roadFeatures = feature(
                 roadMap,
                 roadMap.objects.roads as GeometryCollection<GeoJsonProperties>
@@ -168,16 +168,19 @@ const MapUI = ({
 
     return (
         <div id="map">
-            <FormControlLabel
-                id="show-roads"
-                control={
-                    <Checkbox
-                        onChange={(_, value) => onShowRoadsChange(value)}
-                        title="Show roads"
-                        color="primary" />
-                }
-                label="Show roads"
-            />
+            {state === undefined &&
+                <FormControlLabel
+                    id="show-roads"
+                    control={
+                        <Checkbox
+                            onChange={(_, value) => onShowRoadsChange(value)}
+                            title="Show roads"
+                            color="primary" />
+                    }
+                    label="Show roads"
+                />
+            }
+
             <svg ref={svgRef} viewBox="0, 0, 1175, 610">
                 <g id="bubble-legend"></g>
                 {shouldShowPdf(selections) && <ProbabilityDensity data={getArrayOfData()} selections={selections} xRange={getPdfDomain(selections)} formatter={getLegendFormatter(getDataDefinitions(selections), selections)}/>}
