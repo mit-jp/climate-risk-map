@@ -1,5 +1,5 @@
 import * as scales from 'd3-scale-chromatic';
-import { scaleThreshold, scaleDiverging, scaleSequential, format, scaleDivergingSymlog, scaleSequentialLog, scaleSequentialSqrt } from 'd3';
+import { scaleThreshold, scaleDiverging, scaleSequential, format, scaleDivergingSymlog, scaleSequentialSqrt } from 'd3';
 import { Set, OrderedMap, Map } from 'immutable';
 import { ColorScheme } from './Home';
 

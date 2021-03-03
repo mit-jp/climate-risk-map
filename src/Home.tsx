@@ -13,6 +13,8 @@ import { json, csv } from 'd3-fetch';
 import { State } from './States';
 import { DSVRowString, ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3';
 
+export type TopoJson = Topology<Objects<GeoJsonProperties>>;
+
 const csvFiles: CsvFile[] = [
   "climate_normalized_by_nation.csv",
   "climate_normalized_by_state.csv",
@@ -69,7 +71,8 @@ export type Data = Map<CsvFile, CountyToDataMap | undefined>;
 export type ColorScheme = ScaleSequential<string, never> | ScaleThreshold<number, string, never> | ScaleDiverging<string, never>;
 
 const Home = () => {
-  const [map, setMap] = useState<Topology<Objects<GeoJsonProperties>> | undefined>(undefined);
+  const [map, setMap] = useState<TopoJson | undefined>(undefined);
+  const [roadMap, setRoadMap] = useState<TopoJson | undefined>(undefined);
   const [data, setData] = useState<Data>(defaultData);
   const [dataSelections, setDataSelections] = useState(defaultSelectionMap);
   const [dataWeights, setDataWeights] = useState(Map<DataGroup, number>());
@@ -77,9 +80,10 @@ const Home = () => {
   const [showDatasetDescription, setShowDatasetDescription] = useState(false);
   const [showDataDescription, setShowDataDescription] = useState(false);
   const [state, setState] = useState<State | undefined>(undefined);
+  const [showRoads, setShowRoads] = useState<boolean>(false);
 
   useEffect(() => {
-    json<Topology<Objects<GeoJsonProperties>>>(process.env.PUBLIC_URL + "/usa.json").then(setMap);
+    json<TopoJson>(process.env.PUBLIC_URL + "/usa.json").then(setMap);
     const loadingCsvs = csvFiles.map(csvFile => csv(process.env.PUBLIC_URL + "/" + csvFile, convertToNumbers));
     Promise.all(loadingCsvs).then(loadedCsvs => {
       console.log("loadedCsvs");
@@ -91,6 +95,10 @@ const Home = () => {
       const loadedData = Map(filenameToData);
       setData(loadedData);
     });
+  }, []);
+
+  useEffect(() => {
+    json<TopoJson>(process.env.PUBLIC_URL + "/roads-topo.json").then(setRoadMap);
   }, []);
 
   const onSelectionChange = (dataIds: DataIdParams[], dataTab: DataTab) => {
@@ -129,6 +137,8 @@ const Home = () => {
         dataWeights={dataWeights}
       />
       <MapUI
+        roadMap={roadMap}
+        showRoads={showRoads}
         aggregation={Aggregation.County}
         map={map}
         data={data}
@@ -140,6 +150,7 @@ const Home = () => {
         showDataDescription={showDataDescription}
         onDataDescriptionClicked={onDataDescriptionToggled}
         onStateChange={setState}
+        onShowRoadsChange={setShowRoads}
       />
       </div>
       <Footer />
