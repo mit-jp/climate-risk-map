@@ -129,7 +129,6 @@ const Home = () => {
     <React.Fragment>
       <Header />
       <Navigation selection={dataTab} onDataTabChanged={onDataTabChanged} />
-      <Checkbox onChange={(_, value) => setShowRoads(value)} title="Show roads" />
       <div id="content">
       <DataSelector
         onSelectionChange={onSelectionChange}
@@ -152,6 +151,7 @@ const Home = () => {
         showDataDescription={showDataDescription}
         onDataDescriptionClicked={onDataDescriptionToggled}
         onStateChange={setState}
+        onShowRoadsChange={setShowRoads}
       />
       </div>
       <Footer />

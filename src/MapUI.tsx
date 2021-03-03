@@ -14,6 +14,8 @@ import DataProcessor from './DataProcessor';
 import ProbabilityDensity from './ProbabilityDensity';
 import { ColorScheme, Data, TopoJson } from './Home';
 import { legend } from './Legend';
+import Checkbox from '@material-ui/core/Checkbox';
+import { FormControlLabel, FormGroup } from '@material-ui/core';
 
 export enum Aggregation {
     State = "state",
@@ -35,7 +37,8 @@ type Props = {
     onDataDescriptionClicked: () => void,
     aggregation: Aggregation,
     state: State | undefined,
-    onStateChange: (state: State | undefined) => void
+    onStateChange: (state: State | undefined) => void,
+    onShowRoadsChange: (showRoads: boolean) => void,
 };
 
 const MapUI = ({
@@ -52,6 +55,7 @@ const MapUI = ({
     aggregation,
     state,
     onStateChange,
+    onShowRoadsChange,
 }: Props) => {
     const processedData = DataProcessor(data, selections, dataWeights, state);
 
@@ -164,6 +168,16 @@ const MapUI = ({
 
     return (
         <div id="map">
+            <FormControlLabel
+                id="show-roads"
+                control={
+                    <Checkbox
+                        onChange={(_, value) => onShowRoadsChange(value)}
+                        title="Show roads"
+                        color="primary" />
+                }
+                label="Show roads"
+            />
             <svg ref={svgRef} viewBox="0, 0, 1175, 610">
                 <g id="bubble-legend"></g>
                 {shouldShowPdf(selections) && <ProbabilityDensity data={getArrayOfData()} selections={selections} xRange={getPdfDomain(selections)} formatter={getLegendFormatter(getDataDefinitions(selections), selections)}/>}
