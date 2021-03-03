@@ -251,7 +251,7 @@ const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdP
     if (selectedDataDefinitions.length === 1) {
         return unitString;
     } else {
-        return unitString + " of mean of selected data";
+        return "Mean of selected data";
     }
 }
 
