@@ -12,7 +12,6 @@ import { DataGroup, DataIdParams, Dataset, Normalization, Year } from './DataDef
 import { json, csv } from 'd3-fetch';
 import { State } from './States';
 import { DSVRowString, ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3';
-import { Checkbox } from '@material-ui/core';
 
 export type TopoJson = Topology<Objects<GeoJsonProperties>>;
 

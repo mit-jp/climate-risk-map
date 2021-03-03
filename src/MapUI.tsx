@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { select, geoPath, scaleSqrt, max, Selection, GeoPath, GeoPermissibleObjects, ScalePower } from 'd3';
 import { Feature, Geometry } from 'geojson';
 import { feature, mesh } from 'topojson-client';
-import { Objects, Topology, GeometryCollection } from 'topojson-specification';
+import { GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
 import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, getUnits, percentileFormatter, DataGroup, MapType, DataType } from './DataDefinitions';
@@ -15,7 +15,7 @@ import ProbabilityDensity from './ProbabilityDensity';
 import { ColorScheme, Data, TopoJson } from './Home';
 import { legend } from './Legend';
 import Checkbox from '@material-ui/core/Checkbox';
-import { FormControlLabel, FormGroup } from '@material-ui/core';
+import { FormControlLabel } from '@material-ui/core';
 
 export enum Aggregation {
     State = "state",
