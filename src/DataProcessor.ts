@@ -18,7 +18,7 @@ const getSuffix = (normalization: Normalization, state: State | undefined) => {
 const getTablesForSelections = (selections: DataIdParams[], state: State | undefined) => {
     return Map(selections.map(selection => {
         const dataDefinition = dataDefinitions.get(selection.dataGroup)!
-        const prefix = dataDefinition.type === DataType.Climate ? "climate" : "demographics";
+        const prefix = dataDefinition.type === DataType.Climate || dataDefinition.type === DataType.Water ? "climate" : "demographics";
         const suffix = getSuffix(selection.normalization, state);
         const csvFile: CsvFile = (prefix + suffix) as CsvFile;
         return [selection, csvFile];
