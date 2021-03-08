@@ -77,6 +77,7 @@ export type ColorScheme = ScaleSequential<string, never> | ScaleThreshold<number
 const Home = () => {
   const [map, setMap] = useState<TopoJson | undefined>(undefined);
   const [roadMap, setRoadMap] = useState<TopoJson | undefined>(undefined);
+  const [railroadMap, setRailroadMap] = useState<TopoJson | undefined>(undefined);
   const [data, setData] = useState<Data>(defaultData);
   const [dataSelections, setDataSelections] = useState(defaultSelectionMap);
   const [dataWeights, setDataWeights] = useState(Map<DataGroup, number>());
@@ -85,6 +86,7 @@ const Home = () => {
   const [showDataDescription, setShowDataDescription] = useState(false);
   const [state, setState] = useState<State | undefined>(undefined);
   const [showRoads, setShowRoads] = useState<boolean>(false);
+  const [showRailroads, setShowRailroads] = useState<boolean>(false);
 
   useEffect(() => {
     json<TopoJson>(process.env.PUBLIC_URL + "/usa.json").then(setMap);
@@ -103,6 +105,10 @@ const Home = () => {
 
   useEffect(() => {
     json<TopoJson>(process.env.PUBLIC_URL + "/roads-topo.json").then(setRoadMap);
+  }, []);
+
+  useEffect(() => {
+    json<TopoJson>(process.env.PUBLIC_URL + "/railroads-topo.json").then(setRailroadMap);
   }, []);
 
   const onSelectionChange = (dataIds: DataIdParams[], dataTab: DataTab) => {
@@ -143,6 +149,8 @@ const Home = () => {
       <MapUI
         roadMap={roadMap}
         showRoads={showRoads}
+        railroadMap={railroadMap}
+        showRailroads={showRailroads}
         aggregation={Aggregation.County}
         map={map}
         data={data}
@@ -155,6 +163,7 @@ const Home = () => {
         onDataDescriptionClicked={onDataDescriptionToggled}
         onStateChange={setState}
         onShowRoadsChange={setShowRoads}
+        onShowRailroadsChange={setShowRailroads}
       />
       </div>
       <Footer />

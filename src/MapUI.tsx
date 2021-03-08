@@ -27,6 +27,8 @@ type SVGSelection = Selection<SVGSVGElement | null, unknown, null, undefined>;
 type Props = {
     roadMap: TopoJson | undefined,
     showRoads: boolean,
+    railroadMap: TopoJson | undefined,
+    showRailroads: boolean,
     map: TopoJson | undefined,
     selections: DataIdParams[],
     data: Data,
@@ -39,11 +41,14 @@ type Props = {
     state: State | undefined,
     onStateChange: (state: State | undefined) => void,
     onShowRoadsChange: (showRoads: boolean) => void,
+    onShowRailroadsChange: (showRoads: boolean) => void,
 };
 
 const MapUI = ({
     roadMap,
     showRoads,
+    railroadMap,
+    showRailroads,
     map,
     selections,
     data,
@@ -56,6 +61,7 @@ const MapUI = ({
     state,
     onStateChange,
     onShowRoadsChange,
+    onShowRailroadsChange,
 }: Props) => {
     const processedData = DataProcessor(data, selections, dataWeights, state);
 
@@ -92,6 +98,16 @@ const MapUI = ({
             drawRoads(svg, roadFeatures, path);
         } else {
             clearRoads(svg);
+        }
+
+        if (showRailroads && railroadMap !== undefined && state === undefined) {
+            const railroadFeatures = feature(
+                railroadMap,
+                railroadMap.objects.railroads as GeometryCollection<GeoJsonProperties>
+            ).features;
+            drawRailroads(svg, railroadFeatures, path);
+        } else {
+            clearRailroads(svg);
         }
 
         if (processedData === undefined) {
@@ -180,6 +196,18 @@ const MapUI = ({
                     label="Show roads"
                 />
             }
+            {state === undefined &&
+                <FormControlLabel
+                    id="show-railroads"
+                    control={
+                        <Checkbox
+                            onChange={(_, value) => onShowRailroadsChange(value)}
+                            title="Show railroads"
+                            color="primary" />
+                    }
+                    label="Show railroads"
+                />
+            }
 
             <svg ref={svgRef} viewBox="0, 0, 1175, 610">
                 <g id="bubble-legend"></g>
@@ -188,6 +216,7 @@ const MapUI = ({
                 <g id="states"></g>
                 <g id="state-borders"><path /></g>
                 <g id="road-map"></g>
+                <g id="railroad-map"></g>
                 <g id="circles"></g>
                 <svg id="legend" x="550" y="20"></svg>
             </svg>
@@ -409,6 +438,23 @@ function drawRoads(svg: SVGSelection,
         .attr("stroke", "grey")
         .attr("fill", "none")
         .attr("stroke-width", d => 1/d.properties!.scalerank * 5)
+        .attr("d", path);
+}
+
+function clearRailroads(svg: SVGSelection) {
+    svg.select("#railroad-map").selectAll("*").remove();
+}
+
+function drawRailroads(svg: SVGSelection,
+                   roadFeatures: Feature<Geometry, GeoJsonProperties>[],
+                   path: GeoPath<any, GeoPermissibleObjects>) {
+    svg.select("#railroad-map")
+        .selectAll("path")
+        .data(roadFeatures)
+        .join("path")
+        .attr("stroke", "grey")
+        .attr("fill", "none")
+        .attr("stroke-width", 1)
         .attr("d", path);
 }
 
