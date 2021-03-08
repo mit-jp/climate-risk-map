@@ -10,6 +10,7 @@ export enum MapType {
 
 export enum DataType {
     Climate = "climate",
+    Water = "water",
     Economic = "economic",
     Demographics = "demographics",
     ClimateOpinions = "climate opinions",
@@ -97,6 +98,7 @@ export enum DataGroup {
     timingOppose = "timingOppose",
     affectweather = "affectweather",
     affectweatherOppose = "affectweatherOppose",
+    WaterStressERA = "WaterStressERA",
 }
 
 export enum DataId {
@@ -253,6 +255,7 @@ export enum DataId {
     timingOppose,
     affectweather,
     affectweatherOppose,
+    WaterStressERA,
 }
 
 export type DataIdParams = {
@@ -388,6 +391,7 @@ type ClimateDataDefinitionBuilder = {
     legendTicks?: number,
     color: ColorScheme,
     normalizations?: Set<Normalization>,
+    type?: DataType,
     description: string,
 }
 
@@ -404,6 +408,7 @@ const climateDefinition = ({
     legendTicks,
     color,
     normalizations = raw,
+    type = DataType.Climate,
     description,
 }: ClimateDataDefinitionBuilder): DataDefinition => ({
     name,
@@ -414,7 +419,7 @@ const climateDefinition = ({
     legendTicks,
     color,
     normalizations,
-    type: DataType.Climate,
+    type,
     description,
     years: years,
     datasets: climateDatasets,
@@ -480,18 +485,29 @@ const demographicDefinition = (builder: DemographicDefinitionBuilder): DataDefin
 });
 
 const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
+    [DataGroup.WaterStressERA, genericDefinition({
+        name: "Water Stress",
+        color: scaleSequentialSqrt([0, 2], scales.interpolateYlOrRd),
+        formatter: format(",.1f"),
+        legendFormatter: format(",.1f"),
+        type: DataType.Water,
+        description: "The approximate proportion of the available water that's being used. Withdrawal (fresh surface + groundwater) / Runoff in 2015. 0.3 is slightly exploited, 0.3 to 0.6 is moderately exploited, 0.6 to 1 is heavily exploited, and > 1 is overexploited",
+        dataset: Dataset.ERA5,
+    })],
     [DataGroup.IrrigationDeficit, climateDefinition({
         name: "Irrigation Deficit",
         units: "mm/year",
         legendFormatter: nearestSI,
         color: scaleDiverging<string>(x => scales.interpolateBrBG(1 - x)).domain([-600, 0, 1600]),
         normalizations: allNormalizations,
+        type: DataType.Water,
         description: "How much additional water crops may need that isn't supplied by rainfall alone. Difference between mean annual potential evapotransipiration and precipitation (def = pet - prc)",
     })],
     [DataGroup.ClimateMoistureIndex, climateDefinition({
         name: "Climate Moisture Index",
         units: "",
         color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10]),
+        type: DataType.Water,
         description: "How wet or dry an area of land is averaged over many years. Values range from -10 (very dry) to +10 (very wet). Calculated from mean annual precipitation and potential evapotransipiration",
     })],
     [DataGroup.DroughtIndicator, climateDefinition({
@@ -501,6 +517,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         legendTicks: 4,
         color: scaleDivergingSymlog<string>(scales.interpolateBrBG).domain([0, 250, 1500]),
         normalizations: allNormalizations,
+        type: DataType.Water,
         description: "The river flow among the most severely dry years (5th percentile) during the time period.",
     })],
     [DataGroup.Groundwater, climateDefinition({
@@ -509,6 +526,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleDiverging<string>(scales.interpolateBrBG).domain([0, 2, 40]),
         normalizations: allNormalizations,
         formatter: format(",.1f"),
+        type: DataType.Water,
         description: "An estimation of the amount of precipitation that soaks into the ground (and replenishes groundwater supply). Minimum of the 12 monthly runoff climatology during the specific period (40 years or 20 years. To avoid negative values, the minimum cutoff value is set to be 0.000001)",
     })],
     [DataGroup.MaxTemperature, climateDefinition({
@@ -523,6 +541,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         units: "mm/year",
         legendFormatter: nearestSI,
         color: scaleSequential<string>(scales.interpolateBlues).domain([300, 1700]),
+        type: DataType.Water,
         description: "The maximum amount of water that the air could evaporate. Monthly potential evapotranspiration is calculated based on monthly mean surface air temperature, monthly mean temperature diurnal range, and monthly mean precipitation using modified Hargreaves method (Droogers and Allen, Irrigation and Drainage Systems 16: 33–45, 2002)",
     })],
     [DataGroup.Precipitation, climateDefinition({
@@ -530,12 +549,14 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         units: "mm/year",
         legendFormatter: nearestSI,
         color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2200]),
+        type: DataType.Water,
         description: "Directly calculated from the reanalysis data",
     })],
     [DataGroup.Runoff, climateDefinition({
         name: "Mean Annual Runoff",
         units: "mm/year",
         color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2000]),
+        type: DataType.Water,
         description: "Monthly runoff is calculated based on the monthly precipitation and potential evapotransipiration using the Turc-Pike model (Yates, Climate Research, Vol 9, 147-155, 1997)",
     })],
     [DataGroup.FloodIndicator, climateDefinition({
@@ -543,6 +564,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         units: "mm/month",
         color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500]),
         normalizations: allNormalizations,
+        type: DataType.Water,
         description: "The flood potential from high river levels (fluvial flooding). The river flow among the most severely wet months (98th percentile) during the time period.",
     })],
     [DataGroup.AllIndustries, genericDefinition({
