@@ -13,7 +13,8 @@ import Counties from './Counties';
 import DataProcessor from './DataProcessor';
 import ProbabilityDensity from './ProbabilityDensity';
 import { ColorScheme, Data, TopoJson } from './Home';
-import { legend } from './Legend';
+import Legend from './Legend';
+import BubbleLegend from './BubbleLegend';
 import Checkbox from '@material-ui/core/Checkbox';
 import { FormControlLabel } from '@material-ui/core';
 
@@ -100,20 +101,8 @@ const MapUI = ({
         }
 
         const selectedDataDefinitions = getDataDefinitions(selections);
-        const title = getTitle(selectedDataDefinitions, selections);
-        const legendFormatter = getLegendFormatter(selectedDataDefinitions, selections);
-        const legendTicks = getLegendTicks(selectedDataDefinitions, selections);
         const colorScheme = getColorScheme(selectedDataDefinitions, selections);
-        const values = countyFeatures.map(d => processedData.get(d.id as string)).filter(d => d !== undefined).map(d => d as number);
-        const radius = scaleSqrt([0, max(values) ?? 0], [0, 40]);
         const mapType = selectedDataDefinitions[0].mapType;
-
-        // legend
-        if (mapType === MapType.Choropleth) {
-            drawLegend(svg, title, colorScheme, legendFormatter, legendTicks);
-        } else if (mapType === MapType.Bubble) {
-            drawBubbleLegend(svg, radius, title);
-        }
 
         // data
         if (aggregation === Aggregation.County) {
@@ -166,6 +155,25 @@ const MapUI = ({
             .filter(value => value !== undefined) as number[];
     }
 
+    const selectedDataDefinitions = getDataDefinitions(selections);
+    const color = getColorScheme(selectedDataDefinitions, selections);
+    const legendFormatter = getLegendFormatter(selectedDataDefinitions, selections);
+    const ticks = getLegendTicks(selectedDataDefinitions, selections);
+    const title = getTitle(selectedDataDefinitions, selections);
+
+    const countyFeatures = feature(
+        map,
+        map.objects.counties as GeometryCollection<GeoJsonProperties>
+    ).features.filter(stateFilter(state));
+    let radius: ScalePower<number, number, never>;
+    if (processedData !== undefined) {
+        const values = countyFeatures.map(d => processedData.get(d.id as string)).filter(d => d !== undefined).map(d => d as number);
+        radius = scaleSqrt([0, max(values) ?? 0], [0, 40]);
+    } else {
+        radius = scaleSqrt([0, 0], [0, 40]);
+    }
+
+
     return (
         <div id="map">
             {state === undefined &&
@@ -182,14 +190,22 @@ const MapUI = ({
             }
 
             <svg ref={svgRef} viewBox="0, 0, 1175, 610">
-                <g id="bubble-legend"></g>
-                {shouldShowPdf(selections) && <ProbabilityDensity data={getArrayOfData()} selections={selections} xRange={getPdfDomain(selections)} formatter={getLegendFormatter(getDataDefinitions(selections), selections)}/>}
                 <g id="counties"></g>
                 <g id="states"></g>
                 <g id="state-borders"><path /></g>
                 <g id="road-map"></g>
                 <g id="circles"></g>
-                <svg id="legend" x="550" y="20"></svg>
+                {shouldShowBubbleLegend(selections) && <BubbleLegend title={title} radius={radius} />}
+                {shouldShowLegend(selections) && <Legend title={title} color={color} tickFormat={legendFormatter} ticks={ticks} />}
+                {
+                    shouldShowPdf(selections) &&
+                    <ProbabilityDensity
+                        data={getArrayOfData()}
+                        selections={selections}
+                        xRange={getPdfDomain(selections)}
+                        formatter={getLegendFormatter(selectedDataDefinitions, selections)}
+                    />
+                }
             </svg>
             <DataDescription
                 selections={selections}
@@ -330,53 +346,6 @@ const stateFilter = (state: State | undefined) => (feature: Feature<Geometry, Ge
     return stateId === state;
 }
 
-function drawBubbleLegend(svg: SVGSelection, radius: ScalePower<number, number, never>, title: string) {
-    svg.select("#legend").selectAll("*").remove();
-    const legend = svg
-        .select("#bubble-legend")
-        .attr("fill", "#777")
-        .attr("transform", "translate(915,508)")
-        .attr("text-anchor", "middle")
-        .style("font", "10px sans-serif")
-        .selectAll("g")
-        .data(radius.ticks(4).slice(1))
-        .join("g");    
-
-    legend.selectAll("*").remove();
-
-    svg.select("#bubble-legend")
-        .selectAll("text")
-        .data([title])
-        .join("text")
-        .attr("y", -90)
-        .text(d => d);
-
-    legend.append("circle")
-        .attr("fill", "none")
-        .attr("stroke", "#ccc")
-        .attr("cy", d => -radius(d))
-        .attr("r", radius);
-
-    legend.append("text")
-        .attr("y", d => -2 * radius(d))
-        .attr("dy", "1.3em")
-        .text(radius.tickFormat(4, "s"));
-}
-
-function drawLegend(svg: SVGSelection,
-                    title: string,
-                    colorScheme: ColorScheme, formatter: (n: number | {valueOf(): number;}) => string,
-                    ticks?: number) {
-    svg.select("#bubble-legend").selectAll("*").remove();
-    legend({
-        svg: svg.select("#legend"),
-        color: colorScheme,
-        title,
-        ticks,
-        tickFormat: formatter
-    });
-}
-
 function clearMap(svg: SVGSelection, stateFeatures: Feature<Geometry, GeoJsonProperties>[], path: GeoPath<any, GeoPermissibleObjects>) {
     svg.select("#legend").selectAll("*").remove();
     svg.select("#bubble-legend").selectAll("*").remove();
@@ -413,11 +382,11 @@ function drawRoads(svg: SVGSelection,
 }
 
 function drawChoropleth(svg: SVGSelection,
-                        countyFeatures: Feature<Geometry, GeoJsonProperties>[],
-                        processedData: ImmutableMap<string, number | undefined>,
-                        colorScheme: ColorScheme,
-                        path: GeoPath<any, GeoPermissibleObjects>,
-                        onStateChange: (state: State | undefined) => void) {
+    countyFeatures: Feature<Geometry, GeoJsonProperties>[],
+    processedData: ImmutableMap<string, number | undefined>,
+    colorScheme: ColorScheme,
+    path: GeoPath<any, GeoPermissibleObjects>,
+    onStateChange: (state: State | undefined) => void) {
     svg.select("#circles").selectAll("circle").attr("r", 0);
     svg.select("#counties")
         .selectAll("path")
@@ -437,11 +406,11 @@ function drawChoropleth(svg: SVGSelection,
 }
 
 function drawBubbles(countyFeatures: Feature<Geometry, GeoJsonProperties>[],
-                     processedData: ImmutableMap<string, number | undefined>,
-                     svg: SVGSelection,
-                     stateFeatures: Feature<Geometry, GeoJsonProperties>[],
-                     path: GeoPath<any, GeoPermissibleObjects>,
-                     radius: ScalePower<number, number, never>) {
+    processedData: ImmutableMap<string, number | undefined>,
+    svg: SVGSelection,
+    stateFeatures: Feature<Geometry, GeoJsonProperties>[],
+    path: GeoPath<any, GeoPermissibleObjects>,
+    radius: ScalePower<number, number, never>) {
     svg.select("#counties").selectAll("path").attr("fill", "none");
     svg.select("#states")
         .selectAll("path")
@@ -473,12 +442,22 @@ function shouldShowPdf(selections: DataIdParams[]) {
     return firstSelection !== undefined && firstSelection.mapType === MapType.Choropleth;
 }
 
+function shouldShowBubbleLegend(selections: DataIdParams[]) {
+    const firstSelection = getDataDefinitions(selections)[0];
+    return firstSelection !== undefined && firstSelection.mapType === MapType.Bubble;
+}
+
+function shouldShowLegend(selections: DataIdParams[]) {
+    const firstSelection = getDataDefinitions(selections)[0];
+    return firstSelection !== undefined && firstSelection.mapType === MapType.Choropleth;
+}
+
 function getPdfDomain(selections: DataIdParams[]) {
     const firstSelection = getDataDefinitions(selections)[0];
     if (firstSelection === undefined) {
         return undefined;
     }
-    
+
     if (firstSelection.type === DataType.ClimateOpinions) {
         return [0, 100] as [number, number];
     }
