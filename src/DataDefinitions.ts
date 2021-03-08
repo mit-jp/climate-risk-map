@@ -506,8 +506,9 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.Groundwater, climateDefinition({
         name: "Groundwater recharge",
         units: "mm/month",
-        color: scaleSequential<string>(scales.interpolateBlues).domain([0, 40]),
+        color: scaleDiverging<string>(scales.interpolateBrBG).domain([0, 2, 40]),
         normalizations: allNormalizations,
+        formatter: format(",.1f"),
         description: "An estimation of the amount of precipitation that soaks into the ground (and replenishes groundwater supply). Minimum of the 12 monthly runoff climatology during the specific period (40 years or 20 years. To avoid negative values, the minimum cutoff value is set to be 0.000001)",
     })],
     [DataGroup.MaxTemperature, climateDefinition({
