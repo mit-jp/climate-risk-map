@@ -98,7 +98,7 @@ export enum DataGroup {
     timingOppose = "timingOppose",
     affectweather = "affectweather",
     affectweatherOppose = "affectweatherOppose",
-    WaterStressERA = "WaterStressERA",
+    WS_ERA2015 = "WS_ERA2015",
 }
 
 export enum DataId {
@@ -255,7 +255,7 @@ export enum DataId {
     timingOppose,
     affectweather,
     affectweatherOppose,
-    WaterStressERA,
+    WS_ERA2015,
 }
 
 export type DataIdParams = {
@@ -485,7 +485,7 @@ const demographicDefinition = (builder: DemographicDefinitionBuilder): DataDefin
 });
 
 const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
-    [DataGroup.WaterStressERA, genericDefinition({
+    [DataGroup.WS_ERA2015, genericDefinition({
         name: "Water Stress",
         color: scaleSequentialSqrt([0, 2], scales.interpolateYlOrRd),
         formatter: format(",.1f"),
