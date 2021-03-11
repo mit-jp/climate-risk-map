@@ -99,6 +99,7 @@ export enum DataGroup {
     affectweather = "affectweather",
     affectweatherOppose = "affectweatherOppose",
     WS_ERA2015 = "WS_ERA2015",
+    WS_EQI = "WS_EQI",
 }
 
 export enum DataId {
@@ -256,6 +257,7 @@ export enum DataId {
     affectweather,
     affectweatherOppose,
     WS_ERA2015,
+    WS_EQI,
 }
 
 export type DataIdParams = {
@@ -491,7 +493,18 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         formatter: format(",.1f"),
         legendFormatter: format(",.1f"),
         type: DataType.Water,
+        normalizations: allNormalizations,
         description: "The approximate proportion of the available water that's being used. Withdrawal (fresh surface + groundwater) / Runoff in 2015. 0.3 is slightly exploited, 0.3 to 0.6 is moderately exploited, 0.6 to 1 is heavily exploited, and > 1 is overexploited",
+        dataset: Dataset.ERA5,
+    })],
+    [DataGroup.WS_EQI, genericDefinition({
+        name: "Water Quality",
+        color: scaleSequential([-2, 2], scales.interpolateYlOrRd),
+        formatter: format(",.1f"),
+        legendFormatter: format(",.1f"),
+        type: DataType.Water,
+        normalizations: allNormalizations,
+        description: "",
         dataset: Dataset.ERA5,
     })],
     [DataGroup.IrrigationDeficit, climateDefinition({
