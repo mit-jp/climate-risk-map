@@ -9,17 +9,19 @@ type Props = {
 
 export enum DataTab {
     RiskMetrics = "risk metrics",
+    Water = "water",
     Climate = "climate",
     Economic = "economic",
-    ClimateSurvey = "climate survey",
-    EnvironmentalJustice = "environmental justice",
+    ClimateOpinions = "climate opinions",
+    Demographics = "demographics",
 }
 
 export const TabToTypeMap = Map([
     [DataTab.Climate, DataType.Climate],
+    [DataTab.Water, DataType.Water],
     [DataTab.Economic, DataType.Economic],
-    [DataTab.EnvironmentalJustice, DataType.EnvironmentalJustice],
-    [DataTab.ClimateSurvey, DataType.ClimateSurvey],
+    [DataTab.Demographics, DataType.Demographics],
+    [DataTab.ClimateOpinions, DataType.ClimateOpinions],
 ]);
 
 const dataTabs = Object.values(DataTab);

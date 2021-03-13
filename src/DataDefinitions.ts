@@ -1,5 +1,5 @@
 import * as scales from 'd3-scale-chromatic';
-import { scaleThreshold, scaleDiverging, scaleSequential, format, scaleDivergingSymlog } from 'd3';
+import { scaleThreshold, scaleDiverging, scaleSequential, format, scaleDivergingSymlog, scaleSequentialSqrt } from 'd3';
 import { Set, OrderedMap, Map } from 'immutable';
 import { ColorScheme } from './Home';
 
@@ -10,9 +10,10 @@ export enum MapType {
 
 export enum DataType {
     Climate = "climate",
+    Water = "water",
     Economic = "economic",
-    EnvironmentalJustice = "environmental justice",
-    ClimateSurvey = "climate survey",
+    Demographics = "demographics",
+    ClimateOpinions = "climate opinions",
 }
 
 export enum DataGroup {
@@ -97,6 +98,8 @@ export enum DataGroup {
     timingOppose = "timingOppose",
     affectweather = "affectweather",
     affectweatherOppose = "affectweatherOppose",
+    WS_ERA2015 = "WS_ERA2015",
+    WS_EQI = "WS_EQI",
 }
 
 export enum DataId {
@@ -253,6 +256,8 @@ export enum DataId {
     timingOppose,
     affectweather,
     affectweatherOppose,
+    WS_ERA2015,
+    WS_EQI,
 }
 
 export type DataIdParams = {
@@ -284,15 +289,15 @@ export enum Normalization {
 }
 
 export const percentileColorScheme = scaleDiverging<string>(scales.interpolateBrBG).domain([1, 0.5, 0]);
-export const percentileFormatter = format(".0%");
+export const riskMetricFormatter = (d: number | { valueOf(): number; }) => format(".0%")(d).slice(0, -1);
 const employmentDescription = "A percentage of employed people in this specific industry. Nonmetropolitan areas and rural counties are also included. These statistics cover wage and salary jobs and self-employment.";
 
 export const getUnits = (dataDefinition: DataDefinition, normalization: Normalization) => {
     let units = "";
     if (normalization === Normalization.Raw) {
         units = dataDefinition.units;
-    } else if (normalization === Normalization.Percentile) {
-        units = "Percentile";
+    } else {
+        units = "Ranking";
     }
     return units;
 }
@@ -388,6 +393,7 @@ type ClimateDataDefinitionBuilder = {
     legendTicks?: number,
     color: ColorScheme,
     normalizations?: Set<Normalization>,
+    type?: DataType,
     description: string,
 }
 
@@ -404,6 +410,7 @@ const climateDefinition = ({
     legendTicks,
     color,
     normalizations = raw,
+    type = DataType.Climate,
     description,
 }: ClimateDataDefinitionBuilder): DataDefinition => ({
     name,
@@ -414,7 +421,7 @@ const climateDefinition = ({
     legendTicks,
     color,
     normalizations,
-    type: DataType.Climate,
+    type,
     description,
     years: years,
     datasets: climateDatasets,
@@ -451,16 +458,19 @@ const surveyDefinition = (name: string): DataDefinition => genericDefinition({
     name,
     units: "% of people",
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([0, 50, 100]),
-    type: DataType.ClimateSurvey,
+    type: DataType.ClimateOpinions,
     description: "",
     dataset: Dataset.Yale,
     mapType: MapType.Choropleth,
 });
 
-const employmentDefinition = (name: string): DataDefinition => genericDefinition({
+const employmentDefinition = ({
+    name,
+    color = scaleSequential<string>(scales.interpolateGreens).domain([0, 50])
+}: {name: string, color?: ColorScheme}): DataDefinition => genericDefinition({
     name,
     units: "% of employed people",
-    color: scaleSequential<string>(scales.interpolateGreens).domain([0, 50]),
+    color,
     type: DataType.Economic,
     description: employmentDescription,
     dataset: Dataset.BEA,
@@ -470,26 +480,47 @@ const demographicDefinition = (builder: DemographicDefinitionBuilder): DataDefin
     name: builder.name,
     units: "% of people",
     color: scaleSequential<string>(scales.interpolatePurples).domain([0, builder.domainMax ?? 50]),
-    type: DataType.EnvironmentalJustice,
+    type: DataType.Demographics,
     description: "",
     dataset: Dataset.Census,
     normalizations: allNormalizations,
 });
 
 const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
+    [DataGroup.WS_ERA2015, genericDefinition({
+        name: "Water Stress",
+        color: scaleSequentialSqrt([0, 2], scales.interpolateYlOrRd),
+        formatter: format(",.1f"),
+        legendFormatter: format(",.1f"),
+        type: DataType.Water,
+        normalizations: allNormalizations,
+        description: "The approximate proportion of the available water that's being used. Withdrawal (fresh surface + groundwater) / Runoff in 2015. 0.3 is slightly exploited, 0.3 to 0.6 is moderately exploited, 0.6 to 1 is heavily exploited, and > 1 is overexploited",
+        dataset: Dataset.ERA5,
+    })],
+    [DataGroup.WS_EQI, genericDefinition({
+        name: "Water Quality",
+        color: scaleSequential([-2, 2], scales.interpolateYlOrRd),
+        formatter: format(",.1f"),
+        legendFormatter: format(",.1f"),
+        type: DataType.Water,
+        normalizations: allNormalizations,
+        description: "",
+        dataset: Dataset.ERA5,
+    })],
     [DataGroup.IrrigationDeficit, climateDefinition({
         name: "Irrigation Deficit",
         units: "mm/year",
         legendFormatter: nearestSI,
         color: scaleDiverging<string>(x => scales.interpolateBrBG(1 - x)).domain([-600, 0, 1600]),
         normalizations: allNormalizations,
+        type: DataType.Water,
         description: "How much additional water crops may need that isn't supplied by rainfall alone. Difference between mean annual potential evapotransipiration and precipitation (def = pet - prc)",
     })],
     [DataGroup.ClimateMoistureIndex, climateDefinition({
         name: "Climate Moisture Index",
         units: "",
         color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10]),
-        normalizations: allNormalizations,
+        type: DataType.Water,
         description: "How wet or dry an area of land is averaged over many years. Values range from -10 (very dry) to +10 (very wet). Calculated from mean annual precipitation and potential evapotransipiration",
     })],
     [DataGroup.DroughtIndicator, climateDefinition({
@@ -499,13 +530,16 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         legendTicks: 4,
         color: scaleDivergingSymlog<string>(scales.interpolateBrBG).domain([0, 250, 1500]),
         normalizations: allNormalizations,
+        type: DataType.Water,
         description: "The river flow among the most severely dry years (5th percentile) during the time period.",
     })],
     [DataGroup.Groundwater, climateDefinition({
         name: "Groundwater recharge",
         units: "mm/month",
-        color: scaleSequential<string>(scales.interpolateBlues).domain([0, 40]),
+        color: scaleDiverging<string>(scales.interpolateBrBG).domain([0, 2, 40]),
         normalizations: allNormalizations,
+        formatter: format(",.1f"),
+        type: DataType.Water,
         description: "An estimation of the amount of precipitation that soaks into the ground (and replenishes groundwater supply). Minimum of the 12 monthly runoff climatology during the specific period (40 years or 20 years. To avoid negative values, the minimum cutoff value is set to be 0.000001)",
     })],
     [DataGroup.MaxTemperature, climateDefinition({
@@ -520,6 +554,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         units: "mm/year",
         legendFormatter: nearestSI,
         color: scaleSequential<string>(scales.interpolateBlues).domain([300, 1700]),
+        type: DataType.Water,
         description: "The maximum amount of water that the air could evaporate. Monthly potential evapotranspiration is calculated based on monthly mean surface air temperature, monthly mean temperature diurnal range, and monthly mean precipitation using modified Hargreaves method (Droogers and Allen, Irrigation and Drainage Systems 16: 33–45, 2002)",
     })],
     [DataGroup.Precipitation, climateDefinition({
@@ -527,12 +562,14 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         units: "mm/year",
         legendFormatter: nearestSI,
         color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2200]),
+        type: DataType.Water,
         description: "Directly calculated from the reanalysis data",
     })],
     [DataGroup.Runoff, climateDefinition({
         name: "Mean Annual Runoff",
         units: "mm/year",
         color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2000]),
+        type: DataType.Water,
         description: "Monthly runoff is calculated based on the monthly precipitation and potential evapotransipiration using the Turc-Pike model (Yates, Climate Research, Vol 9, 147-155, 1997)",
     })],
     [DataGroup.FloodIndicator, climateDefinition({
@@ -540,6 +577,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         units: "mm/month",
         color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500]),
         normalizations: allNormalizations,
+        type: DataType.Water,
         description: "The flood potential from high river levels (fluvial flooding). The river flow among the most severely wet months (98th percentile) during the time period.",
     })],
     [DataGroup.AllIndustries, genericDefinition({
@@ -561,11 +599,25 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         dataset: Dataset.BEA,
         mapType: MapType.Bubble,
     })],
-    [DataGroup.Farming, employmentDefinition("Farming 2007")],
-    [DataGroup.Mining, employmentDefinition("Mining 2007")],
-    [DataGroup.Construction, employmentDefinition("Construction 2007")],
-    [DataGroup.Agricultureforestryfishingandhunting, employmentDefinition("Agriculture, forestry, fishing, and hunting 2007")],
-    [DataGroup.Healthcareandsocialassistance, employmentDefinition("Healthcare and social assistance 2007")],
+    [DataGroup.Farming, employmentDefinition({
+        name:"Farming 2007"
+    })],
+    [DataGroup.Mining, employmentDefinition({
+        name:"Mining 2007",
+        color: scaleSequentialSqrt([0,50], scales.interpolateGreens)
+    })],
+    [DataGroup.Construction, employmentDefinition({
+        name:"Construction 2007",
+        color: scaleSequential<string>(scales.interpolateGreens).domain([0, 25])
+    })],
+    [DataGroup.Agricultureforestryfishingandhunting, employmentDefinition({
+        name:"Agriculture, forestry, fishing, and hunting 2007",
+        color: scaleSequentialSqrt<string>(scales.interpolateGreens).domain([0, 25])
+    })],
+    [DataGroup.Healthcareandsocialassistance, employmentDefinition({
+        name:"Healthcare and social assistance 2007",
+        color: scaleSequential<string>(scales.interpolateGreens).domain([0, 25])
+    })],
     [DataGroup.PerCapitapersonalincome2018, genericDefinition({
         name: "Per capita personal income 2018",
         units: "USD / person",
@@ -585,7 +637,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         name: "Population Density",
         units: "people / sq mile",
         color: scaleSequential<string>(scales.interpolatePurples).domain([0, 1000]),
-        type: DataType.EnvironmentalJustice,
+        type: DataType.Demographics,
         description: "",
         dataset: Dataset.Census,
     })],

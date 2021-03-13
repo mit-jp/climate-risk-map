@@ -1,4 +1,4 @@
-import { mean } from 'd3';
+import { sum } from 'd3';
 import { Map } from 'immutable';
 import counties from './Counties';
 import dataDefinitions, { DataGroup, DataId, DataIdParams, DataType, Normalization } from './DataDefinitions';
@@ -18,7 +18,7 @@ const getSuffix = (normalization: Normalization, state: State | undefined) => {
 const getTablesForSelections = (selections: DataIdParams[], state: State | undefined) => {
     return Map(selections.map(selection => {
         const dataDefinition = dataDefinitions.get(selection.dataGroup)!
-        const prefix = dataDefinition.type === DataType.Climate ? "climate" : "demographics";
+        const prefix = dataDefinition.type === DataType.Climate || dataDefinition.type === DataType.Water ? "climate" : "demographics";
         const suffix = getSuffix(selection.normalization, state);
         const csvFile: CsvFile = (prefix + suffix) as CsvFile;
         return [selection, csvFile];
@@ -42,6 +42,7 @@ const getDataForSelections = (
     selectionToDataId: Map<DataIdParams, DataId>,
     data: Data,
     dataWeights: Map<DataGroup, number>,
+    totalWeight: number,
 ) => {
     return selections.map(selection => {
         const tableName = selectionToTable.get(selection)!;
@@ -55,7 +56,9 @@ const getDataForSelections = (
         if (value === undefined) {
             return undefined;
         }
-        return +value * (dataWeights.get(selection.dataGroup) ?? 1);
+        let weight = (dataWeights.get(selection.dataGroup) ?? 1);
+        weight = totalWeight === 0 ? 0 : weight / totalWeight
+        return +value * weight;
     });
 }
 
@@ -77,6 +80,13 @@ const processData = (
     const selectionToDataId = getDataIdsForSelections(selections);
     const selectionToTable = getTablesForSelections(selections, state);
     let valuesById: [string, number | undefined][] = [];
+    const dataGroups = selections.map(selection => selection.dataGroup);
+
+    let totalWeight = 0;
+    for(const dataGroup of dataGroups) {
+        totalWeight += dataWeights.get(dataGroup) ?? 1;
+    }
+
     for (const countyId of counties.keys()) {
         const values = getDataForSelections(
             countyId,
@@ -84,9 +94,10 @@ const processData = (
             selectionToTable,
             selectionToDataId,
             data,
-            dataWeights
+            dataWeights,
+            totalWeight
         );
-        valuesById.push([countyId, mean(values)]);
+        valuesById.push([countyId, sum(values)]);
     }
     return Map<string, number | undefined>(valuesById);
 }

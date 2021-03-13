@@ -2,26 +2,34 @@ import React, { useRef, useEffect } from 'react';
 import { select, geoPath, scaleSqrt, max, Selection, GeoPath, GeoPermissibleObjects, ScalePower } from 'd3';
 import { Feature, Geometry } from 'geojson';
 import { feature, mesh } from 'topojson-client';
-import { Objects, Topology, GeometryCollection } from 'topojson-specification';
+import { GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, getUnits, percentileFormatter, DataGroup, MapType, DataType } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, getUnits, riskMetricFormatter, DataGroup, MapType, DataType } from './DataDefinitions';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
 import states, { State } from './States';
 import Counties from './Counties';
 import DataProcessor from './DataProcessor';
 import ProbabilityDensity from './ProbabilityDensity';
-import { ColorScheme, Data } from './Home';
+import { ColorScheme, Data, TopoJson } from './Home';
 import { legend } from './Legend';
+import Checkbox from '@material-ui/core/Checkbox';
+import { FormControlLabel } from '@material-ui/core';
 
 export enum Aggregation {
     State = "state",
     County = "county",
 };
 
+type SVGSelection = Selection<SVGSVGElement | null, unknown, null, undefined>;
+
 type Props = {
-    map: Topology<Objects<GeoJsonProperties>> | undefined,
+    roadMap: TopoJson | undefined,
+    showRoads: boolean,
+    railroadMap: TopoJson | undefined,
+    showRailroads: boolean,
+    map: TopoJson | undefined,
     selections: DataIdParams[],
     data: Data,
     dataWeights: ImmutableMap<DataGroup, number>,
@@ -31,10 +39,16 @@ type Props = {
     onDataDescriptionClicked: () => void,
     aggregation: Aggregation,
     state: State | undefined,
-    onStateChange: (state: State | undefined) => void
+    onStateChange: (state: State | undefined) => void,
+    onShowRoadsChange: (showRoads: boolean) => void,
+    onShowRailroadsChange: (showRoads: boolean) => void,
 };
 
 const MapUI = ({
+    roadMap,
+    showRoads,
+    railroadMap,
+    showRailroads,
     map,
     selections,
     data,
@@ -46,6 +60,8 @@ const MapUI = ({
     aggregation,
     state,
     onStateChange,
+    onShowRoadsChange,
+    onShowRailroadsChange,
 }: Props) => {
     const processedData = DataProcessor(data, selections, dataWeights, state);
 
@@ -62,6 +78,7 @@ const MapUI = ({
             map,
             map.objects.states as GeometryCollection<GeoJsonProperties>
         ).features.filter(stateFilter(state));
+
         const svg = select(svgRef.current);
         const path = geoPath();
         // state borders
@@ -72,6 +89,26 @@ const MapUI = ({
             .attr("stroke", "white")
             .attr("stroke-linejoin", "round")
             .attr("d", path);
+
+        if (showRoads && roadMap !== undefined && state === undefined) {
+            const roadFeatures = feature(
+                roadMap,
+                roadMap.objects.roads as GeometryCollection<GeoJsonProperties>
+            ).features;
+            drawRoads(svg, roadFeatures, path);
+        } else {
+            clearRoads(svg);
+        }
+
+        if (showRailroads && railroadMap !== undefined && state === undefined) {
+            const railroadFeatures = feature(
+                railroadMap,
+                railroadMap.objects.railroads as GeometryCollection<GeoJsonProperties>
+            ).features;
+            drawRailroads(svg, railroadFeatures, path);
+        } else {
+            clearRailroads(svg);
+        }
 
         if (processedData === undefined) {
             clearMap(svg, stateFeatures, path);
@@ -130,7 +167,7 @@ const MapUI = ({
             .selectAll(".county")
             .on("touchmove mousemove", handleCountyMouseOver(selectedDataDefinitions, processedData, selections))
             .on("touchend mouseleave", handleMouseOut);
-    }, [map, selections, aggregation, state, onStateChange, processedData]);
+    }, [map, selections, aggregation, state, onStateChange, processedData, showRoads, roadMap]);
 
     if (map === undefined) {
         return <div id="map"><p className="data-missing">Loading</p></div>;
@@ -147,12 +184,39 @@ const MapUI = ({
 
     return (
         <div id="map">
+            {state === undefined &&
+                <FormControlLabel
+                    id="show-roads"
+                    control={
+                        <Checkbox
+                            onChange={(_, value) => onShowRoadsChange(value)}
+                            title="Show roads"
+                            color="primary" />
+                    }
+                    label="Show roads"
+                />
+            }
+            {state === undefined &&
+                <FormControlLabel
+                    id="show-railroads"
+                    control={
+                        <Checkbox
+                            onChange={(_, value) => onShowRailroadsChange(value)}
+                            title="Show railroads"
+                            color="primary" />
+                    }
+                    label="Show railroads"
+                />
+            }
+
             <svg ref={svgRef} viewBox="0, 0, 1175, 610">
                 <g id="bubble-legend"></g>
                 {shouldShowPdf(selections) && <ProbabilityDensity data={getArrayOfData()} selections={selections} xRange={getPdfDomain(selections)} formatter={getLegendFormatter(getDataDefinitions(selections), selections)}/>}
                 <g id="counties"></g>
                 <g id="states"></g>
                 <g id="state-borders"><path /></g>
+                <g id="road-map"></g>
+                <g id="railroad-map"></g>
                 <g id="circles"></g>
                 <svg id="legend" x="550" y="20"></svg>
             </svg>
@@ -215,10 +279,10 @@ const format = (value: number | undefined, selectedDataDefinitions: DataDefiniti
     if (value === undefined) {
         return "No data";
     }
-    let units = getUnits(selectedDataDefinitions[0], selections[0].normalization);
-    if (units === "Percentile") {
+    if (selections[0].normalization !== Normalization.Raw) {
         return formatter(value);
     } else {
+        let units = getUnits(selectedDataDefinitions[0], selections[0].normalization);
         return formatter(value) + getUnitString(units);
     }
 }
@@ -251,7 +315,7 @@ const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdP
     if (selectedDataDefinitions.length === 1) {
         return unitString;
     } else {
-        return unitString + " of mean of selected data";
+        return "Mean of selected data";
     }
 }
 
@@ -259,7 +323,7 @@ const getFormatter = (selectedDataDefinitions: DataDefinition[], selections: Dat
     const normalization = selections[0].normalization;
     switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].formatter;
-        case Normalization.Percentile: return percentileFormatter;
+        case Normalization.Percentile: return riskMetricFormatter;
     }
 }
 
@@ -267,7 +331,7 @@ const getLegendFormatter = (selectedDataDefinitions: DataDefinition[], selection
     const normalization = selections[0].normalization;
     switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].legendFormatter;
-        case Normalization.Percentile: return percentileFormatter;
+        case Normalization.Percentile: return riskMetricFormatter;
     }
 }
 
@@ -295,7 +359,7 @@ const stateFilter = (state: State | undefined) => (feature: Feature<Geometry, Ge
     return stateId === state;
 }
 
-function drawBubbleLegend(svg: Selection<SVGSVGElement | null, unknown, null, undefined>, radius: ScalePower<number, number, never>, title: string) {
+function drawBubbleLegend(svg: SVGSelection, radius: ScalePower<number, number, never>, title: string) {
     svg.select("#legend").selectAll("*").remove();
     const legend = svg
         .select("#bubble-legend")
@@ -328,7 +392,7 @@ function drawBubbleLegend(svg: Selection<SVGSVGElement | null, unknown, null, un
         .text(radius.tickFormat(4, "s"));
 }
 
-function drawLegend(svg: Selection<SVGSVGElement | null, unknown, null, undefined>,
+function drawLegend(svg: SVGSelection,
                     title: string,
                     colorScheme: ColorScheme, formatter: (n: number | {valueOf(): number;}) => string,
                     ticks?: number) {
@@ -342,7 +406,7 @@ function drawLegend(svg: Selection<SVGSVGElement | null, unknown, null, undefine
     });
 }
 
-function clearMap(svg: Selection<SVGSVGElement | null, unknown, null, undefined>, stateFeatures: Feature<Geometry, GeoJsonProperties>[], path: GeoPath<any, GeoPermissibleObjects>) {
+function clearMap(svg: SVGSelection, stateFeatures: Feature<Geometry, GeoJsonProperties>[], path: GeoPath<any, GeoPermissibleObjects>) {
     svg.select("#legend").selectAll("*").remove();
     svg.select("#bubble-legend").selectAll("*").remove();
     svg.select("#states")
@@ -360,7 +424,41 @@ function clearMap(svg: Selection<SVGSVGElement | null, unknown, null, undefined>
         .on("touchend mouseleave", null);
 }
 
-function drawChoropleth(svg: Selection<SVGSVGElement | null, unknown, null, undefined>,
+function clearRoads(svg: SVGSelection) {
+    svg.select("#road-map").selectAll("*").remove();
+}
+
+function drawRoads(svg: SVGSelection,
+                   roadFeatures: Feature<Geometry, GeoJsonProperties>[],
+                   path: GeoPath<any, GeoPermissibleObjects>) {
+    svg.select("#road-map")
+        .selectAll("path")
+        .data(roadFeatures)
+        .join("path")
+        .attr("stroke", "grey")
+        .attr("fill", "none")
+        .attr("stroke-width", d => 1/d.properties!.scalerank * 5)
+        .attr("d", path);
+}
+
+function clearRailroads(svg: SVGSelection) {
+    svg.select("#railroad-map").selectAll("*").remove();
+}
+
+function drawRailroads(svg: SVGSelection,
+                   roadFeatures: Feature<Geometry, GeoJsonProperties>[],
+                   path: GeoPath<any, GeoPermissibleObjects>) {
+    svg.select("#railroad-map")
+        .selectAll("path")
+        .data(roadFeatures)
+        .join("path")
+        .attr("stroke", "grey")
+        .attr("fill", "none")
+        .attr("stroke-width", 1)
+        .attr("d", path);
+}
+
+function drawChoropleth(svg: SVGSelection,
                         countyFeatures: Feature<Geometry, GeoJsonProperties>[],
                         processedData: ImmutableMap<string, number | undefined>,
                         colorScheme: ColorScheme,
@@ -386,7 +484,7 @@ function drawChoropleth(svg: Selection<SVGSVGElement | null, unknown, null, unde
 
 function drawBubbles(countyFeatures: Feature<Geometry, GeoJsonProperties>[],
                      processedData: ImmutableMap<string, number | undefined>,
-                     svg: Selection<SVGSVGElement | null, unknown, null, undefined>,
+                     svg: SVGSelection,
                      stateFeatures: Feature<Geometry, GeoJsonProperties>[],
                      path: GeoPath<any, GeoPermissibleObjects>,
                      radius: ScalePower<number, number, never>) {
@@ -427,8 +525,12 @@ function getPdfDomain(selections: DataIdParams[]) {
         return undefined;
     }
     
-    if (firstSelection.type === DataType.ClimateSurvey) {
+    if (firstSelection.type === DataType.ClimateOpinions) {
         return [0, 100] as [number, number];
+    }
+
+    if (selections[0].normalization === Normalization.Percentile) {
+        return [0, 1] as [number, number];
     }
 }
 
