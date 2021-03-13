@@ -149,6 +149,14 @@ input.data-group:checked + label {
     padding: 0 1em 1em 1em;
 }
 
+.weight-slider {
+    margin: 0 1em !important;
+    padding-bottom: 2em !important;
+    display: block !important;
+    width: auto !important;
+    color: #435e7c !important;
+}
+
 #map {
     min-width: 500px;
     width:100%;
@@ -245,4 +253,18 @@ h2 {
 
 #show-roads {
     margin-left:4em;
+}
+
+.weight {
+    display: flex;
+    margin: 0 1em;
+}
+
+.weight-label {
+    margin-top:0.2em;
+    font-size: 0.875rem;
+}
+
+.weight-slider {
+    flex-grow: 1;
 }
