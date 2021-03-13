@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import dataDefinitions, { DataIdParams, DataGroup, Normalization, Year, Dataset, DataDefinition, DataType } from './DataDefinitions';
-import { Map, OrderedMap } from 'immutable';
+import { Map } from 'immutable';
 import Slider from '@material-ui/core/Slider';
 import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';

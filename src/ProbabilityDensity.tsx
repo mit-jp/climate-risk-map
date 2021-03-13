@@ -40,7 +40,7 @@ const ProbabilityDensity = ({ data, selections, xRange=undefined, width=300, hei
             .call(axisLeft(y).ticks(null))
             .call((g: any) => g.select(".domain").remove())
         const svg = select(svgRef.current);
-        const color = Color(selections);
+        const color = Color(selections, data);
         svg.select("#pdf")
             .selectAll("rect")
             .data(bins)

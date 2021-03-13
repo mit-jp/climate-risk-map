@@ -5,7 +5,7 @@ import { feature, mesh } from 'topojson-client';
 import { GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, getUnits, riskMetricFormatter, DataGroup, MapType, DataType } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, Normalization, DataGroup, MapType, DataType, getUnits, riskMetricFormatter } from './DataDefinitions';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
 import states, { State } from './States';
@@ -16,6 +16,7 @@ import { ColorScheme, Data, TopoJson } from './Home';
 import { legend } from './Legend';
 import Checkbox from '@material-ui/core/Checkbox';
 import { FormControlLabel } from '@material-ui/core';
+import Color from './Color';
 
 export enum Aggregation {
     State = "state",
@@ -119,8 +120,8 @@ const MapUI = ({
         const title = getTitle(selectedDataDefinitions, selections);
         const legendFormatter = getLegendFormatter(selectedDataDefinitions, selections);
         const legendTicks = getLegendTicks(selectedDataDefinitions, selections);
-        const colorScheme = getColorScheme(selectedDataDefinitions, selections);
         const values = countyFeatures.map(d => processedData.get(d.id as string)).filter(d => d !== undefined).map(d => d as number);
+        const colorScheme = Color(selections, values);
         const radius = scaleSqrt([0, max(values) ?? 0], [0, 40]);
         const mapType = selectedDataDefinitions[0].mapType;
 
@@ -343,14 +344,6 @@ const getLegendTicks = (selectedDataDefinitions: DataDefinition[], selections: D
     }
 }
 
-const getColorScheme = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
-    const normalization = selections[0].normalization;
-    switch (normalization) {
-        case Normalization.Raw: return selectedDataDefinitions[0].color;
-        case Normalization.Percentile: return percentileColorScheme;
-    }
-}
-
 const stateFilter = (state: State | undefined) => (feature: Feature<Geometry, GeoJsonProperties>) => {
     if (state === undefined) {
         return true;
@@ -529,9 +522,7 @@ function getPdfDomain(selections: DataIdParams[]) {
         return [0, 100] as [number, number];
     }
 
-    if (selections[0].normalization === Normalization.Percentile) {
-        return [0, 1] as [number, number];
-    }
+    return undefined;
 }
 
 export default MapUI;

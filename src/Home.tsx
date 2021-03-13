@@ -49,7 +49,12 @@ const defaultData = Map<CsvFile, undefined>(csvFiles.map(csv_file => [csv_file, 
 
 const convertCsv = (csv: {[key: string]: string | number | undefined}[]) =>
    Map(csv.map(row => {
-    return [(row["STATEFP"] as string)! + (row["COUNTYFP"] as string)!, row];
+    let stateFIPS = (row["STATEFP"] as string)!;
+    let countyFIPS = (row["COUNTYFP"] as string)!;
+    stateFIPS = "0".repeat(2 - stateFIPS.length) + stateFIPS;
+    countyFIPS = "0".repeat(3 - countyFIPS.length) + countyFIPS;
+
+    return [stateFIPS + countyFIPS, row];
   }));
 
 const convertToNumbers = (rawRow: DSVRowString) => {
