@@ -5,7 +5,7 @@ import { feature, mesh } from 'topojson-client';
 import { GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, getUnits, percentileFormatter, DataGroup, MapType, DataType } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, getUnits, riskMetricFormatter, DataGroup, MapType, DataType } from './DataDefinitions';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
 import states, { State } from './States';
@@ -279,10 +279,10 @@ const format = (value: number | undefined, selectedDataDefinitions: DataDefiniti
     if (value === undefined) {
         return "No data";
     }
-    let units = getUnits(selectedDataDefinitions[0], selections[0].normalization);
-    if (units === "Percentile") {
+    if (selections[0].normalization !== Normalization.Raw) {
         return formatter(value);
     } else {
+        let units = getUnits(selectedDataDefinitions[0], selections[0].normalization);
         return formatter(value) + getUnitString(units);
     }
 }
@@ -323,7 +323,7 @@ const getFormatter = (selectedDataDefinitions: DataDefinition[], selections: Dat
     const normalization = selections[0].normalization;
     switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].formatter;
-        case Normalization.Percentile: return percentileFormatter;
+        case Normalization.Percentile: return riskMetricFormatter;
     }
 }
 
@@ -331,7 +331,7 @@ const getLegendFormatter = (selectedDataDefinitions: DataDefinition[], selection
     const normalization = selections[0].normalization;
     switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].legendFormatter;
-        case Normalization.Percentile: return percentileFormatter;
+        case Normalization.Percentile: return riskMetricFormatter;
     }
 }
 
