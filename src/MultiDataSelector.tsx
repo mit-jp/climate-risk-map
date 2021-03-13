@@ -34,7 +34,11 @@ const getDataset = (dataGroup: DataGroup) => {
     }
 }
 
-const marks = [{ value: 0, label: "0" }, { value: 0.25, label: "0.25" }, { value: 0.5, label: "0.5" }, { value: 0.75, label: "0.75" }, { value: 1, label: "1" }]
+const multipleChecked = (dataSelections: DataIdParams[]) => {
+    return dataSelections.length > 1;
+}
+
+const marks = [{ value: 0.1, label: "min" }, { value: 1, label: "max" }]
 
 const MultiDataSelector = ({ selection: dataSelections, onSelectionChange, onWeightChange, dataWeights }: Props) => {
     const selectionMap = Map(dataSelections.map(selection => [selection.dataGroup, selection]));
@@ -67,15 +71,21 @@ const MultiDataSelector = ({ selection: dataSelections, onSelectionChange, onWei
                         onChange={onSelectionToggled}
                         name="dataGroup" />
                     <label className="data-group" htmlFor={dataGroup}>{definition.name}</label>
-                    {shouldBeChecked(dataGroup) && <Slider
-                        className="weight-slider"
-                        min={0.1}
-                        max={1}
-                        step={0.1}
-                        marks={marks}
-                        valueLabelDisplay="auto"
-                        onChange={(_, weight) => onWeightChange(dataGroup, weight as number)}
-                        value={dataWeights.get(dataGroup) ?? 1} />}
+                    {
+                        shouldBeChecked(dataGroup) && multipleChecked(dataSelections) &&
+                        <div className="weight">
+                            <div className="weight-label">Weight</div>
+                            <Slider
+                            className="weight-slider"
+                            min={0.1}
+                            max={1}
+                            step={0.1}
+                            marks={marks}
+                            valueLabelDisplay="auto"
+                            onChange={(_, weight) => onWeightChange(dataGroup, weight as number)}
+                            value={dataWeights.get(dataGroup) ?? 1} />
+                        </div>
+                    }
 
                 </div>
             )

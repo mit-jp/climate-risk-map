@@ -254,3 +254,17 @@ h2 {
 #show-roads {
     margin-left:4em;
 }
+
+.weight {
+    display: flex;
+    margin: 0 1em;
+}
+
+.weight-label {
+    margin-top:0.2em;
+    font-size: 0.875rem;
+}
+
+.weight-slider {
+    flex-grow: 1;
+}
