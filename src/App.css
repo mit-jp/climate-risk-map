@@ -268,3 +268,7 @@ h2 {
 .weight-slider {
     flex-grow: 1;
 }
+
+.MuiAccordionDetails-root {
+    flex-direction: column;
+}
