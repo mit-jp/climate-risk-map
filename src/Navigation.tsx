@@ -8,7 +8,7 @@ type Props = {
 }
 
 export enum DataTab {
-    RiskMetrics = "risk metrics",
+    RiskMetrics = "multi-system metrics",
     Water = "water",
     Climate = "climate",
     Economic = "economic",
