@@ -16,12 +16,8 @@ import { DSVRowString, ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd
 export type TopoJson = Topology<Objects<GeoJsonProperties>>;
 
 const csvFiles: CsvFile[] = [
-  "climate_normalized_by_nation.csv",
-  "climate_normalized_by_state.csv",
   "climate.csv",
-  "demographics_normalized_by_nation.csv",
-  "demographics_normalized_by_state.csv",
-  "demographics.csv"
+  "demographics.csv",
 ];
 
 const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
@@ -69,11 +65,7 @@ const convertToNumbers = (rawRow: DSVRowString) => {
   return newRows;
 }
 export type CsvFile =
-| "climate_normalized_by_nation.csv"
-| "climate_normalized_by_state.csv"
 | "climate.csv"
-| "demographics_normalized_by_nation.csv"
-| "demographics_normalized_by_state.csv"
 | "demographics.csv";
 type CountyToDataMap = Map<string, {[key: string]: string | number | undefined}>;
 export type Data = Map<CsvFile, CountyToDataMap | undefined>;

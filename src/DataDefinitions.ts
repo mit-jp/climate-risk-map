@@ -288,7 +288,6 @@ export enum Normalization {
     Percentile,
 }
 
-export const riskMetricFormatter = (d: number | { valueOf(): number; }) => format(".0%")(d).slice(0, -1)
 const employmentDescription = "A percentage of employed people in this specific industry. Nonmetropolitan areas and rural counties are also included. These statistics cover wage and salary jobs and self-employment.";
 
 export const getUnits = (dataDefinition: DataDefinition, normalization: Normalization) => {
@@ -296,7 +295,7 @@ export const getUnits = (dataDefinition: DataDefinition, normalization: Normaliz
     if (normalization === Normalization.Raw) {
         units = dataDefinition.units;
     } else {
-        units = "Ranking";
+        units = "Normalized Value";
     }
     return units;
 }
@@ -324,7 +323,7 @@ export enum Year {
     _1980_2019 = "80_19"
 }
 
-const regularNumber = format(",.0f");
+export const regularNumber = format(",.0f");
 const money = format("$,.2s");
 const nearestSI = format("~s");
 const years = [Year._1980_1999, Year._2000_2019, Year._1980_2019];
