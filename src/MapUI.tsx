@@ -5,7 +5,7 @@ import { feature, mesh } from 'topojson-client';
 import { GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, Normalization, DataGroup, MapType, DataType, getUnits, riskMetricFormatter } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, Normalization, DataGroup, MapType, DataType, getUnits, regularNumber } from './DataDefinitions';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
 import states, { State } from './States';
@@ -324,7 +324,7 @@ const getFormatter = (selectedDataDefinitions: DataDefinition[], selections: Dat
     const normalization = selections[0].normalization;
     switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].formatter;
-        case Normalization.Percentile: return riskMetricFormatter;
+        case Normalization.Percentile: return regularNumber;
     }
 }
 
@@ -332,7 +332,7 @@ const getLegendFormatter = (selectedDataDefinitions: DataDefinition[], selection
     const normalization = selections[0].normalization;
     switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].legendFormatter;
-        case Normalization.Percentile: return riskMetricFormatter;
+        case Normalization.Percentile: return regularNumber;
     }
 }
 
@@ -508,6 +508,9 @@ function shouldShowPdf(selections: DataIdParams[]) {
     const firstSelection = getDataDefinitions(selections)[0];
     if (selections[0] !== undefined && selections[0].dataGroup === DataGroup.Populationpersquaremile2010) {
         return false;
+    }
+    if (selections[0]?.normalization === Normalization.Percentile) {
+        return selections.length > 1;
     }
     return firstSelection !== undefined && firstSelection.mapType === MapType.Choropleth;
 }

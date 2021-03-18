@@ -1,5 +1,5 @@
-import { sum } from 'd3';
-import { Map } from 'immutable';
+import { range, scaleQuantile } from 'd3';
+import { Map, Seq } from 'immutable';
 import counties from './Counties';
 import dataDefinitions, { DataGroup, DataId, DataIdParams, DataType, Normalization } from './DataDefinitions';
 import { CsvFile, Data } from './Home';
@@ -7,59 +7,50 @@ import { State } from './States';
 
 export type ProcessedData = Map<string, number | undefined>;
 
-const getSuffix = (normalization: Normalization, state: State | undefined) => {
-    if (state === undefined) {
-        return normalizationToFile.get(normalization);
-    } else {
-        return normalizationToStateFile.get(normalization);
-    }
-};
-
 const getTablesForSelections = (selections: DataIdParams[], state: State | undefined) => {
     return Map(selections.map(selection => {
         const dataDefinition = dataDefinitions.get(selection.dataGroup)!
-        const prefix = dataDefinition.type === DataType.Climate || dataDefinition.type === DataType.Water ? "climate" : "demographics";
-        const suffix = getSuffix(selection.normalization, state);
-        const csvFile: CsvFile = (prefix + suffix) as CsvFile;
+        const csvFile: CsvFile = dataDefinition.type === DataType.Climate || dataDefinition.type === DataType.Water ? "climate.csv" : "demographics.csv";
         return [selection, csvFile];
     }));
 }
 
-const normalizationToFile = Map([
-    [Normalization.Raw, ".csv"],
-    [Normalization.Percentile, "_normalized_by_nation.csv"],
-]);
-
-const normalizationToStateFile = Map([
-    [Normalization.Raw, ".csv"],
-    [Normalization.Percentile, "_normalized_by_state.csv"],
-]);
-
-const getDataForSelections = (
-    countyId: string,
-    selections: DataIdParams[],
+const getDataForSelection = (
+    countyIds: Seq.Indexed<string>,
+    selection: DataIdParams,
     selectionToTable: Map<DataIdParams, CsvFile>,
     selectionToDataId: Map<DataIdParams, DataId>,
     data: Data,
-    dataWeights: Map<DataGroup, number>,
-    totalWeight: number,
 ) => {
-    return selections.map(selection => {
-        const tableName = selectionToTable.get(selection)!;
-        const dataId = selectionToDataId.get(selection)!;
-        const table = data.get(tableName)!;
-        const county = table.get(countyId); 
-        if (county === undefined) {
-            return undefined;
+    const dataForSelection: [string, number][] = [];
+    const tableName = selectionToTable.get(selection)!;
+    const dataId = selectionToDataId.get(selection)!;
+    const table = data.get(tableName)!;
+
+    for (const countyId of countyIds) {
+        const countyValues = table.get(countyId);
+        if (countyValues === undefined) {
+            continue;
         }
-        const value = county[DataId[dataId]];
+        const value = countyValues[DataId[dataId]];
         if (value === undefined) {
-            return undefined;
+            continue;
         }
-        let weight = (dataWeights.get(selection.dataGroup) ?? 1);
-        weight = totalWeight === 0 ? 0 : weight / totalWeight
-        return +value * weight;
-    });
+        dataForSelection.push([countyId, +value]);
+    }
+    return dataForSelection;
+}
+
+const normalizeData = (
+    dataWeights: Map<DataGroup, number>,
+    selection: DataIdParams,
+    totalWeight: number,
+    valueByCountyId: Map<string, number>
+) => {
+    let weight = (dataWeights.get(selection.dataGroup) ?? 1);
+    weight = totalWeight === 0 ? 0 : weight / totalWeight;
+    const weightedPercentileScale = scaleQuantile(valueByCountyId.values(), range(0, 101 * weight));
+    return valueByCountyId.map(value => weightedPercentileScale(value));
 }
 
 const dataLoaded = (csvFiles: IterableIterator<CsvFile>, data: Data) => {
@@ -79,27 +70,37 @@ const processData = (
 ) => {
     const selectionToDataId = getDataIdsForSelections(selections);
     const selectionToTable = getTablesForSelections(selections, state);
-    let valuesById: [string, number | undefined][] = [];
     const dataGroups = selections.map(selection => selection.dataGroup);
+    const shouldNormalize = selections[0]?.normalization === Normalization.Percentile;
 
     let totalWeight = 0;
     for(const dataGroup of dataGroups) {
         totalWeight += dataWeights.get(dataGroup) ?? 1;
     }
 
-    for (const countyId of counties.keys()) {
-        const values = getDataForSelections(
-            countyId,
-            selections,
+    let countyIds = counties.keySeq();
+    if (state) {
+        countyIds = countyIds.filter(stateFilter(state));
+    }
+
+    const dataMaps: Map<string, number>[] = [];
+
+    for (const selection of selections) {
+        const valueToCountyId = Map(getDataForSelection(
+            countyIds,
+            selection,
             selectionToTable,
             selectionToDataId,
             data,
-            dataWeights,
-            totalWeight
-        );
-        valuesById.push([countyId, sum(values)]);
+        ));
+        if (shouldNormalize) {
+            dataMaps.push(normalizeData(dataWeights, selection, totalWeight, valueToCountyId));
+        } else {
+            dataMaps.push(valueToCountyId);
+        }
     }
-    return Map<string, number | undefined>(valuesById);
+
+    return Map<string, number>().mergeWith((oldVal, newVal) => oldVal + newVal, ...dataMaps);
 }
 
 const getDataIdsForSelections = (selections: DataIdParams[]) =>
@@ -113,4 +114,11 @@ export default (data: Data, selections: DataIdParams[], dataWeights: Map<DataGro
         return undefined;
     }
     return processData(selections, data, dataWeights, state);
+}
+
+export const stateFilter = (state: State) => (county: string) => {
+    if (state === undefined) {
+        return true;
+    }
+    return county.slice(0, 2) === state;
 }
