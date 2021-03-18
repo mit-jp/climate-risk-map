@@ -323,6 +323,7 @@ export enum Year {
     _1980_2019 = "80_19"
 }
 
+export const riskMetricFormatter = (d: number | { valueOf(): number; }) => format(".0%")(d).slice(0, -1)
 export const regularNumber = format(",.0f");
 const money = format("$,.2s");
 const nearestSI = format("~s");

@@ -1,4 +1,4 @@
-import { range, scaleQuantile } from 'd3';
+import { scaleSequentialQuantile } from 'd3';
 import { Map, Seq } from 'immutable';
 import counties from './Counties';
 import dataDefinitions, { DataGroup, DataId, DataIdParams, DataType, Normalization } from './DataDefinitions';
@@ -41,6 +41,18 @@ const getDataForSelection = (
     return dataForSelection;
 }
 
+const shouldInvert = (selection: DataIdParams) => {
+    // Large values in the drought and groundwater measurements
+    // correspond with low risk, not high risk
+    switch(selection.dataGroup) {
+        case DataGroup.DroughtIndicator:
+        case DataGroup.Groundwater:
+            return true;
+        default:
+            return false;
+    }
+}
+
 const normalizeData = (
     dataWeights: Map<DataGroup, number>,
     selection: DataIdParams,
@@ -49,7 +61,11 @@ const normalizeData = (
 ) => {
     let weight = (dataWeights.get(selection.dataGroup) ?? 1);
     weight = totalWeight === 0 ? 0 : weight / totalWeight;
-    const weightedPercentileScale = scaleQuantile(valueByCountyId.values(), range(0, 101 * weight));
+    valueByCountyId = shouldInvert(selection) ?
+        valueByCountyId.map(value => -1 * value) :
+        valueByCountyId;
+
+    const weightedPercentileScale = scaleSequentialQuantile(valueByCountyId.valueSeq(), quantile => quantile * weight);
     return valueByCountyId.map(value => weightedPercentileScale(value));
 }
 

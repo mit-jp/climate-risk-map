@@ -10,9 +10,10 @@ type Props = {
     width?: number,
     height?: number,
     formatter?: any,
+    continuous: boolean,
 };
 
-const ProbabilityDensity = ({ data, selections, xRange=undefined, width=300, height=200, formatter}: Props) => {
+const ProbabilityDensity = ({ data, selections, xRange=undefined, width=300, height=200, formatter, continuous=true}: Props) => {
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
         if (data === undefined || selections === undefined) {
@@ -40,7 +41,7 @@ const ProbabilityDensity = ({ data, selections, xRange=undefined, width=300, hei
             .call(axisLeft(y).ticks(null))
             .call((g: any) => g.select(".domain").remove())
         const svg = select(svgRef.current);
-        const color = Color(selections, data);
+        const color = Color(selections, continuous);
         svg.select("#pdf")
             .selectAll("rect")
             .data(bins)
@@ -54,7 +55,7 @@ const ProbabilityDensity = ({ data, selections, xRange=undefined, width=300, hei
             .call(xAxis);
         svg.select("#yAxis")
             .call(yAxis);
-    }, [data, selections, xRange, formatter, height, width]);
+    }, [data, selections, xRange, formatter, height, width, continuous]);
 
     if (data === undefined || selections === undefined) {
         return null;

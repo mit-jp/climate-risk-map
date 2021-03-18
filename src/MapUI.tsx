@@ -5,7 +5,7 @@ import { feature, mesh } from 'topojson-client';
 import { GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, Normalization, DataGroup, MapType, DataType, getUnits, regularNumber } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, Normalization, DataGroup, MapType, DataType, getUnits, riskMetricFormatter } from './DataDefinitions';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
 import states, { State } from './States';
@@ -15,7 +15,7 @@ import ProbabilityDensity from './ProbabilityDensity';
 import { ColorScheme, Data, TopoJson } from './Home';
 import { legend } from './Legend';
 import Checkbox from '@material-ui/core/Checkbox';
-import { FormControlLabel } from '@material-ui/core';
+import { FormControlLabel, Switch } from '@material-ui/core';
 import Color from './Color';
 
 export enum Aggregation {
@@ -40,6 +40,8 @@ type Props = {
     onDataDescriptionClicked: () => void,
     aggregation: Aggregation,
     state: State | undefined,
+    continuous: boolean,
+    onContinuousChanged: (continuous: boolean) => void,
     onStateChange: (state: State | undefined) => void,
     onShowRoadsChange: (showRoads: boolean) => void,
     onShowRailroadsChange: (showRoads: boolean) => void,
@@ -60,6 +62,8 @@ const MapUI = ({
     onDataDescriptionClicked,
     aggregation,
     state,
+    continuous=true,
+    onContinuousChanged,
     onStateChange,
     onShowRoadsChange,
     onShowRailroadsChange,
@@ -121,7 +125,7 @@ const MapUI = ({
         const legendFormatter = getLegendFormatter(selectedDataDefinitions, selections);
         const legendTicks = getLegendTicks(selectedDataDefinitions, selections);
         const values = countyFeatures.map(d => processedData.get(d.id as string)).filter(d => d !== undefined).map(d => d as number);
-        const colorScheme = Color(selections, values);
+        const colorScheme = Color(selections, continuous);
         const radius = scaleSqrt([0, max(values) ?? 0], [0, 40]);
         const mapType = selectedDataDefinitions[0].mapType;
 
@@ -168,7 +172,7 @@ const MapUI = ({
             .selectAll(".county")
             .on("touchmove mousemove", handleCountyMouseOver(selectedDataDefinitions, processedData, selections))
             .on("touchend mouseleave", handleMouseOut);
-    }, [map, selections, aggregation, state, onStateChange, processedData, showRoads, roadMap]);
+    }, [map, selections, aggregation, state, onStateChange, processedData, showRoads, roadMap, railroadMap, showRailroads, continuous]);
 
     if (map === undefined) {
         return <div id="map"><p className="data-missing">Loading</p></div>;
@@ -209,10 +213,30 @@ const MapUI = ({
                     label="Show railroads"
                 />
             }
-
+            {selections[0]?.normalization === Normalization.Percentile &&
+                <FormControlLabel
+                control={
+                <Switch
+                    checked={continuous}
+                    onChange={(_, value) => onContinuousChanged(value)}
+                    name="continuous"
+                    color="primary"
+                />
+                }
+                label="Detailed View"
+            />
+            }
             <svg ref={svgRef} viewBox="0, 0, 1175, 610">
                 <g id="bubble-legend"></g>
-                {shouldShowPdf(selections) && <ProbabilityDensity data={getArrayOfData()} selections={selections} xRange={getPdfDomain(selections)} formatter={getLegendFormatter(getDataDefinitions(selections), selections)}/>}
+                {
+                    shouldShowPdf(selections) &&
+                    <ProbabilityDensity
+                        data={getArrayOfData()}
+                        selections={selections}
+                        xRange={getPdfDomain(selections)}
+                        formatter={getLegendFormatter(getDataDefinitions(selections), selections)}
+                        continuous={continuous}/>
+                }
                 <g id="counties"></g>
                 <g id="states"></g>
                 <g id="state-borders"><path /></g>
@@ -324,7 +348,7 @@ const getFormatter = (selectedDataDefinitions: DataDefinition[], selections: Dat
     const normalization = selections[0].normalization;
     switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].formatter;
-        case Normalization.Percentile: return regularNumber;
+        case Normalization.Percentile: return riskMetricFormatter;
     }
 }
 
@@ -332,7 +356,7 @@ const getLegendFormatter = (selectedDataDefinitions: DataDefinition[], selection
     const normalization = selections[0].normalization;
     switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].legendFormatter;
-        case Normalization.Percentile: return regularNumber;
+        case Normalization.Percentile: return riskMetricFormatter;
     }
 }
 

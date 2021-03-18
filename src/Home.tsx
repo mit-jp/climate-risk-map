@@ -84,6 +84,7 @@ const Home = () => {
   const [state, setState] = useState<State | undefined>(undefined);
   const [showRoads, setShowRoads] = useState<boolean>(false);
   const [showRailroads, setShowRailroads] = useState<boolean>(false);
+  const [continuous, setContinuous] = useState<boolean>(false);
 
   useEffect(() => {
     json<TopoJson>(process.env.PUBLIC_URL + "/usa.json").then(setMap);
@@ -158,6 +159,8 @@ const Home = () => {
         onDatasetDescriptionClicked={onDatasetDescriptionToggled}
         showDataDescription={showDataDescription}
         onDataDescriptionClicked={onDataDescriptionToggled}
+        continuous={continuous}
+        onContinuousChanged={setContinuous}
         onStateChange={setState}
         onShowRoadsChange={setShowRoads}
         onShowRailroadsChange={setShowRailroads}
