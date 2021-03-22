@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { select, geoPath, scaleSqrt, max, Selection, GeoPath, GeoPermissibleObjects, ScalePower } from 'd3';
+import { select, geoPath, scaleSqrt, max, Selection, GeoPath, GeoPermissibleObjects, ScalePower, csvFormat } from 'd3';
 import { Feature, Geometry } from 'geojson';
 import { feature, mesh } from 'topojson-client';
 import { GeometryCollection } from 'topojson-specification';
@@ -15,8 +15,10 @@ import ProbabilityDensity from './ProbabilityDensity';
 import { ColorScheme, Data, TopoJson } from './Home';
 import { legend } from './Legend';
 import Checkbox from '@material-ui/core/Checkbox';
-import { FormControlLabel, Switch } from '@material-ui/core';
+import { Button, FormControlLabel, Switch } from '@material-ui/core';
 import Color from './Color';
+import counties from './Counties';
+import { saveAs } from 'file-saver';
 
 export enum Aggregation {
     State = "state",
@@ -187,45 +189,68 @@ const MapUI = ({
             .filter(value => value !== undefined) as number[];
     }
 
+    const downloadData = () => {
+        const objectData = processedData
+            ?.sortBy((_, fipsCode) => fipsCode)
+            .map((value, fipsCode) => {
+                const county = counties.get(fipsCode);
+                const state = states.get(fipsCode.slice(0,2) as State);
+                return { fipsCode, state, county, value };
+            })
+            .valueSeq()
+            .toArray();
+        if (objectData) {
+            const csv = csvFormat(objectData, ["fipsCode", "state", "county", "value"]);
+            const blob = new Blob([csv], {type: "text/plain;charset=utf-8"});
+            saveAs(blob, getFilename(getDataDefinitions(selections), selections) + ".csv");
+        }
+    }
+
     return (
         <div id="map">
-            {state === undefined &&
-                <FormControlLabel
-                    id="show-roads"
+            { map && processedData &&
+            <div id="map-controls">
+                {state === undefined &&
+                    <FormControlLabel
+                        id="show-roads"
+                        control={
+                            <Checkbox
+                                onChange={(_, value) => onShowRoadsChange(value)}
+                                title="Show roads"
+                                color="primary" />
+                        }
+                        label="Show roads"
+                    />
+                }
+                {state === undefined &&
+                    <FormControlLabel
+                        id="show-railroads"
+                        control={
+                            <Checkbox
+                                onChange={(_, value) => onShowRailroadsChange(value)}
+                                title="Show major railroads"
+                                color="primary" />
+                        }
+                        label="Show major railroads"
+                    />
+                }
+                {selections[0]?.normalization === Normalization.Percentile &&
+                    <FormControlLabel
                     control={
-                        <Checkbox
-                            onChange={(_, value) => onShowRoadsChange(value)}
-                            title="Show roads"
-                            color="primary" />
+                    <Switch
+                        checked={continuous}
+                        onChange={(_, value) => onContinuousChanged(value)}
+                        name="continuous"
+                        color="primary"
+                    />
                     }
-                    label="Show roads"
-                />
-            }
-            {state === undefined &&
-                <FormControlLabel
-                    id="show-railroads"
-                    control={
-                        <Checkbox
-                            onChange={(_, value) => onShowRailroadsChange(value)}
-                            title="Show major railroads"
-                            color="primary" />
-                    }
-                    label="Show major railroads"
-                />
-            }
-            {selections[0]?.normalization === Normalization.Percentile &&
-                <FormControlLabel
-                control={
-                <Switch
-                    checked={continuous}
-                    onChange={(_, value) => onContinuousChanged(value)}
-                    name="continuous"
-                    color="primary"
+                    label="Detailed View"
                 />
                 }
-                label="Detailed View"
-            />
+                {processedData && <Button variant="outlined" onClick={downloadData}>Download data</Button>}
+            </div>
             }
+
             <svg ref={svgRef} viewBox="0, 0, 1175, 610">
                 <g id="bubble-legend"></g>
                 {
@@ -341,6 +366,15 @@ const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdP
         return unitString;
     } else {
         return "Mean of selected data";
+    }
+}
+
+const getFilename = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
+    const unitString = getTitle(selectedDataDefinitions, selections);
+    if (unitString === "Mean of selected data") {
+        return unitString;
+    } else {
+        return selectedDataDefinitions[0].name + unitString;
     }
 }
 
