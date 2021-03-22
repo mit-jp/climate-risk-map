@@ -1,5 +1,5 @@
 import { scaleSequentialQuantile } from 'd3';
-import { Map, Seq } from 'immutable';
+import { Map, Seq, Set } from 'immutable';
 import counties from './Counties';
 import dataDefinitions, { DataGroup, DataId, DataIdParams, DataType, Normalization } from './DataDefinitions';
 import { CsvFile, Data } from './Home';
@@ -99,7 +99,7 @@ const processData = (
         countyIds = countyIds.filter(stateFilter(state));
     }
 
-    const dataMaps: Map<string, number>[] = [];
+    const allProcessedData: Map<string, number>[] = [];
 
     for (const selection of selections) {
         const valueToCountyId = Map(getDataForSelection(
@@ -110,13 +110,28 @@ const processData = (
             data,
         ));
         if (shouldNormalize) {
-            dataMaps.push(normalizeData(dataWeights, selection, totalWeight, valueToCountyId));
+            allProcessedData.push(normalizeData(dataWeights, selection, totalWeight, valueToCountyId));
         } else {
-            dataMaps.push(valueToCountyId);
+            allProcessedData.push(valueToCountyId);
         }
     }
 
-    return Map<string, number>().mergeWith((oldVal, newVal) => oldVal + newVal, ...dataMaps);
+    const countyIdsForEachSelection = allProcessedData.map(dataByCountyId => dataByCountyId.keySeq().toSet());
+    const countyIdsInAllSelections = intersect(countyIdsForEachSelection);
+    const mergedData = Map<string, number>().mergeWith((oldVal, newVal) => oldVal + newVal, ...allProcessedData);
+    return mergedData.filter((_, key) => countyIdsInAllSelections.includes(key));
+}
+
+const intersect = (sets: Set<string>[]) => {
+    if (sets.length > 1) {
+        const first_set = sets[0];
+        const other_sets = sets.slice(1, sets.length);
+        return first_set.intersect(...other_sets);
+    } else if (sets.length === 1) {
+        return sets[0];
+    } else {
+        return Set();
+    }
 }
 
 const getDataIdsForSelections = (selections: DataIdParams[]) =>
