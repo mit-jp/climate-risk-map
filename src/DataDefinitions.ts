@@ -552,7 +552,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         name: "Mean Annual Potential Evapotranspiration",
         units: "mm/year",
         legendFormatter: nearestSI,
-        color: scaleSequential<string>(scales.interpolateBlues).domain([300, 1700]),
+        color: scaleSequential<string>(scales.interpolateYlOrRd).domain([600, 1600]),
         type: DataType.Water,
         description: "The maximum amount of water that the air could evaporate. Monthly potential evapotranspiration is calculated based on monthly mean surface air temperature, monthly mean temperature diurnal range, and monthly mean precipitation using modified Hargreaves method (Droogers and Allen, Irrigation and Drainage Systems 16: 33–45, 2002)",
     })],
