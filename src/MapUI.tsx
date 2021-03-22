@@ -207,10 +207,10 @@ const MapUI = ({
                     control={
                         <Checkbox
                             onChange={(_, value) => onShowRailroadsChange(value)}
-                            title="Show railroads"
+                            title="Show major railroads"
                             color="primary" />
                     }
-                    label="Show railroads"
+                    label="Show major railroads"
                 />
             }
             {selections[0]?.normalization === Normalization.Percentile &&
