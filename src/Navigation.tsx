@@ -35,7 +35,6 @@ const Navigation = (props: Props) =>
     <nav>
         <ul>
             {listDataTabs(props)}
-            <li key="download"><a href={process.env.PUBLIC_URL + "/?page=download"} target="_blank" rel="noopener noreferrer">Download</a></li>
         </ul>
     </nav>
 
