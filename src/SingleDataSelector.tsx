@@ -16,6 +16,12 @@ const getYears = (selection: DataIdParams) =>
 const getDatasets = (selection: DataIdParams) =>
     dataDefinitions.get(selection.dataGroup)!.datasets;
 
+const shouldShowYears = (dataGroup: DataGroup, selection: DataIdParams) =>
+    selection.dataGroup === dataGroup && getYears(selection).length > 1;
+
+const shouldShowDatasets = (dataGroup: DataGroup, selection: DataIdParams) =>
+    selection.dataGroup === dataGroup && getDatasets(selection).length > 1;
+
 const SingleDataSelector = ({selection, onSelectionChange, dataTab}: Props) => {
 
     const onYearChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -42,9 +48,6 @@ const SingleDataSelector = ({selection, onSelectionChange, dataTab}: Props) => {
         onSelectionChange(newSelection);
     }
 
-    const shouldShowYears = (dataGroup: DataGroup) => selection.dataGroup === dataGroup && getYears(selection).length > 1
-    const shouldShowDatasets = (dataGroup: DataGroup) => selection.dataGroup === dataGroup && getDatasets(selection).length > 1
-
     const matchesDataTab = ([_, definition]: [DataGroup, DataDefinition]) => {
         return definition.normalizations.contains(Normalization.Raw) && TabToTypeMap.get(dataTab) === definition.type;
     }
@@ -63,8 +66,8 @@ const SingleDataSelector = ({selection, onSelectionChange, dataTab}: Props) => {
                     onChange={onDataGroupChange}
                     name="dataGroup" />
                 <label className="data-group" htmlFor={dataGroup}>{data.name}</label>
-                {shouldShowYears(dataGroup) && <YearSelector id={dataGroup} years={getYears(selection)} selectedYear={selection.year} onSelectionChange={onYearChange} />}
-                {shouldShowDatasets(dataGroup) && <DatasetSelector id={dataGroup} datasets={getDatasets(selection)} selectedDataset={selection.dataset} onSelectionChange={onDatasetChange} />}
+                {shouldShowYears(dataGroup, selection) && <YearSelector id={dataGroup} years={getYears(selection)} selectedYear={selection.year} onSelectionChange={onYearChange} />}
+                {shouldShowDatasets(dataGroup, selection) && <DatasetSelector id={dataGroup} datasets={getDatasets(selection)} selectedDataset={selection.dataset} onSelectionChange={onDatasetChange} />}
             </div>
         )
     }
