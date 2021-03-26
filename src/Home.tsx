@@ -28,7 +28,8 @@ const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
     normalization: Normalization.Percentile
   }]],
   [DataTab.Water, [{
-    dataGroup: DataGroup.WS_ERA2015,
+    dataGroup: DataGroup.WaterStress,
+    year: Year._2015,
     normalization: Normalization.Raw,
   }]],
   [DataTab.Climate, [{

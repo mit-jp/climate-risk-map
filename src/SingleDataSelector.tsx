@@ -29,6 +29,10 @@ const SingleDataSelector = ({selection, onSelectionChange, dataTab}: Props) => {
     const onDataGroupChange = (event: ChangeEvent<HTMLInputElement>) => {
         const dataGroup = event.target.value as DataGroup;
         const newSelection = {...selection, dataGroup};
+        const possibleYears = getYears(newSelection);
+        if (newSelection.year && !possibleYears.includes(newSelection.year)) {
+            newSelection.year = undefined;
+        }
         if (getYears(newSelection).length > 1 && newSelection.year === undefined) {
             newSelection.year = getYears(newSelection)[1];
         }

@@ -26,6 +26,7 @@ export enum DataGroup {
     Precipitation = "prc",
     Runoff = "ro",
     FloodIndicator = "wet",
+    WaterStress = "WS_ERA",
     AllIndustries = "AllindustriesE",
     Farming = "FarmingEPercentage",
     Mining = "MiningEPercentage",
@@ -98,7 +99,6 @@ export enum DataGroup {
     timingOppose = "timingOppose",
     affectweather = "affectweather",
     affectweatherOppose = "affectweatherOppose",
-    WS_ERA2015 = "WS_ERA2015",
     WS_EQI = "WS_EQI",
 }
 
@@ -184,6 +184,12 @@ export enum DataId {
     Nwet_00_19,
     Nwet_80_19,
     Nwet_80_99,
+    WS_ERA1995,
+    WS_ERA2000,
+    WS_ERA2005,
+    WS_ERA2010,
+    WS_ERA2015,
+    WS_ERA_Avg,
     AllindustriesE,
     FarmingEPercentage,
     MiningEPercentage,
@@ -256,7 +262,6 @@ export enum DataId {
     timingOppose,
     affectweather,
     affectweatherOppose,
-    WS_ERA2015,
     WS_EQI,
 }
 
@@ -320,7 +325,13 @@ export type DatasetDefinition = {
 export enum Year {
     _1980_1999 = "80_99",
     _2000_2019 = "00_19",
-    _1980_2019 = "80_19"
+    _1980_2019 = "80_19",
+    _2015 = "2015",
+    _2010 = "2010",
+    _2005 = "2005",
+    _2000 = "2000",
+    _1995 = "1995",
+    Average = "_Avg",
 }
 
 export const riskMetricFormatter = (d: number | { valueOf(): number; }) => format(".0%")(d).slice(0, -1)
@@ -372,6 +383,7 @@ export const datasetDefinitions = Map<Dataset, DatasetDefinition>([
 
 type DataDefinitionBuilder = {
     name: string,
+    id?: (params: DataIdParams) => DataId,
     units?: string,
     formatter?: (n: number | { valueOf(): number }) => string,
     legendFormatter?: (n: number | { valueOf(): number }) => string,
@@ -381,6 +393,7 @@ type DataDefinitionBuilder = {
     type: DataType,
     description: string,
     dataset: Dataset,
+    years?: Year[],
     mapType?: MapType,
 }
 
@@ -429,6 +442,7 @@ const climateDefinition = ({
 
 const genericDefinition = ({
     name,
+    id = getRegularId,
     units = "",
     formatter = regularNumber,
     legendFormatter = regularNumber,
@@ -437,10 +451,11 @@ const genericDefinition = ({
     type,
     description,
     dataset,
+    years = [],
     mapType = MapType.Choropleth,
 }: DataDefinitionBuilder): DataDefinition => ({
     name,
-    id: getRegularId,
+    id,
     units,
     formatter,
     legendFormatter,
@@ -448,7 +463,7 @@ const genericDefinition = ({
     normalizations,
     type,
     description,
-    years: [],
+    years,
     datasets: [dataset],
     mapType,
 });
@@ -486,15 +501,21 @@ const demographicDefinition = (builder: DemographicDefinitionBuilder): DataDefin
 });
 
 const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
-    [DataGroup.WS_ERA2015, genericDefinition({
+    [DataGroup.WaterStress, genericDefinition({
         name: "Water Stress",
+        id: params => {
+            let dataIdString: string = params.dataGroup as string;
+            dataIdString = dataIdString + params.year;
+            return DataId[dataIdString as keyof typeof DataId];
+        },
         color: scaleSequentialSqrt([0, 2], scales.interpolateYlOrRd),
         formatter: format(",.1f"),
         legendFormatter: format(",.1f"),
         type: DataType.Water,
         normalizations: allNormalizations,
-        description: "The approximate proportion of the available water that's being used. Withdrawal (fresh surface + groundwater) / Runoff in 2015. 0.3 is slightly exploited, 0.3 to 0.6 is moderately exploited, 0.6 to 1 is heavily exploited, and > 1 is overexploited",
+        description: "The approximate proportion of the available water that's being used. Withdrawal (fresh surface + groundwater) / Runoff. 0.3 is slightly exploited, 0.3 to 0.6 is moderately exploited, 0.6 to 1 is heavily exploited, and > 1 is overexploited",
         dataset: Dataset.ERA5,
+        years: [Year._1995, Year._2000, Year._2005, Year._2010, Year._2015, Year.Average],
     })],
     [DataGroup.WS_EQI, genericDefinition({
         name: "Water Quality",

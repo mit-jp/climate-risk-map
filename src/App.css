@@ -100,7 +100,7 @@ nav li.selected {
 .sub-selector label {
     display: block;
     border:1px;
-    padding:1em;
+    padding:1em .5em 1em .5em;
     cursor: pointer;
 }
 
