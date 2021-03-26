@@ -85,7 +85,7 @@ const Home = () => {
   const [state, setState] = useState<State | undefined>(undefined);
   const [showRoads, setShowRoads] = useState<boolean>(false);
   const [showRailroads, setShowRailroads] = useState<boolean>(false);
-  const [continuous, setContinuous] = useState<boolean>(false);
+  const [continuous, setContinuous] = useState<boolean>(true);
 
   useEffect(() => {
     json<TopoJson>(process.env.PUBLIC_URL + "/usa.json").then(setMap);

@@ -216,10 +216,10 @@ const MapUI = ({
                         control={
                             <Checkbox
                                 onChange={(_, value) => onShowRoadsChange(value)}
-                                title="Show roads"
+                                title="Show highways"
                                 color="primary" />
                         }
-                        label="Show roads"
+                        label="Show highways"
                     />
                 }
                 {state === undefined &&
