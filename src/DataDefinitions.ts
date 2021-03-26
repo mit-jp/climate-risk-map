@@ -27,6 +27,7 @@ export enum DataGroup {
     Runoff = "ro",
     FloodIndicator = "wet",
     WaterStress = "WS_ERA",
+    WS_EQI = "WS_EQI",
     AllIndustries = "AllindustriesE",
     Farming = "FarmingEPercentage",
     Mining = "MiningEPercentage",
@@ -70,7 +71,6 @@ export enum DataGroup {
     harmplants = "harmplants",
     timing = "timing",
     affectweather = "affectweather",
-    WS_EQI = "WS_EQI",
 }
 
 export enum DataId {
@@ -161,6 +161,7 @@ export enum DataId {
     WS_ERA2010,
     WS_ERA2015,
     WS_ERA_Avg,
+    WS_EQI,
     AllindustriesE,
     FarmingEPercentage,
     MiningEPercentage,
@@ -204,7 +205,6 @@ export enum DataId {
     harmplants,
     timing,
     affectweather,
-    WS_EQI,
 }
 
 export type DataIdParams = {
