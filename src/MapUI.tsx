@@ -102,7 +102,7 @@ const MapUI = ({
                 roadMap,
                 roadMap.objects.roads as GeometryCollection<GeoJsonProperties>
             ).features;
-            drawRoads(svg, roadFeatures, path);
+            drawRoadsAndFerries(svg, roadFeatures, path);
         } else {
             clearRoads(svg);
         }
@@ -479,7 +479,7 @@ function clearRoads(svg: SVGSelection) {
     svg.select("#road-map").selectAll("*").remove();
 }
 
-function drawRoads(svg: SVGSelection,
+function drawRoadsAndFerries(svg: SVGSelection,
                    roadFeatures: Feature<Geometry, GeoJsonProperties>[],
                    path: GeoPath<any, GeoPermissibleObjects>) {
     svg.select("#road-map")
