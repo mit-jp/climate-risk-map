@@ -32,6 +32,8 @@ type Props = {
     showRoads: boolean,
     railroadMap: TopoJson | undefined,
     showRailroads: boolean,
+    waterwayMap: TopoJson | undefined,
+    showWaterways: boolean,
     map: TopoJson | undefined,
     selections: DataIdParams[],
     data: Data,
@@ -47,6 +49,7 @@ type Props = {
     onStateChange: (state: State | undefined) => void,
     onShowRoadsChange: (showRoads: boolean) => void,
     onShowRailroadsChange: (showRoads: boolean) => void,
+    onShowWaterwaysChange: (showWaterways: boolean) => void,
 };
 
 const MapUI = ({
@@ -54,6 +57,8 @@ const MapUI = ({
     showRoads,
     railroadMap,
     showRailroads,
+    waterwayMap,
+    showWaterways,
     map,
     selections,
     data,
@@ -69,6 +74,7 @@ const MapUI = ({
     onStateChange,
     onShowRoadsChange,
     onShowRailroadsChange,
+    onShowWaterwaysChange,
 }: Props) => {
     const processedData = DataProcessor(data, selections, dataWeights, state);
 
@@ -116,6 +122,17 @@ const MapUI = ({
         } else {
             clearRailroads(svg);
         }
+
+        if (showWaterways && waterwayMap !== undefined && state === undefined) {
+            const waterwayFeatures = feature(
+                waterwayMap,
+                waterwayMap.objects.waterways as GeometryCollection<GeoJsonProperties>
+            ).features;
+            drawWaterways(svg, waterwayFeatures, path);
+        } else {
+            clearWaterways(svg);
+        }
+
 
         if (processedData === undefined) {
             clearMap(svg, stateFeatures, path);
@@ -174,7 +191,7 @@ const MapUI = ({
             .selectAll(".county")
             .on("touchmove mousemove", handleCountyMouseOver(selectedDataDefinitions, processedData, selections))
             .on("touchend mouseleave", handleMouseOut);
-    }, [map, selections, aggregation, state, onStateChange, processedData, showRoads, roadMap, railroadMap, showRailroads, continuous]);
+    }, [map, selections, aggregation, state, onStateChange, processedData, showRoads, roadMap, railroadMap, showRailroads, waterwayMap, showWaterways, continuous]);
 
     if (map === undefined) {
         return <div id="map"><p className="data-missing">Loading</p></div>;
@@ -234,6 +251,18 @@ const MapUI = ({
                         label="Show major railroads"
                     />
                 }
+                                {state === undefined &&
+                    <FormControlLabel
+                        id="show-waterways"
+                        control={
+                            <Checkbox
+                                onChange={(_, value) => onShowWaterwaysChange(value)}
+                                title="Show marine highways"
+                                color="primary" />
+                        }
+                        label="Show marine highways"
+                    />
+                }
                 {selections[0]?.normalization === Normalization.Percentile &&
                     <FormControlLabel
                     control={
@@ -267,6 +296,7 @@ const MapUI = ({
                 <g id="state-borders"><path /></g>
                 <g id="road-map"></g>
                 <g id="railroad-map"></g>
+                <g id="waterway-map"></g>
                 <g id="circles"></g>
                 <svg id="legend" x="550" y="20"></svg>
             </svg>
@@ -508,6 +538,24 @@ function drawRailroads(svg: SVGSelection,
         .attr("stroke-width", 1)
         .attr("d", path);
 }
+
+function clearWaterways(svg: SVGSelection) {
+    svg.select("#waterway-map").selectAll("*").remove();
+}
+
+function drawWaterways(svg: SVGSelection,
+                   roadFeatures: Feature<Geometry, GeoJsonProperties>[],
+                   path: GeoPath<any, GeoPermissibleObjects>) {
+    svg.select("#waterway-map")
+        .selectAll("path")
+        .data(roadFeatures)
+        .join("path")
+        .attr("stroke", "#0099ff")
+        .attr("fill", "none")
+        .attr("stroke-width", 1)
+        .attr("d", path);
+}
+
 
 function drawChoropleth(svg: SVGSelection,
                         countyFeatures: Feature<Geometry, GeoJsonProperties>[],

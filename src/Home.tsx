@@ -76,6 +76,7 @@ const Home = () => {
   const [map, setMap] = useState<TopoJson | undefined>(undefined);
   const [roadMap, setRoadMap] = useState<TopoJson | undefined>(undefined);
   const [railroadMap, setRailroadMap] = useState<TopoJson | undefined>(undefined);
+  const [waterwayMap, setWaterwayMap] = useState<TopoJson | undefined>(undefined);
   const [data, setData] = useState<Data>(defaultData);
   const [dataSelections, setDataSelections] = useState(defaultSelectionMap);
   const [dataWeights, setDataWeights] = useState(Map<DataGroup, number>());
@@ -85,6 +86,7 @@ const Home = () => {
   const [state, setState] = useState<State | undefined>(undefined);
   const [showRoads, setShowRoads] = useState<boolean>(false);
   const [showRailroads, setShowRailroads] = useState<boolean>(false);
+  const [showWaterways, setShowWaterways] = useState<boolean>(false);
   const [continuous, setContinuous] = useState<boolean>(true);
 
   useEffect(() => {
@@ -108,6 +110,10 @@ const Home = () => {
 
   useEffect(() => {
     json<TopoJson>(process.env.PUBLIC_URL + "/railroads-topo.json").then(setRailroadMap);
+  }, []);
+
+  useEffect(() => {
+    json<TopoJson>(process.env.PUBLIC_URL + "/waterways-topo.json").then(setWaterwayMap);
   }, []);
 
   const onSelectionChange = (dataIds: DataIdParams[], dataTab: DataTab) => {
@@ -150,6 +156,8 @@ const Home = () => {
         showRoads={showRoads}
         railroadMap={railroadMap}
         showRailroads={showRailroads}
+        waterwayMap={waterwayMap}
+        showWaterways={showWaterways}
         aggregation={Aggregation.County}
         map={map}
         data={data}
@@ -165,6 +173,7 @@ const Home = () => {
         onStateChange={setState}
         onShowRoadsChange={setShowRoads}
         onShowRailroadsChange={setShowRailroads}
+        onShowWaterwaysChange={setShowWaterways}
       />
       </div>
       <Footer />
