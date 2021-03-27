@@ -1,7 +1,7 @@
 import { scaleSequentialQuantile } from 'd3';
 import { Map, Seq, Set } from 'immutable';
 import counties from './Counties';
-import dataDefinitions, { DataGroup, DataId, DataIdParams, DataType, Normalization } from './DataDefinitions';
+import dataDefinitions, { DataGroup, DataIdParams, DataType, Normalization } from './DataDefinitions';
 import { CsvFile, Data } from './Home';
 import { State } from './States';
 
@@ -19,7 +19,7 @@ const getDataForSelection = (
     countyIds: Seq.Indexed<string>,
     selection: DataIdParams,
     selectionToTable: Map<DataIdParams, CsvFile>,
-    selectionToDataId: Map<DataIdParams, DataId>,
+    selectionToDataId: Map<DataIdParams, string>,
     data: Data,
 ) => {
     const dataForSelection: [string, number][] = [];
@@ -32,7 +32,7 @@ const getDataForSelection = (
         if (countyValues === undefined) {
             continue;
         }
-        const value = countyValues[DataId[dataId]];
+        const value = countyValues[dataId];
         if (value === undefined) {
             continue;
         }

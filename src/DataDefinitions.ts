@@ -73,140 +73,6 @@ export enum DataGroup {
     affectweather = "affectweather",
 }
 
-export enum DataId {
-    Ecmi_00_19,
-    Ecmi_80_19,
-    Ecmi_80_99,
-    Edef_00_19,
-    Edef_80_19,
-    Edef_80_99,
-    Edry_00_19,
-    Edry_80_19,
-    Edry_80_99,
-    Egw_00_19,
-    Egw_80_19,
-    Egw_80_99,
-    Eht_00_19,
-    Eht_80_19,
-    Eht_80_99,
-    Epet_00_19,
-    Epet_80_19,
-    Epet_80_99,
-    Eprc_00_19,
-    Eprc_80_19,
-    Eprc_80_99,
-    Ero_00_19,
-    Ero_80_19,
-    Ero_80_99,
-    Ewet_00_19,
-    Ewet_80_19,
-    Ewet_80_99,
-    Mcmi_00_19,
-    Mcmi_80_19,
-    Mcmi_80_99,
-    Mdef_00_19,
-    Mdef_80_19,
-    Mdef_80_99,
-    Mdry_00_19,
-    Mdry_80_19,
-    Mdry_80_99,
-    Mgw_00_19,
-    Mgw_80_19,
-    Mgw_80_99,
-    Mht_00_19,
-    Mht_80_19,
-    Mht_80_99,
-    Mpet_00_19,
-    Mpet_80_19,
-    Mpet_80_99,
-    Mprc_00_19,
-    Mprc_80_19,
-    Mprc_80_99,
-    Mro_00_19,
-    Mro_80_19,
-    Mro_80_99,
-    Mwet_00_19,
-    Mwet_80_19,
-    Mwet_80_99,
-    Ncmi_00_19,
-    Ncmi_80_19,
-    Ncmi_80_99,
-    Ndef_00_19,
-    Ndef_80_19,
-    Ndef_80_99,
-    Ndry_00_19,
-    Ndry_80_19,
-    Ndry_80_99,
-    Ngw_00_19,
-    Ngw_80_19,
-    Ngw_80_99,
-    Nht_00_19,
-    Nht_80_19,
-    Nht_80_99,
-    Npet_00_19,
-    Npet_80_19,
-    Npet_80_99,
-    Nprc_00_19,
-    Nprc_80_19,
-    Nprc_80_99,
-    Nro_00_19,
-    Nro_80_19,
-    Nro_80_99,
-    Nwet_00_19,
-    Nwet_80_19,
-    Nwet_80_99,
-    WS_ERA1995,
-    WS_ERA2000,
-    WS_ERA2005,
-    WS_ERA2010,
-    WS_ERA2015,
-    WS_ERA_Avg,
-    WS_EQI,
-    AllindustriesE,
-    FarmingEPercentage,
-    MiningEPercentage,
-    ConstructionEPercentage,
-    AgricultureforestryfishingandhuntingEPercentage,
-    HealthcareandsocialassistanceEPercentage,
-    PerCapitapersonalincome2018,
-    GDP2018,
-    PercentPopulationUnder18,
-    PercentPopulationOver65,
-    PercentNonwhite,
-    PercentofPopulationBelowPovertyLevel,
-    UnemploymentRate,
-    Populationpersquaremile2010,
-    discuss,
-    reducetax,
-    CO2limits,
-    localofficials,
-    governor,
-    congress,
-    president,
-    corporations,
-    citizens,
-    regulate,
-    supportRPS,
-    drilloffshore,
-    drillANWR,
-    fundrenewables,
-    rebates,
-    mediaweekly,
-    prienv,
-    teachGW,
-    happening,
-    human,
-    consensus,
-    worried,
-    personal,
-    harmUS,
-    devharm,
-    futuregen,
-    harmplants,
-    timing,
-    affectweather,
-}
-
 export type DataIdParams = {
     year?: Year,
     dataset?: Dataset,
@@ -216,7 +82,7 @@ export type DataIdParams = {
 
 export type DataDefinition = {
     name: string,
-    id: (params: DataIdParams) => DataId
+    id: (params: DataIdParams) => string
     units: string,
     formatter: (n: number | { valueOf(): number }) => string,
     legendFormatter: (n: number | { valueOf(): number }) => string,
@@ -283,12 +149,11 @@ const nearestSI = format("~s");
 const years = [Year._1980_1999, Year._2000_2019, Year._1980_2019];
 const climateDatasets = [Dataset.ERA5, Dataset.MERRA2, Dataset.NARR];
 const getClimateDataId = (params: DataIdParams) => {
-    let dataIdString: string = params.dataGroup as string;
-    dataIdString = params.dataset + dataIdString + "_" + params.year;
-    return DataId[dataIdString as keyof typeof DataId];
+    let dataId: string = params.dataGroup as string;
+    dataId = params.dataset + dataId + "_" + params.year;
+    return dataId;
 };
-const getRegularId = (params: DataIdParams) =>
-    DataId[params.dataGroup as keyof typeof DataId];
+const getRegularId = (params: DataIdParams) => params.dataGroup as string
 
 export const datasetDefinitions = Map<Dataset, DatasetDefinition>([
     [Dataset.MERRA2, {
@@ -325,7 +190,7 @@ export const datasetDefinitions = Map<Dataset, DatasetDefinition>([
 
 type DataDefinitionBuilder = {
     name: string,
-    id?: (params: DataIdParams) => DataId,
+    id?: (params: DataIdParams) => string,
     units?: string,
     formatter?: (n: number | { valueOf(): number }) => string,
     legendFormatter?: (n: number | { valueOf(): number }) => string,
@@ -445,11 +310,7 @@ const demographicDefinition = (builder: DemographicDefinitionBuilder): DataDefin
 const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.WaterStress, genericDefinition({
         name: "Water Stress",
-        id: params => {
-            let dataIdString: string = params.dataGroup as string;
-            dataIdString = dataIdString + params.year;
-            return DataId[dataIdString as keyof typeof DataId];
-        },
+        id: params => (params.dataGroup as string) + params.year,
         color: scaleSequentialSqrt([0, 2], scales.interpolateYlOrRd),
         formatter: format(",.1f"),
         legendFormatter: format(",.1f"),
