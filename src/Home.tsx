@@ -11,14 +11,18 @@ import { Map } from 'immutable';
 import { DataGroup, DataIdParams, Dataset, Normalization, Year } from './DataDefinitions';
 import { json, csv } from 'd3-fetch';
 import { State } from './States';
-import { DSVRowString, ScaleSequential, ScaleThreshold, ScaleDiverging } from 'd3';
+import { ScaleSequential, ScaleThreshold, ScaleDiverging, autoType, DSVParsedArray } from 'd3';
 
 export type TopoJson = Topology<Objects<GeoJsonProperties>>;
 
-const csvFiles: CsvFile[] = [
+const csvFiles = [
   "climate.csv",
   "demographics.csv",
+  "census_employment_acs5_2019.csv",
 ];
+
+export type DataRow = { [key: string]: number | null };
+export type Data = Map<string, DataRow>;
 
 const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
   [DataTab.RiskMetrics, [{
@@ -42,34 +46,18 @@ const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
   [DataTab.Demographics, [{dataGroup: DataGroup.PercentPopulationUnder18, normalization: Normalization.Raw}]],
   [DataTab.ClimateOpinions, [{dataGroup: DataGroup.discuss, normalization: Normalization.Raw}]],
 ]);
-const defaultData = Map<CsvFile, undefined>(csvFiles.map(csv_file => [csv_file, undefined]));
 
-const convertCsv = (csv: {[key: string]: string | number | undefined}[]) =>
-   Map(csv.map(row => {
-    let stateFIPS = (row["STATEFP"] as string)!;
-    let countyFIPS = (row["COUNTYFP"] as string)!;
+const mergeFIPSCodes = (csv: DSVParsedArray<DataRow>): [string, DataRow][] =>
+  csv.map(row => {
+    let stateFIPS = row["STATEFP"]!.toString();
+    let countyFIPS = row["COUNTYFP"]!.toString();
+    delete row["STATEFP"];
+    delete row["COUNTYFP"];
     stateFIPS = "0".repeat(2 - stateFIPS.length) + stateFIPS;
     countyFIPS = "0".repeat(3 - countyFIPS.length) + countyFIPS;
-
     return [stateFIPS + countyFIPS, row];
-  }));
+  });
 
-const convertToNumbers = (rawRow: DSVRowString) => {
-  const newRows: {[key: string]: string | number | undefined} = {};
-  for (let [key, value] of Object.entries(rawRow)) {
-    if (key === "STATEFP" || key === "COUNTYFP") {
-      newRows[key] = value;
-    } else {
-      newRows[key] = value ? +value : undefined;
-    }
-  }
-  return newRows;
-}
-export type CsvFile =
-| "climate.csv"
-| "demographics.csv";
-type CountyToDataMap = Map<string, {[key: string]: string | number | undefined}>;
-export type Data = Map<CsvFile, CountyToDataMap | undefined>;
 export type ColorScheme = ScaleSequential<string, never> | ScaleThreshold<number, string, never> | ScaleDiverging<string, never>;
 
 const Home = () => {
@@ -77,7 +65,7 @@ const Home = () => {
   const [roadMap, setRoadMap] = useState<TopoJson | undefined>(undefined);
   const [railroadMap, setRailroadMap] = useState<TopoJson | undefined>(undefined);
   const [waterwayMap, setWaterwayMap] = useState<TopoJson | undefined>(undefined);
-  const [data, setData] = useState<Data>(defaultData);
+  const [data, setData] = useState<Data>(Map());
   const [dataSelections, setDataSelections] = useState(defaultSelectionMap);
   const [dataWeights, setDataWeights] = useState(Map<DataGroup, number>());
   const [dataTab, setDataTab] = useState(DataTab.RiskMetrics);
@@ -91,17 +79,12 @@ const Home = () => {
 
   useEffect(() => {
     json<TopoJson>(process.env.PUBLIC_URL + "/usa.json").then(setMap);
-    const loadingCsvs = csvFiles.map(csvFile => csv(process.env.PUBLIC_URL + "/" + csvFile, convertToNumbers));
+    const loadingCsvs = csvFiles.map(csvFile => csv<DataRow>(process.env.PUBLIC_URL + "/" + csvFile, autoType));
     Promise.all(loadingCsvs).then(loadedCsvs => {
-      console.log("loadedCsvs");
-      const convertedCsvs = loadedCsvs.map(convertCsv);
-      const filenameToData: [CsvFile, CountyToDataMap][] = [];
-      for (let i = 0; i < csvFiles.length; i++) {
-        filenameToData[i] = [csvFiles[i], convertedCsvs[i]];
-      }
-      const loadedData = Map(filenameToData);
-      setData(loadedData);
-    });
+      const dataMaps = loadedCsvs.map(mergeFIPSCodes).map(Map);
+      const allData = Map<string, DataRow>().mergeDeep(...dataMaps)
+      setData(allData);
+    })
   }, []);
 
   useEffect(() => {

@@ -28,12 +28,11 @@ export enum DataGroup {
     FloodIndicator = "wet",
     WaterStress = "WS_ERA",
     WS_EQI = "WS_EQI",
-    AllIndustries = "AllindustriesE",
-    Farming = "FarmingEPercentage",
-    Mining = "MiningEPercentage",
-    Construction = "ConstructionEPercentage",
-    Agricultureforestryfishingandhunting = "AgricultureforestryfishingandhuntingEPercentage",
-    Healthcareandsocialassistance = "HealthcareandsocialassistanceEPercentage",
+    AllIndustries = "AllIndustries",
+    MiningQuarryingAndOilAndGasExtraction = "MiningQuarryingAndOilAndGasExtraction",
+    Construction = "Construction",
+    AgricultureForestryFishingAndHunting = "AgricultureForestryFishingAndHunting",
+    HealthcareAndSocialAssistance = "HealthCareAndSocialAssistance",
     PerCapitapersonalincome2018 = "PerCapitapersonalincome2018",
     GDP2018 = "GDP2018",
     PercentPopulationUnder18 = "PercentPopulationUnder18",
@@ -335,7 +334,7 @@ const employmentDefinition = ({
     color,
     type: DataType.Economic,
     description: employmentDescription,
-    dataset: Dataset.BEA,
+    dataset: Dataset.Census,
 });
 
 const demographicDefinition = (builder: DemographicDefinitionBuilder): DataDefinition => genericDefinition({
@@ -445,12 +444,12 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         description: "The flood potential from high river levels (fluvial flooding). The river flow among the most severely wet months (98th percentile) during the time period.",
     })],
     [DataGroup.AllIndustries, genericDefinition({
-        name: "Employment in all industries 2007",
+        name: "Employment in all industries 2019",
         units: "people",
         color: scaleSequential<string>(scales.interpolateGreens).domain([0, 1000000]),
         type: DataType.Economic,
         description: "A count of full-time and part-time jobs in U.S. counties and metropolitan areas, with industry detail. Nonmetropolitan areas and rural counties are also included. These statistics cover wage and salary jobs and self-employment.",
-        dataset: Dataset.BEA,
+        dataset: Dataset.Census,
         mapType: MapType.Bubble,
     })],
     [DataGroup.GDP2018, genericDefinition({
@@ -463,24 +462,22 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         dataset: Dataset.BEA,
         mapType: MapType.Bubble,
     })],
-    [DataGroup.Farming, employmentDefinition({
-        name:"Farming 2007"
-    })],
-    [DataGroup.Mining, employmentDefinition({
-        name:"Mining 2007",
+
+    [DataGroup.MiningQuarryingAndOilAndGasExtraction, employmentDefinition({
+        name:"Mining, Quarrying, and Oil & Gas Extraction 2019",
         color: scaleSequentialSqrt([0,50], scales.interpolateGreens)
     })],
     [DataGroup.Construction, employmentDefinition({
-        name:"Construction 2007",
-        color: scaleSequential<string>(scales.interpolateGreens).domain([0, 25])
+        name:"Construction 2019",
+        color: scaleSequential<string>(scales.interpolateGreens).domain([0, 15])
     })],
-    [DataGroup.Agricultureforestryfishingandhunting, employmentDefinition({
-        name:"Agriculture, forestry, fishing, and hunting 2007",
-        color: scaleSequentialSqrt<string>(scales.interpolateGreens).domain([0, 25])
+    [DataGroup.AgricultureForestryFishingAndHunting, employmentDefinition({
+        name:"Agriculture, forestry, fishing, and hunting 2019",
+        color: scaleSequentialSqrt<string>(scales.interpolateGreens).domain([0, 50])
     })],
-    [DataGroup.Healthcareandsocialassistance, employmentDefinition({
-        name:"Healthcare and social assistance 2007",
-        color: scaleSequential<string>(scales.interpolateGreens).domain([0, 25])
+    [DataGroup.HealthcareAndSocialAssistance, employmentDefinition({
+        name:"Healthcare and social assistance 2019",
+        color: scaleSequential<string>(scales.interpolateGreens).domain([5, 25])
     })],
     [DataGroup.PerCapitapersonalincome2018, genericDefinition({
         name: "Per capita personal income 2018",
