@@ -22,8 +22,8 @@ const getYear = (dataGroup: DataGroup) => {
     const years = getYears(dataGroup);
     if (years.includes(Year._2000_2019)) {
         return Year._2000_2019;
-    } else if (years.includes(Year._2015)) {
-        return Year._2015;
+    } else if (years.includes(Year.Average)) {
+        return Year.Average;
     } else {
         return years[0];
     }
