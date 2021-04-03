@@ -4,7 +4,6 @@ import { Map } from 'immutable';
 import Slider from '@material-ui/core/Slider';
 import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import YearSelector from './YearSelector';
 
 type Props = {
     selection: DataIdParams[],
@@ -43,18 +42,13 @@ const multipleChecked = (dataSelections: DataIdParams[]) => {
     return dataSelections.length > 1;
 }
 
-const shouldShowYears = (selection: DataIdParams | undefined) =>
-    selection?.dataGroup === DataGroup.WaterStress;
-
 const checkBox = (dataGroup: DataGroup,
     shouldBeChecked: (dataGroup: DataGroup) => boolean,
     onSelectionToggled: (event: ChangeEvent<HTMLInputElement>) => void,
-    onYearChange: (event: ChangeEvent<HTMLInputElement>) => void,
     definition: DataDefinition,
     dataSelections: DataIdParams[],
     onWeightChange: (dataGroup: DataGroup, weight: number) => void,
-    dataWeights: Map<DataGroup, number>,
-    selection: DataIdParams | undefined) => {
+    dataWeights: Map<DataGroup, number>) => {
     return <div key={dataGroup} className={shouldBeChecked(dataGroup) ? "selected-group" : undefined}>
 
         <input
@@ -66,7 +60,6 @@ const checkBox = (dataGroup: DataGroup,
             onChange={onSelectionToggled}
             name="dataGroup" />
         <label className="data-group" htmlFor={dataGroup}>{definition.name}</label>
-        {shouldShowYears(selection) && selection && <YearSelector id={dataGroup} years={getYears(dataGroup)} selectedYear={selection.year} onSelectionChange={onYearChange} />}
         {shouldBeChecked(dataGroup) && multipleChecked(dataSelections) &&
             <div className="weight">
                 <div className="weight-label">Weight</div>
@@ -87,26 +80,20 @@ const checkBox = (dataGroup: DataGroup,
 const marks = [{ value: 0.1, label: "min" }, { value: 1, label: "max" }]
 
 const MultiDataSelector = ({ selection: dataSelections, onSelectionChange, onWeightChange, dataWeights }: Props) => {
-    const selectionsByDataGroup = Map(dataSelections.map(selection => [selection.dataGroup, selection]));
-
-    const onYearChange = (event: ChangeEvent<HTMLInputElement>, dataGroup: DataGroup) => {
-        const year = event.target.value as Year;
-        const changedSelections = selectionsByDataGroup.set(dataGroup, {...selectionsByDataGroup.get(dataGroup)!, year});
-        onSelectionChange(Array.from(changedSelections.values()));
-    };
+    const selectionMap = Map(dataSelections.map(selection => [selection.dataGroup, selection]));
 
     const onSelectionToggled = (event: ChangeEvent<HTMLInputElement>) => {
         const dataGroup = event.target.value as DataGroup;
         const checked = event.target.checked;
         const changedSelections = checked ?
-            selectionsByDataGroup.set(dataGroup, { dataGroup, year: getYear(dataGroup), dataset: getDataset(dataGroup), normalization: Normalization.Percentile }) :
-            selectionsByDataGroup.delete(dataGroup);
+            selectionMap.set(dataGroup, { dataGroup, year: getYear(dataGroup), dataset: getDataset(dataGroup), normalization: Normalization.Percentile }) :
+            selectionMap.delete(dataGroup);
 
         onSelectionChange(Array.from(changedSelections.values()));
     }
 
     const shouldBeChecked = (dataGroup: DataGroup) => {
-        return selectionsByDataGroup.has(dataGroup);
+        return selectionMap.has(dataGroup);
     }
 
     const getDemographicRisks = () =>
@@ -116,7 +103,7 @@ const MultiDataSelector = ({ selection: dataSelections, onSelectionChange, onWei
                 (definition.type === DataType.Economic ||
                 definition.type === DataType.Demographics))
             .map(([dataGroup, definition]) =>
-                checkBox(dataGroup, shouldBeChecked, onSelectionToggled, event => onYearChange(event, dataGroup), definition, dataSelections, onWeightChange, dataWeights, selectionsByDataGroup.get(dataGroup))
+                checkBox(dataGroup, shouldBeChecked, onSelectionToggled, definition, dataSelections, onWeightChange, dataWeights)
             )
 
     const getClimateRisks = () =>
@@ -126,7 +113,7 @@ const MultiDataSelector = ({ selection: dataSelections, onSelectionChange, onWei
                 definition.type !== DataType.Economic &&
                 definition.type !== DataType.Demographics)
             .map(([dataGroup, definition]) =>
-                checkBox(dataGroup, shouldBeChecked, onSelectionToggled, event => onYearChange(event, dataGroup), definition, dataSelections, onWeightChange, dataWeights, selectionsByDataGroup.get(dataGroup))
+                checkBox(dataGroup, shouldBeChecked, onSelectionToggled, definition, dataSelections, onWeightChange, dataWeights)
             )
 
     return (

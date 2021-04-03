@@ -26,7 +26,7 @@ const readable = (year: Year) => {
         case Year._2005: return "2005";
         case Year._2010: return "2010";
         case Year._2015: return "2015";
-        case Year.Average: return "Avg";
+        case Year.Average: return "Average";
         default: throwBadYear(year);
     }
 }
