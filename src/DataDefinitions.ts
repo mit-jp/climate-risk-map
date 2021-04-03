@@ -27,7 +27,6 @@ export enum DataGroup {
     Evapotranspiration = "pet",
     Precipitation = "prc",
     Runoff = "ro",
-    FloodIndicator = "wet",
     WaterStress = "WS_ERA",
     WS_EQI = "WS_EQI",
     AllIndustries = "AllIndustries",
@@ -73,6 +72,8 @@ export enum DataGroup {
     timing = "timing",
     affectweather = "affectweather",
     ErodibleCropland = "ErodCrop",
+    FloodRisk10Years = "avg_risk_score_2_10",
+    PropertyCount = "count_property",
 }
 
 export type DataIdParams = {
@@ -125,6 +126,7 @@ export enum Dataset {
     BEA = "bea",
     Census = "census",
     USDA = "usda",
+    FirstStreet = "first street",
 }
 
 export type DatasetDefinition = {
@@ -245,6 +247,14 @@ export const datasetDefinitions = (dataset: Dataset) => {
                 rural development,and nutrition. They publish data on cropland and farming
                 as they relate to climate change.`,
             link: "https://www.usda.gov/topics/data"
+        }
+        case Dataset.FirstStreet: return {
+            name: "First Street Flood Lab",
+            description: `The First Street Foundation Flood Lab is a collection of 110
+                leading academic and industry research partners working to derive
+                new insights and further understanding of flood risk, its consequences,
+                and possible solutions.`,  
+            link: "https://registry.opendata.aws/fsf-flood-risk/"
         }
         default: throwBadDataset(dataset);
     }
@@ -457,14 +467,6 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         type: DataType.Water,
         description: "Monthly runoff is calculated based on the monthly precipitation and potential evapotransipiration using the Turc-Pike model (Yates, Climate Research, Vol 9, 147-155, 1997)",
     })],
-    [DataGroup.FloodIndicator, climateDefinition({
-        name: "River Flood Indicator",
-        units: "mm/month",
-        color: scaleSequential<string>(scales.interpolateBlues).domain([0, 500]),
-        normalizations: allNormalizations,
-        type: DataType.Water,
-        description: "The flood potential from high river levels (fluvial flooding). The river flow among the most severely wet months (98th percentile) during the time period.",
-    })],
     [DataGroup.AllIndustries, genericDefinition({
         name: "Employment in all industries 2019",
         units: "people",
@@ -500,6 +502,14 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         Original shapefiles of the data via from 
         Tcheuko, Lucas - FPAC-NRCS, Beltsville, MD <Lucas.Tcheuko@usda.gov>`,
         dataset: Dataset.USDA,
+        normalizations: allNormalizations,
+    })],
+    [DataGroup.FloodRisk10Years, genericDefinition({
+        name: "10 Year Flood Risk",
+        color: scaleDiverging<string>(chroma.scale(chroma.brewer.RdYlBu.reverse()).out("hex")).domain([3, 6.5, 10]),
+        type: DataType.Water,
+        description: "",
+        dataset: Dataset.FirstStreet,
         normalizations: allNormalizations,
     })],
 

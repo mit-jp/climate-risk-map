@@ -36,6 +36,7 @@ const shouldInvert = (selection: DataIdParams) => {
     switch(selection.dataGroup) {
         case DataGroup.DroughtIndicator:
         case DataGroup.Groundwater:
+        case DataGroup.FloodRisk10Years:
             return true;
         default:
             return false;
