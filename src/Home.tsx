@@ -36,6 +36,11 @@ const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
     year: Year._2015,
     normalization: Normalization.Raw,
   }]],
+  [DataTab.Land, [{
+    dataGroup: DataGroup.ErodibleCropland,
+    year: Year._2017,
+    normalization: Normalization.Raw,
+  }]],
   [DataTab.Climate, [{
     dataGroup: DataGroup.MaxTemperature,
     year: Year._2000_2019,

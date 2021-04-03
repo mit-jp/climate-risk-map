@@ -7,7 +7,7 @@ const DatasetDescription = ({datasets, shouldShow, showClicked}: Props) => {
     if (datasets.length !== 1) {
         return null;
     }
-    const datasetDefinition = datasetDefinitions.get(datasets[0])!;
+    const datasetDefinition = datasetDefinitions(datasets[0])!;
     return <div id="dataset-description">
         <button
             onClick={showClicked}

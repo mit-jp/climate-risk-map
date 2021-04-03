@@ -10,6 +10,7 @@ type Props = {
 export enum DataTab {
     RiskMetrics = "multi-system metrics",
     Water = "water",
+    Land = "land",
     Climate = "climate",
     Economic = "economic",
     ClimateOpinions = "climate opinions",
@@ -19,6 +20,7 @@ export enum DataTab {
 export const TabToTypeMap = Map([
     [DataTab.Climate, DataType.Climate],
     [DataTab.Water, DataType.Water],
+    [DataTab.Land, DataType.Land],
     [DataTab.Economic, DataType.Economic],
     [DataTab.Demographics, DataType.Demographics],
     [DataTab.ClimateOpinions, DataType.ClimateOpinions],
