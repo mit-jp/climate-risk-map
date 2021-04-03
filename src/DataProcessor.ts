@@ -1,39 +1,28 @@
 import { scaleSequentialQuantile } from 'd3';
 import { Map, Seq, Set } from 'immutable';
 import counties from './Counties';
-import dataDefinitions, { DataGroup, DataIdParams, DataType, Normalization } from './DataDefinitions';
-import { CsvFile, Data } from './Home';
+import dataDefinitions, { DataGroup, DataIdParams, Normalization } from './DataDefinitions';
+import { Data } from './Home';
 import { State } from './States';
 
 export type ProcessedData = Map<string, number | undefined>;
 
-const getTablesForSelections = (selections: DataIdParams[], state: State | undefined) => {
-    return Map(selections.map(selection => {
-        const dataDefinition = dataDefinitions.get(selection.dataGroup)!
-        const csvFile: CsvFile = dataDefinition.type === DataType.Climate || dataDefinition.type === DataType.Water ? "climate.csv" : "demographics.csv";
-        return [selection, csvFile];
-    }));
-}
-
 const getDataForSelection = (
     countyIds: Seq.Indexed<string>,
     selection: DataIdParams,
-    selectionToTable: Map<DataIdParams, CsvFile>,
     selectionToDataId: Map<DataIdParams, string>,
     data: Data,
-) => {
+): [string, number][] => {
     const dataForSelection: [string, number][] = [];
-    const tableName = selectionToTable.get(selection)!;
     const dataId = selectionToDataId.get(selection)!;
-    const table = data.get(tableName)!;
 
     for (const countyId of countyIds) {
-        const countyValues = table.get(countyId);
+        const countyValues = data.get(countyId);
         if (countyValues === undefined) {
             continue;
         }
         const value = countyValues[dataId];
-        if (value === undefined) {
+        if (value === null) {
             continue;
         }
         dataForSelection.push([countyId, +value]);
@@ -69,15 +58,6 @@ const normalizeData = (
     return valueByCountyId.map(value => weightedPercentileScale(value));
 }
 
-const dataLoaded = (csvFiles: IterableIterator<CsvFile>, data: Data) => {
-    for (const csvFile of csvFiles) {
-        if (data.get(csvFile) === undefined) {
-            return false;
-        }
-    }
-    return true;
-}
-
 const processData = (
     selections: DataIdParams[],
     data: Data,
@@ -85,7 +65,6 @@ const processData = (
     state: State | undefined,
 ) => {
     const selectionToDataId = getDataIdsForSelections(selections);
-    const selectionToTable = getTablesForSelections(selections, state);
     const dataGroups = selections.map(selection => selection.dataGroup);
     const shouldNormalize = selections[0]?.normalization === Normalization.Percentile;
 
@@ -105,7 +84,6 @@ const processData = (
         const valueToCountyId = Map(getDataForSelection(
             countyIds,
             selection,
-            selectionToTable,
             selectionToDataId,
             data,
         ));
@@ -139,9 +117,13 @@ const getDataIdsForSelections = (selections: DataIdParams[]) =>
         [selection, dataDefinitions.get(selection.dataGroup)!.id(selection)]
     ));
 
-export default (data: Data, selections: DataIdParams[], dataWeights: Map<DataGroup, number>, state: State | undefined) => {
-    const tables = getTablesForSelections(selections, state);
-    if (selections.length === 0 || !dataLoaded(tables.values(), data)) {
+export default (
+    data: Data,
+    selections: DataIdParams[],
+    dataWeights: Map<DataGroup, number>,
+    state: State | undefined
+) => {
+    if (selections.length === 0 || data.isEmpty()) {
         return undefined;
     }
     return processData(selections, data, dataWeights, state);
