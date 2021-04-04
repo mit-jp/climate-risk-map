@@ -22,7 +22,7 @@ const getDataForSelection = (
             continue;
         }
         const value = countyValues[dataId];
-        if (value === null) {
+        if (value === null || value === undefined) {
             continue;
         }
         dataForSelection.push([countyId, +value]);
@@ -82,16 +82,16 @@ const processData = (
     const allProcessedData: Map<string, number>[] = [];
 
     for (const selection of selections) {
-        const valueToCountyId = Map(getDataForSelection(
+        const countyIdToValue = Map(getDataForSelection(
             countyIds,
             selection,
             selectionToDataId,
             data,
         ));
         if (shouldNormalize) {
-            allProcessedData.push(normalizeData(dataWeights, selection, totalWeight, valueToCountyId));
+            allProcessedData.push(normalizeData(dataWeights, selection, totalWeight, countyIdToValue));
         } else {
-            allProcessedData.push(valueToCountyId);
+            allProcessedData.push(countyIdToValue);
         }
     }
 
