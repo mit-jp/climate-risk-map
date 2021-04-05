@@ -73,6 +73,7 @@ export enum DataGroup {
     affectweather = "affectweather",
     ErodibleCropland = "ErodCrop",
     FloodRisk10Years = "avg_risk_score_2_10",
+    FloodRisk100Years = "avg_risk_fsf_2020_100",
     PropertyCount = "count_property",
 }
 
@@ -506,7 +507,15 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     })],
     [DataGroup.FloodRisk10Years, genericDefinition({
         name: "10 Year Flood Risk",
-        color: scaleDiverging<string>(chroma.scale(chroma.brewer.RdYlBu.reverse()).out("hex")).domain([3, 6.5, 10]),
+        color: scaleSequential(scales.interpolateBlues).domain([4, 9]),
+        type: DataType.Water,
+        description: "",
+        dataset: Dataset.FirstStreet,
+        normalizations: allNormalizations,
+    })],
+    [DataGroup.FloodRisk100Years, genericDefinition({
+        name: "100 Year Flood Risk",
+        color: scaleSequential(scales.interpolateBlues).domain([4, 9]),
         type: DataType.Water,
         description: "",
         dataset: Dataset.FirstStreet,
