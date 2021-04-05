@@ -519,7 +519,6 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         type: DataType.Water,
         description: "",
         dataset: Dataset.FirstStreet,
-        normalizations: allNormalizations,
     })],
 
     [DataGroup.MiningQuarryingAndOilAndGasExtraction, employmentDefinition({
