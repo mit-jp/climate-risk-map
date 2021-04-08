@@ -552,7 +552,7 @@ function drawWaterways(svg: SVGSelection,
         .join("path")
         .attr("stroke", "#0099ff")
         .attr("fill", "none")
-        .attr("stroke-width", 1)
+        .attr("stroke-width", d => Math.sqrt(d.properties!.total / 5_000_000))
         .attr("d", path);
 }
 
