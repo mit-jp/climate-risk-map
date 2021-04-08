@@ -127,6 +127,7 @@ export enum Dataset {
     BEA = "bea",
     Census = "census",
     USDA = "usda",
+    EQI = "EPA",
     FirstStreet = "first street",
 }
 
@@ -169,10 +170,10 @@ function throwBadDataset(dataset: never): never;
 function throwBadDataset(dataset: Dataset) {
     throw new Error('Unknown dataset: ' + dataset);
 }
-export const datasetDefinitions = (dataset: Dataset) => {
+export const datasetDefinitions = (dataset: Dataset): DatasetDefinition => {
     switch(dataset) {
         case Dataset.MERRA2: return {
-            name: () => "MERRA-2",
+            name: "MERRA-2",
             description: `The Modern-Era Retrospective analysis for Research
                 and Applications, Version 2 (MERRA-2) provides data beginning in
                 1980 at a spatial resolution of 0.625° × 0.5°. In comparison
@@ -188,7 +189,7 @@ export const datasetDefinitions = (dataset: Dataset) => {
             link: "https://gmao.gsfc.nasa.gov/reanalysis/MERRA-2/"
         };
         case Dataset.ERA5: return {
-            name: () => "ERA5",
+            name: "ERA5",
             description: `ERA5 is the fifth generation of ECMWF atmospheric
                 reanalyses and provides hourly estimates of a large number of
                 global atmospheric, land and oceanic climate variables from 1979
@@ -209,7 +210,7 @@ export const datasetDefinitions = (dataset: Dataset) => {
             link: "https://www.ecmwf.int/en/forecasts/datasets/reanalysis-datasets/era5"
         };
         case Dataset.NARR: return {
-            name: () => "NARR",
+            name: "NARR",
             description: `The NCEP North American Regional Reanalysis (NARR) is
                 a high-resolution (32 km) data set focused upon the North American
                 domain and spanning from 1979 to near present. The NARR uses the high
@@ -221,13 +222,13 @@ export const datasetDefinitions = (dataset: Dataset) => {
             link: "https://psl.noaa.gov/data/gridded/data.narr.html"
         };
         case Dataset.Yale: return {
-            name: () => "Yale Program on Climate Change Communication",
+            name: "Yale Program on Climate Change Communication",
             description: `Statistical estimates of U.S. climate change beliefs,
                 risk perceptions, and policy preferences at the state and local levels.`,
             link: "https://climatecommunication.yale.edu/visualizations-data/ycom-us/"
         };
         case Dataset.BEA: return {
-            name: () => "US Bureau of Economic Analysis",
+            name: "US Bureau of Economic Analysis",
             description: `The Bureau of Economic Analysis provides official macroeconomic
                 and industry statistics, most notably reports about the gross domestic
                 product of the United States and its various units—states,
@@ -235,7 +236,7 @@ export const datasetDefinitions = (dataset: Dataset) => {
             link: "https://www.bea.gov/data/"
         };
         case Dataset.Census: return {
-            name: () => "US Census Bureau",
+            name: "US Census Bureau",
             description: `The Census Bureau is responsible for producing data about
                 the American people and economy. It continually conducts over 130 surveys
                 and programs a year, including the American Community Survey, the U.S.
@@ -243,19 +244,30 @@ export const datasetDefinitions = (dataset: Dataset) => {
             link: "https://www.census.gov/data.html"
         };
         case Dataset.USDA: return {
-            name: () => "US Department of Agriculture",
+            name: "US Department of Agriculture",
             description: `The USDA provides leadership on food, agriculture, natural resources,
                 rural development,and nutrition. They publish data on cropland and farming
                 as they relate to climate change.`,
             link: "https://www.usda.gov/topics/data"
         }
         case Dataset.FirstStreet: return {
-            name: () => "First Street Flood Lab",
+            name: "First Street Flood Lab",
             description: `The First Street Foundation Flood Lab is a collection of 110
                 leading academic and industry research partners working to derive
                 new insights and further understanding of flood risk, its consequences,
                 and possible solutions.`,  
             link: "https://registry.opendata.aws/fsf-flood-risk/"
+        }
+        case Dataset.EQI: return {
+            name: "Environmental Quality Index",
+            description: `The Environmental Protection Agency's Environmental Quality Index presents data in five domains:
+                air, water, land, built, and sociodemographic environments to provide
+                a county-by-county snapshot of overall environmental quality
+                across the entire U.S. The EQI helps researchers better understand
+                how health outcomes relate to cumulative environmental exposures
+                that typically are viewed in isolation.
+                Data Downloaded from https://edg.epa.gov/EPADataCommons/public/ORD/CPHEA/EQI_2006_2010/`,
+            link: "https://www.epa.gov/healthresearch/environmental-quality-index-eqi#overview"
         }
         default: throwBadDataset(dataset);
     }
@@ -389,7 +401,17 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         legendFormatter: format(",.1f"),
         type: DataType.Water,
         normalizations: allNormalizations,
-        description: () => "The approximate proportion of the available water that's being used. Withdrawal (fresh surface + groundwater) / Runoff. 0.3 is slightly exploited, 0.3 to 0.6 is moderately exploited, 0.6 to 1 is heavily exploited, and > 1 is overexploited",
+        description: () => `The approximate proportion of the available water that's
+            being used. Withdrawal (fresh surface + groundwater) / Runoff. 0.3 is
+            slightly exploited, 0.3 to 0.6 is moderately exploited, 0.6 to 1
+            is heavily exploited, and > 1 is overexploited. We used runoff from
+            the ERA climate scenario for each year, water withdrawal from the USGS
+            (https://water.usgs.gov/watuse/data/), and aded data for surface
+            freshwater withdrawals (TO-WSWFr) and surface freshwater withdrawals
+            (TO-WGWFr) to determine total freshwater withdrawals.
+            
+            To calculate the average, we averaged the total freshwater withdrawal for 2010 and 2015,
+            averaged the runoff for 2010 and 2015, and took the ratio of withdrawal/runoff.`,
         dataset: Dataset.ERA5,
         years: [Year._1995, Year._2000, Year._2005, Year._2010, Year._2015, Year.Average],
     })],
@@ -400,8 +422,13 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         legendFormatter: format(",.1f"),
         type: DataType.Water,
         normalizations: allNormalizations,
-        description: () => "",
-        dataset: Dataset.ERA5,
+        description: () => `Lower values represent better quality and higher values represent worse quality.
+            The EPA created the Water Quality Index from 6 data sources:
+            the WATERS program database, Estimated Use of Water in the
+            United States, the National Atmospheric Deposition Program,
+            the Drought Monitor Network, the National Contaminant
+            Occurrence Database, and the Safe Drinking Water Information System.`,
+        dataset: Dataset.EQI,
     })],
     [DataGroup.IrrigationDeficit, climateDefinition({
         name: () => "Irrigation Deficit",
