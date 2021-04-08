@@ -85,7 +85,7 @@ export type DataIdParams = {
 };
 
 export type DataDefinition = {
-    name: string,
+    name: (normalization: Normalization) => string,
     id: (params: DataIdParams) => string
     units: string,
     formatter: (n: number | { valueOf(): number }) => string,
@@ -172,7 +172,7 @@ function throwBadDataset(dataset: Dataset) {
 export const datasetDefinitions = (dataset: Dataset) => {
     switch(dataset) {
         case Dataset.MERRA2: return {
-            name: "MERRA-2",
+            name: () => "MERRA-2",
             description: `The Modern-Era Retrospective analysis for Research
                 and Applications, Version 2 (MERRA-2) provides data beginning in
                 1980 at a spatial resolution of 0.625° × 0.5°. In comparison
@@ -188,7 +188,7 @@ export const datasetDefinitions = (dataset: Dataset) => {
             link: "https://gmao.gsfc.nasa.gov/reanalysis/MERRA-2/"
         };
         case Dataset.ERA5: return {
-            name: "ERA5",
+            name: () => "ERA5",
             description: `ERA5 is the fifth generation of ECMWF atmospheric
                 reanalyses and provides hourly estimates of a large number of
                 global atmospheric, land and oceanic climate variables from 1979
@@ -209,7 +209,7 @@ export const datasetDefinitions = (dataset: Dataset) => {
             link: "https://www.ecmwf.int/en/forecasts/datasets/reanalysis-datasets/era5"
         };
         case Dataset.NARR: return {
-            name: "NARR",
+            name: () => "NARR",
             description: `The NCEP North American Regional Reanalysis (NARR) is
                 a high-resolution (32 km) data set focused upon the North American
                 domain and spanning from 1979 to near present. The NARR uses the high
@@ -221,13 +221,13 @@ export const datasetDefinitions = (dataset: Dataset) => {
             link: "https://psl.noaa.gov/data/gridded/data.narr.html"
         };
         case Dataset.Yale: return {
-            name: "Yale Program on Climate Change Communication",
+            name: () => "Yale Program on Climate Change Communication",
             description: `Statistical estimates of U.S. climate change beliefs,
                 risk perceptions, and policy preferences at the state and local levels.`,
             link: "https://climatecommunication.yale.edu/visualizations-data/ycom-us/"
         };
         case Dataset.BEA: return {
-            name: "US Bureau of Economic Analysis",
+            name: () => "US Bureau of Economic Analysis",
             description: `The Bureau of Economic Analysis provides official macroeconomic
                 and industry statistics, most notably reports about the gross domestic
                 product of the United States and its various units—states,
@@ -235,7 +235,7 @@ export const datasetDefinitions = (dataset: Dataset) => {
             link: "https://www.bea.gov/data/"
         };
         case Dataset.Census: return {
-            name: "US Census Bureau",
+            name: () => "US Census Bureau",
             description: `The Census Bureau is responsible for producing data about
                 the American people and economy. It continually conducts over 130 surveys
                 and programs a year, including the American Community Survey, the U.S.
@@ -243,14 +243,14 @@ export const datasetDefinitions = (dataset: Dataset) => {
             link: "https://www.census.gov/data.html"
         };
         case Dataset.USDA: return {
-            name: "US Department of Agriculture",
+            name: () => "US Department of Agriculture",
             description: `The USDA provides leadership on food, agriculture, natural resources,
                 rural development,and nutrition. They publish data on cropland and farming
                 as they relate to climate change.`,
             link: "https://www.usda.gov/topics/data"
         }
         case Dataset.FirstStreet: return {
-            name: "First Street Flood Lab",
+            name: () => "First Street Flood Lab",
             description: `The First Street Foundation Flood Lab is a collection of 110
                 leading academic and industry research partners working to derive
                 new insights and further understanding of flood risk, its consequences,
@@ -262,7 +262,7 @@ export const datasetDefinitions = (dataset: Dataset) => {
 }
 
 type DataDefinitionBuilder = {
-    name: string,
+    name: (normalization: Normalization) => string,
     id?: (params: DataIdParams) => string,
     units?: string,
     formatter?: (n: number | { valueOf(): number }) => string,
@@ -278,7 +278,7 @@ type DataDefinitionBuilder = {
 }
 
 type ClimateDataDefinitionBuilder = {
-    name: string,
+    name: (normalization: Normalization) => string,
     units?: string,
     formatter?: (n: number | { valueOf(): number }) => string,
     legendFormatter?: (n: number | { valueOf(): number }) => string,
@@ -290,7 +290,7 @@ type ClimateDataDefinitionBuilder = {
 }
 
 type DemographicDefinitionBuilder = {
-    name: string,
+    name: (normalization: Normalization) => string,
     domainMax?: number,
 }
 
@@ -349,7 +349,7 @@ const genericDefinition = ({
 });
 
 const surveyDefinition = (name: string): DataDefinition => genericDefinition({
-    name,
+    name: () => name,
     units: "% of people",
     color: scaleDiverging<string>(scales.interpolateBrBG).domain([0, 50, 100]),
     type: DataType.ClimateOpinions,
@@ -362,7 +362,7 @@ const employmentDefinition = ({
     name,
     color = scaleSequential<string>(scales.interpolateGreens).domain([0, 50])
 }: {name: string, color?: ColorScheme}): DataDefinition => genericDefinition({
-    name,
+    name: () => name,
     units: "% of employed people",
     color,
     type: DataType.Economic,
@@ -382,7 +382,7 @@ const demographicDefinition = (builder: DemographicDefinitionBuilder): DataDefin
 
 const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.WaterStress, genericDefinition({
-        name: "Water Stress",
+        name: () => "Water Stress",
         id: params => (params.dataGroup as string) + params.year,
         color: scaleSequentialSqrt([0, 2], scales.interpolateYlOrRd),
         formatter: format(",.1f"),
@@ -394,7 +394,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         years: [Year._1995, Year._2000, Year._2005, Year._2010, Year._2015, Year.Average],
     })],
     [DataGroup.WS_EQI, genericDefinition({
-        name: "Water Quality",
+        name: () => "Water Quality",
         color: scaleSequential([-2, 2], scales.interpolateYlOrRd),
         formatter: format(",.1f"),
         legendFormatter: format(",.1f"),
@@ -404,7 +404,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         dataset: Dataset.ERA5,
     })],
     [DataGroup.IrrigationDeficit, climateDefinition({
-        name: "Irrigation Deficit",
+        name: () => "Irrigation Deficit",
         units: "mm/year",
         legendFormatter: nearestSI,
         color: scaleDiverging<string>(x => scales.interpolateBrBG(1 - x)).domain([-600, 0, 1600]),
@@ -412,14 +412,14 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         description: () => "How much additional water crops may need that isn't supplied by rainfall alone. Difference between mean annual potential evapotransipiration and precipitation (def = pet - prc)",
     })],
     [DataGroup.ClimateMoistureIndex, climateDefinition({
-        name: "Climate Moisture Index",
+        name: () => "Climate Moisture Index",
         units: "",
         color: scaleDiverging<string>(scales.interpolateBrBG).domain([-10, 0, 10]),
         type: DataType.Water,
         description: () => "How wet or dry an area of land is averaged over many years. Values range from -10 (very dry) to +10 (very wet). Calculated from mean annual precipitation and potential evapotransipiration",
     })],
     [DataGroup.DroughtIndicator, climateDefinition({
-        name: "Hydrologic Drought Indicator",
+        name: () => "Hydrologic Drought Indicator",
         units: "mm/year",
         legendFormatter: nearestSI,
         legendTicks: 4,
@@ -428,7 +428,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         description: () => "The river flow among the most severely dry years (5th percentile) during the time period.",
     })],
     [DataGroup.Groundwater, climateDefinition({
-        name: "Groundwater recharge",
+        name: () => "Groundwater recharge",
         units: "mm/month",
         color: scaleDiverging<string>(scales.interpolateBrBG).domain([0, 2, 40]),
         formatter: format(",.1f"),
@@ -436,14 +436,14 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         description: () => "An estimation of the amount of precipitation that soaks into the ground (and replenishes groundwater supply). Minimum of the 12 monthly runoff climatology during the specific period (40 years or 20 years. To avoid negative values, the minimum cutoff value is set to be 0.000001)",
     })],
     [DataGroup.MaxTemperature, climateDefinition({
-        name: "Maximum Month Temperature",
+        name: () => "Maximum Month Temperature",
         units: "°C",
         color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40]),
         normalizations: allNormalizations,
         description: () => "The hottest month out of all months in the years selected. Directly calculated from the reanalysis data",
     })],
     [DataGroup.Evapotranspiration, climateDefinition({
-        name: "Mean Annual Potential Evapotranspiration",
+        name: () => "Mean Annual Potential Evapotranspiration",
         units: "mm/year",
         legendFormatter: nearestSI,
         color: scaleSequential<string>(scales.interpolateYlOrRd).domain([600, 1600]),
@@ -451,7 +451,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         description: () => "The maximum amount of water that the air could evaporate. Monthly potential evapotranspiration is calculated based on monthly mean surface air temperature, monthly mean temperature diurnal range, and monthly mean precipitation using modified Hargreaves method (Droogers and Allen, Irrigation and Drainage Systems 16: 33–45, 2002)",
     })],
     [DataGroup.Precipitation, climateDefinition({
-        name: "Mean Annual Precipitation",
+        name: () => "Mean Annual Precipitation",
         units: "mm/year",
         legendFormatter: nearestSI,
         color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2200]),
@@ -459,14 +459,14 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         description: () => "Directly calculated from the reanalysis data",
     })],
     [DataGroup.Runoff, climateDefinition({
-        name: "Mean Annual Runoff",
+        name: () => "Mean Annual Runoff",
         units: "mm/year",
         color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2000]),
         type: DataType.Water,
         description: () => "Monthly runoff is calculated based on the monthly precipitation and potential evapotransipiration using the Turc-Pike model (Yates, Climate Research, Vol 9, 147-155, 1997)",
     })],
     [DataGroup.AllIndustries, genericDefinition({
-        name: "Employment in all industries 2019",
+        name: () => "Employment in all industries 2019",
         units: "people",
         color: scaleSequential<string>(scales.interpolateGreens).domain([0, 1000000]),
         type: DataType.Economic,
@@ -475,7 +475,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         mapType: MapType.Bubble,
     })],
     [DataGroup.GDP2018, genericDefinition({
-        name: "GDP 2018",
+        name: () => "GDP 2018",
         units: "USD",
         formatter: money,
         color: scaleThreshold<number, string>().domain([0, 1000000, 2000000, 3000000, 10000000, 100000000, 300000000, 700000000]).range(scales.schemeGreens[8]),
@@ -485,7 +485,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         mapType: MapType.Bubble,
     })],
     [DataGroup.ErodibleCropland, genericDefinition({
-        name: "Highly Erodible Cropland",
+        name: () => "Highly Erodible Cropland",
         id: ({dataGroup, year}) => dataGroup + year,
         units: "acres",
         formatter: value => format("~s")(value.valueOf() * 10_000),
@@ -503,7 +503,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         normalizations: allNormalizations,
     })],
     [DataGroup.FloodRisk10Years, genericDefinition({
-        name: "10 Year Flood Risk",
+        name: () => "10 Year Flood Risk",
         color: scaleSequential(scales.interpolateBlues).domain([4, 9]),
         type: DataType.Water,
         description: () => "",
@@ -511,7 +511,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         normalizations: allNormalizations,
     })],
     [DataGroup.FloodRisk100Years, genericDefinition({
-        name: "100 Year Flood Risk",
+        name: () => "100 Year Flood Risk",
         color: scaleSequential(scales.interpolateBlues).domain([4, 9]),
         type: DataType.Water,
         description: () => "",
@@ -535,7 +535,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequential<string>(scales.interpolateGreens).domain([5, 25])
     })],
     [DataGroup.PerCapitapersonalincome2018, genericDefinition({
-        name: "Per capita personal income 2018",
+        name: () => "Per capita personal income 2018",
         units: "USD / person",
         formatter: money,
         legendFormatter: money,
@@ -544,13 +544,13 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         description: () => "Income that people get from wages, proprietors' income, dividends, interest, rents, and government benefits. A person's income is counted in the county, metropolitan statistical area, or other area where they live, even if they work elsewhere.",
         dataset: Dataset.BEA,
     })],
-    [DataGroup.PercentPopulationUnder18, demographicDefinition({ name: "Population Under 18" })],
-    [DataGroup.PercentPopulationOver65, demographicDefinition({ name: "Population Over 65" })],
-    [DataGroup.PercentNonwhite, demographicDefinition({ name: "Nonwhite", domainMax: 100 })],
-    [DataGroup.PercentofPopulationBelowPovertyLevel, demographicDefinition({ name: "Population Below Poverty Level" })],
-    [DataGroup.UnemploymentRate, demographicDefinition({ name: "Unemployment Rate", domainMax: 20 })],
+    [DataGroup.PercentPopulationUnder18, demographicDefinition({ name: () => "Population Under 18" })],
+    [DataGroup.PercentPopulationOver65, demographicDefinition({ name: () => "Population Over 65" })],
+    [DataGroup.PercentNonwhite, demographicDefinition({ name: () => "Nonwhite", domainMax: 100 })],
+    [DataGroup.PercentofPopulationBelowPovertyLevel, demographicDefinition({ name: () => "Population Below Poverty Level" })],
+    [DataGroup.UnemploymentRate, demographicDefinition({ name: () => "Unemployment Rate", domainMax: 20 })],
     [DataGroup.Populationpersquaremile2010, genericDefinition({
-        name: "Population Density",
+        name: () => "Population Density",
         units: "people / sq mile",
         color: scaleSequential<string>(scales.interpolatePurples).domain([0, 1000]),
         type: DataType.Demographics,
@@ -558,7 +558,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         dataset: Dataset.Census,
     })],
     [DataGroup.PropertyCount, genericDefinition({
-        name: "Property Count",
+        name: () => "Property Count",
         units: "properties",
         color: scaleSequential<string>(scales.interpolateGreens).domain([0, 1000000]),
         type: DataType.Economic,

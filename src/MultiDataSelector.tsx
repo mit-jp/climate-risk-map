@@ -59,7 +59,7 @@ const checkBox = (dataGroup: DataGroup,
             value={dataGroup}
             onChange={onSelectionToggled}
             name="dataGroup" />
-        <label className="data-group" htmlFor={dataGroup}>{definition.name}</label>
+        <label className="data-group" htmlFor={dataGroup}>{definition.name(Normalization.Percentile)}</label>
         {shouldBeChecked(dataGroup) && multipleChecked(dataSelections) &&
             <div className="weight">
                 <div className="weight-label">Weight</div>

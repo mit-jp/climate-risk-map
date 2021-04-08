@@ -404,7 +404,7 @@ const getFilename = (selectedDataDefinitions: DataDefinition[], selections: Data
     if (unitString === "Mean of selected data") {
         return unitString;
     } else {
-        return selectedDataDefinitions[0].name + unitString;
+        return selectedDataDefinitions[0].name(selections[0].normalization) + unitString;
     }
 }
 
