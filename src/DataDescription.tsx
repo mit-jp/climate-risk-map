@@ -8,7 +8,7 @@ const DataDescription = ({selections, shouldShow, showClicked}: Props) => {
         return null;
     }
     const dataDefinition = dataDefinitions.get(selections[0].dataGroup);
-    const description = dataDefinition!.description;
+    const description = dataDefinition!.description(selections[0].normalization);
     const name = dataDefinition!.name;
 
     if (!description) {
