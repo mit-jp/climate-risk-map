@@ -26,8 +26,8 @@ export type Data = Map<string, DataRow>;
 
 const defaultSelectionMap = Map<DataTab, DataIdParams[]>([
   [DataTab.RiskMetrics, [{
-    dataGroup: DataGroup.IrrigationDeficit,
-    year: Year._2000_2019,
+    dataGroup: DataGroup.WaterStress,
+    year: Year.Average,
     dataset: Dataset.ERA5,
     normalization: Normalization.Percentile
   }]],
