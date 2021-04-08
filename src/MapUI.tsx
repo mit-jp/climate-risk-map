@@ -225,7 +225,7 @@ const MapUI = ({
 
     return (
         <div id="map">
-            { map && processedData &&
+            { map &&
             <div id="map-controls">
                 {state === undefined &&
                     <FormControlLabel
