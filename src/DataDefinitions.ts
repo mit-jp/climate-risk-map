@@ -503,7 +503,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         normalizations: allNormalizations,
     })],
     [DataGroup.FloodRisk10Years, genericDefinition({
-        name: () => "10 Year Flood Risk",
+        name: normalization => normalization === Normalization.Raw ? "10 Year Flood Risk" : "Flood risk",
         color: scaleSequential(scales.interpolateBlues).domain([4, 9]),
         type: DataType.Water,
         description: () => "",
