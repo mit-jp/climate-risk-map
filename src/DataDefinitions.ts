@@ -436,7 +436,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         description: () => "An estimation of the amount of precipitation that soaks into the ground (and replenishes groundwater supply). Minimum of the 12 monthly runoff climatology during the specific period (40 years or 20 years. To avoid negative values, the minimum cutoff value is set to be 0.000001)",
     })],
     [DataGroup.MaxTemperature, climateDefinition({
-        name: () => "Maximum Month Temperature",
+        name: normalization => normalization === Normalization.Raw ? "Maximum Month Temperature" : "Temperature Stress Indicator",
         units: "°C",
         color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40]),
         normalizations: allNormalizations,
