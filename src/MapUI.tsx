@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { select, geoPath, scaleSqrt, max, Selection, GeoPath, GeoPermissibleObjects, ScalePower, csvFormat } from 'd3';
 import { Feature, Geometry } from 'geojson';
 import { feature, mesh } from 'topojson-client';
@@ -14,11 +14,11 @@ import DataProcessor from './DataProcessor';
 import ProbabilityDensity from './ProbabilityDensity';
 import { ColorScheme, Data, TopoJson } from './Home';
 import { legend } from './Legend';
-import Checkbox from '@material-ui/core/Checkbox';
-import { Button, FormControlLabel, Switch } from '@material-ui/core';
+import { Button, FormControlLabel, MenuItem, Select, Switch, Checkbox, InputLabel, FormControl } from '@material-ui/core';
 import Color from './Color';
 import counties from './Counties';
 import { saveAs } from 'file-saver';
+import waterway_types, { WaterwayValue } from './WaterwayType';
 
 export enum Aggregation {
     State = "state",
@@ -77,6 +77,7 @@ const MapUI = ({
     onShowWaterwaysChange,
 }: Props) => {
     const processedData = DataProcessor(data, selections, dataWeights, state);
+    const [waterwayValue, setWaterwayValue] = useState<WaterwayValue>("total");
 
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
@@ -122,7 +123,18 @@ const MapUI = ({
         } else {
             clearRailroads(svg);
         }
-
+        function drawWaterways(svg: SVGSelection,
+            roadFeatures: Feature<Geometry, GeoJsonProperties>[],
+            path: GeoPath<any, GeoPermissibleObjects>) {
+            svg.select("#waterway-map")
+            .selectAll("path")
+            .data(roadFeatures)
+            .join("path")
+            .attr("stroke", "#0099ff")
+            .attr("fill", "none")
+            .attr("stroke-width", d => Math.sqrt(d.properties![waterwayValue] / 5_000_000))
+            .attr("d", path);
+        }
         if (showWaterways && waterwayMap !== undefined && state === undefined) {
             const waterwayFeatures = feature(
                 waterwayMap,
@@ -191,7 +203,7 @@ const MapUI = ({
             .selectAll(".county")
             .on("touchmove mousemove", handleCountyMouseOver(selectedDataDefinitions, processedData, selections))
             .on("touchend mouseleave", handleMouseOut);
-    }, [map, selections, aggregation, state, onStateChange, processedData, showRoads, roadMap, railroadMap, showRailroads, waterwayMap, showWaterways, continuous]);
+    }, [map, selections, aggregation, state, onStateChange, processedData, showRoads, roadMap, railroadMap, showRailroads, waterwayMap, showWaterways, continuous, waterwayValue]);
 
     if (map === undefined) {
         return <div id="map"><p className="data-missing">Loading</p></div>;
@@ -228,42 +240,54 @@ const MapUI = ({
             { map &&
             <div id="map-controls">
                 {state === undefined &&
-                    <FormControlLabel
-                        id="show-roads"
-                        control={
-                            <Checkbox
-                                onChange={(_, value) => onShowRoadsChange(value)}
-                                title="Show highways"
-                                color="primary" />
+                    <React.Fragment>
+                        <FormControlLabel
+                            id="show-roads"
+                            control={
+                                <Checkbox
+                                    onChange={(_, value) => onShowRoadsChange(value)}
+                                    title="Highways"
+                                    color="primary" />
+                            }
+                            label="Highways"
+                        />
+                        <FormControlLabel
+                            id="show-railroads"
+                            control={
+                                <Checkbox
+                                    onChange={(_, value) => onShowRailroadsChange(value)}
+                                    title="Major railroads"
+                                    color="primary" />
+                            }
+                            label="Major railroads"
+                        />
+                        <FormControlLabel
+                            id="show-waterways"
+                            control={
+                                <Checkbox
+                                    onChange={(_, value) => onShowWaterwaysChange(value)}
+                                    title="Marine highways"
+                                    color="primary" />
+                            }
+                            label="Marine highways"
+                        />
+                        {showWaterways &&
+                        <FormControl>
+                            <InputLabel shrink id="waterway-type">
+                                Tonnage
+                            </InputLabel>
+                            <Select
+                                labelId="waterway-type"
+                                value={waterwayValue}
+                                onChange={event => setWaterwayValue(event.target.value as WaterwayValue)}
+                            >
+                                {waterway_types.map(({name, value}) => <MenuItem key={value} value={value}>{name}</MenuItem>)}
+                            </Select>
+                        </FormControl>
                         }
-                        label="Show highways"
-                    />
+                    </React.Fragment>
                 }
-                {state === undefined &&
-                    <FormControlLabel
-                        id="show-railroads"
-                        control={
-                            <Checkbox
-                                onChange={(_, value) => onShowRailroadsChange(value)}
-                                title="Show major railroads"
-                                color="primary" />
-                        }
-                        label="Show major railroads"
-                    />
-                }
-                                {state === undefined &&
-                    <FormControlLabel
-                        id="show-waterways"
-                        control={
-                            <Checkbox
-                                onChange={(_, value) => onShowWaterwaysChange(value)}
-                                title="Show marine highways"
-                                color="primary" />
-                        }
-                        label="Show marine highways"
-                    />
-                }
-                {selections[0]?.normalization === Normalization.Percentile &&
+                {selections[0]?.normalization === Normalization.Percentile && processedData &&
                     <FormControlLabel
                     control={
                     <Switch
@@ -542,20 +566,6 @@ function drawRailroads(svg: SVGSelection,
 function clearWaterways(svg: SVGSelection) {
     svg.select("#waterway-map").selectAll("*").remove();
 }
-
-function drawWaterways(svg: SVGSelection,
-                   roadFeatures: Feature<Geometry, GeoJsonProperties>[],
-                   path: GeoPath<any, GeoPermissibleObjects>) {
-    svg.select("#waterway-map")
-        .selectAll("path")
-        .data(roadFeatures)
-        .join("path")
-        .attr("stroke", "#0099ff")
-        .attr("fill", "none")
-        .attr("stroke-width", d => Math.sqrt(d.properties!.total / 5_000_000))
-        .attr("d", path);
-}
-
 
 function drawChoropleth(svg: SVGSelection,
                         countyFeatures: Feature<Geometry, GeoJsonProperties>[],
