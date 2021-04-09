@@ -1,9 +1,16 @@
 import React from 'react';
-import dataDefinitions, { DataIdParams } from './DataDefinitions';
+import { useSelector } from 'react-redux';
+import { getSelections, toggleDataDescription } from './appSlice';
+import dataDefinitions from './DataDefinitions';
+import { useThunkDispatch } from './Home';
+import { RootState } from './store';
 
-type Props = {selections: DataIdParams[], shouldShow: boolean, showClicked: () => void};
-
-const DataDescription = ({selections, shouldShow, showClicked}: Props) => {
+const DataDescription = () => {
+    const dispatch = useThunkDispatch();
+    const {selections, showDataDescription} = useSelector((state: RootState) => ({
+        ...state.app,
+        selections: getSelections(state.app),
+    }));
     if (selections.length !== 1) {
         return null;
     }
@@ -17,11 +24,11 @@ const DataDescription = ({selections, shouldShow, showClicked}: Props) => {
 
     return <div id="description">
     <button
-        onClick={showClicked}
-        className={shouldShow ? "shown" : undefined}>
+        onClick={() => dispatch(toggleDataDescription())}
+        className={showDataDescription ? "shown" : undefined}>
         About the {name} data
     </button>
-    {shouldShow && <p>{description}</p>}
+    {showDataDescription && <p>{description}</p>}
     </div>
 }
 

@@ -4,13 +4,10 @@ import { Map } from 'immutable';
 import Slider from '@material-ui/core/Slider';
 import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-
-type Props = {
-    selection: DataIdParams[],
-    onSelectionChange: (dataIds: DataIdParams[]) => void,
-    onWeightChange: (dataGroup: DataGroup, weight: number) => void,
-    dataWeights: Map<DataGroup, number>,
-};
+import { useThunkDispatch } from './Home';
+import { useSelector } from 'react-redux';
+import { changeWeight, getSelections, setSelections } from './appSlice';
+import { RootState, store } from './store';
 
 const getYears = (dataGroup: DataGroup) =>
     dataDefinitions.get(dataGroup)!.years;
@@ -47,8 +44,8 @@ const checkBox = (dataGroup: DataGroup,
     onSelectionToggled: (event: ChangeEvent<HTMLInputElement>) => void,
     definition: DataDefinition,
     dataSelections: DataIdParams[],
-    onWeightChange: (dataGroup: DataGroup, weight: number) => void,
-    dataWeights: Map<DataGroup, number>) => {
+    dataWeights: { [key in DataGroup]?: number},
+    dispatch: typeof store.dispatch) => {
     return <div key={dataGroup} className={shouldBeChecked(dataGroup) ? "selected-group" : undefined}>
 
         <input
@@ -70,8 +67,8 @@ const checkBox = (dataGroup: DataGroup,
                     step={0.1}
                     marks={marks}
                     valueLabelDisplay="auto"
-                    onChange={(_, weight) => onWeightChange(dataGroup, weight as number)}
-                    value={dataWeights.get(dataGroup) ?? 1} />
+                    onChange={(_, weight) => dispatch(changeWeight({dataGroup, weight: weight as number}))}
+                    value={dataWeights[dataGroup] ?? 1} />
             </div>}
     </div>;
 }
@@ -79,42 +76,53 @@ const checkBox = (dataGroup: DataGroup,
 
 const marks = [{ value: 0.1, label: "min" }, { value: 1, label: "max" }]
 
-const MultiDataSelector = ({ selection: dataSelections, onSelectionChange, onWeightChange, dataWeights }: Props) => {
-    const selectionMap = Map(dataSelections.map(selection => [selection.dataGroup, selection]));
+const MultiDataSelector = () => {
+    const dispatch = useThunkDispatch();
+    const {
+        selections,
+        dataWeights,
+    } = useSelector((state: RootState) => ({
+        ...state.app,
+        selections: getSelections(state.app),
+    }));
+
+    const selectionMap = Map(selections.map(selection => [selection.dataGroup, selection]));
 
     const onSelectionToggled = (event: ChangeEvent<HTMLInputElement>) => {
         const dataGroup = event.target.value as DataGroup;
         const checked = event.target.checked;
         const changedSelections = checked ?
-            selectionMap.set(dataGroup, { dataGroup, year: getYear(dataGroup), dataset: getDataset(dataGroup), normalization: Normalization.Percentile }) :
+            selectionMap.set(dataGroup, {
+                dataGroup,
+                year: getYear(dataGroup),
+                dataset: getDataset(dataGroup),
+                normalization: Normalization.Percentile,
+            }) :
             selectionMap.delete(dataGroup);
 
-        onSelectionChange(Array.from(changedSelections.values()));
+        dispatch(setSelections(Array.from(changedSelections.values())));
     }
 
     const shouldBeChecked = (dataGroup: DataGroup) => {
         return selectionMap.has(dataGroup);
     }
 
-    const getDemographicRisks = () =>
+    const getDataList = (dataFilter: (dataType: DataType) => boolean) =>
         Array.from(dataDefinitions.entries())
-            .filter(([_, definition]) =>
-                definition.normalizations.contains(Normalization.Percentile) && 
-                (definition.type === DataType.Economic ||
-                definition.type === DataType.Demographics))
-            .map(([dataGroup, definition]) =>
-                checkBox(dataGroup, shouldBeChecked, onSelectionToggled, definition, dataSelections, onWeightChange, dataWeights)
+        .filter(([_, definition]) =>
+            definition.normalizations.contains(Normalization.Percentile) && 
+            dataFilter(definition.type))
+        .map(([dataGroup, definition]) =>
+            checkBox(
+                dataGroup,
+                shouldBeChecked,
+                onSelectionToggled,
+                definition,
+                selections,
+                dataWeights,
+                dispatch
             )
-
-    const getClimateRisks = () =>
-        Array.from(dataDefinitions.entries())
-            .filter(([_, definition]) =>
-                definition.normalizations.contains(Normalization.Percentile) && 
-                definition.type !== DataType.Economic &&
-                definition.type !== DataType.Demographics)
-            .map(([dataGroup, definition]) =>
-                checkBox(dataGroup, shouldBeChecked, onSelectionToggled, definition, dataSelections, onWeightChange, dataWeights)
-            )
+        )
 
     return (
         <form id="data-selector">
@@ -127,7 +135,10 @@ const MultiDataSelector = ({ selection: dataSelections, onSelectionChange, onWei
                 Risk Metrics
                 </AccordionSummary>
                 <AccordionDetails>
-                    {getClimateRisks()}
+                    {getDataList(dataType =>
+                        dataType !== DataType.Demographics &&
+                        dataType !== DataType.Economic
+                    )}
                 </AccordionDetails>
             </Accordion>
             <Accordion>
@@ -139,7 +150,10 @@ const MultiDataSelector = ({ selection: dataSelections, onSelectionChange, onWei
                 Environmental Justice
                 </AccordionSummary>
                 <AccordionDetails>
-                    {getDemographicRisks()}
+                    {getDataList(dataType =>
+                        dataType === DataType.Demographics ||
+                        dataType === DataType.Economic
+                    )}
                 </AccordionDetails>
             </Accordion>
         </form>
