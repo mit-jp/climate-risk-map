@@ -1,11 +1,10 @@
-import React, { MouseEvent } from 'react';
+import React from 'react';
 import { Map } from 'immutable';
 import { DataType } from './DataDefinitions';
-
-type Props = {
-    selection: DataTab,
-    onDataTabChanged: (event: MouseEvent<HTMLLIElement>) => void
-}
+import { useThunkDispatch } from './Home';
+import { clickTab } from './appSlice';
+import { useSelector } from 'react-redux';
+import { RootState } from './store';
 
 export enum DataTab {
     RiskMetrics = "multi-system metrics",
@@ -28,16 +27,24 @@ export const TabToTypeMap = Map([
 
 const dataTabs = Object.values(DataTab);
 
-const listDataTabs = ({selection, onDataTabChanged}: Props) =>
-    dataTabs.map(dataTab =>
-        <li className={selection === dataTab ? "selected" : undefined} onClick={onDataTabChanged} key={dataTab}>{dataTab}</li>
-    )
+const Navigation = () => {
+    const dispatch = useThunkDispatch();
+    const { dataTab: selectedDataTab } = useSelector((state: RootState) => state.app)
 
-const Navigation = (props: Props) =>
+    return (
     <nav>
         <ul>
-            {listDataTabs(props)}
+            {dataTabs.map(dataTab =>
+                <li className={selectedDataTab === dataTab ? "selected" : undefined}
+                    onClick={event => dispatch(clickTab(event.currentTarget.textContent as DataTab))}
+                    key={dataTab}>
+                    {dataTab}
+                </li>
+            )}
         </ul>
     </nav>
+    );
+}
+
 
 export default Navigation;

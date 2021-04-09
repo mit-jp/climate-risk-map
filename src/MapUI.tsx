@@ -12,13 +12,16 @@ import states, { State } from './States';
 import Counties from './Counties';
 import DataProcessor from './DataProcessor';
 import ProbabilityDensity from './ProbabilityDensity';
-import { ColorScheme, Data, TopoJson } from './Home';
+import { ColorScheme, useThunkDispatch } from './Home';
 import { legend } from './Legend';
 import { Button, FormControlLabel, MenuItem, Select, Switch, Checkbox, InputLabel, FormControl } from '@material-ui/core';
 import Color from './Color';
 import counties from './Counties';
 import { saveAs } from 'file-saver';
 import waterway_types, { WaterwayValue } from './WaterwayType';
+import { useSelector } from 'react-redux';
+import { RootState, store } from './store';
+import { setDetailedView, setShowRailroads, setShowRoads, setShowWaterways, setState } from './appSlice';
 
 export enum Aggregation {
     State = "state",
@@ -27,55 +30,25 @@ export enum Aggregation {
 
 type SVGSelection = Selection<SVGSVGElement | null, unknown, null, undefined>;
 
-type Props = {
-    roadMap: TopoJson | undefined,
-    showRoads: boolean,
-    railroadMap: TopoJson | undefined,
-    showRailroads: boolean,
-    waterwayMap: TopoJson | undefined,
-    showWaterways: boolean,
-    map: TopoJson | undefined,
-    selections: DataIdParams[],
-    data: Data,
-    dataWeights: ImmutableMap<DataGroup, number>,
-    showDatasetDescription: boolean,
-    onDatasetDescriptionClicked: () => void,
-    showDataDescription: boolean,
-    onDataDescriptionClicked: () => void,
-    aggregation: Aggregation,
-    state: State | undefined,
-    continuous: boolean,
-    onContinuousChanged: (continuous: boolean) => void,
-    onStateChange: (state: State | undefined) => void,
-    onShowRoadsChange: (showRoads: boolean) => void,
-    onShowRailroadsChange: (showRoads: boolean) => void,
-    onShowWaterwaysChange: (showWaterways: boolean) => void,
-};
-
-const MapUI = ({
-    roadMap,
-    showRoads,
-    railroadMap,
-    showRailroads,
-    waterwayMap,
-    showWaterways,
-    map,
-    selections,
-    data,
-    dataWeights,
-    showDatasetDescription,
-    onDatasetDescriptionClicked,
-    showDataDescription,
-    onDataDescriptionClicked,
-    aggregation,
-    state,
-    continuous=true,
-    onContinuousChanged,
-    onStateChange,
-    onShowRoadsChange,
-    onShowRailroadsChange,
-    onShowWaterwaysChange,
-}: Props) => {
+const MapUI = () => {
+    const dispatch = useThunkDispatch();
+    const {
+        selections,
+        roadMap,
+        showRoads,
+        railroadMap,
+        showRailroads,
+        waterwayMap,
+        showWaterways,
+        map,
+        data,
+        dataWeights,
+        state,
+        detailedView,
+    } = useSelector((state: RootState) => ({
+        ...state.app,
+        selections: state.app.dataSelections[state.app.dataTab] ?? [],
+    }));
     const processedData = DataProcessor(data, selections, dataWeights, state);
     const [waterwayValue, setWaterwayValue] = useState<WaterwayValue>("total");
 
@@ -156,7 +129,7 @@ const MapUI = ({
         const legendFormatter = getLegendFormatter(selectedDataDefinitions, selections);
         const legendTicks = getLegendTicks(selectedDataDefinitions, selections);
         const values = countyFeatures.map(d => processedData.get(d.id as string)).filter(d => d !== undefined).map(d => d as number);
-        const colorScheme = Color(selections, continuous);
+        const colorScheme = Color(selections, detailedView);
         const radius = scaleSqrt([0, max(values) ?? 0], [0, 40]);
         const mapType = selectedDataDefinitions[0].mapType;
 
@@ -168,13 +141,12 @@ const MapUI = ({
         }
 
         // data
-        if (aggregation === Aggregation.County) {
-            if (mapType === MapType.Choropleth) {
-                drawChoropleth(svg, countyFeatures, processedData, colorScheme, path, onStateChange);
-            } else if (mapType === MapType.Bubble) {
-                drawBubbles(countyFeatures, processedData, svg, stateFeatures, path, radius);
-            }
+        if (mapType === MapType.Choropleth) {
+            drawChoropleth(svg, countyFeatures, processedData, colorScheme, path, dispatch);
+        } else if (mapType === MapType.Bubble) {
+            drawBubbles(countyFeatures, processedData, svg, stateFeatures, path, radius);
         }
+
 
         if (state !== undefined) {
             const width = 900;
@@ -188,7 +160,7 @@ const MapUI = ({
 
             svg.select("#counties")
                 .selectAll("path")
-                .on("click", () => onStateChange(undefined));
+                .on("click", () => dispatch(setState(undefined)));
             svg.select("#state-borders")
                 .selectAll("path")
                 .attr("stroke", "none");
@@ -203,7 +175,20 @@ const MapUI = ({
             .selectAll(".county")
             .on("touchmove mousemove", handleCountyMouseOver(selectedDataDefinitions, processedData, selections))
             .on("touchend mouseleave", handleMouseOut);
-    }, [map, selections, aggregation, state, onStateChange, processedData, showRoads, roadMap, railroadMap, showRailroads, waterwayMap, showWaterways, continuous, waterwayValue]);
+    }, [map,
+        selections,
+        state,
+        processedData,
+        showRoads,
+        roadMap,
+        railroadMap,
+        showRailroads,
+        waterwayMap,
+        showWaterways,
+        detailedView,
+        waterwayValue,
+        dispatch,
+    ]);
 
     if (map === undefined) {
         return <div id="map"><p className="data-missing">Loading</p></div>;
@@ -245,7 +230,7 @@ const MapUI = ({
                             id="show-roads"
                             control={
                                 <Checkbox
-                                    onChange={(_, value) => onShowRoadsChange(value)}
+                                    onChange={(_, value) => dispatch(setShowRoads(value))}
                                     title="Highways"
                                     color="primary" />
                             }
@@ -255,7 +240,7 @@ const MapUI = ({
                             id="show-railroads"
                             control={
                                 <Checkbox
-                                    onChange={(_, value) => onShowRailroadsChange(value)}
+                                    onChange={(_, value) => dispatch(setShowRailroads(value))}
                                     title="Major railroads"
                                     color="primary" />
                             }
@@ -265,7 +250,7 @@ const MapUI = ({
                             id="show-waterways"
                             control={
                                 <Checkbox
-                                    onChange={(_, value) => onShowWaterwaysChange(value)}
+                                    onChange={(_, value) => dispatch(setShowWaterways(value))}
                                     title="Marine highways"
                                     color="primary" />
                             }
@@ -291,9 +276,9 @@ const MapUI = ({
                     <FormControlLabel
                     control={
                     <Switch
-                        checked={continuous}
-                        onChange={(_, value) => onContinuousChanged(value)}
-                        name="continuous"
+                        checked={detailedView}
+                        onChange={(_, value) => setDetailedView(value)}
+                        name="detailed-view"
                         color="primary"
                     />
                     }
@@ -313,7 +298,7 @@ const MapUI = ({
                         selections={selections}
                         xRange={getPdfDomain(selections)}
                         formatter={getLegendFormatter(getDataDefinitions(selections), selections)}
-                        continuous={continuous}/>
+                        continuous={detailedView}/>
                 }
                 <g id="counties"></g>
                 <g id="states"></g>
@@ -324,16 +309,8 @@ const MapUI = ({
                 <g id="circles"></g>
                 <svg id="legend" x="550" y="20"></svg>
             </svg>
-            <DataDescription
-                selections={selections}
-                shouldShow={showDataDescription}
-                showClicked={onDataDescriptionClicked}
-            />
-            <DatasetDescription
-                datasets={selections.map(getDataset)}
-                shouldShow={showDatasetDescription}
-                showClicked={onDatasetDescriptionClicked}
-            />
+            <DataDescription />
+            <DatasetDescription />
         </div>
     );
 }
@@ -401,11 +378,6 @@ const handleMouseOut = function (this: any) {
     tooltip.transition()
         .duration(200)
         .style("opacity", 0)
-}
-
-const getDataset = (selection: DataIdParams) => {
-    // get the selected dataset, or the first one, if there's none selected
-    return selection.dataset ?? dataDefinitions.get(selection.dataGroup)!.datasets[0];
 }
 
 const getDataDefinitions = (selections: DataIdParams[]) => {
@@ -572,7 +544,7 @@ function drawChoropleth(svg: SVGSelection,
                         processedData: ImmutableMap<string, number | undefined>,
                         colorScheme: ColorScheme,
                         path: GeoPath<any, GeoPermissibleObjects>,
-                        onStateChange: (state: State | undefined) => void) {
+                        dispatch: typeof store.dispatch) {
     svg.select("#circles").selectAll("circle").attr("r", 0);
     svg.select("#counties")
         .selectAll("path")
@@ -583,7 +555,7 @@ function drawChoropleth(svg: SVGSelection,
             const value = processedData.get(d.id as string);
             return colorScheme(value as any) ?? missingDataColor;
         })
-        .attr("d", path).on("click", (_, feature) => onStateChange((feature?.id as string).slice(0, 2) as State));
+        .attr("d", path).on("click", (_, feature) => dispatch(setState((feature?.id as string).slice(0, 2) as State)));
     svg.select("#states").selectAll("path").attr("fill", "none");
     svg.select("#counties")
         .transition()

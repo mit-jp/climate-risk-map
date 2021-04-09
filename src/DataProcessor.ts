@@ -1,8 +1,8 @@
 import { scaleSequentialQuantile } from 'd3';
 import { Map, Seq, Set } from 'immutable';
+import { Data } from './appSlice';
 import counties from './Counties';
 import dataDefinitions, { DataGroup, DataIdParams, Normalization } from './DataDefinitions';
-import { Data } from './Home';
 import { State } from './States';
 
 export type ProcessedData = Map<string, number | undefined>;
@@ -17,7 +17,7 @@ const getDataForSelection = (
     const dataId = selectionToDataId.get(selection)!;
 
     for (const countyId of countyIds) {
-        const countyValues = data.get(countyId);
+        const countyValues = data[countyId];
         if (countyValues === undefined) {
             continue;
         }
@@ -43,12 +43,12 @@ const shouldInvert = (selection: DataIdParams) => {
 }
 
 const normalizeData = (
-    dataWeights: Map<DataGroup, number>,
+    dataWeights: { [key in DataGroup]?: number },
     selection: DataIdParams,
     totalWeight: number,
     valueByCountyId: Map<string, number>
 ) => {
-    let weight = (dataWeights.get(selection.dataGroup) ?? 1);
+    let weight = (dataWeights[selection.dataGroup] ?? 1);
     weight = totalWeight === 0 ? 0 : weight / totalWeight;
     valueByCountyId = shouldInvert(selection) ?
         valueByCountyId.map(value => -1 * value) :
@@ -61,7 +61,7 @@ const normalizeData = (
 const processData = (
     selections: DataIdParams[],
     data: Data,
-    dataWeights: Map<DataGroup, number>,
+    dataWeights: {[key in DataGroup]?: number},
     state: State | undefined,
 ) => {
     const selectionToDataId = getDataIdsForSelections(selections);
@@ -70,7 +70,7 @@ const processData = (
 
     let totalWeight = 0;
     for(const dataGroup of dataGroups) {
-        totalWeight += dataWeights.get(dataGroup) ?? 1;
+        totalWeight += dataWeights[dataGroup] ?? 1;
     }
 
     let countyIds = counties.keySeq();
@@ -120,10 +120,10 @@ const getDataIdsForSelections = (selections: DataIdParams[]) =>
 export default (
     data: Data,
     selections: DataIdParams[],
-    dataWeights: Map<DataGroup, number>,
+    dataWeights: {[key in DataGroup]?: number},
     state: State | undefined
 ) => {
-    if (selections.length === 0 || data.isEmpty()) {
+    if (selections.length === 0 || Object.keys(data).length === 0) {
         return undefined;
     }
     return processData(selections, data, dataWeights, state);
