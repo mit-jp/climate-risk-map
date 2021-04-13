@@ -75,6 +75,7 @@ export enum DataGroup {
     FloodRisk10Years = "avg_risk_score_2_10",
     FloodRisk100Years = "avg_risk_fsf_2020_100",
     PropertyCount = "count_property",
+    Land_EQI = "Land_EQI",
 }
 
 export type DataIdParams = {
@@ -528,6 +529,22 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         Original shapefiles of the data via from 
         Tcheuko, Lucas - FPAC-NRCS, Beltsville, MD <Lucas.Tcheuko@usda.gov>`,
         dataset: Dataset.USDA,
+        normalizations: allNormalizations,
+    })],
+    [DataGroup.Land_EQI, genericDefinition({
+        name: () => "Land Quality",
+        color: scaleSequential([-2, 2], scales.interpolateYlOrRd),
+        formatter: format(",.1f"),
+        legendFormatter: format(",.1f"),
+        type: DataType.Land,
+        description: () => `Low values indicate higher quality, and higher values mean lower quality.
+            The land domain included five data sources representing five constructs:
+            1) Agriculture, 2) Pesticides, 3) Facilities, 4) Radon, and 5) Mining Activity.
+            The data are from the 2007 Census of Agriculture, 2009 National Pesticide Use Database,
+            EPA Geospatial Data 12 Download Service, Map of Radon Zones,
+            and Mine Safety and Health Administration.
+            The Land Quality Index is 1 of 5 Environmental Quality Indices by the EPA.`,
+        dataset: Dataset.EQI,
         normalizations: allNormalizations,
     })],
     [DataGroup.FloodRisk10Years, genericDefinition({
