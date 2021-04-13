@@ -427,7 +427,8 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
             the WATERS program database, Estimated Use of Water in the
             United States, the National Atmospheric Deposition Program,
             the Drought Monitor Network, the National Contaminant
-            Occurrence Database, and the Safe Drinking Water Information System.`,
+            Occurrence Database, and the Safe Drinking Water Information System.
+            The Water Quality Index is 1 of 5 Environmental Quality Indices by the EPA.`,
         dataset: Dataset.EQI,
     })],
     [DataGroup.IrrigationDeficit, climateDefinition({
