@@ -277,7 +277,7 @@ const MapUI = () => {
                     control={
                     <Switch
                         checked={detailedView}
-                        onChange={(_, value) => setDetailedView(value)}
+                        onChange={(_, value) => dispatch(setDetailedView(value))}
                         name="detailed-view"
                         color="primary"
                     />
