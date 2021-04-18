@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { DataGroup, DataIdParams, Dataset, Normalization, Year } from './DataDefinitions';
+import dataDefinitions, { DataGroup, DataIdParams, Dataset, MapType, Normalization, Year } from './DataDefinitions';
 import { TopoJson } from './Home';
 import { DataTab } from './Navigation';
 import { State } from './States';
@@ -138,6 +138,10 @@ export const appSlice = createSlice({
             }
             if (getDatasets(selection).length > 1 && selection.dataset === undefined) {
                 selection.dataset = getDatasets(selection)[0];
+            }
+            if (dataDefinitions.get(selection.dataGroup)?.mapType === MapType.Bubble) {
+                // don't zoom in to state on bubble map. it's unsupported right now
+                state.state = undefined;
             }
         },
         setSelections: (state, action: PayloadAction<DataIdParams[]>) => {
