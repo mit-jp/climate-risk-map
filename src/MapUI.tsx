@@ -128,6 +128,7 @@ const MapUI = () => {
         const selectedDataDefinitions = getDataDefinitions(selections);
         const colorScheme = Color(selections, detailedView);
         const mapType = selectedDataDefinitions[0].mapType;
+        const radius = getRadius(countyFeatures, processedData);
 
         // data
         if (mapType === MapType.Choropleth) {
@@ -209,22 +210,39 @@ const MapUI = () => {
         }
     }
 
-    const selectedDataDefinitions = getDataDefinitions(selections);
-    const color = Color(selections, detailedView);
-    const legendFormatter = getLegendFormatter(selectedDataDefinitions, selections);
-    const ticks = getLegendTicks(selectedDataDefinitions, selections);
-    const title = getTitle(selectedDataDefinitions, selections);
+    const legends = (processedData: ImmutableMap<string, number | undefined> | undefined) => {
+        if (processedData === undefined) {
+            return null;
+        }
 
-    const countyFeatures = feature(
-        map,
-        map.objects.counties as GeometryCollection<GeoJsonProperties>
-    ).features.filter(stateFilter(state));
-    let radius: ScalePower<number, number, never>;
-    if (processedData !== undefined) {
-        const values = countyFeatures.map(d => processedData.get(d.id as string)).filter(d => d !== undefined).map(d => d as number);
-        radius = scaleSqrt([0, max(values) ?? 0], [0, 40]);
-    } else {
-        radius = scaleSqrt([0, 0], [0, 40]);
+        const selectedDataDefinitions = getDataDefinitions(selections);
+        const color = Color(selections, detailedView);
+        const legendFormatter = getLegendFormatter(selectedDataDefinitions, selections);
+        const ticks = getLegendTicks(selectedDataDefinitions, selections);
+        const title = getTitle(selectedDataDefinitions, selections);
+    
+        const countyFeatures = feature(
+            map,
+            map.objects.counties as GeometryCollection<GeoJsonProperties>
+        ).features.filter(stateFilter(state));
+        const radius = getRadius(countyFeatures, processedData);
+    
+        return (
+            <React.Fragment>
+                {shouldShowBubbleLegend(selections) && <BubbleLegend title={title} radius={radius} />}
+                {shouldShowLegend(selections) && <Legend title={title} color={color} tickFormat={legendFormatter} ticks={ticks} />}
+                {
+                    shouldShowPdf(selections) &&
+                    <ProbabilityDensity
+                        data={getArrayOfData()}
+                        selections={selections}
+                        xRange={getPdfDomain(selections)}
+                        formatter={legendFormatter}
+                        continuous={detailedView}
+                    />
+                }
+            </React.Fragment>
+        );
     }
 
 
@@ -305,18 +323,7 @@ const MapUI = () => {
                 <g id="railroad-map"></g>
                 <g id="waterway-map"></g>
                 <g id="circles"></g>
-                {shouldShowBubbleLegend(selections) && <BubbleLegend title={title} radius={radius} />}
-                {shouldShowLegend(selections) && <Legend title={title} color={color} tickFormat={legendFormatter} ticks={ticks} />}
-                {
-                    shouldShowPdf(selections) &&
-                    <ProbabilityDensity
-                        data={getArrayOfData()}
-                        selections={selections}
-                        xRange={getPdfDomain(selections)}
-                        formatter={getLegendFormatter(selectedDataDefinitions, selections)}
-                        continuous={detailedView}
-                    />
-                }
+                {legends(processedData)}
             </svg>
             <DataDescription />
             <DatasetDescription />
@@ -443,6 +450,20 @@ const stateFilter = (state: State | undefined) => (feature: Feature<Geometry, Ge
     }
     const stateId = (feature.id! as string).slice(0, 2);
     return stateId === state;
+}
+
+function getRadius(
+    countyFeatures: Feature<Geometry, GeoJsonProperties>[],
+    processedData: ImmutableMap<string, number | undefined>,
+) {
+    let radius: ScalePower<number, number, never>;
+    if (processedData !== undefined) {
+        const values = countyFeatures.map(d => processedData.get(d.id as string)).filter(d => d !== undefined).map(d => d as number);
+        radius = scaleSqrt([0, max(values) ?? 0], [0, 40]);
+    } else {
+        radius = scaleSqrt([0, 0], [0, 40]);
+    }
+    return radius;
 }
 
 function clearMap(svg: SVGSelection, stateFeatures: Feature<Geometry, GeoJsonProperties>[], path: GeoPath<any, GeoPermissibleObjects>) {
