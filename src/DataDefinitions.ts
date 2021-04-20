@@ -532,7 +532,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         normalizations: allNormalizations,
     })],
     [DataGroup.Land_EQI, genericDefinition({
-        name: () => "Land Quality",
+        name: () => "Land Disturbance",
         color: scaleSequential([-2, 2], scales.interpolateYlOrRd),
         formatter: format(",.1f"),
         legendFormatter: format(",.1f"),
