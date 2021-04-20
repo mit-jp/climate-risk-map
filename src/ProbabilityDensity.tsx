@@ -10,6 +10,7 @@ type Props = {
     width?: number,
     height?: number,
     formatter?: any,
+    continuous: boolean,
 };
 
 function epanechnikov(bandwidth: number) {
@@ -22,7 +23,7 @@ function kde(kernel: (x: number) => number,
     return thresholds.map((t: number) => [t, mean(data, (d: number) => kernel(t - d))!]);
 }
 
-const ProbabilityDensity = ({ data, selections, xRange = undefined, width = 300, height = 200, formatter }: Props) => {
+const ProbabilityDensity = ({ data, selections, xRange = undefined, width = 300, height = 200, formatter, continuous=true }: Props) => {
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
         if (data === undefined || selections === undefined) {
@@ -58,7 +59,7 @@ const ProbabilityDensity = ({ data, selections, xRange = undefined, width = 300,
             .call(axisLeft(y).ticks(null))
             .call((g: any) => g.select(".domain").remove())
         const svg = select(svgRef.current);
-        const color = Color(selections);
+        const color = Color(selections, continuous);
         const kdeLine: any = line()
             .curve(curveBasis)
             .x(d => x(d[0]))
@@ -83,7 +84,7 @@ const ProbabilityDensity = ({ data, selections, xRange = undefined, width = 300,
             .call(xAxis);
         svg.select("#yAxis")
             .call(yAxis);
-    }, [data, selections, xRange, formatter, height, width]);
+    }, [data, selections, xRange, formatter, height, width, continuous]);
 
     if (data === undefined || selections === undefined) {
         return null;

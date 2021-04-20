@@ -1,22 +1,28 @@
-import React, { useRef, useEffect } from 'react';
-import { select, geoPath, scaleSqrt, max, Selection, GeoPath, GeoPermissibleObjects, ScalePower } from 'd3';
+import React, { useRef, useEffect, useState } from 'react';
+import { select, geoPath, scaleSqrt, max, Selection, GeoPath, GeoPermissibleObjects, ScalePower, csvFormat } from 'd3';
 import { Feature, Geometry } from 'geojson';
 import { feature, mesh } from 'topojson-client';
 import { GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import DataDescription from './DataDescription';
-import dataDefinitions, { DataDefinition, DataIdParams, Normalization, percentileColorScheme, getUnits, percentileFormatter, DataGroup, MapType, DataType } from './DataDefinitions';
+import dataDefinitions, { DataDefinition, DataIdParams, Normalization, DataGroup, MapType, DataType, getUnits, riskMetricFormatter } from './DataDefinitions';
 import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
 import states, { State } from './States';
 import Counties from './Counties';
 import DataProcessor from './DataProcessor';
 import ProbabilityDensity from './ProbabilityDensity';
-import { ColorScheme, Data, TopoJson } from './Home';
+import { ColorScheme, useThunkDispatch } from './Home';
 import Legend from './Legend';
 import BubbleLegend from './BubbleLegend';
-import Checkbox from '@material-ui/core/Checkbox';
-import { FormControlLabel } from '@material-ui/core';
+import { Button, FormControlLabel, MenuItem, Select, Switch, Checkbox, InputLabel, FormControl } from '@material-ui/core';
+import Color from './Color';
+import counties from './Counties';
+import { saveAs } from 'file-saver';
+import waterway_types, { WaterwayValue } from './WaterwayType';
+import { useSelector } from 'react-redux';
+import { RootState, store } from './store';
+import { setDetailedView, setShowRailroads, setShowRoads, setShowWaterways, setState } from './appSlice';
 
 export enum Aggregation {
     State = "state",
@@ -25,40 +31,27 @@ export enum Aggregation {
 
 type SVGSelection = Selection<SVGSVGElement | null, unknown, null, undefined>;
 
-type Props = {
-    roadMap: TopoJson | undefined,
-    showRoads: boolean,
-    map: TopoJson | undefined,
-    selections: DataIdParams[],
-    data: Data,
-    dataWeights: ImmutableMap<DataGroup, number>,
-    showDatasetDescription: boolean,
-    onDatasetDescriptionClicked: () => void,
-    showDataDescription: boolean,
-    onDataDescriptionClicked: () => void,
-    aggregation: Aggregation,
-    state: State | undefined,
-    onStateChange: (state: State | undefined) => void,
-    onShowRoadsChange: (showRoads: boolean) => void,
-};
-
-const MapUI = ({
-    roadMap,
-    showRoads,
-    map,
-    selections,
-    data,
-    dataWeights,
-    showDatasetDescription,
-    onDatasetDescriptionClicked,
-    showDataDescription,
-    onDataDescriptionClicked,
-    aggregation,
-    state,
-    onStateChange,
-    onShowRoadsChange,
-}: Props) => {
+const MapUI = () => {
+    const dispatch = useThunkDispatch();
+    const {
+        selections,
+        roadMap,
+        showRoads,
+        railroadMap,
+        showRailroads,
+        waterwayMap,
+        showWaterways,
+        map,
+        data,
+        dataWeights,
+        state,
+        detailedView,
+    } = useSelector((state: RootState) => ({
+        ...state.app,
+        selections: state.app.dataSelections[state.app.dataTab] ?? [],
+    }));
     const processedData = DataProcessor(data, selections, dataWeights, state);
+    const [waterwayValue, setWaterwayValue] = useState<WaterwayValue>("total");
 
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
@@ -90,10 +83,42 @@ const MapUI = ({
                 roadMap,
                 roadMap.objects.roads as GeometryCollection<GeoJsonProperties>
             ).features;
-            drawRoads(svg, roadFeatures, path);
+            drawRoadsAndFerries(svg, roadFeatures, path);
         } else {
             clearRoads(svg);
         }
+
+        if (showRailroads && railroadMap !== undefined && state === undefined) {
+            const railroadFeatures = feature(
+                railroadMap,
+                railroadMap.objects.railroads as GeometryCollection<GeoJsonProperties>
+            ).features;
+            drawRailroads(svg, railroadFeatures, path);
+        } else {
+            clearRailroads(svg);
+        }
+        function drawWaterways(svg: SVGSelection,
+            roadFeatures: Feature<Geometry, GeoJsonProperties>[],
+            path: GeoPath<any, GeoPermissibleObjects>) {
+            svg.select("#waterway-map")
+            .selectAll("path")
+            .data(roadFeatures)
+            .join("path")
+            .attr("stroke", "#0099ff")
+            .attr("fill", "none")
+            .attr("stroke-width", d => Math.sqrt(d.properties![waterwayValue] / 5_000_000))
+            .attr("d", path);
+        }
+        if (showWaterways && waterwayMap !== undefined && state === undefined) {
+            const waterwayFeatures = feature(
+                waterwayMap,
+                waterwayMap.objects.waterways as GeometryCollection<GeoJsonProperties>
+            ).features;
+            drawWaterways(svg, waterwayFeatures, path);
+        } else {
+            clearWaterways(svg);
+        }
+
 
         if (processedData === undefined) {
             clearMap(svg, stateFeatures, path);
@@ -101,17 +126,16 @@ const MapUI = ({
         }
 
         const selectedDataDefinitions = getDataDefinitions(selections);
-        const colorScheme = getColorScheme(selectedDataDefinitions, selections);
+        const colorScheme = Color(selections, detailedView);
         const mapType = selectedDataDefinitions[0].mapType;
 
         // data
-        if (aggregation === Aggregation.County) {
-            if (mapType === MapType.Choropleth) {
-                drawChoropleth(svg, countyFeatures, processedData, colorScheme, path, onStateChange);
-            } else if (mapType === MapType.Bubble) {
-                drawBubbles(countyFeatures, processedData, svg, stateFeatures, path, radius);
-            }
+        if (mapType === MapType.Choropleth) {
+            drawChoropleth(svg, countyFeatures, processedData, colorScheme, path, dispatch);
+        } else if (mapType === MapType.Bubble) {
+            drawBubbles(countyFeatures, processedData, svg, stateFeatures, path, radius);
         }
+
 
         if (state !== undefined) {
             const width = 900;
@@ -125,7 +149,7 @@ const MapUI = ({
 
             svg.select("#counties")
                 .selectAll("path")
-                .on("click", () => onStateChange(undefined));
+                .on("click", () => dispatch(setState(undefined)));
             svg.select("#state-borders")
                 .selectAll("path")
                 .attr("stroke", "none");
@@ -140,7 +164,20 @@ const MapUI = ({
             .selectAll(".county")
             .on("touchmove mousemove", handleCountyMouseOver(selectedDataDefinitions, processedData, selections))
             .on("touchend mouseleave", handleMouseOut);
-    }, [map, selections, aggregation, state, onStateChange, processedData, showRoads, roadMap]);
+    }, [map,
+        selections,
+        state,
+        processedData,
+        showRoads,
+        roadMap,
+        railroadMap,
+        showRailroads,
+        waterwayMap,
+        showWaterways,
+        detailedView,
+        waterwayValue,
+        dispatch,
+    ]);
 
     if (map === undefined) {
         return <div id="map"><p className="data-missing">Loading</p></div>;
@@ -155,8 +192,25 @@ const MapUI = ({
             .filter(value => value !== undefined) as number[];
     }
 
+    const downloadData = () => {
+        const objectData = processedData
+            ?.sortBy((_, fipsCode) => fipsCode)
+            .map((value, fipsCode) => {
+                const county = counties.get(fipsCode);
+                const state = states.get(fipsCode.slice(0,2) as State);
+                return { fipsCode, state, county, value };
+            })
+            .valueSeq()
+            .toArray();
+        if (objectData) {
+            const csv = csvFormat(objectData, ["fipsCode", "state", "county", "value"]);
+            const blob = new Blob([csv], {type: "text/plain;charset=utf-8"});
+            saveAs(blob, getFilename(getDataDefinitions(selections), selections) + ".csv");
+        }
+    }
+
     const selectedDataDefinitions = getDataDefinitions(selections);
-    const color = getColorScheme(selectedDataDefinitions, selections);
+    const color = Color(selections, detailedView);
     const legendFormatter = getLegendFormatter(selectedDataDefinitions, selections);
     const ticks = getLegendTicks(selectedDataDefinitions, selections);
     const title = getTitle(selectedDataDefinitions, selections);
@@ -176,17 +230,71 @@ const MapUI = ({
 
     return (
         <div id="map">
-            {state === undefined &&
-                <FormControlLabel
-                    id="show-roads"
+            { map &&
+            <div id="map-controls">
+                {state === undefined &&
+                    <React.Fragment>
+                        <FormControlLabel
+                            id="show-roads"
+                            control={
+                                <Checkbox
+                                    onChange={(_, value) => dispatch(setShowRoads(value))}
+                                    title="Highways"
+                                    color="primary" />
+                            }
+                            label="Highways"
+                        />
+                        <FormControlLabel
+                            id="show-railroads"
+                            control={
+                                <Checkbox
+                                    onChange={(_, value) => dispatch(setShowRailroads(value))}
+                                    title="Major railroads"
+                                    color="primary" />
+                            }
+                            label="Major railroads"
+                        />
+                        <FormControlLabel
+                            id="show-waterways"
+                            control={
+                                <Checkbox
+                                    onChange={(_, value) => dispatch(setShowWaterways(value))}
+                                    title="Marine highways"
+                                    color="primary" />
+                            }
+                            label="Marine highways"
+                        />
+                        {showWaterways &&
+                        <FormControl>
+                            <InputLabel shrink id="waterway-type">
+                                Tonnage
+                            </InputLabel>
+                            <Select
+                                labelId="waterway-type"
+                                value={waterwayValue}
+                                onChange={event => setWaterwayValue(event.target.value as WaterwayValue)}
+                            >
+                                {waterway_types.map(({name, value}) => <MenuItem key={value} value={value}>{name}</MenuItem>)}
+                            </Select>
+                        </FormControl>
+                        }
+                    </React.Fragment>
+                }
+                {selections[0]?.normalization === Normalization.Percentile && processedData &&
+                    <FormControlLabel
                     control={
-                        <Checkbox
-                            onChange={(_, value) => onShowRoadsChange(value)}
-                            title="Show roads"
-                            color="primary" />
+                    <Switch
+                        checked={detailedView}
+                        onChange={(_, value) => dispatch(setDetailedView(value))}
+                        name="detailed-view"
+                        color="primary"
+                    />
                     }
-                    label="Show roads"
+                    label="Detailed View"
                 />
+                }
+                {processedData && <Button variant="outlined" onClick={downloadData}>Download data</Button>}
+            </div>
             }
 
             <svg ref={svgRef} viewBox="0, 0, 1175, 610">
@@ -194,6 +302,8 @@ const MapUI = ({
                 <g id="states"></g>
                 <g id="state-borders"><path /></g>
                 <g id="road-map"></g>
+                <g id="railroad-map"></g>
+                <g id="waterway-map"></g>
                 <g id="circles"></g>
                 {shouldShowBubbleLegend(selections) && <BubbleLegend title={title} radius={radius} />}
                 {shouldShowLegend(selections) && <Legend title={title} color={color} tickFormat={legendFormatter} ticks={ticks} />}
@@ -204,19 +314,12 @@ const MapUI = ({
                         selections={selections}
                         xRange={getPdfDomain(selections)}
                         formatter={getLegendFormatter(selectedDataDefinitions, selections)}
+                        continuous={detailedView}
                     />
                 }
             </svg>
-            <DataDescription
-                selections={selections}
-                shouldShow={showDataDescription}
-                showClicked={onDataDescriptionClicked}
-            />
-            <DatasetDescription
-                datasets={selections.map(getDataset)}
-                shouldShow={showDatasetDescription}
-                showClicked={onDatasetDescriptionClicked}
-            />
+            <DataDescription />
+            <DatasetDescription />
         </div>
     );
 }
@@ -266,10 +369,10 @@ const format = (value: number | undefined, selectedDataDefinitions: DataDefiniti
     if (value === undefined) {
         return "No data";
     }
-    let units = getUnits(selectedDataDefinitions[0], selections[0].normalization);
-    if (units === "Percentile") {
+    if (selections[0].normalization !== Normalization.Raw) {
         return formatter(value);
     } else {
+        let units = getUnits(selectedDataDefinitions[0], selections[0].normalization);
         return formatter(value) + getUnitString(units);
     }
 }
@@ -284,11 +387,6 @@ const handleMouseOut = function (this: any) {
     tooltip.transition()
         .duration(200)
         .style("opacity", 0)
-}
-
-const getDataset = (selection: DataIdParams) => {
-    // get the selected dataset, or the first one, if there's none selected
-    return selection.dataset ?? dataDefinitions.get(selection.dataGroup)!.datasets[0];
 }
 
 const getDataDefinitions = (selections: DataIdParams[]) => {
@@ -306,11 +404,20 @@ const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdP
     }
 }
 
+const getFilename = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
+    const unitString = getTitle(selectedDataDefinitions, selections);
+    if (unitString === "Mean of selected data") {
+        return unitString;
+    } else {
+        return selectedDataDefinitions[0].name(selections[0].normalization) + unitString;
+    }
+}
+
 const getFormatter = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
     const normalization = selections[0].normalization;
     switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].formatter;
-        case Normalization.Percentile: return percentileFormatter;
+        case Normalization.Percentile: return riskMetricFormatter;
     }
 }
 
@@ -318,7 +425,7 @@ const getLegendFormatter = (selectedDataDefinitions: DataDefinition[], selection
     const normalization = selections[0].normalization;
     switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].legendFormatter;
-        case Normalization.Percentile: return percentileFormatter;
+        case Normalization.Percentile: return riskMetricFormatter;
     }
 }
 
@@ -327,14 +434,6 @@ const getLegendTicks = (selectedDataDefinitions: DataDefinition[], selections: D
     switch (normalization) {
         case Normalization.Raw: return selectedDataDefinitions[0].legendTicks;
         case Normalization.Percentile: return undefined;
-    }
-}
-
-const getColorScheme = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
-    const normalization = selections[0].normalization;
-    switch (normalization) {
-        case Normalization.Raw: return selectedDataDefinitions[0].color;
-        case Normalization.Percentile: return percentileColorScheme;
     }
 }
 
@@ -368,7 +467,7 @@ function clearRoads(svg: SVGSelection) {
     svg.select("#road-map").selectAll("*").remove();
 }
 
-function drawRoads(svg: SVGSelection,
+function drawRoadsAndFerries(svg: SVGSelection,
                    roadFeatures: Feature<Geometry, GeoJsonProperties>[],
                    path: GeoPath<any, GeoPermissibleObjects>) {
     svg.select("#road-map")
@@ -381,12 +480,33 @@ function drawRoads(svg: SVGSelection,
         .attr("d", path);
 }
 
+function clearRailroads(svg: SVGSelection) {
+    svg.select("#railroad-map").selectAll("*").remove();
+}
+
+function drawRailroads(svg: SVGSelection,
+                   roadFeatures: Feature<Geometry, GeoJsonProperties>[],
+                   path: GeoPath<any, GeoPermissibleObjects>) {
+    svg.select("#railroad-map")
+        .selectAll("path")
+        .data(roadFeatures)
+        .join("path")
+        .attr("stroke", "grey")
+        .attr("fill", "none")
+        .attr("stroke-width", 1)
+        .attr("d", path);
+}
+
+function clearWaterways(svg: SVGSelection) {
+    svg.select("#waterway-map").selectAll("*").remove();
+}
+
 function drawChoropleth(svg: SVGSelection,
-    countyFeatures: Feature<Geometry, GeoJsonProperties>[],
-    processedData: ImmutableMap<string, number | undefined>,
-    colorScheme: ColorScheme,
-    path: GeoPath<any, GeoPermissibleObjects>,
-    onStateChange: (state: State | undefined) => void) {
+                        countyFeatures: Feature<Geometry, GeoJsonProperties>[],
+                        processedData: ImmutableMap<string, number | undefined>,
+                        colorScheme: ColorScheme,
+                        path: GeoPath<any, GeoPermissibleObjects>,
+                        dispatch: typeof store.dispatch) {
     svg.select("#circles").selectAll("circle").attr("r", 0);
     svg.select("#counties")
         .selectAll("path")
@@ -397,7 +517,7 @@ function drawChoropleth(svg: SVGSelection,
             const value = processedData.get(d.id as string);
             return colorScheme(value as any) ?? missingDataColor;
         })
-        .attr("d", path).on("click", (_, feature) => onStateChange((feature?.id as string).slice(0, 2) as State));
+        .attr("d", path).on("click", (_, feature) => dispatch(setState((feature?.id as string).slice(0, 2) as State)));
     svg.select("#states").selectAll("path").attr("fill", "none");
     svg.select("#counties")
         .transition()
@@ -439,6 +559,9 @@ function shouldShowPdf(selections: DataIdParams[]) {
     if (selections[0] !== undefined && selections[0].dataGroup === DataGroup.Populationpersquaremile2010) {
         return false;
     }
+    if (selections[0]?.normalization === Normalization.Percentile) {
+        return selections.length > 1;
+    }
     return firstSelection !== undefined && firstSelection.mapType === MapType.Choropleth;
 }
 
@@ -462,9 +585,7 @@ function getPdfDomain(selections: DataIdParams[]) {
         return [0, 100] as [number, number];
     }
 
-    if (selections[0].normalization === Normalization.Percentile) {
-        return [0, 1] as [number, number];
-    }
+    return undefined;
 }
 
 export default MapUI;

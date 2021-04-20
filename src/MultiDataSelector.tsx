@@ -1,17 +1,13 @@
 import React, { ChangeEvent } from 'react';
-import dataDefinitions, { DataIdParams, Year, Dataset, DataGroup, Normalization } from './DataDefinitions';
-import YearSelector from './YearSelector';
-import DatasetSelector from './DatasetSelector';
+import dataDefinitions, { DataIdParams, DataGroup, Normalization, Year, Dataset, DataDefinition, DataType } from './DataDefinitions';
 import { Map } from 'immutable';
-import Slider from 'rc-slider';
-import 'rc-slider/assets/index.css';
-
-type Props = {
-    selection: DataIdParams[],
-    onSelectionChange: (dataIds: DataIdParams[]) => void,
-    onWeightChange: (dataGroup: DataGroup, weight: number) => void,
-    dataWeights: Map<DataGroup, number>,
-};
+import Slider from '@material-ui/core/Slider';
+import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { useThunkDispatch } from './Home';
+import { useSelector } from 'react-redux';
+import { changeWeight, getSelections, setSelections } from './appSlice';
+import { RootState, store } from './store';
 
 const getYears = (dataGroup: DataGroup) =>
     dataDefinitions.get(dataGroup)!.years;
@@ -19,84 +15,147 @@ const getYears = (dataGroup: DataGroup) =>
 const getDatasets = (dataGroup: DataGroup) =>
     dataDefinitions.get(dataGroup)!.datasets;
 
-const MultiDataSelector = ({selection: dataSelections, onSelectionChange, onWeightChange, dataWeights}: Props) => {
-    const selectionMap = Map(dataSelections.map(selection => [selection.dataGroup, selection]));
+const getYear = (dataGroup: DataGroup) => {
+    const years = getYears(dataGroup);
+    if (years.includes(Year._2000_2019)) {
+        return Year._2000_2019;
+    } else if (years.includes(Year.Average)) {
+        return Year.Average;
+    } else {
+        return years[0];
+    }
+}
 
-    const onYearChange = (event: ChangeEvent<HTMLInputElement>, dataGroup: DataGroup) => {
-        const year = event.target.value as Year;
-        const changedSelections = selectionMap.set(dataGroup, {...selectionMap.get(dataGroup)!, year});
-        onSelectionChange(Array.from(changedSelections.values()));
-    };
-    const onDatasetChange = (event: ChangeEvent<HTMLInputElement>, dataGroup: DataGroup) => {
-        const dataset = event.target.value as Dataset;
-        const changedSelections = selectionMap.set(dataGroup, {...selectionMap.get(dataGroup)!, dataset});
-        onSelectionChange(Array.from(changedSelections.values()));
-    };
+const getDataset = (dataGroup: DataGroup) => {
+    const datasets = getDatasets(dataGroup);
+    if (datasets.includes(Dataset.ERA5)) {
+        return Dataset.ERA5;
+    } else {
+        return datasets[0];
+    }
+}
+
+const multipleChecked = (dataSelections: DataIdParams[]) => {
+    return dataSelections.length > 1;
+}
+
+const checkBox = (dataGroup: DataGroup,
+    shouldBeChecked: (dataGroup: DataGroup) => boolean,
+    onSelectionToggled: (event: ChangeEvent<HTMLInputElement>) => void,
+    definition: DataDefinition,
+    dataSelections: DataIdParams[],
+    dataWeights: { [key in DataGroup]?: number},
+    dispatch: typeof store.dispatch) => {
+    return <div key={dataGroup} className={shouldBeChecked(dataGroup) ? "selected-group" : undefined}>
+
+        <input
+            className="data-group"
+            id={dataGroup}
+            checked={shouldBeChecked(dataGroup)}
+            type="checkbox"
+            value={dataGroup}
+            onChange={onSelectionToggled}
+            name="dataGroup" />
+        <label className="data-group" htmlFor={dataGroup}>{definition.name(Normalization.Percentile)}</label>
+        {shouldBeChecked(dataGroup) && multipleChecked(dataSelections) &&
+            <div className="weight">
+                <div className="weight-label">Weight</div>
+                <Slider
+                    className="weight-slider"
+                    min={0.1}
+                    max={1}
+                    step={0.1}
+                    marks={marks}
+                    valueLabelDisplay="auto"
+                    onChange={(_, weight) => dispatch(changeWeight({dataGroup, weight: weight as number}))}
+                    value={dataWeights[dataGroup] ?? 1} />
+            </div>}
+    </div>;
+}
+
+
+const marks = [{ value: 0.1, label: "min" }, { value: 1, label: "max" }]
+
+const MultiDataSelector = () => {
+    const dispatch = useThunkDispatch();
+    const {
+        selections,
+        dataWeights,
+    } = useSelector((state: RootState) => ({
+        ...state.app,
+        selections: getSelections(state.app),
+    }));
+
+    const selectionMap = Map(selections.map(selection => [selection.dataGroup, selection]));
+
     const onSelectionToggled = (event: ChangeEvent<HTMLInputElement>) => {
         const dataGroup = event.target.value as DataGroup;
         const checked = event.target.checked;
         const changedSelections = checked ?
-            selectionMap.set(dataGroup, {dataGroup, year: getYears(dataGroup)[0], dataset: getDatasets(dataGroup)[0], normalization: Normalization.Percentile}) :
+            selectionMap.set(dataGroup, {
+                dataGroup,
+                year: getYear(dataGroup),
+                dataset: getDataset(dataGroup),
+                normalization: Normalization.Percentile,
+            }) :
             selectionMap.delete(dataGroup);
-        
-        onSelectionChange(Array.from(changedSelections.values()));
-    }
 
-    const onDataGroupWeightChange = (dataGroup: DataGroup) => (weight: number) => {
-        onWeightChange(dataGroup, weight);
+        dispatch(setSelections(Array.from(changedSelections.values())));
     }
-
-    const shouldShowYears = (dataGroup: DataGroup) => shouldBeChecked(dataGroup) && getYears(dataGroup).length > 1
-    const shouldShowDatasets = (dataGroup: DataGroup) => shouldBeChecked(dataGroup) && getDatasets(dataGroup).length > 1
 
     const shouldBeChecked = (dataGroup: DataGroup) => {
         return selectionMap.has(dataGroup);
     }
 
-    const getDataGroups = () => {
-        return Array.from(dataDefinitions.entries())
-        .filter(([_, definition]) => definition.normalizations.contains(Normalization.Percentile))
+    const getDataList = (dataFilter: (dataType: DataType) => boolean) =>
+        Array.from(dataDefinitions.entries())
+        .filter(([_, definition]) =>
+            definition.normalizations.contains(Normalization.Percentile) && 
+            dataFilter(definition.type))
         .map(([dataGroup, definition]) =>
-            <div key={dataGroup} className={shouldBeChecked(dataGroup) ? "selected-group" : undefined}>
-                <input
-                    className="data-group"
-                    id={dataGroup}
-                    checked={shouldBeChecked(dataGroup)}
-                    type="checkbox"
-                    value={dataGroup}
-                    onChange={onSelectionToggled}
-                    name="dataGroup" />
-                <label className="data-group" htmlFor={dataGroup}>{definition.name}</label>
-                {shouldBeChecked(dataGroup) && <Slider
-                    marks={{0.1:0.1, 0.2:0.2,0.3:0.3,0.4:0.4,0.5:0.5,0.6:0.6,0.7:0.7,0.8:0.8,0.9:0.9, 1:1}}
-                    className="slider"
-                    min={0.1}
-                    max={1}
-                    step={0.1}
-                    onChange={onDataGroupWeightChange(dataGroup)}
-                    value={dataWeights.get(dataGroup) ?? 1} />}
-                {shouldShowYears(dataGroup) &&
-                    <YearSelector
-                        id={dataGroup}
-                        years={getYears(dataGroup)}
-                        selectedYear={selectionMap.get(dataGroup)!.year}
-                        onSelectionChange={e => onYearChange(e, dataGroup)}
-                    />}
-                {shouldShowDatasets(dataGroup) &&
-                    <DatasetSelector
-                        id={dataGroup}
-                        datasets={getDatasets(dataGroup)}
-                        selectedDataset={selectionMap.get(dataGroup)!.dataset}
-                        onSelectionChange={e => onDatasetChange(e, dataGroup)}
-                    />}
-                
-            </div>
+            checkBox(
+                dataGroup,
+                shouldBeChecked,
+                onSelectionToggled,
+                definition,
+                selections,
+                dataWeights,
+                dispatch
+            )
         )
-    }
 
     return (
         <form id="data-selector">
-            {getDataGroups()}
+            <Accordion>
+                <AccordionSummary
+                    aria-controls="panel1a-content"
+                    id="panel1a-header"
+                    expandIcon={<ExpandMoreIcon />}
+                >
+                Risk Metrics
+                </AccordionSummary>
+                <AccordionDetails>
+                    {getDataList(dataType =>
+                        dataType !== DataType.Demographics &&
+                        dataType !== DataType.Economic
+                    )}
+                </AccordionDetails>
+            </Accordion>
+            <Accordion>
+                <AccordionSummary
+                    aria-controls="panel1a-content"
+                    id="panel1a-header"
+                    expandIcon={<ExpandMoreIcon />}
+                >
+                Environmental Justice
+                </AccordionSummary>
+                <AccordionDetails>
+                    {getDataList(dataType =>
+                        dataType === DataType.Demographics ||
+                        dataType === DataType.Economic
+                    )}
+                </AccordionDetails>
+            </Accordion>
         </form>
     )
 }

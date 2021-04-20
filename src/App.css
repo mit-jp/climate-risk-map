@@ -87,12 +87,6 @@ nav li.selected {
     color: #fff;
 }
 
-nav li a {
-    display: block;
-    text-decoration: none;
-    color: #000; 
-}
-
 .sub-selector {
     display: flex;
     background:#eee;
@@ -106,7 +100,7 @@ nav li a {
 .sub-selector label {
     display: block;
     border:1px;
-    padding:1em;
+    padding:1em .5em 1em .5em;
     cursor: pointer;
 }
 
@@ -147,6 +141,14 @@ input.data-group:checked + label {
 
 .data-missing {
     padding: 0 1em 1em 1em;
+}
+
+.weight-slider {
+    margin: 0 1em !important;
+    padding-bottom: 2em !important;
+    display: block !important;
+    width: auto !important;
+    color: #435e7c !important;
 }
 
 #map {
@@ -235,14 +237,28 @@ footer #navigation li {
     margin-left: 1em;
 }
 
-#download {
-    list-style:none;
-}
-
 h2 {
     margin-left:1em;
 }
 
-#show-roads {
+#map-controls {
     margin-left:4em;
+}
+
+.weight {
+    display: flex;
+    margin: 0 1em;
+}
+
+.weight-label {
+    margin-top:0.2em;
+    font-size: 0.875rem;
+}
+
+.weight-slider {
+    flex-grow: 1;
+}
+
+.MuiAccordionDetails-root {
+    flex-direction: column;
 }
