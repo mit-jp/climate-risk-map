@@ -230,7 +230,15 @@ const MapUI = () => {
         return (
             <React.Fragment>
                 {shouldShowBubbleLegend(selections) && <BubbleLegend title={title} radius={radius} />}
-                {shouldShowLegend(selections) && <Legend title={title} color={color} tickFormat={legendFormatter} ticks={ticks} />}
+                {
+                    shouldShowLegend(selections) &&
+                    <Legend
+                        title={title}
+                        color={color}
+                        tickFormat={legendFormatter}
+                        ticks={ticks}
+                        showTooltip={isNormalized(selections)} />
+                }
                 {
                     shouldShowPdf(selections) &&
                     <ProbabilityDensity
@@ -573,6 +581,10 @@ function drawBubbles(countyFeatures: Feature<Geometry, GeoJsonProperties>[],
             const value = processedData.get(d.id as string);
             return radius(value ?? 0);
         });
+}
+
+function isNormalized(selections: DataIdParams[]) {
+    return selections[0]?.normalization === Normalization.Percentile;
 }
 
 function shouldShowPdf(selections: DataIdParams[]) {
