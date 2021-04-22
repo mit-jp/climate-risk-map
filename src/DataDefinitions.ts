@@ -76,6 +76,11 @@ export enum DataGroup {
     FloodRisk100Years = "avg_risk_fsf_2020_100",
     PropertyCount = "count_property",
     Land_EQI = "Land_EQI",
+    CropInsurance = "AGLANDCROPINSURANCEACRES",
+    Cropland = "AGLANDCROPLANDACRES",
+    AgriculturalBuildingValue = "AGLANDINCLBUILDINGSASSETVALUEMEASUREDIN",
+    PastureLand = "AGLANDPASTURELANDACRES",
+    Woodland = "AGLANDWOODLANDACRES",
 }
 
 export type DataIdParams = {
@@ -130,6 +135,7 @@ export enum Dataset {
     USDA = "usda",
     EQI = "EPA",
     FirstStreet = "first street",
+    NASS = "National Agricultural Statistics Service",
 }
 
 export type DatasetDefinition = {
@@ -269,6 +275,12 @@ export const datasetDefinitions = (dataset: Dataset): DatasetDefinition => {
                 that typically are viewed in isolation.
                 Data Downloaded from https://edg.epa.gov/EPADataCommons/public/ORD/CPHEA/EQI_2006_2010/`,
             link: "https://www.epa.gov/healthresearch/environmental-quality-index-eqi#overview"
+        }
+        case Dataset.NASS: return {
+            name: "USDA National Agricultural Statistics Service",
+            description: `The USDA's National Agricultural Statistics Service conducts hundreds of surveys every
+                            year and prepares reports covering virtually every aspect of U.S. agriculture.`,
+            link: "https://www.nass.usda.gov/",
         }
         default: throwBadDataset(dataset);
     }
@@ -546,6 +558,53 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
             The Land Quality Index is 1 of 5 Environmental Quality Indices by the EPA.`,
         dataset: Dataset.EQI,
         normalizations: allNormalizations,
+    })],
+    [DataGroup.CropInsurance, genericDefinition({
+        name: () => "Insured farm land",
+        color: scaleSequential(scales.interpolateGreens),
+        mapType: MapType.Bubble,
+        type: DataType.Land,
+        description: () => `Land enrolled in crop insurance programs in U.S. farms`,
+        units: "Acres",
+        dataset: Dataset.NASS,
+    })],
+    [DataGroup.Cropland, genericDefinition({
+        name: () => "Cropland",
+        color: scaleSequential(scales.interpolateGreens),
+        mapType: MapType.Bubble,
+        type: DataType.Land,
+        description: () => `Total cropland in U.S. farms`,
+        units: "Acres",
+        dataset: Dataset.NASS,
+    })],
+    [DataGroup.AgriculturalBuildingValue, genericDefinition({
+        name: () => "Agricultural Building Value",
+        color: scaleSequential(scales.interpolateGreens),
+        mapType: MapType.Bubble,
+        type: DataType.Land,
+        description: () => `Estimated market value of land and buildings in U.S. farms`,
+        formatter: money,
+        legendFormatter: money,
+        units: "USD",
+        dataset: Dataset.NASS,
+    })],
+    [DataGroup.PastureLand, genericDefinition({
+        name: () => "Pastureland",
+        color: scaleSequential(scales.interpolateGreens),
+        mapType: MapType.Bubble,
+        type: DataType.Land,
+        description: () => `Pastureland in U.S. farms`,
+        units: "Acres",
+        dataset: Dataset.NASS,
+    })],
+    [DataGroup.Woodland, genericDefinition({
+        name: () => "Woodland",
+        color: scaleSequential(scales.interpolateGreens),
+        mapType: MapType.Bubble,
+        type: DataType.Land,
+        description: () => `Woodland in U.S. farms`,
+        units: "Acres",
+        dataset: Dataset.NASS,
     })],
     [DataGroup.FloodRisk10Years, genericDefinition({
         name: normalization => normalization === Normalization.Raw ? "10 Year Flood Risk" : "Flood risk",
