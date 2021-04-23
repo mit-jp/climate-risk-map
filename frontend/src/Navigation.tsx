@@ -5,18 +5,7 @@ import { useThunkDispatch } from './Home';
 import { clickTab } from './appSlice';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
-
-export enum DataTab {
-    RiskMetrics = "multi-system metrics",
-    Water = "water",
-    Land = "land",
-    Climate = "climate",
-    Economy = "economy",
-    Energy = "energy",
-    ClimateOpinions = "climate opinions",
-    Demographics = "demographics",
-    Health = "health",
-}
+import DataTab from './DataTab';
 
 export const TabToTypeMap = Map([
     [DataTab.Climate, DataType.Climate],

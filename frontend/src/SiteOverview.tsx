@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { DataTab } from './Navigation';
+import { DataTab } from './DataTab';
 import { RootState } from './store';
 
 const SiteOverview = () => {
@@ -17,7 +17,7 @@ const SiteOverview = () => {
                 importance to view the combined impact.
                 To see additional and supporting data, select the other
                 categories.
-        </p>
+            </p>
         </div>
     );
 }

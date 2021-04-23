@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import MapUI from './MapUI';
 import Footer from './Footer';
 import Header from './Header';
 import Navigation from './Navigation';
@@ -12,6 +11,7 @@ import { json, csv } from 'd3-fetch';
 import { ScaleSequential, ScaleThreshold, ScaleDiverging, autoType, DSVParsedArray } from 'd3';
 import { useDispatch } from 'react-redux';
 import { store } from './store';
+import ReactMap from './ReactMap';
 import { Data, DataRow, OverlayName, setData, setMap, setOverlay } from './appSlice';
 import SiteOverview from './SiteOverview';
 
@@ -82,7 +82,7 @@ const Home = () => {
       <SiteOverview />
       <div id="content">
         <DataSelector />
-        <MapUI />
+        <ReactMap />
       </div>
       <Footer />
     </React.Fragment>

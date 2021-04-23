@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import dataDefinitions, { DataGroup, DataIdParams, Dataset, MapType, Normalization, Year } from './DataDefinitions';
 import { TopoJson } from './Home';
-import { DataTab } from './Navigation';
+import DataTab from './DataTab';
 import { State } from './States';
 import { getDatasets, getYears } from './SingleDataSelector';
 import { WaterwayValue } from './WaterwayType';

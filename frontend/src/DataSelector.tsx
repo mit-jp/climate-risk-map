@@ -1,7 +1,7 @@
 import React from 'react';
 import MultiDataSelector from './MultiDataSelector';
 import SingleDataSelector from './SingleDataSelector';
-import { DataTab } from './Navigation';
+import DataTab from './DataTab';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
 
