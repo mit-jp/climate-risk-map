@@ -12,6 +12,7 @@ export enum DataTab {
     Land = "land",
     Climate = "climate",
     Economic = "economic",
+    Energy = "energy",
     ClimateOpinions = "climate opinions",
     Demographics = "demographics",
 }
@@ -20,6 +21,7 @@ export const TabToTypeMap = Map([
     [DataTab.Climate, DataType.Climate],
     [DataTab.Water, DataType.Water],
     [DataTab.Land, DataType.Land],
+    [DataTab.Energy, DataType.Energy],
     [DataTab.Economic, DataType.Economic],
     [DataTab.Demographics, DataType.Demographics],
     [DataTab.ClimateOpinions, DataType.ClimateOpinions],

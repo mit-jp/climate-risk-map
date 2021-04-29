@@ -26,7 +26,7 @@ interface AppState {
     readonly detailedView: boolean,
 }
 
-const defaultSelections = {
+const defaultSelections: { [key in DataTab]: DataIdParams[]} = {
     [DataTab.RiskMetrics]: [{
         dataGroup: DataGroup.WaterStress,
         year: Year.Average,
@@ -52,6 +52,7 @@ const defaultSelections = {
     [DataTab.Economic]: [{ dataGroup: DataGroup.AllIndustries, normalization: Normalization.Raw }],
     [DataTab.Demographics]: [{ dataGroup: DataGroup.PercentPopulationUnder18, normalization: Normalization.Raw }],
     [DataTab.ClimateOpinions]: [{ dataGroup: DataGroup.discuss, normalization: Normalization.Raw }],
+    [DataTab.Energy]: [{ dataGroup: DataGroup.FossilFuelsEmployment, normalization: Normalization.Raw }],
 };
 
 const initialState: AppState = {

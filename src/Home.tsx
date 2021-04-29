@@ -20,6 +20,7 @@ const csvFiles = [
   "climate.csv",
   "demographics.csv",
   "census_employment_acs5_2019.csv",
+  "energy_employment.csv",
 ];
 
 const mergeFIPSCodes = (csv: DSVParsedArray<DataRow>): [string, DataRow][] =>

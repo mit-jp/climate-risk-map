@@ -16,6 +16,7 @@ export enum DataType {
     Economic = "economic",
     Demographics = "demographics",
     ClimateOpinions = "climate opinions",
+    Energy = "energy",
 }
 
 export enum DataGroup {
@@ -81,6 +82,11 @@ export enum DataGroup {
     AgriculturalBuildingValue = "AGLANDINCLBUILDINGSASSETVALUEMEASUREDIN",
     PastureLand = "AGLANDPASTURELANDACRES",
     Woodland = "AGLANDWOODLANDACRES",
+    RenewablesEmployment = "RenewablesEmploymentPCTEmp",
+    FossilFuelsEmployment = "FossilEmploymentPCTEmp",
+    EfficiencyEmployment = "EfficiencyEmploymentPCTEmp",
+    TransmissionEmployment = "TransmissionEmploymentPCTEmp",
+    MotorVehiclesEmployment = "MotorVehiclesEmploymentPCTEmp",
 }
 
 export type DataIdParams = {
@@ -699,5 +705,46 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.harmplants, surveyDefinition("Think that global warming will harm plants and animals ")],
     [DataGroup.timing, surveyDefinition("Think a candidate’s views on global warming are important to their vote")],
     [DataGroup.affectweather, surveyDefinition("Think that global warming is affecting the weather in the United States")],
+    [DataGroup.FossilFuelsEmployment, genericDefinition({
+        name: () => "Employment in Fossil Fuels",
+        units: "% of employed people",
+        color: scaleSequential([0, 25], scales.interpolateGreens),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.Census,
+        normalizations: allNormalizations,
+    })],
+    [DataGroup.RenewablesEmployment, genericDefinition({
+        name: () => "Employment in Renewables",
+        units: "% of employed people",
+        color: scaleSequential([0, 4], scales.interpolateGreens),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.Census,
+    })],
+    [DataGroup.EfficiencyEmployment, genericDefinition({
+        name: () => "Employment in Efficiency",
+        units: "% of employed people",
+        color: scaleSequential([0, 5], scales.interpolateGreens),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.Census,
+    })],
+    [DataGroup.TransmissionEmployment, genericDefinition({
+        name: () => "Employment in Transmission",
+        units: "% of employed people",
+        color: scaleSequential([0, 10], scales.interpolateGreens),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.Census,
+    })],
+    [DataGroup.MotorVehiclesEmployment, genericDefinition({
+        name: () => "Employment in MotorVehicles",
+        units: "% of employed people",
+        color: scaleSequential([0, 10], scales.interpolateGreens),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.Census,
+    })],
 ]);
 export default dataDefinitions;
