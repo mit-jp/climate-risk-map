@@ -717,7 +717,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.FossilFuelsEmployment, genericDefinition({
         name: () => "Employment in Fossil Fuels",
         units: "% of employed people",
-        color: scaleSequential([0, 25], scales.interpolateGreens),
+        color: scaleSequentialSqrt([0, 15], scales.interpolateGreens),
         type: DataType.Energy,
         description: () => "",
         normalizations: allNormalizations,
@@ -726,7 +726,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.RenewablesEmployment, genericDefinition({
         name: () => "Employment in Renewables",
         units: "% of employed people",
-        color: scaleSequential([0, 4], scales.interpolateGreens),
+        color: scaleSequentialSqrt([0, 4], scales.interpolateGreens),
         type: DataType.Energy,
         description: () => "",
         dataset: Dataset.USEER,
@@ -734,7 +734,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.EfficiencyEmployment, genericDefinition({
         name: () => "Employment in Efficiency",
         units: "% of employed people",
-        color: scaleSequential([0, 5], scales.interpolateGreens),
+        color: scaleSequentialSqrt([0, 5], scales.interpolateGreens),
         type: DataType.Energy,
         description: () => "",
         dataset: Dataset.USEER,
@@ -742,7 +742,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.TransmissionEmployment, genericDefinition({
         name: () => "Employment in Transmission",
         units: "% of employed people",
-        color: scaleSequential([0, 10], scales.interpolateGreens),
+        color: scaleSequentialSqrt([0, 10], scales.interpolateGreens),
         type: DataType.Energy,
         description: () => "",
         dataset: Dataset.USEER,
@@ -750,7 +750,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.MotorVehiclesEmployment, genericDefinition({
         name: () => "Employment in Motor Vehicles",
         units: "% of employed people",
-        color: scaleSequential([0, 10], scales.interpolateGreens),
+        color: scaleSequentialSqrt([0, 10], scales.interpolateGreens),
         type: DataType.Energy,
         description: () => "",
         dataset: Dataset.USEER,
