@@ -142,6 +142,7 @@ export enum Dataset {
     EQI = "EPA",
     FirstStreet = "first street",
     NASS = "National Agricultural Statistics Service",
+    USEER = "US Energy and Employment Report",
 }
 
 export type DatasetDefinition = {
@@ -287,6 +288,14 @@ export const datasetDefinitions = (dataset: Dataset): DatasetDefinition => {
             description: `The USDA's National Agricultural Statistics Service conducts hundreds of surveys every
                             year and prepares reports covering virtually every aspect of U.S. agriculture.`,
             link: "https://www.nass.usda.gov/",
+        }
+        case Dataset.USEER: return {
+            name: "US Energy and Employment Report",
+            description: `The 2020 U.S. Energy & Employment Report by the National Association of State Energy Officials,
+                the Energy Futures Initiative, and the BW Research Partnership, includes
+                job data for electric power generation, transmission, distribution & storage,
+                fuels, energy efficiency, and motor vehicles.`,
+            link: "https://www.usenergyjobs.org/",
         }
         default: throwBadDataset(dataset);
     }
@@ -711,8 +720,8 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequential([0, 25], scales.interpolateGreens),
         type: DataType.Energy,
         description: () => "",
-        dataset: Dataset.Census,
         normalizations: allNormalizations,
+        dataset: Dataset.USEER,
     })],
     [DataGroup.RenewablesEmployment, genericDefinition({
         name: () => "Employment in Renewables",
@@ -720,7 +729,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequential([0, 4], scales.interpolateGreens),
         type: DataType.Energy,
         description: () => "",
-        dataset: Dataset.Census,
+        dataset: Dataset.USEER,
     })],
     [DataGroup.EfficiencyEmployment, genericDefinition({
         name: () => "Employment in Efficiency",
@@ -728,7 +737,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequential([0, 5], scales.interpolateGreens),
         type: DataType.Energy,
         description: () => "",
-        dataset: Dataset.Census,
+        dataset: Dataset.USEER,
     })],
     [DataGroup.TransmissionEmployment, genericDefinition({
         name: () => "Employment in Transmission",
@@ -736,15 +745,15 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequential([0, 10], scales.interpolateGreens),
         type: DataType.Energy,
         description: () => "",
-        dataset: Dataset.Census,
+        dataset: Dataset.USEER,
     })],
     [DataGroup.MotorVehiclesEmployment, genericDefinition({
-        name: () => "Employment in MotorVehicles",
+        name: () => "Employment in Motor Vehicles",
         units: "% of employed people",
         color: scaleSequential([0, 10], scales.interpolateGreens),
         type: DataType.Energy,
         description: () => "",
-        dataset: Dataset.Census,
+        dataset: Dataset.USEER,
     })],
 ]);
 export default dataDefinitions;
