@@ -492,13 +492,6 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         type: DataType.Water,
         description: () => "An estimation of the amount of precipitation that soaks into the ground (and replenishes groundwater supply). Minimum of the 12 monthly runoff climatology during the specific period (40 years or 20 years. To avoid negative values, the minimum cutoff value is set to be 0.000001)",
     })],
-    [DataGroup.MaxTemperature, climateDefinition({
-        name: normalization => normalization === Normalization.Raw ? "Maximum Month Temperature" : "Temperature Stress Indicator",
-        units: "°C",
-        color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40]),
-        normalizations: allNormalizations,
-        description: () => "The hottest month out of all months in the years selected. Directly calculated from the reanalysis data",
-    })],
     [DataGroup.Evapotranspiration, climateDefinition({
         name: () => "Mean Annual Potential Evapotranspiration",
         units: "mm/year",
@@ -521,6 +514,21 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequential<string>(scales.interpolateBlues).domain([0, 2000]),
         type: DataType.Water,
         description: () => "Monthly runoff is calculated based on the monthly precipitation and potential evapotransipiration using the Turc-Pike model (Yates, Climate Research, Vol 9, 147-155, 1997)",
+    })],
+    [DataGroup.FloodRisk10Years, genericDefinition({
+        name: normalization => normalization === Normalization.Raw ? "10 Year Flood Risk" : "Flood risk",
+        color: scaleSequential(scales.interpolateBlues).domain([4, 9]),
+        type: DataType.Water,
+        description: () => "",
+        dataset: Dataset.FirstStreet,
+        normalizations: allNormalizations,
+    })],
+    [DataGroup.FloodRisk100Years, genericDefinition({
+        name: () => "100 Year Flood Risk",
+        color: scaleSequential(scales.interpolateBlues).domain([4, 9]),
+        type: DataType.Water,
+        description: () => "",
+        dataset: Dataset.FirstStreet,
     })],
     [DataGroup.AllIndustries, genericDefinition({
         name: () => "Employment in all industries 2019",
@@ -632,22 +640,13 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         units: "Acres",
         dataset: Dataset.NASS,
     })],
-    [DataGroup.FloodRisk10Years, genericDefinition({
-        name: normalization => normalization === Normalization.Raw ? "10 Year Flood Risk" : "Flood risk",
-        color: scaleSequential(scales.interpolateBlues).domain([4, 9]),
-        type: DataType.Water,
-        description: () => "",
-        dataset: Dataset.FirstStreet,
+    [DataGroup.MaxTemperature, climateDefinition({
+        name: normalization => normalization === Normalization.Raw ? "Maximum Month Temperature" : "Temperature Stress Indicator",
+        units: "°C",
+        color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40]),
         normalizations: allNormalizations,
+        description: () => "The hottest month out of all months in the years selected. Directly calculated from the reanalysis data",
     })],
-    [DataGroup.FloodRisk100Years, genericDefinition({
-        name: () => "100 Year Flood Risk",
-        color: scaleSequential(scales.interpolateBlues).domain([4, 9]),
-        type: DataType.Water,
-        description: () => "",
-        dataset: Dataset.FirstStreet,
-    })],
-
     [DataGroup.MiningQuarryingAndOilAndGasExtraction, employmentDefinition({
         name:"Mining, Quarrying, and Oil & Gas Extraction 2019",
         color: scaleSequentialSqrt([0,50], scales.interpolateGreens)
