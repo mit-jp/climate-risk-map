@@ -14,7 +14,7 @@ interface AppState {
     readonly railroadMap: TopoJson | undefined,
     readonly waterwayMap: TopoJson | undefined,
     readonly data: Data,
-    readonly dataSelections: { [key in DataTab]: DataIdParams[]},
+    readonly dataSelections: { [key in DataTab]: DataIdParams[] },
     readonly dataWeights: { [key in DataGroup]?: number },
     readonly dataTab: DataTab,
     readonly showDatasetDescription: boolean,
@@ -24,9 +24,11 @@ interface AppState {
     readonly showRailroads: boolean,
     readonly showWaterways: boolean,
     readonly detailedView: boolean,
+    readonly showRiskMetrics: boolean,
+    readonly showDemographics: boolean,
 }
 
-const defaultSelections: { [key in DataTab]: DataIdParams[]} = {
+const defaultSelections: { [key in DataTab]: DataIdParams[] } = {
     [DataTab.RiskMetrics]: [{
         dataGroup: DataGroup.WaterStress,
         year: Year.Average,
@@ -71,6 +73,8 @@ const initialState: AppState = {
     showRailroads: false,
     showWaterways: false,
     detailedView: true,
+    showRiskMetrics: true,
+    showDemographics: true,
 };
 
 export const appSlice = createSlice({
@@ -95,6 +99,12 @@ export const appSlice = createSlice({
         setState: (state, action: PayloadAction<State | undefined>) => {
             state.state = action.payload;
         },
+        setShowRiskMetrics: (state, action: PayloadAction<boolean>) => {
+            state.showRiskMetrics = action.payload;
+        },
+        setShowDemographics: (state, action: PayloadAction<boolean>) => {
+            state.showDemographics = action.payload;
+        },
         setShowRoads: (state, action: PayloadAction<boolean>) => {
             state.showRoads = action.payload;
         },
@@ -116,8 +126,8 @@ export const appSlice = createSlice({
         clickTab: (state, action: PayloadAction<DataTab>) => {
             state.dataTab = action.payload;
         },
-        changeWeight: (state, action: PayloadAction<{dataGroup: DataGroup, weight: number}>) => {
-            const {dataGroup, weight} = action.payload;
+        changeWeight: (state, action: PayloadAction<{ dataGroup: DataGroup, weight: number }>) => {
+            const { dataGroup, weight } = action.payload;
             state.dataWeights[dataGroup] = weight;
         },
         changeYear: (state, action: PayloadAction<Year>) => {
@@ -156,6 +166,7 @@ export const {
     setShowRailroads, setShowRoads, setShowWaterways, setDetailedView,
     toggleDatasetDescription, clickTab, changeWeight, changeYear,
     changeDataset, changeDataGroup, setSelections, toggleDataDescription,
+    setShowDemographics, setShowRiskMetrics,
 } = appSlice.actions;
 
 export const getSelections = (state: AppState) => state.dataSelections[state.dataTab];

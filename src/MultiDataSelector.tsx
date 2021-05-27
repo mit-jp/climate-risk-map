@@ -6,7 +6,7 @@ import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { useThunkDispatch } from './Home';
 import { useSelector } from 'react-redux';
-import { changeWeight, getSelections, setSelections } from './appSlice';
+import { changeWeight, getSelections, setSelections, setShowRiskMetrics, setShowDemographics } from './appSlice';
 import { RootState, store } from './store';
 
 const getYears = (dataGroup: DataGroup) =>
@@ -44,7 +44,7 @@ const checkBox = (dataGroup: DataGroup,
     onSelectionToggled: (event: ChangeEvent<HTMLInputElement>) => void,
     definition: DataDefinition,
     dataSelections: DataIdParams[],
-    dataWeights: { [key in DataGroup]?: number},
+    dataWeights: { [key in DataGroup]?: number },
     dispatch: typeof store.dispatch) => {
     return <div key={dataGroup} className={shouldBeChecked(dataGroup) ? "selected-group" : undefined}>
 
@@ -67,7 +67,7 @@ const checkBox = (dataGroup: DataGroup,
                     step={0.1}
                     marks={marks}
                     valueLabelDisplay="auto"
-                    onChange={(_, weight) => dispatch(changeWeight({dataGroup, weight: weight as number}))}
+                    onChange={(_, weight) => dispatch(changeWeight({ dataGroup, weight: weight as number }))}
                     value={dataWeights[dataGroup] ?? 1} />
             </div>}
     </div>;
@@ -81,6 +81,8 @@ const MultiDataSelector = () => {
     const {
         selections,
         dataWeights,
+        showRiskMetrics,
+        showDemographics,
     } = useSelector((state: RootState) => ({
         ...state.app,
         selections: getSelections(state.app),
@@ -103,36 +105,44 @@ const MultiDataSelector = () => {
         dispatch(setSelections(Array.from(changedSelections.values())));
     }
 
+    const onRiskMetricsToggled = (_: ChangeEvent<{}>, expanded: boolean) => {
+        dispatch(setShowRiskMetrics(expanded));
+    }
+
+    const onDemographicsToggled = (_: ChangeEvent<{}>, expanded: boolean) => {
+        dispatch(setShowDemographics(expanded));
+    }
+
     const shouldBeChecked = (dataGroup: DataGroup) => {
         return selectionMap.has(dataGroup);
     }
 
     const getDataList = (dataFilter: (dataType: DataType) => boolean) =>
         Array.from(dataDefinitions.entries())
-        .filter(([_, definition]) =>
-            definition.normalizations.contains(Normalization.Percentile) && 
-            dataFilter(definition.type))
-        .map(([dataGroup, definition]) =>
-            checkBox(
-                dataGroup,
-                shouldBeChecked,
-                onSelectionToggled,
-                definition,
-                selections,
-                dataWeights,
-                dispatch
+            .filter(([_, definition]) =>
+                definition.normalizations.contains(Normalization.Percentile) &&
+                dataFilter(definition.type))
+            .map(([dataGroup, definition]) =>
+                checkBox(
+                    dataGroup,
+                    shouldBeChecked,
+                    onSelectionToggled,
+                    definition,
+                    selections,
+                    dataWeights,
+                    dispatch
+                )
             )
-        )
 
     return (
         <form id="data-selector">
-            <Accordion>
+            <Accordion expanded={showRiskMetrics} onChange={onRiskMetricsToggled}>
                 <AccordionSummary
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                     expandIcon={<ExpandMoreIcon />}
                 >
-                Risk Metrics
+                    Risk Metrics
                 </AccordionSummary>
                 <AccordionDetails>
                     {getDataList(dataType =>
@@ -141,13 +151,13 @@ const MultiDataSelector = () => {
                     )}
                 </AccordionDetails>
             </Accordion>
-            <Accordion>
+            <Accordion expanded={showDemographics} onChange={onDemographicsToggled}>
                 <AccordionSummary
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                     expandIcon={<ExpandMoreIcon />}
                 >
-                Environmental Justice
+                    Environmental Justice
                 </AccordionSummary>
                 <AccordionDetails>
                     {getDataList(dataType =>
