@@ -78,7 +78,7 @@ const MapUI = () => {
             .attr("stroke-linejoin", "round")
             .attr("d", path);
 
-        if (showRoads && roadMap !== undefined && state === undefined) {
+        if (showRoads && roadMap !== undefined) {
             const roadFeatures = feature(
                 roadMap,
                 roadMap.objects.roads as GeometryCollection<GeoJsonProperties>
@@ -88,7 +88,7 @@ const MapUI = () => {
             clearRoads(svg);
         }
 
-        if (showRailroads && railroadMap !== undefined && state === undefined) {
+        if (showRailroads && railroadMap !== undefined) {
             const railroadFeatures = feature(
                 railroadMap,
                 railroadMap.objects.railroads as GeometryCollection<GeoJsonProperties>
@@ -101,15 +101,15 @@ const MapUI = () => {
             roadFeatures: Feature<Geometry, GeoJsonProperties>[],
             path: GeoPath<any, GeoPermissibleObjects>) {
             svg.select("#waterway-map")
-            .selectAll("path")
-            .data(roadFeatures)
-            .join("path")
-            .attr("stroke", "#0099ff")
-            .attr("fill", "none")
-            .attr("stroke-width", d => Math.sqrt(d.properties![waterwayValue] / 5_000_000))
-            .attr("d", path);
+                .selectAll("path")
+                .data(roadFeatures)
+                .join("path")
+                .attr("stroke", "#0099ff")
+                .attr("fill", "none")
+                .attr("stroke-width", d => Math.sqrt(d.properties![waterwayValue] / 5_000_000))
+                .attr("d", path);
         }
-        if (showWaterways && waterwayMap !== undefined && state === undefined) {
+        if (showWaterways && waterwayMap !== undefined) {
             const waterwayFeatures = feature(
                 waterwayMap,
                 waterwayMap.objects.waterways as GeometryCollection<GeoJsonProperties>
@@ -158,6 +158,18 @@ const MapUI = () => {
                 .transition()
                 .duration(200)
                 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+            svg.select("#road-map")
+                .transition()
+                .duration(200)
+                .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+            svg.select("#railroad-map")
+                .transition()
+                .duration(200)
+                .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+            svg.select("#waterway-map")
+                .transition()
+                .duration(200)
+                .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
         }
 
         // tooltips
@@ -198,14 +210,14 @@ const MapUI = () => {
             ?.sortBy((_, fipsCode) => fipsCode)
             .map((value, fipsCode) => {
                 const county = counties.get(fipsCode);
-                const state = states.get(fipsCode.slice(0,2) as State);
+                const state = states.get(fipsCode.slice(0, 2) as State);
                 return { fipsCode, state, county, value };
             })
             .valueSeq()
             .toArray();
         if (objectData) {
             const csv = csvFormat(objectData, ["fipsCode", "state", "county", "value"]);
-            const blob = new Blob([csv], {type: "text/plain;charset=utf-8"});
+            const blob = new Blob([csv], { type: "text/plain;charset=utf-8" });
             saveAs(blob, getFilename(getDataDefinitions(selections), selections) + ".csv");
         }
     }
@@ -220,13 +232,13 @@ const MapUI = () => {
         const legendFormatter = getLegendFormatter(selectedDataDefinitions, selections);
         const ticks = getLegendTicks(selectedDataDefinitions, selections);
         const title = getTitle(selectedDataDefinitions, selections);
-    
+
         const countyFeatures = feature(
             map,
             map.objects.counties as GeometryCollection<GeoJsonProperties>
         ).features.filter(stateFilter(state));
         const radius = getRadius(countyFeatures, processedData);
-    
+
         return (
             <React.Fragment>
                 {shouldShowBubbleLegend(selections) && <BubbleLegend title={title} radius={radius} />}
@@ -257,8 +269,7 @@ const MapUI = () => {
     return (
         <div id="map">
             { map &&
-            <div id="map-controls">
-                {state === undefined &&
+                <div id="map-controls">
                     <React.Fragment>
                         <FormControlLabel
                             id="show-roads"
@@ -291,36 +302,35 @@ const MapUI = () => {
                             label="Marine highways"
                         />
                         {showWaterways &&
-                        <FormControl>
-                            <InputLabel shrink id="waterway-type">
-                                Tonnage
-                            </InputLabel>
-                            <Select
-                                labelId="waterway-type"
-                                value={waterwayValue}
-                                onChange={event => setWaterwayValue(event.target.value as WaterwayValue)}
-                            >
-                                {waterway_types.map(({name, value}) => <MenuItem key={value} value={value}>{name}</MenuItem>)}
-                            </Select>
-                        </FormControl>
+                            <FormControl>
+                                <InputLabel shrink id="waterway-type">
+                                    Tonnage
+                                </InputLabel>
+                                <Select
+                                    labelId="waterway-type"
+                                    value={waterwayValue}
+                                    onChange={event => setWaterwayValue(event.target.value as WaterwayValue)}
+                                >
+                                    {waterway_types.map(({ name, value }) => <MenuItem key={value} value={value}>{name}</MenuItem>)}
+                                </Select>
+                            </FormControl>
                         }
                     </React.Fragment>
-                }
-                {selections[0]?.normalization === Normalization.Percentile && processedData &&
-                    <FormControlLabel
-                    control={
-                    <Switch
-                        checked={detailedView}
-                        onChange={(_, value) => dispatch(setDetailedView(value))}
-                        name="detailed-view"
-                        color="primary"
-                    />
+                    {selections[0]?.normalization === Normalization.Percentile && processedData &&
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={detailedView}
+                                    onChange={(_, value) => dispatch(setDetailedView(value))}
+                                    name="detailed-view"
+                                    color="primary"
+                                />
+                            }
+                            label="Detailed View"
+                        />
                     }
-                    label="Detailed View"
-                />
-                }
-                {processedData && <Button variant="outlined" onClick={downloadData}>Download data</Button>}
-            </div>
+                    {processedData && <Button variant="outlined" onClick={downloadData}>Download data</Button>}
+                </div>
             }
 
             <svg ref={svgRef} viewBox="0, 0, 1175, 610">
@@ -497,15 +507,15 @@ function clearRoads(svg: SVGSelection) {
 }
 
 function drawRoadsAndFerries(svg: SVGSelection,
-                   roadFeatures: Feature<Geometry, GeoJsonProperties>[],
-                   path: GeoPath<any, GeoPermissibleObjects>) {
+    roadFeatures: Feature<Geometry, GeoJsonProperties>[],
+    path: GeoPath<any, GeoPermissibleObjects>) {
     svg.select("#road-map")
         .selectAll("path")
         .data(roadFeatures)
         .join("path")
         .attr("stroke", "grey")
         .attr("fill", "none")
-        .attr("stroke-width", d => 1/d.properties!.scalerank * 5)
+        .attr("stroke-width", d => 1 / d.properties!.scalerank * 5)
         .attr("d", path);
 }
 
@@ -514,8 +524,8 @@ function clearRailroads(svg: SVGSelection) {
 }
 
 function drawRailroads(svg: SVGSelection,
-                   roadFeatures: Feature<Geometry, GeoJsonProperties>[],
-                   path: GeoPath<any, GeoPermissibleObjects>) {
+    roadFeatures: Feature<Geometry, GeoJsonProperties>[],
+    path: GeoPath<any, GeoPermissibleObjects>) {
     svg.select("#railroad-map")
         .selectAll("path")
         .data(roadFeatures)
@@ -531,11 +541,11 @@ function clearWaterways(svg: SVGSelection) {
 }
 
 function drawChoropleth(svg: SVGSelection,
-                        countyFeatures: Feature<Geometry, GeoJsonProperties>[],
-                        processedData: ImmutableMap<string, number | undefined>,
-                        colorScheme: ColorScheme,
-                        path: GeoPath<any, GeoPermissibleObjects>,
-                        dispatch: typeof store.dispatch) {
+    countyFeatures: Feature<Geometry, GeoJsonProperties>[],
+    processedData: ImmutableMap<string, number | undefined>,
+    colorScheme: ColorScheme,
+    path: GeoPath<any, GeoPermissibleObjects>,
+    dispatch: typeof store.dispatch) {
     svg.select("#circles").selectAll("circle").attr("r", 0);
     svg.select("#counties")
         .selectAll("path")
@@ -549,6 +559,18 @@ function drawChoropleth(svg: SVGSelection,
         .attr("d", path).on("click", (_, feature) => dispatch(setState((feature?.id as string).slice(0, 2) as State)));
     svg.select("#states").selectAll("path").attr("fill", "none");
     svg.select("#counties")
+        .transition()
+        .duration(200)
+        .attr("transform", "translate(0)scale(1)");
+    svg.select("#road-map")
+        .transition()
+        .duration(200)
+        .attr("transform", "translate(0)scale(1)");
+    svg.select("#railroad-map")
+        .transition()
+        .duration(200)
+        .attr("transform", "translate(0)scale(1)");
+    svg.select("#waterway-map")
         .transition()
         .duration(200)
         .attr("transform", "translate(0)scale(1)");
