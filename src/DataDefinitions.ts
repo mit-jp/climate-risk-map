@@ -6,7 +6,8 @@ import chroma from 'chroma-js';
 
 export enum MapType {
     Bubble,
-    Choropleth,
+    CountyChoropleth,
+    StateChoropleth,
 }
 
 export enum DataType {
@@ -88,6 +89,12 @@ export enum DataGroup {
     EfficiencyEmployment = "EfficiencyEmploymentPCTEmp",
     TransmissionEmployment = "TransmissionEmploymentPCTEmp",
     MotorVehiclesEmployment = "MotorVehiclesEmploymentPCTEmp",
+    TotalEnergyExpendituremilliondollars = "Total Energy Expenditure (million dollars)",
+    Totalenergyexpenditurepercapitadollarspercapita = "Total energy expenditure per capita (dollars per capita)",
+    TotalResidentialEnergyExpendituremilliondollars = "Total Residential Energy Expenditure (million dollars)",
+    ResidentialEnergyExpenditurepercapitadollarspercapita = "Residential Energy Expenditure per capita (dollars per capita)",
+    TotalTransportationEnergyExpendituremildollars = "Total Transportation Energy Expenditure (mil dollars)",
+    TransportationEnergyExpenditurepercapitadollars = "Transportation Energy Expenditure per capita (dollars)",
 }
 
 export type DataIdParams = {
@@ -144,6 +151,7 @@ export enum Dataset {
     FirstStreet = "first street",
     NASS = "National Agricultural Statistics Service",
     USEER = "US Energy and Employment Report",
+    SEDS = "State Energy Data System",
 }
 
 export type DatasetDefinition = {
@@ -298,6 +306,14 @@ export const datasetDefinitions = (dataset: Dataset): DatasetDefinition => {
                 fuels, energy efficiency, and motor vehicles.`,
             link: "https://www.usenergyjobs.org/",
         }
+        case Dataset.SEDS: return {
+            name: "State Energy Data System",
+            description: `The State Energy Data System (SEDS) is the source of the U.S. Energy Information Administration's
+                (EIA) comprehensive state energy statistics. EIA's goal in maintaining SEDS is to create historical time
+                series of energy production, consumption, prices, and expenditures by state that are defined as consistently
+                as possible over time and across sectors for analysis and forecasting purposes.`,
+            link: "https://www.eia.gov/state/seds/ ",
+        }
         default: throwBadDataset(dataset);
     }
 }
@@ -358,7 +374,7 @@ const climateDefinition = ({
     description,
     years: years,
     datasets: climateDatasets,
-    mapType: MapType.Choropleth,
+    mapType: MapType.CountyChoropleth,
 });
 
 const genericDefinition = ({
@@ -373,7 +389,7 @@ const genericDefinition = ({
     description,
     dataset,
     years = [],
-    mapType = MapType.Choropleth,
+    mapType = MapType.CountyChoropleth,
 }: DataDefinitionBuilder): DataDefinition => ({
     name,
     id,
@@ -396,7 +412,7 @@ const surveyDefinition = (name: string): DataDefinition => genericDefinition({
     type: DataType.ClimateOpinions,
     description: () => "",
     dataset: Dataset.Yale,
-    mapType: MapType.Choropleth,
+    mapType: MapType.CountyChoropleth,
 });
 
 const employmentDefinition = ({
@@ -764,6 +780,66 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         type: DataType.Energy,
         description: () => "",
         dataset: Dataset.USEER,
+    })],
+    TotalEnergyExpendituremilliondollars = ,
+    Totalenergyexpenditurepercapitadollarspercapita = ,
+    TotalResidentialEnergyExpendituremilliondollars = ,
+    ResidentialEnergyExpenditurepercapitadollarspercapita = ,
+    TotalTransportationEnergyExpendituremildollars = "Total Transportation Energy Expenditure (mil dollars)",
+    TransportationEnergyExpenditurepercapitadollars = "Transportation Energy Expenditure per capita (dollars)",
+    [DataGroup.TotalEnergyExpendituremilliondollars, genericDefinition({
+        name: () => "Total Energy Expenditure (million dollars)",
+        units: "USD",
+        color: scaleSequential([0,100000], scales.interpolateGreens),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.SEDS,
+        mapType: MapType.StateChoropleth,
+    })],
+    [DataGroup.Totalenergyexpenditurepercapitadollarspercapita, genericDefinition({
+        name: () => "Total energy expenditure per capita (dollars per capita)",
+        units: "USD",
+        color: scaleSequential([0,100000], scales.interpolateGreens),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.SEDS,
+        mapType: MapType.StateChoropleth,
+    })],
+    [DataGroup.TotalResidentialEnergyExpendituremilliondollars, genericDefinition({
+        name: () => "Total Residential Energy Expenditure (million dollars)",
+        units: "USD",
+        color: scaleSequential([0,100000], scales.interpolateGreens),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.SEDS,
+        mapType: MapType.StateChoropleth,
+    })],
+    [DataGroup.ResidentialEnergyExpenditurepercapitadollarspercapita, genericDefinition({
+        name: () => "Residential Energy Expenditure per capita (dollars per capita)",
+        units: "USD",
+        color: scaleSequential([0,100000], scales.interpolateGreens),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.SEDS,
+        mapType: MapType.StateChoropleth,
+    })],
+    [DataGroup.TotalTransportationEnergyExpendituremildollars, genericDefinition({
+        name: () => "test",
+        units: "USD",
+        color: scaleSequential([0,100000], scales.interpolateGreens),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.SEDS,
+        mapType: MapType.StateChoropleth,
+    })],
+    [DataGroup.TransportationEnergyExpenditurepercapitadollars, genericDefinition({
+        name: () => "test",
+        units: "USD",
+        color: scaleSequential([0,100000], scales.interpolateGreens),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.SEDS,
+        mapType: MapType.StateChoropleth,
     })],
 ]);
 export default dataDefinitions;

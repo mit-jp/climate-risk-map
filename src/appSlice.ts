@@ -14,6 +14,7 @@ interface AppState {
     readonly railroadMap: TopoJson | undefined,
     readonly waterwayMap: TopoJson | undefined,
     readonly data: Data,
+    readonly stateData: Data,
     readonly dataSelections: { [key in DataTab]: DataIdParams[]},
     readonly dataWeights: { [key in DataGroup]?: number },
     readonly dataTab: DataTab,
@@ -61,6 +62,7 @@ const initialState: AppState = {
     railroadMap: undefined,
     waterwayMap: undefined,
     data: {},
+    stateData: {},
     dataSelections: defaultSelections,
     dataWeights: {},
     dataTab: DataTab.RiskMetrics,
@@ -91,6 +93,9 @@ export const appSlice = createSlice({
         },
         setData: (state, action: PayloadAction<Data>) => {
             state.data = action.payload;
+        },
+        setStateData: (state, action: PayloadAction<Data>) => {
+            state.stateData = action.payload;
         },
         setState: (state, action: PayloadAction<State | undefined>) => {
             state.state = action.payload;
@@ -156,6 +161,7 @@ export const {
     setShowRailroads, setShowRoads, setShowWaterways, setDetailedView,
     toggleDatasetDescription, clickTab, changeWeight, changeYear,
     changeDataset, changeDataGroup, setSelections, toggleDataDescription,
+    setStateData,
 } = appSlice.actions;
 
 export const getSelections = (state: AppState) => state.dataSelections[state.dataTab];

@@ -2,7 +2,8 @@ import { scaleSequentialQuantile } from 'd3';
 import { Map, Seq, Set } from 'immutable';
 import { Data } from './appSlice';
 import counties from './Counties';
-import dataDefinitions, { DataGroup, DataIdParams, Normalization } from './DataDefinitions';
+import states from './States';
+import dataDefinitions, { DataGroup, DataIdParams, MapType, Normalization } from './DataDefinitions';
 import { State } from './States';
 
 export type ProcessedData = Map<string, number | undefined>;
@@ -58,7 +59,7 @@ const normalizeData = (
     return valueByCountyId.map(value => weightedPercentileScale(value));
 }
 
-const processData = (
+const processCountyData = (
     selections: DataIdParams[],
     data: Data,
     dataWeights: {[key in DataGroup]?: number},
@@ -100,6 +101,11 @@ const processData = (
     return mergedData.filter((_, key) => countyIdsInAllSelections.includes(key));
 }
 
+const processStateData = (selection: DataIdParams, stateData: Data) => {
+    const dataId = dataDefinitions.get(selection.dataGroup)!.id(selection);
+    return states.map((_, stateId) => stateData[stateId as string][dataId]!)
+}
+
 const intersect = (sets: Set<string>[]) => {
     if (sets.length > 1) {
         const first_set = sets[0];
@@ -119,14 +125,22 @@ const getDataIdsForSelections = (selections: DataIdParams[]) =>
 
 export default (
     data: Data,
+    stateData: Data,
     selections: DataIdParams[],
     dataWeights: {[key in DataGroup]?: number},
     state: State | undefined
 ) => {
-    if (selections.length === 0 || Object.keys(data).length === 0) {
+    if (selections.length === 0 || (Object.keys(data).length === 0 && Object.keys(stateData).length === 0)) {
         return undefined;
     }
-    return processData(selections, data, dataWeights, state);
+
+    const mapType = dataDefinitions.get(selections[0].dataGroup)!.mapType;
+
+    if (mapType === MapType.StateChoropleth) {
+        return processStateData(selections[0], stateData);
+    }
+
+    return processCountyData(selections, data, dataWeights, state);
 }
 
 export const stateFilter = (state: State) => (county: string) => {

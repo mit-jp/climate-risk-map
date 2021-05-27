@@ -43,6 +43,7 @@ const MapUI = () => {
         showWaterways,
         map,
         data,
+        stateData,
         dataWeights,
         state,
         detailedView,
@@ -50,7 +51,7 @@ const MapUI = () => {
         ...state.app,
         selections: state.app.dataSelections[state.app.dataTab] ?? [],
     }));
-    const processedData = DataProcessor(data, selections, dataWeights, state);
+    const processedData = DataProcessor(data, stateData, selections, dataWeights, state);
     const [waterwayValue, setWaterwayValue] = useState<WaterwayValue>("total");
 
     const svgRef = useRef<SVGSVGElement>(null);
@@ -131,10 +132,12 @@ const MapUI = () => {
         const radius = getRadius(countyFeatures, processedData);
 
         // data
-        if (mapType === MapType.Choropleth) {
-            drawChoropleth(svg, countyFeatures, processedData, colorScheme, path, dispatch);
+        if (mapType === MapType.CountyChoropleth) {
+            drawCountyChoropleth(svg, countyFeatures, processedData, colorScheme, path, dispatch);
         } else if (mapType === MapType.Bubble) {
             drawBubbles(countyFeatures, processedData, svg, stateFeatures, path, radius);
+        } else if (mapType === MapType.StateChoropleth) {
+            drawStateChoropleth(svg, stateFeatures, processedData, colorScheme, path);
         }
 
 
@@ -530,7 +533,7 @@ function clearWaterways(svg: SVGSelection) {
     svg.select("#waterway-map").selectAll("*").remove();
 }
 
-function drawChoropleth(svg: SVGSelection,
+function drawCountyChoropleth(svg: SVGSelection,
                         countyFeatures: Feature<Geometry, GeoJsonProperties>[],
                         processedData: ImmutableMap<string, number | undefined>,
                         colorScheme: ColorScheme,
@@ -552,6 +555,25 @@ function drawChoropleth(svg: SVGSelection,
         .transition()
         .duration(200)
         .attr("transform", "translate(0)scale(1)");
+}
+
+function drawStateChoropleth(svg: SVGSelection,
+                            stateFeatures: Feature<Geometry, GeoJsonProperties>[],
+                            processedData: ImmutableMap<string, number | undefined>,
+                            colorScheme: ColorScheme,
+                            path: GeoPath<any, GeoPermissibleObjects>) {
+    svg.select("#circles").selectAll("circle").attr("r", 0);
+    svg.select("#counties").selectAll("path").attr("fill", "none");
+    svg.select("#states")
+        .selectAll("path")
+        .data(stateFeatures)
+        .join("path")
+        .attr("class", "state")
+        .attr("fill", d => {
+            const value = processedData.get(d.id as string);
+            return colorScheme(value as any) ?? missingDataColor;
+        })
+        .attr("d", path);
 }
 
 function drawBubbles(countyFeatures: Feature<Geometry, GeoJsonProperties>[],
@@ -595,7 +617,7 @@ function shouldShowPdf(selections: DataIdParams[]) {
     if (selections[0]?.normalization === Normalization.Percentile) {
         return selections.length > 1;
     }
-    return firstSelection !== undefined && firstSelection.mapType === MapType.Choropleth;
+    return firstSelection !== undefined && firstSelection.mapType === MapType.CountyChoropleth;
 }
 
 function shouldShowBubbleLegend(selections: DataIdParams[]) {
@@ -605,7 +627,7 @@ function shouldShowBubbleLegend(selections: DataIdParams[]) {
 
 function shouldShowLegend(selections: DataIdParams[]) {
     const firstSelection = getDataDefinitions(selections)[0];
-    return firstSelection !== undefined && firstSelection.mapType === MapType.Choropleth;
+    return firstSelection !== undefined && firstSelection.mapType === MapType.CountyChoropleth;
 }
 
 function getPdfDomain(selections: DataIdParams[]) {
