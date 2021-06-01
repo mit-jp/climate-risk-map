@@ -40,13 +40,13 @@ header {
     flex-grow: 1;
 }
 
-#mst-title h1 {
-    margin-left: 1em;
-}
-
 #mst-logo {
     height: 120px;
     margin-left: 1em;
+}
+
+#title-and-subtitle {
+    margin-left: 40px;
 }
 
 #joint-program-logo {

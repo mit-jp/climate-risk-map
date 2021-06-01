@@ -7,7 +7,14 @@ const Header = () =>
     <header>
         <div id="mst-title">
             <img src={mstLogo} alt="Multi System Triage" id="mst-logo" />
-            <h1>Multi-Systems Triage</h1>
+            <div id="title-and-subtitle">
+                <h1>Multi-Systems Triage</h1>
+                <p>
+                    An open-science visualization platform to combine, overlay,
+                    and diagnose landscapes of socio-economic, health, and
+                    environmental risk and injustice.
+                </p>
+            </div>
         </div>
         <a href="https://globalchange.mit.edu/"><img src={jointProgramLogo} id="joint-program-logo" alt="MIT Joint Program on The Science and Policy of Global Change" /></a>
         <a href="https://mit.edu/"><img src={mitLogo} alt="MIT" id="mit-logo" /></a>
