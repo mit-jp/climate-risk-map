@@ -231,7 +231,7 @@ const MapUI = () => {
         const color = Color(selections, detailedView);
         const legendFormatter = getLegendFormatter(selectedDataDefinitions, selections);
         const ticks = getLegendTicks(selectedDataDefinitions, selections);
-        const title = getTitle(selectedDataDefinitions, selections);
+        const title = getLegendTitle(selectedDataDefinitions, selections);
 
         const countyFeatures = feature(
             map,
@@ -268,6 +268,7 @@ const MapUI = () => {
 
     return (
         <div id="map">
+            <h3 id="map-title">{getTitle(getDataDefinitions(selections), selections)}</h3>
             <svg ref={svgRef} viewBox="0, 0, 1175, 610">
                 <g id="counties"></g>
                 <g id="states"></g>
@@ -417,7 +418,7 @@ const getDataDefinitions = (selections: DataIdParams[]) => {
     return selections.map(selection => dataDefinitions.get(selection.dataGroup)!);
 }
 
-const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
+const getLegendTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
     const dataDefinition = selectedDataDefinitions[0];
     const units = getUnits(dataDefinition, selections[0].normalization);
     const unitString = getUnitString(units);
@@ -428,8 +429,18 @@ const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdP
     }
 }
 
+const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
+    if (selectedDataDefinitions.length > 1) {
+        return "Combined data";
+    } else if (selectedDataDefinitions.length === 0) {
+        return ""
+    } else {
+        return selectedDataDefinitions[0].name(selections[0].normalization);
+    }
+}
+
 const getFilename = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
-    const unitString = getTitle(selectedDataDefinitions, selections);
+    const unitString = getLegendTitle(selectedDataDefinitions, selections);
     if (unitString === "Mean of selected data") {
         return unitString;
     } else {

@@ -17,6 +17,13 @@ h1, h2 {
     font-family: 'Merriweather', serif;
 }
 
+#map-title {
+    font-weight: 400;
+    font-size: 25px;
+    width: 82%;
+    text-align: center;
+}
+
 #root {
     margin: 0;
     width: 100%;
