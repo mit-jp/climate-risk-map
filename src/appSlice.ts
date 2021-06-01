@@ -51,7 +51,7 @@ const defaultSelections: { [key in DataTab]: DataIdParams[] } = {
         dataset: Dataset.ERA5,
         normalization: Normalization.Raw
     }],
-    [DataTab.Economic]: [{ dataGroup: DataGroup.AllIndustries, normalization: Normalization.Raw }],
+    [DataTab.Economy]: [{ dataGroup: DataGroup.AllIndustries, normalization: Normalization.Raw }],
     [DataTab.Demographics]: [{ dataGroup: DataGroup.PercentPopulationUnder18, normalization: Normalization.Raw }],
     [DataTab.ClimateOpinions]: [{ dataGroup: DataGroup.discuss, normalization: Normalization.Raw }],
     [DataTab.Energy]: [{ dataGroup: DataGroup.FossilFuelsEmployment, normalization: Normalization.Raw }],

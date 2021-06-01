@@ -11,7 +11,7 @@ export enum DataTab {
     Water = "water",
     Land = "land",
     Climate = "climate",
-    Economic = "economic",
+    Economy = "economy",
     Energy = "energy",
     ClimateOpinions = "climate opinions",
     Demographics = "demographics",
@@ -22,7 +22,7 @@ export const TabToTypeMap = Map([
     [DataTab.Water, DataType.Water],
     [DataTab.Land, DataType.Land],
     [DataTab.Energy, DataType.Energy],
-    [DataTab.Economic, DataType.Economic],
+    [DataTab.Economy, DataType.Economic],
     [DataTab.Demographics, DataType.Demographics],
     [DataTab.ClimateOpinions, DataType.ClimateOpinions],
 ]);
@@ -34,17 +34,17 @@ const Navigation = () => {
     const { dataTab: selectedDataTab } = useSelector((state: RootState) => state.app)
 
     return (
-    <nav>
-        <ul>
-            {dataTabs.map(dataTab =>
-                <li className={selectedDataTab === dataTab ? "selected" : undefined}
-                    onClick={event => dispatch(clickTab(event.currentTarget.textContent as DataTab))}
-                    key={dataTab}>
-                    {dataTab}
-                </li>
-            )}
-        </ul>
-    </nav>
+        <nav>
+            <ul>
+                {dataTabs.map(dataTab =>
+                    <li className={selectedDataTab === dataTab ? "selected" : undefined}
+                        onClick={event => dispatch(clickTab(event.currentTarget.textContent as DataTab))}
+                        key={dataTab}>
+                        {dataTab}
+                    </li>
+                )}
+            </ul>
+        </nav>
     );
 }
 
