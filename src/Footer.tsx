@@ -1,5 +1,5 @@
 import React from 'react';
-import { Facebook, Mail, RssFeed, Twitter } from '@material-ui/icons';
+import { Facebook, GitHub, Mail, RssFeed, Twitter } from '@material-ui/icons';
 import { IconButton, Link } from '@material-ui/core';
 
 const Footer = () =>
@@ -51,6 +51,17 @@ const Footer = () =>
                     rel="noopener noreferrer"
                 >
                     <Mail fontSize="large" style={{ color: "#fff" }} />
+                </IconButton>
+            </li>
+            <li>
+                <IconButton
+                    aria-label="github"
+                    component={Link}
+                    href="http://github.com/cypressf/climate-risk-map"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <GitHub fontSize="large" style={{ color: "#fff" }} />
                 </IconButton>
             </li>
         </ul>
