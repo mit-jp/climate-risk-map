@@ -1,8 +1,6 @@
 import React from 'react';
-import icon_facebook  from './icon_facebook.png';
-import icon_twitter  from './icon_twitter.png';
-import icon_rss  from './icon_rss.png';
-import icon_mail  from './icon_mail.png';
+import { Facebook, Mail, RssFeed, Twitter } from '@material-ui/icons';
+import { IconButton, Link } from '@material-ui/core';
 
 const Footer = () =>
     <footer>
@@ -11,10 +9,50 @@ const Footer = () =>
             <p>Massachusetts Institute of Technology • Cambridge, MA 02139</p>
         </div>
         <ul id="social">
-            <li><a href="https://www.facebook.com/MITGlobalChange/" target="_blank" rel="noopener noreferrer"><img alt="Facebook icon" src={icon_facebook} width="34" height="34" /></a></li>
-            <li><a href="https://twitter.com/mitglobalchange" target="_blank" rel="noopener noreferrer"><img alt="Twitter icon" src={icon_twitter} width="34" height="34" /></a></li>
-            <li><a href="https://globalchange.mit.edu/rss-feeds"><img alt="RSS Icon" src={icon_rss} width="34" height="34" /></a></li>
-            <li><a href="http://eepurl.com/uV5Ur"><img alt="Mail Icon" src={icon_mail} width="38" height="26" /></a></li>
+            <li>
+                <IconButton
+                    aria-label="facebook"
+                    component={Link}
+                    href="https://www.facebook.com/MITGlobalChange/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <Facebook fontSize="large" style={{ color: "#fff" }} />
+                </IconButton>
+            </li>
+            <li>
+                <IconButton
+                    aria-label="twitter"
+                    component={Link}
+                    href="https://twitter.com/mitglobalchange"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <Twitter fontSize="large" style={{ color: "#fff" }} />
+                </IconButton>
+            </li>
+            <li>
+                <IconButton
+                    aria-label="rss"
+                    component={Link}
+                    href="https://globalchange.mit.edu/rss-feeds"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <RssFeed fontSize="large" style={{ color: "#fff" }} />
+                </IconButton>
+            </li>
+            <li>
+                <IconButton
+                    aria-label="mail"
+                    component={Link}
+                    href="http://eepurl.com/uV5Ur"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    <Mail fontSize="large" style={{ color: "#fff" }} />
+                </IconButton>
+            </li>
         </ul>
         <ul id="navigation">
             <li><a href="https://globalchange.mit.edu/about-us/our-purpose/contact-us">Contact Us</a></li>
