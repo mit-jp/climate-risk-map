@@ -57,6 +57,10 @@ header {
     margin: 0 1em;
 }
 
+nav {
+    margin-bottom: 1em;
+}
+
 nav ul {
     display: flex;
 }
@@ -136,7 +140,7 @@ input.data-group:checked+label {
 #site-overview {
     background: #eee;
     padding: 0.25em 1em;
-    margin: 1em;
+    margin-bottom: 1em;
 }
 
 #content {
