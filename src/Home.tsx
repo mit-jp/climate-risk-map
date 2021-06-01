@@ -13,6 +13,7 @@ import { ScaleSequential, ScaleThreshold, ScaleDiverging, autoType, DSVParsedArr
 import { useDispatch } from 'react-redux';
 import { store } from './store';
 import { Data, DataRow, setData, setMap, setRailroadMap, setRoadMap, setWaterwayMap } from './appSlice';
+import SiteOverview from './SiteOverview';
 
 export type TopoJson = Topology<Objects<GeoJsonProperties>>;
 
@@ -69,6 +70,7 @@ const Home = () => {
     <React.Fragment>
       <Header />
       <Navigation />
+      <SiteOverview />
       <div id="content">
         <DataSelector />
         <MapUI />

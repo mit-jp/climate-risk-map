@@ -2,7 +2,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(to top,#77a4d5,#013064);
+    background: linear-gradient(to top, #77a4d5, #013064);
     background-repeat: repeat;
     background-attachment: scroll;
     background-repeat: no-repeat;
@@ -22,7 +22,7 @@ h1, h2 {
     width: 100%;
     max-width: 1800px;
     background: #fff;
-    box-shadow: 0px 1px 13px -2px rgba(0,0,0,0.5);
+    box-shadow: 0px 1px 13px -2px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
 }
@@ -35,7 +35,7 @@ header {
 }
 
 #mst-title {
-    display:flex;
+    display: flex;
     align-items: center;
     flex-grow: 1;
 }
@@ -63,8 +63,8 @@ nav ul {
 }
 
 nav ul {
-    margin:0;
-    padding:0;
+    margin: 0;
+    padding: 0;
     list-style: none;
 }
 
@@ -78,19 +78,19 @@ nav li {
 }
 
 nav li:hover {
-    background:#e3eaf1;
+    background: #e3eaf1;
     color: #435e7c;
 }
 
 nav li.selected {
-    background:#435e7c;
+    background: #435e7c;
     color: #fff;
 }
 
 .sub-selector {
     display: flex;
-    background:#eee;
-    padding:0 0 0 1em;
+    background: #eee;
+    padding: 0 0 0 1em;
 }
 
 .sub-selector input {
@@ -99,19 +99,19 @@ nav li.selected {
 
 .sub-selector label {
     display: block;
-    border:1px;
-    padding:1em .5em 1em .5em;
+    border: 1px;
+    padding: 1em .5em 1em .5em;
     cursor: pointer;
 }
 
-.sub-selector label:hover, .sub-selector input:checked + label {
-    text-decoration:underline;
+.sub-selector label:hover, .sub-selector input:checked+label {
+    text-decoration: underline;
 }
 
 #data-selector {
     overflow: auto;
     max-height: 900px;
-    min-width:410px
+    min-width: 410px
 }
 
 label.data-group {
@@ -126,17 +126,23 @@ label.data-group:hover {
 }
 
 input.data-group {
-    display:none;
+    display: none;
 }
 
-input.data-group:checked + label {
+input.data-group:checked+label {
     text-decoration: underline;
     background: #eee;
 }
 
+#site-overview {
+    background: #eee;
+    padding: 0.25em 1em;
+    margin: 1em;
+}
+
 #content {
     margin: 0;
-    display:flex;
+    display: flex;
 }
 
 .data-missing {
@@ -153,7 +159,7 @@ input.data-group:checked + label {
 
 #map {
     min-width: 500px;
-    width:100%;
+    width: 100%;
 }
 
 #description, #dataset-description {
@@ -162,25 +168,22 @@ input.data-group:checked + label {
 }
 
 #dataset-description button, #description button {
-    padding:1em 0;
+    padding: 1em 0;
     font-size: 1em;
     border: none;
     text-decoration: underline;
-    background-color:#fff;
+    background-color: #fff;
     color: #777;
     cursor: pointer;
 }
 
-#dataset-description button:hover,
-#dataset-description button.shown,
-#description button:hover,
-#description button.shown {
+#dataset-description button:hover, #dataset-description button.shown, #description button:hover, #description button.shown {
     color: #000;
 }
 
 footer {
     padding: 1em;
-    background:#435e7c;
+    background: #435e7c;
     color: #fff;
 }
 
@@ -221,10 +224,10 @@ footer #navigation li {
 }
 
 .slider {
-    margin-left:1em;
+    margin-left: 1em;
     margin-right: 1em;
     width: auto;
-    padding-bottom:2em;
+    padding-bottom: 2em;
 }
 
 .selected-group {
@@ -238,11 +241,11 @@ footer #navigation li {
 }
 
 h2 {
-    margin-left:1em;
+    margin-left: 1em;
 }
 
 #map-controls {
-    margin-left:4em;
+    margin-left: 4em;
 }
 
 .weight {
@@ -251,7 +254,7 @@ h2 {
 }
 
 .weight-label {
-    margin-top:0.2em;
+    margin-top: 0.2em;
     font-size: 0.875rem;
 }
 
