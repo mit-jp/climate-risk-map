@@ -186,7 +186,7 @@ function throwBadDataset(dataset: Dataset) {
     throw new Error('Unknown dataset: ' + dataset);
 }
 export const datasetDefinitions = (dataset: Dataset): DatasetDefinition => {
-    switch(dataset) {
+    switch (dataset) {
         case Dataset.MERRA2: return {
             name: "MERRA-2",
             description: `The Modern-Era Retrospective analysis for Research
@@ -270,7 +270,7 @@ export const datasetDefinitions = (dataset: Dataset): DatasetDefinition => {
             description: `The First Street Foundation Flood Lab is a collection of 110
                 leading academic and industry research partners working to derive
                 new insights and further understanding of flood risk, its consequences,
-                and possible solutions.`,  
+                and possible solutions.`,
             link: "https://registry.opendata.aws/fsf-flood-risk/"
         }
         case Dataset.EQI: return {
@@ -402,7 +402,7 @@ const surveyDefinition = (name: string): DataDefinition => genericDefinition({
 const employmentDefinition = ({
     name,
     color = scaleSequential<string>(scales.interpolateGreens).domain([0, 50])
-}: {name: string, color?: ColorScheme}): DataDefinition => genericDefinition({
+}: { name: string, color?: ColorScheme }): DataDefinition => genericDefinition({
     name: () => name,
     units: "% of employed people",
     color,
@@ -561,7 +561,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     })],
     [DataGroup.ErodibleCropland, genericDefinition({
         name: () => "Highly Erodible Cropland",
-        id: ({dataGroup, year}) => dataGroup + year,
+        id: ({ dataGroup, year }) => dataGroup + year,
         units: "acres",
         formatter: value => format("~s")(value.valueOf() * 10_000),
         legendFormatter: value => format("~s")(value.valueOf() * 10_000),
@@ -648,19 +648,19 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         description: () => "The hottest month out of all months in the years selected. Directly calculated from the reanalysis data",
     })],
     [DataGroup.MiningQuarryingAndOilAndGasExtraction, employmentDefinition({
-        name:"Mining, Quarrying, and Oil & Gas Extraction 2019",
-        color: scaleSequentialSqrt([0,50], scales.interpolateGreens)
+        name: "Mining, Quarrying, and Oil & Gas Extraction 2019",
+        color: scaleSequentialSqrt([0, 50], scales.interpolateGreens)
     })],
     [DataGroup.Construction, employmentDefinition({
-        name:"Construction 2019",
+        name: "Construction 2019",
         color: scaleSequential<string>(scales.interpolateGreens).domain([0, 15])
     })],
     [DataGroup.AgricultureForestryFishingAndHunting, employmentDefinition({
-        name:"Agriculture, forestry, fishing, and hunting 2019",
+        name: "Agriculture, forestry, fishing, and hunting 2019",
         color: scaleSequentialSqrt<string>(scales.interpolateGreens).domain([0, 50])
     })],
     [DataGroup.HealthcareAndSocialAssistance, employmentDefinition({
-        name:"Healthcare and social assistance 2019",
+        name: "Healthcare and social assistance 2019",
         color: scaleSequential<string>(scales.interpolateGreens).domain([5, 25])
     })],
     [DataGroup.PerCapitapersonalincome2018, genericDefinition({
@@ -675,7 +675,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     })],
     [DataGroup.PercentPopulationUnder18, demographicDefinition({ name: () => "Population Under 18" })],
     [DataGroup.PercentPopulationOver65, demographicDefinition({ name: () => "Population Over 65" })],
-    [DataGroup.PercentNonwhite, demographicDefinition({ name: () => "Nonwhite", domainMax: 100 })],
+    [DataGroup.PercentNonwhite, demographicDefinition({ name: () => "Nonwhite Population", domainMax: 100 })],
     [DataGroup.PercentofPopulationBelowPovertyLevel, demographicDefinition({ name: () => "Population Below Poverty Level" })],
     [DataGroup.UnemploymentRate, demographicDefinition({ name: () => "Unemployment Rate", domainMax: 20 })],
     [DataGroup.Populationpersquaremile2010, genericDefinition({
