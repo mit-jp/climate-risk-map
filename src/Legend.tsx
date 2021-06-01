@@ -22,11 +22,11 @@ type Props = {
 
 const useTooltipStyles = makeStyles(theme => ({
     arrow: {
-      color: theme.palette.common.black,
+        color: theme.palette.common.black,
     },
     tooltip: {
-      backgroundColor: theme.palette.common.black,
-      fontSize: theme.typography.fontSize,
+        backgroundColor: theme.palette.common.black,
+        fontSize: theme.typography.fontSize,
     },
 }));
 
@@ -182,14 +182,14 @@ const Legend = ({
                     placement="top"
                     title="The normalized value is the percentile
                             of the raw data. If you select multiple data,
-                            we take the mean of the percentiles.">
+                            we take the mean of the ranked values.">
                     <IconButton aria-label="info">
                         <Info />
                     </IconButton>
                 </Tooltip>
             </foreignObject>
         }
-        </React.Fragment>;
+    </React.Fragment>;
 }
 
 function ramp(color: any, n = 256) {
