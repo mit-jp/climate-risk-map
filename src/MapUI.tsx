@@ -268,6 +268,16 @@ const MapUI = () => {
 
     return (
         <div id="map">
+            <svg ref={svgRef} viewBox="0, 0, 1175, 610">
+                <g id="counties"></g>
+                <g id="states"></g>
+                <g id="state-borders"><path /></g>
+                <g id="road-map"></g>
+                <g id="railroad-map"></g>
+                <g id="waterway-map"></g>
+                <g id="circles"></g>
+                {legends(processedData)}
+            </svg>
             { map &&
                 <div id="map-controls">
                     <React.Fragment>
@@ -332,17 +342,6 @@ const MapUI = () => {
                     {processedData && <Button variant="outlined" onClick={downloadData}>Download data</Button>}
                 </div>
             }
-
-            <svg ref={svgRef} viewBox="0, 0, 1175, 610">
-                <g id="counties"></g>
-                <g id="states"></g>
-                <g id="state-borders"><path /></g>
-                <g id="road-map"></g>
-                <g id="railroad-map"></g>
-                <g id="waterway-map"></g>
-                <g id="circles"></g>
-                {legends(processedData)}
-            </svg>
             <DataDescription />
             <DatasetDescription />
         </div>
