@@ -22,7 +22,7 @@ import { saveAs } from 'file-saver';
 import waterway_types, { WaterwayValue } from './WaterwayType';
 import { useSelector } from 'react-redux';
 import { RootState, store } from './store';
-import { setDetailedView, setShowRailroads, setShowRoads, setShowWaterways, setState } from './appSlice';
+import { setDetailedView, setShowRailroads, setShowRoads, setShowTransmissionLines, setShowWaterways, setState } from './appSlice';
 
 export enum Aggregation {
     State = "state",
@@ -40,7 +40,10 @@ const MapUI = () => {
         railroadMap,
         showRailroads,
         waterwayMap,
+        transmissionLinesMap,
+        transmissionLinesLevel2Map,
         showWaterways,
+        showTransmissionLines,
         map,
         data,
         dataWeights,
@@ -52,6 +55,9 @@ const MapUI = () => {
     }));
     const processedData = DataProcessor(data, selections, dataWeights, state);
     const [waterwayValue, setWaterwayValue] = useState<WaterwayValue>("total");
+    type TransmissionLinesType = "Level 2" | "Level 3";
+    const transmissionLinesTypes: TransmissionLinesType[] = ["Level 2", "Level 3"];
+    const [transmissionLinesType, setTransmissionLinesType] = useState<TransmissionLinesType>("Level 3");
 
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
@@ -119,6 +125,18 @@ const MapUI = () => {
             clearWaterways(svg);
         }
 
+        if (showTransmissionLines && transmissionLinesMap !== undefined && transmissionLinesLevel2Map !== undefined) {
+            const transmissionMap = transmissionLinesType == "Level 2" ?
+                transmissionLinesLevel2Map :
+                transmissionLinesMap;
+            const transmissionLinesFeatures = feature(
+                transmissionMap,
+                transmissionMap.objects.electric_lines as GeometryCollection<GeoJsonProperties>
+            ).features;
+            drawTransmissionLines(svg, transmissionLinesFeatures, path);
+        } else {
+            clearTransmissionLines(svg);
+        }
 
         if (processedData === undefined) {
             clearMap(svg, stateFeatures, path);
@@ -170,6 +188,10 @@ const MapUI = () => {
                 .transition()
                 .duration(200)
                 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+            svg.select("#transmission-lines-map")
+                .transition()
+                .duration(200)
+                .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
         }
 
         // tooltips
@@ -189,6 +211,10 @@ const MapUI = () => {
         showWaterways,
         detailedView,
         waterwayValue,
+        showTransmissionLines,
+        transmissionLinesMap,
+        transmissionLinesLevel2Map,
+        transmissionLinesType,
         dispatch,
     ]);
 
@@ -276,10 +302,11 @@ const MapUI = () => {
                 <g id="road-map"></g>
                 <g id="railroad-map"></g>
                 <g id="waterway-map"></g>
+                <g id="transmission-lines-map"></g>
                 <g id="circles"></g>
                 {legends(processedData)}
             </svg>
-            { map &&
+            {map &&
                 <div id="map-controls">
                     <React.Fragment>
                         <FormControlLabel
@@ -302,6 +329,30 @@ const MapUI = () => {
                             }
                             label="Major railroads"
                         />
+                        <FormControlLabel
+                            id="show-transmission-lines"
+                            control={
+                                <Checkbox
+                                    onChange={(_, value) => dispatch(setShowTransmissionLines(value))}
+                                    title="Transmission Lines"
+                                    color="primary" />
+                            }
+                            label="Transmission lines"
+                        />
+                        {showTransmissionLines &&
+                            <FormControl>
+                                <InputLabel shrink id="transmission-lines-type">
+                                    Type
+                                </InputLabel>
+                                <Select
+                                    labelId="transmission-lines-type"
+                                    value={transmissionLinesType}
+                                    onChange={event => setTransmissionLinesType(event.target.value as TransmissionLinesType)}
+                                >
+                                    {transmissionLinesTypes.map(value => <MenuItem key={value} value={value}>{value}</MenuItem>)}
+                                </Select>
+                            </FormControl>
+                        }
                         <FormControlLabel
                             id="show-waterways"
                             control={
@@ -527,6 +578,23 @@ function drawRoadsAndFerries(svg: SVGSelection,
         .attr("fill", "none")
         .attr("stroke-width", d => 1 / d.properties!.scalerank * 5)
         .attr("d", path);
+}
+
+function drawTransmissionLines(svg: SVGSelection,
+    transmissionLinesFeatures: Feature<Geometry, GeoJsonProperties>[],
+    path: GeoPath<any, GeoPermissibleObjects>) {
+    svg.select("#transmission-lines-map")
+        .selectAll("path")
+        .data(transmissionLinesFeatures)
+        .join("path")
+        .attr("stroke", "grey")
+        .attr("fill", "none")
+        .attr("stroke-width", 1)
+        .attr("d", path);
+}
+
+function clearTransmissionLines(svg: SVGSelection) {
+    svg.select("#transmission-lines-map").selectAll("*").remove();
 }
 
 function clearRailroads(svg: SVGSelection) {

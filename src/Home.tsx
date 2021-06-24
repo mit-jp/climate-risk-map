@@ -12,7 +12,7 @@ import { json, csv } from 'd3-fetch';
 import { ScaleSequential, ScaleThreshold, ScaleDiverging, autoType, DSVParsedArray } from 'd3';
 import { useDispatch } from 'react-redux';
 import { store } from './store';
-import { Data, DataRow, setData, setMap, setRailroadMap, setRoadMap, setWaterwayMap } from './appSlice';
+import { Data, DataRow, setData, setMap, setRailroadMap, setRoadMap, setTransmissionLinesLevel2Map, setTransmissionLinesMap, setWaterwayMap } from './appSlice';
 import SiteOverview from './SiteOverview';
 
 export type TopoJson = Topology<Objects<GeoJsonProperties>>;
@@ -55,6 +55,14 @@ const Home = () => {
 
   useEffect(() => {
     json<TopoJson>(process.env.PUBLIC_URL + "/waterways-topo.json").then(map => dispatch(setWaterwayMap(map)));
+  }, [dispatch]);
+
+  useEffect(() => {
+    json<TopoJson>(process.env.PUBLIC_URL + "/transmission-lines-over-345-topo.json").then(map => dispatch(setTransmissionLinesMap(map)));
+  }, [dispatch]);
+
+  useEffect(() => {
+    json<TopoJson>(process.env.PUBLIC_URL + "/transmission-lines-230-to-345-topo.json").then(map => dispatch(setTransmissionLinesLevel2Map(map)));
   }, [dispatch]);
 
   useEffect(() => {

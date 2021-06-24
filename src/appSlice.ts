@@ -13,6 +13,8 @@ interface AppState {
     readonly roadMap: TopoJson | undefined,
     readonly railroadMap: TopoJson | undefined,
     readonly waterwayMap: TopoJson | undefined,
+    readonly transmissionLinesMap: TopoJson | undefined,
+    readonly transmissionLinesLevel2Map: TopoJson | undefined,
     readonly data: Data,
     readonly dataSelections: { [key in DataTab]: DataIdParams[] },
     readonly dataWeights: { [key in DataGroup]?: number },
@@ -23,6 +25,7 @@ interface AppState {
     readonly showRoads: boolean,
     readonly showRailroads: boolean,
     readonly showWaterways: boolean,
+    readonly showTransmissionLines: boolean,
     readonly detailedView: boolean,
     readonly showRiskMetrics: boolean,
     readonly showDemographics: boolean,
@@ -62,6 +65,8 @@ const initialState: AppState = {
     roadMap: undefined,
     railroadMap: undefined,
     waterwayMap: undefined,
+    transmissionLinesMap: undefined,
+    transmissionLinesLevel2Map: undefined,
     data: {},
     dataSelections: defaultSelections,
     dataWeights: {},
@@ -72,6 +77,7 @@ const initialState: AppState = {
     showRoads: false,
     showRailroads: false,
     showWaterways: false,
+    showTransmissionLines: false,
     detailedView: true,
     showRiskMetrics: true,
     showDemographics: true,
@@ -93,6 +99,12 @@ export const appSlice = createSlice({
         setWaterwayMap: (state, action: PayloadAction<TopoJson | undefined>) => {
             state.waterwayMap = action.payload;
         },
+        setTransmissionLinesMap: (state, action: PayloadAction<TopoJson | undefined>) => {
+            state.transmissionLinesMap = action.payload;
+        },
+        setTransmissionLinesLevel2Map: (state, action: PayloadAction<TopoJson | undefined>) => {
+            state.transmissionLinesLevel2Map = action.payload;
+        },
         setData: (state, action: PayloadAction<Data>) => {
             state.data = action.payload;
         },
@@ -113,6 +125,9 @@ export const appSlice = createSlice({
         },
         setShowWaterways: (state, action: PayloadAction<boolean>) => {
             state.showWaterways = action.payload;
+        },
+        setShowTransmissionLines: (state, action: PayloadAction<boolean>) => {
+            state.showTransmissionLines = action.payload;
         },
         setDetailedView: (state, action: PayloadAction<boolean>) => {
             state.detailedView = action.payload;
@@ -166,7 +181,8 @@ export const {
     setShowRailroads, setShowRoads, setShowWaterways, setDetailedView,
     toggleDatasetDescription, clickTab, changeWeight, changeYear,
     changeDataset, changeDataGroup, setSelections, toggleDataDescription,
-    setShowDemographics, setShowRiskMetrics,
+    setShowDemographics, setShowRiskMetrics, setTransmissionLinesMap,
+    setShowTransmissionLines, setTransmissionLinesLevel2Map,
 } = appSlice.actions;
 
 export const getSelections = (state: AppState) => state.dataSelections[state.dataTab];
