@@ -55,9 +55,9 @@ const MapUI = () => {
     }));
     const processedData = DataProcessor(data, selections, dataWeights, state);
     const [waterwayValue, setWaterwayValue] = useState<WaterwayValue>("total");
-    type TransmissionLinesType = "Level 2" | "Level 3";
-    const transmissionLinesTypes: TransmissionLinesType[] = ["Level 2", "Level 3"];
-    const [transmissionLinesType, setTransmissionLinesType] = useState<TransmissionLinesType>("Level 3");
+    type TransmissionLinesType = "Level 2 (230kV-345kV)" | "Level 3 (>= 345kV)";
+    const transmissionLinesTypes: TransmissionLinesType[] = ["Level 2 (230kV-345kV)", "Level 3 (>= 345kV)"];
+    const [transmissionLinesType, setTransmissionLinesType] = useState<TransmissionLinesType>("Level 3 (>= 345kV)");
 
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
@@ -126,14 +126,17 @@ const MapUI = () => {
         }
 
         if (showTransmissionLines && transmissionLinesMap !== undefined && transmissionLinesLevel2Map !== undefined) {
-            const transmissionMap = transmissionLinesType === "Level 2" ?
+            const transmissionMap = transmissionLinesType === "Level 2 (230kV-345kV)" ?
                 transmissionLinesLevel2Map :
                 transmissionLinesMap;
             const transmissionLinesFeatures = feature(
                 transmissionMap,
                 transmissionMap.objects.electric_lines as GeometryCollection<GeoJsonProperties>
             ).features;
-            drawTransmissionLines(svg, transmissionLinesFeatures, path);
+            const color = transmissionLinesType === "Level 2 (230kV-345kV)" ?
+                "yellowgreen" :
+                "orangered";
+            drawTransmissionLines(svg, transmissionLinesFeatures, path, color);
         } else {
             clearTransmissionLines(svg);
         }
@@ -582,12 +585,13 @@ function drawRoadsAndFerries(svg: SVGSelection,
 
 function drawTransmissionLines(svg: SVGSelection,
     transmissionLinesFeatures: Feature<Geometry, GeoJsonProperties>[],
-    path: GeoPath<any, GeoPermissibleObjects>) {
+    path: GeoPath<any, GeoPermissibleObjects>,
+    color: string) {
     svg.select("#transmission-lines-map")
         .selectAll("path")
         .data(transmissionLinesFeatures)
         .join("path")
-        .attr("stroke", "grey")
+        .attr("stroke", color)
         .attr("fill", "none")
         .attr("stroke-width", 1)
         .attr("d", path);
@@ -649,6 +653,10 @@ function drawChoropleth(svg: SVGSelection,
         .duration(200)
         .attr("transform", "translate(0)scale(1)");
     svg.select("#waterway-map")
+        .transition()
+        .duration(200)
+        .attr("transform", "translate(0)scale(1)");
+    svg.select("#transmission-lines-map")
         .transition()
         .duration(200)
         .attr("transform", "translate(0)scale(1)");
