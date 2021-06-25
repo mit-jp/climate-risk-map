@@ -126,7 +126,7 @@ const MapUI = () => {
         }
 
         if (showTransmissionLines && transmissionLinesMap !== undefined && transmissionLinesLevel2Map !== undefined) {
-            const transmissionMap = transmissionLinesType == "Level 2" ?
+            const transmissionMap = transmissionLinesType === "Level 2" ?
                 transmissionLinesLevel2Map :
                 transmissionLinesMap;
             const transmissionLinesFeatures = feature(
