@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
@@ -5,5 +6,8 @@ use sqlx::FromRow;
 pub struct Data {
     pub county_id: i16,
     pub state_id: i16,
-    pub value: f64,
+    pub source: i16,
+    pub start_date: NaiveDate,
+    pub end_date: NaiveDate,
+    pub value: Option<f64>,
 }
