@@ -1,3 +1,4 @@
+use super::model::Data;
 use super::AppState;
 
 pub mod county_controller;
