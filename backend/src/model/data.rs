@@ -11,3 +11,10 @@ pub struct Data {
     pub end_date: NaiveDate,
     pub value: Option<f64>,
 }
+
+#[derive(FromRow, Deserialize, Serialize)]
+pub struct SourceAndDate {
+    pub source: i16,
+    pub start_date: NaiveDate,
+    pub end_date: NaiveDate,
+}

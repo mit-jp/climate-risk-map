@@ -1,4 +1,4 @@
-use super::{County, Data, DataCategory, Dataset, MapVisualization, State};
+use super::{County, Data, DataCategory, Dataset, MapVisualization, SourceAndDate, State};
 use sqlx::postgres::PgRow;
 use sqlx::{FromRow, PgPool};
 use std::sync::Arc;
@@ -30,6 +30,7 @@ pub struct Database<'c> {
     pub dataset: Arc<Table<'c, Dataset>>,
     pub map_visualization: Arc<Table<'c, MapVisualization>>,
     pub data_category: Arc<Table<'c, DataCategory>>,
+    pub source_and_date: Arc<Table<'c, SourceAndDate>>,
 }
 
 impl Database<'_> {
@@ -44,6 +45,7 @@ impl Database<'_> {
             dataset: Arc::from(Table::new(pool.clone())),
             map_visualization: Arc::from(Table::new(pool.clone())),
             data_category: Arc::from(Table::new(pool.clone())),
+            source_and_date: Arc::from(Table::new(pool.clone())),
         }
     }
 }
