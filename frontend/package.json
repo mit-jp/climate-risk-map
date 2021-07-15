@@ -28,6 +28,7 @@
     "eslint-plugin-react-hooks": "^4.1.2",
     "file-saver": "^2.0.5",
     "gh-pages": "^3.1.0",
+    "http-proxy-middleware": "^2.0.1",
     "immutable": "^4.0.0-rc.12",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -36,7 +37,7 @@
     "react-scripts": "3.4.1",
     "topojson-client": "^3.1.0",
     "tslib": "^2.1.0",
-    "typescript": "~3.7.2"
+    "typescript": "~4.3"
   },
   "scripts": {
     "predeploy": "yarn run build",
@@ -60,6 +61,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "proxy": "http://localhost:8080"
+  }
 }
