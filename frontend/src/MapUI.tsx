@@ -22,7 +22,7 @@ import { saveAs } from 'file-saver';
 import waterway_types, { WaterwayValue } from './WaterwayType';
 import { useSelector } from 'react-redux';
 import { RootState, store } from './store';
-import { setDetailedView, setShowRailroads, setShowRoads, setShowTransmissionLines, setShowWaterways, setState } from './appSlice';
+import { setDetailedView, setShowRailroads, setShowRoads, setShowToxicSites, setShowTransmissionLines, setShowWaterways, setState } from './appSlice';
 
 export enum Aggregation {
     State = "state",
@@ -42,8 +42,10 @@ const MapUI = () => {
         waterwayMap,
         transmissionLinesMap,
         transmissionLinesLevel2Map,
+        toxicSitesMap,
         showWaterways,
         showTransmissionLines,
+        showToxicSites,
         map,
         data,
         dataWeights,
@@ -141,6 +143,16 @@ const MapUI = () => {
             clearTransmissionLines(svg);
         }
 
+        if (showToxicSites && toxicSitesMap !== undefined) {
+            const features = feature(
+                toxicSitesMap,
+                toxicSitesMap.objects["toxic-sites"] as GeometryCollection<GeoJsonProperties>
+            ).features;
+            drawToxicSites(svg, features);
+        } else {
+            clearToxicSites(svg);
+        }
+
         if (processedData === undefined) {
             clearMap(svg, stateFeatures, path);
             return;
@@ -195,6 +207,10 @@ const MapUI = () => {
                 .transition()
                 .duration(200)
                 .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
+            svg.select("#toxic-sites-map")
+                .transition()
+                .duration(200)
+                .attr("transform", "translate(" + translate + ")scale(" + scale + ")");
         }
 
         // tooltips
@@ -209,6 +225,8 @@ const MapUI = () => {
         showRoads,
         roadMap,
         railroadMap,
+        toxicSitesMap,
+        showToxicSites,
         showRailroads,
         waterwayMap,
         showWaterways,
@@ -306,6 +324,7 @@ const MapUI = () => {
                 <g id="railroad-map"></g>
                 <g id="waterway-map"></g>
                 <g id="transmission-lines-map"></g>
+                <g id="toxic-sites-map"></g>
                 <g id="circles"></g>
                 {legends(processedData)}
             </svg>
@@ -380,6 +399,16 @@ const MapUI = () => {
                                 </Select>
                             </FormControl>
                         }
+                        <FormControlLabel
+                            id="show-toxic-sites"
+                            control={
+                                <Checkbox
+                                    onChange={(_, value) => dispatch(setShowToxicSites(value))}
+                                    title="Toxic release sites"
+                                    color="primary" />
+                            }
+                            label="Toxic release sites"
+                        />
                     </React.Fragment>
                     {selections[0]?.normalization === Normalization.Percentile && processedData &&
                         <FormControlLabel
@@ -601,6 +630,19 @@ function clearTransmissionLines(svg: SVGSelection) {
     svg.select("#transmission-lines-map").selectAll("*").remove();
 }
 
+function drawToxicSites(svg: SVGSelection, features: Feature<Geometry, GeoJsonProperties>[]) {
+    const path = geoPath().pointRadius(2);
+    svg.select("#toxic-sites-map")
+        .selectAll("path")
+        .data(features)
+        .join("path")
+        .attr("fill", "black")
+        .attr("d", path);
+}
+function clearToxicSites(svg: SVGSelection) {
+    svg.select("#toxic-sites-map").selectAll("*").remove();
+}
+
 function clearRailroads(svg: SVGSelection) {
     svg.select("#railroad-map").selectAll("*").remove();
 }
@@ -657,6 +699,10 @@ function drawChoropleth(svg: SVGSelection,
         .duration(200)
         .attr("transform", "translate(0)scale(1)");
     svg.select("#transmission-lines-map")
+        .transition()
+        .duration(200)
+        .attr("transform", "translate(0)scale(1)");
+    svg.select("#toxic-sites-map")
         .transition()
         .duration(200)
         .attr("transform", "translate(0)scale(1)");

@@ -15,6 +15,8 @@ interface AppState {
     readonly waterwayMap: TopoJson | undefined,
     readonly transmissionLinesMap: TopoJson | undefined,
     readonly transmissionLinesLevel2Map: TopoJson | undefined,
+    readonly toxicSitesMap: TopoJson | undefined,
+    readonly showToxicSites: boolean,
     readonly data: Data,
     readonly dataSelections: { [key in DataTab]: DataIdParams[] },
     readonly dataWeights: { [key in DataGroup]?: number },
@@ -67,6 +69,8 @@ const initialState: AppState = {
     waterwayMap: undefined,
     transmissionLinesMap: undefined,
     transmissionLinesLevel2Map: undefined,
+    toxicSitesMap: undefined,
+    showToxicSites: false,
     data: {},
     dataSelections: defaultSelections,
     dataWeights: {},
@@ -105,6 +109,9 @@ export const appSlice = createSlice({
         setTransmissionLinesLevel2Map: (state, action: PayloadAction<TopoJson | undefined>) => {
             state.transmissionLinesLevel2Map = action.payload;
         },
+        setToxicSites: (state, action: PayloadAction<TopoJson | undefined>) => {
+            state.toxicSitesMap = action.payload;
+        },
         setData: (state, action: PayloadAction<Data>) => {
             state.data = action.payload;
         },
@@ -122,6 +129,9 @@ export const appSlice = createSlice({
         },
         setShowRailroads: (state, action: PayloadAction<boolean>) => {
             state.showRailroads = action.payload;
+        },
+        setShowToxicSites: (state, action: PayloadAction<boolean>) => {
+            state.showToxicSites = action.payload;
         },
         setShowWaterways: (state, action: PayloadAction<boolean>) => {
             state.showWaterways = action.payload;
@@ -178,11 +188,11 @@ export const appSlice = createSlice({
 
 export const {
     setMap, setRoadMap, setRailroadMap, setWaterwayMap, setData, setState,
-    setShowRailroads, setShowRoads, setShowWaterways, setDetailedView,
+    setShowRailroads, setShowRoads, setShowWaterways, setDetailedView, setShowToxicSites,
     toggleDatasetDescription, clickTab, changeWeight, changeYear,
     changeDataset, changeDataGroup, setSelections, toggleDataDescription,
     setShowDemographics, setShowRiskMetrics, setTransmissionLinesMap,
-    setShowTransmissionLines, setTransmissionLinesLevel2Map,
+    setShowTransmissionLines, setTransmissionLinesLevel2Map, setToxicSites
 } = appSlice.actions;
 
 export const getSelections = (state: AppState) => state.dataSelections[state.dataTab];
