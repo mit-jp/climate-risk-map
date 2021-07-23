@@ -173,7 +173,7 @@ const MapUI = () => {
 
         if (state !== undefined) {
             const width = 900;
-            var bounds = path.bounds(stateFeatures[0]),
+            var bounds = path.bounds({ type: "FeatureCollection", features: stateFeatures }),
                 dx = bounds[1][0] - bounds[0][0],
                 dy = bounds[1][1] - bounds[0][1],
                 x = (bounds[0][0] + bounds[1][0]) / 2,
@@ -560,7 +560,11 @@ const stateFilter = (state: State | undefined) => (feature: Feature<Geometry, Ge
         return true;
     }
     const stateId = (feature.id! as string).slice(0, 2);
-    return stateId === state;
+    if (state === State.Texas || state === State.Louisiana) {
+        return stateId === State.Texas || stateId === State.Louisiana;
+    } else {
+        return stateId === state;
+    }
 }
 
 function getRadius(
@@ -631,12 +635,12 @@ function clearTransmissionLines(svg: SVGSelection) {
 }
 
 function drawToxicSites(svg: SVGSelection, features: Feature<Geometry, GeoJsonProperties>[]) {
-    const path = geoPath().pointRadius(2);
+    const path = geoPath().pointRadius(1);
     svg.select("#toxic-sites-map")
         .selectAll("path")
         .data(features)
         .join("path")
-        .attr("fill", "black")
+        .attr("fill", "rgba(0,0,0,0.4)")
         .attr("d", path);
 }
 function clearToxicSites(svg: SVGSelection) {
