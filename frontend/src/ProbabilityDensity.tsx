@@ -1,11 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { scaleLinear, extent, bin, select, mean, max, axisBottom, axisLeft, line, curveBasis } from 'd3';
-import { DataIdParams } from './DataDefinitions';
 import Color from './Color';
+import { MapVisualization } from './FullMap';
 const margin = ({ top: 20, right: 30, bottom: 30, left: 40 });
 type Props = {
     data: number[] | undefined,
-    selections: DataIdParams[] | undefined,
+    map: MapVisualization | undefined,
+    shouldNormalize: boolean,
     xRange?: [number, number] | undefined,
     width?: number,
     height?: number,
@@ -23,10 +24,19 @@ function kde(kernel: (x: number) => number,
     return thresholds.map((t: number) => [t, mean(data, (d: number) => kernel(t - d))!]);
 }
 
-const ProbabilityDensity = ({ data, selections, xRange = undefined, width = 300, height = 200, formatter, continuous = true }: Props) => {
+const ProbabilityDensity = ({
+    data,
+    map,
+    shouldNormalize,
+    xRange = undefined,
+    width = 300,
+    height = 200,
+    formatter,
+    continuous = true
+}: Props) => {
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
-        if (data === undefined || selections === undefined) {
+        if (data === undefined || map === undefined) {
             return;
         }
         const domain = xRange === undefined ? extent(data) as [number, number] : xRange;
@@ -59,7 +69,7 @@ const ProbabilityDensity = ({ data, selections, xRange = undefined, width = 300,
             .call(axisLeft(y).ticks(null))
             .call((g: any) => g.select(".domain").remove())
         const svg = select(svgRef.current);
-        const color = Color(selections, continuous);
+        const color = Color(shouldNormalize, continuous, map);
         const kdeLine: any = line()
             .curve(curveBasis)
             .x(d => x(d[0]))
@@ -84,9 +94,9 @@ const ProbabilityDensity = ({ data, selections, xRange = undefined, width = 300,
             .call(xAxis);
         svg.select("#yAxis")
             .call(yAxis);
-    }, [data, selections, xRange, formatter, height, width, continuous]);
+    }, [data, map, shouldNormalize, xRange, formatter, height, width, continuous]);
 
-    if (data === undefined || selections === undefined) {
+    if (data === undefined || map === undefined) {
         return null;
     }
     return <svg

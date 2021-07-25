@@ -2,12 +2,11 @@ import { makeStyles } from "@material-ui/core";
 import React from "react";
 import counties from "./Counties";
 import states, { State } from "./States";
-import { DataDefinition, DataIdParams, getUnits, Normalization, riskMetricFormatter } from "./DataDefinitions";
-import { getUnitString } from "./FullMap";
+import { getUnitString, MapVisualization, riskMetricFormatter } from "./FullMap";
 import { Map } from "immutable";
 import { useSelector } from "react-redux";
 import { RootState } from "./store";
-import { selectDataDefinitions, selectSelections } from "./appSlice";
+import { selectIsNormalized, selectSelectedMapVisualizations } from "./appSlice";
 
 type StyleProps = {
     shouldShow: boolean,
@@ -27,32 +26,38 @@ const useTooltipStyles = makeStyles({
     })
 });
 
-const getFormatter = (dataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
-    const normalization = selections[0].normalization;
-    switch (normalization) {
-        case Normalization.Raw: return dataDefinitions[0].formatter;
-        case Normalization.Percentile: return riskMetricFormatter;
-    }
-}
+const getFormatter = (selectedMaps: MapVisualization[], isNormalized: boolean) =>
+    isNormalized ?
+        riskMetricFormatter :
+        selectedMaps[0].formatter;
 
-const format = (value: number | undefined, dataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
-    const formatter = getFormatter(dataDefinitions, selections);
+const getUnits = (dataDefinition: MapVisualization, isNormalized: boolean) =>
+    isNormalized ?
+        "Normalized value" :
+        dataDefinition.units;
+
+const formatData = (
+    value: number | undefined,
+    selectedMaps: MapVisualization[],
+    isNormalized: boolean,
+) => {
+    const formatter = getFormatter(selectedMaps, isNormalized);
     if (value === undefined) {
         return "No data";
     }
-    if (selections[0].normalization !== Normalization.Raw) {
+    if (isNormalized) {
         return formatter(value);
     } else {
-        let units = getUnits(dataDefinitions[0], selections[0].normalization);
+        let units = getUnits(selectedMaps[0], isNormalized);
         return formatter(value) + getUnitString(units);
     }
 }
 
 const CountyTooltip = ({ data }: { data: Map<string, number> }) => {
-    const selections = useSelector(selectSelections);
+    const selectedMapVisualizations = useSelector(selectSelectedMapVisualizations);
     const countyId = useSelector((state: RootState) => state.app.hoverCountyId);
     const position = useSelector((state: RootState) => state.app.hoverPosition);
-    const dataDefinitions = useSelector(selectDataDefinitions);
+    const isNormalized = useSelector(selectIsNormalized);
     const shouldShow = countyId !== undefined && position !== undefined;
     const tooltipClasses = useTooltipStyles({ shouldShow, position });
     let text = "";
@@ -64,7 +69,7 @@ const CountyTooltip = ({ data }: { data: Map<string, number> }) => {
             name = county + ", " + state;
         }
         const value = data.get(countyId);
-        text = `${name}: ${format(value, dataDefinitions, selections)}`;
+        text = `${name}: ${formatData(value, selectedMapVisualizations, isNormalized)}`;
     }
 
     return (

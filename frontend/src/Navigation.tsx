@@ -1,21 +1,20 @@
 import React from 'react';
 import { Map } from 'immutable';
-import { DataType } from './DataDefinitions';
 import { useThunkDispatch } from './Home';
 import { clickTab } from './appSlice';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
 import DataTab from './DataTab';
 
-export const TabToTypeMap = Map([
-    [DataTab.Climate, DataType.Climate],
-    [DataTab.Water, DataType.Water],
-    [DataTab.Land, DataType.Land],
-    [DataTab.Energy, DataType.Energy],
-    [DataTab.Economy, DataType.Economic],
-    [DataTab.Demographics, DataType.Demographics],
-    [DataTab.Health, DataType.Health],
-    [DataTab.ClimateOpinions, DataType.ClimateOpinions],
+export const TabToTypeDataCategory = Map([
+    [DataTab.RiskMetrics, 8],
+    [DataTab.Climate, 3],
+    [DataTab.Water, 1],
+    [DataTab.Land, 2],
+    [DataTab.Energy, 5],
+    [DataTab.Economy, 4],
+    [DataTab.Demographics, 7],
+    [DataTab.ClimateOpinions, 6],
 ]);
 
 const dataTabs = Object.values(DataTab);

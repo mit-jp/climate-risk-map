@@ -1,63 +1,39 @@
 import React, { ChangeEvent } from 'react';
-import dataDefinitions, { DataIdParams, DataGroup, Normalization, Year, Dataset, DataDefinition, DataType } from './DataDefinitions';
 import { Map } from 'immutable';
 import Slider from '@material-ui/core/Slider';
 import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { useThunkDispatch } from './Home';
 import { useSelector } from 'react-redux';
-import { changeWeight, selectSelections, setSelections, setShowRiskMetrics, setShowDemographics } from './appSlice';
+import { changeWeight, selectSelections, setMapSelections, setShowRiskMetrics, setShowDemographics, selectMapVisualizations } from './appSlice';
 import { RootState, store } from './store';
+import { MapSelection, MapVisualizationId } from './DataSelector';
+import { MapVisualization } from './FullMap';
 
-const getYears = (dataGroup: DataGroup) =>
-    dataDefinitions.get(dataGroup)!.years;
-
-const getDatasets = (dataGroup: DataGroup) =>
-    dataDefinitions.get(dataGroup)!.datasets;
-
-const getYear = (dataGroup: DataGroup) => {
-    const years = getYears(dataGroup);
-    if (years.includes(Year._2000_2019)) {
-        return Year._2000_2019;
-    } else if (years.includes(Year.Average)) {
-        return Year.Average;
-    } else {
-        return years[0];
-    }
+const multipleChecked = (selections: MapSelection[]) => {
+    return selections.length > 1;
 }
 
-const getDataset = (dataGroup: DataGroup) => {
-    const datasets = getDatasets(dataGroup);
-    if (datasets.includes(Dataset.ERA5)) {
-        return Dataset.ERA5;
-    } else {
-        return datasets[0];
-    }
-}
-
-const multipleChecked = (dataSelections: DataIdParams[]) => {
-    return dataSelections.length > 1;
-}
-
-const checkBox = (dataGroup: DataGroup,
-    shouldBeChecked: (dataGroup: DataGroup) => boolean,
+const checkBox = (
+    map: MapVisualization,
+    shouldBeChecked: (mapId: MapVisualizationId) => boolean,
     onSelectionToggled: (event: ChangeEvent<HTMLInputElement>) => void,
-    definition: DataDefinition,
-    dataSelections: DataIdParams[],
-    dataWeights: { [key in DataGroup]?: number },
-    dispatch: typeof store.dispatch) => {
-    return <div key={dataGroup} className={shouldBeChecked(dataGroup) ? "selected-group" : undefined}>
+    selections: MapSelection[],
+    dataWeights: { [key in MapVisualizationId]?: number },
+    dispatch: typeof store.dispatch
+) => {
+    return <div key={map.id} className={shouldBeChecked(map.id) ? "selected-group" : undefined}>
 
         <input
             className="data-group"
-            id={dataGroup}
-            checked={shouldBeChecked(dataGroup)}
+            id={map.id.toString()}
+            checked={shouldBeChecked(map.id)}
             type="checkbox"
-            value={dataGroup}
+            value={map.id}
             onChange={onSelectionToggled}
-            name="dataGroup" />
-        <label className="data-group" htmlFor={dataGroup}>{definition.name(Normalization.Percentile)}</label>
-        {shouldBeChecked(dataGroup) && multipleChecked(dataSelections) &&
+            name="mapId" />
+        <label className="data-group" htmlFor={map.id.toString()}>{map.name}</label>
+        {shouldBeChecked(map.id) && multipleChecked(selections) &&
             <div className="weight">
                 <div className="weight-label">Weight</div>
                 <Slider
@@ -67,8 +43,8 @@ const checkBox = (dataGroup: DataGroup,
                     step={0.1}
                     marks={marks}
                     valueLabelDisplay="auto"
-                    onChange={(_, weight) => dispatch(changeWeight({ dataGroup, weight: weight as number }))}
-                    value={dataWeights[dataGroup] ?? 1} />
+                    onChange={(_, weight) => dispatch(changeWeight({ mapVisualizationId: map.id, weight: weight as number }))}
+                    value={dataWeights[map.id] ?? 1} />
             </div>}
     </div>;
 }
@@ -81,23 +57,27 @@ const MultiDataSelector = () => {
     const dataWeights = useSelector((state: RootState) => state.app.dataWeights);
     const showRiskMetrics = useSelector((state: RootState) => state.app.showRiskMetrics);
     const showDemographics = useSelector((state: RootState) => state.app.showDemographics);
+    const maps = useSelector(selectMapVisualizations);
     const selections = useSelector(selectSelections);
 
-    const selectionMap = Map(selections.map(selection => [selection.dataGroup, selection]));
+    const selectionMap = Map(selections.map(selection => [selection.mapVisualization, selection]));
 
     const onSelectionToggled = (event: ChangeEvent<HTMLInputElement>) => {
-        const dataGroup = event.target.value as DataGroup;
+        const map = maps[parseInt(event.target.value)];
         const checked = event.target.checked;
-        const changedSelections = checked ?
-            selectionMap.set(dataGroup, {
-                dataGroup,
-                year: getYear(dataGroup),
-                dataset: getDataset(dataGroup),
-                normalization: Normalization.Percentile,
-            }) :
-            selectionMap.delete(dataGroup);
-
-        dispatch(setSelections(Array.from(changedSelections.values())));
+        var changedSelections;
+        if (checked) {
+            const source = map.defaultDataSource ?? map.sources[0].id;
+            const dateRange = map.defaultDateRange ?? map.dateRangesBySource[source][0];
+            changedSelections = selectionMap.set(map.id, {
+                mapVisualization: map.id,
+                dataSource: source,
+                dateRange,
+            });
+        } else {
+            changedSelections = selectionMap.delete(map.id);
+        }
+        dispatch(setMapSelections(Array.from(changedSelections.values())));
     }
 
     const onRiskMetricsToggled = (_: ChangeEvent<{}>, expanded: boolean) => {
@@ -108,21 +88,18 @@ const MultiDataSelector = () => {
         dispatch(setShowDemographics(expanded));
     }
 
-    const shouldBeChecked = (dataGroup: DataGroup) => {
-        return selectionMap.has(dataGroup);
+    const shouldBeChecked = (mapId: MapVisualizationId) => {
+        return selectionMap.has(mapId);
     }
 
-    const getDataList = (dataFilter: (dataType: DataType) => boolean) =>
-        Array.from(dataDefinitions.entries())
-            .filter(([_, definition]) =>
-                definition.normalizations.contains(Normalization.Percentile) &&
-                dataFilter(definition.type))
-            .map(([dataGroup, definition]) =>
+    const getDataList = (dataFilter: (map: MapVisualization) => boolean) =>
+        Object.values(maps)
+            .filter(map => dataFilter(map))
+            .map(map =>
                 checkBox(
-                    dataGroup,
+                    map,
                     shouldBeChecked,
                     onSelectionToggled,
-                    definition,
                     selections,
                     dataWeights,
                     dispatch
@@ -140,10 +117,7 @@ const MultiDataSelector = () => {
                     Risk Metrics
                 </AccordionSummary>
                 <AccordionDetails>
-                    {getDataList(dataType =>
-                        dataType !== DataType.Demographics &&
-                        dataType !== DataType.Economic
-                    )}
+                    {getDataList(map => map.subcategory === 1)}
                 </AccordionDetails>
             </Accordion>
             <Accordion expanded={showDemographics} onChange={onDemographicsToggled}>
@@ -155,10 +129,7 @@ const MultiDataSelector = () => {
                     Environmental Justice
                 </AccordionSummary>
                 <AccordionDetails>
-                    {getDataList(dataType =>
-                        dataType === DataType.Demographics ||
-                        dataType === DataType.Economic
-                    )}
+                    {getDataList(map => map.subcategory === 2)}
                 </AccordionDetails>
             </Accordion>
         </form>

@@ -1,45 +1,34 @@
 import React, { ChangeEvent } from 'react';
-import { Dataset } from './DataDefinitions';
+import { DataSource } from './DataSelector';
 
 type Props = {
     id: string,
-    datasets: Dataset[],
-    selectedDataset: string | undefined,
+    dataSources: DataSource[],
+    selectedDataSource: number,
     onSelectionChange: (event: ChangeEvent<HTMLInputElement>) => void
 };
 
-const readable = (dataset: Dataset) => {
-    switch(dataset) {
-        case Dataset.ERA5:
-            return "ERA5";
-        case Dataset.MERRA2:
-            return "MERRA2";
-        case Dataset.NARR:
-            return "NARR";
-    }
-}
-
-const DatasetSelector = ({ id, datasets, selectedDataset, onSelectionChange }: Props) => {
-    const getDatasets = () => {
-        return datasets.map(dataset =>
-            <React.Fragment key={dataset}>
-            <input
-                type="radio"
-                value={dataset}
-                id={id + dataset}
-                onChange={onSelectionChange}
-                checked={dataset === selectedDataset}
-            />
-            <label htmlFor={id + dataset}>{readable(dataset)}</label>
+const DataSourceSelector = ({ id, dataSources, selectedDataSource, onSelectionChange }: Props) => {
+    const getDataSources = () => {
+        return dataSources.map(dataSource =>
+            <React.Fragment key={dataSource.id}>
+                <input
+                    type="radio"
+                    value={dataSource.id}
+                    id={id + dataSource.id}
+                    onChange={onSelectionChange}
+                    checked={dataSource.id === selectedDataSource}
+                />
+                <label htmlFor={id + dataSource.id}>{dataSource.name}</label>
             </React.Fragment>
         )
     }
     return (
         <div className="sub-selector">
-            <p>Dataset:</p>
-            {getDatasets()}
+            <p>Source:</p>
+            {getDataSources()}
         </div>
     );
 };
 
-export default DatasetSelector;
+export default DataSourceSelector;

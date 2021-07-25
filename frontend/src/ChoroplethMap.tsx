@@ -1,7 +1,6 @@
 import { TopoJson, useThunkDispatch } from "./Home";
 import React from "react";
 import { Map } from "immutable";
-import { DataDefinition, DataGroup, DataIdParams, DataType, Normalization } from "./DataDefinitions";
 import { geoPath } from 'd3';
 import { feature } from 'topojson-client';
 import { GeometryCollection } from 'topojson-specification';
@@ -11,41 +10,36 @@ import StateMap from "./StateMap";
 import Legend from "./Legend";
 import ProbabilityDensity from "./ProbabilityDensity";
 import CountyPath from "./CountyPath";
-import { generateSelectedDataDefinitions, hoverCounty, hoverPosition, selectMapTransform } from "./appSlice";
+import { hoverCounty, hoverPosition, selectMapTransform } from "./appSlice";
 import { useSelector } from "react-redux";
 import { ZOOM_TRANSITION } from "./MapWrapper";
+import { MapType, MapVisualization } from "./FullMap";
 
 const MISSING_DATA_COLOR = "#ccc";
 
-const getLegendTicks = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
-    const normalization = selections[0].normalization;
-    switch (normalization) {
-        case Normalization.Raw: return selectedDataDefinitions[0].legendTicks;
-        case Normalization.Percentile: return undefined;
-    }
-}
+const getLegendTicks = (selectedMaps: MapVisualization[], isNormalized: boolean) =>
+    isNormalized ?
+        undefined :
+        selectedMaps[0].legendTicks;
 
-const shouldShowPdf = (selection: DataIdParams, numSelections: number) => {
-    if (selection.dataGroup === DataGroup.Populationpersquaremile2010) {
+function shouldShowPdf(selectedMaps: MapVisualization[], isNormalized: boolean) {
+    const firstSelection = selectedMaps[0];
+    if (selectedMaps[0] !== undefined && selectedMaps[0].showPdf === false) {
         return false;
     }
-    if (selection.normalization === Normalization.Percentile) {
-        return numSelections > 1;
+    if (isNormalized) {
+        return selectedMaps.length > 1;
     }
-    return true;
+    return firstSelection !== undefined && firstSelection.mapType === MapType.Choropleth;
 }
 
-const getPdfDomain = (selections: DataIdParams[]) => {
-    const firstSelection = generateSelectedDataDefinitions(selections)[0];
+function getPdfDomain(selectedMaps: MapVisualization[]) {
+    const firstSelection = selectedMaps[0];
     if (firstSelection === undefined) {
         return undefined;
     }
 
-    if (firstSelection.type === DataType.ClimateOpinions) {
-        return [0, 100] as [number, number];
-    }
-
-    return undefined;
+    return firstSelection.pdfDomain;
 }
 const path = geoPath();
 
@@ -57,26 +51,26 @@ const getCountyFeatures = (map: TopoJson) =>
 
 type Props = {
     map: TopoJson,
-    selections: DataIdParams[],
+    selectedMapVisualizations: MapVisualization[],
     data: Map<string, number>,
     detailedView: boolean,
     title: string,
     legendFormatter: (n: number | {
         valueOf(): number;
     }) => string,
+    isNormalized: boolean,
 }
 
-const ChoroplethMap = ({ map, selections, data, detailedView, title, legendFormatter }: Props) => {
+const ChoroplethMap = ({ map, selectedMapVisualizations, data, detailedView, title, legendFormatter, isNormalized }: Props) => {
     const dispatch = useThunkDispatch();
     const transform = useSelector(selectMapTransform);
-    const colorScheme = Color(selections, detailedView);
+    const colorScheme = Color(isNormalized, detailedView, selectedMapVisualizations[0]);
     const color = (countyId: string) => {
         const value = data.get(countyId);
         return colorScheme(value as any) ?? MISSING_DATA_COLOR;
     }
     const countyFeatures = getCountyFeatures(map);
-    const dataDefinitions = generateSelectedDataDefinitions(selections);
-    const ticks = getLegendTicks(dataDefinitions, selections);
+    const ticks = getLegendTicks(selectedMapVisualizations, isNormalized);
     const getArrayOfData = () =>
         Array
             .from(data.valueSeq())
@@ -116,13 +110,14 @@ const ChoroplethMap = ({ map, selections, data, detailedView, title, legendForma
                 tickFormat={legendFormatter}
                 ticks={ticks} />
             {
-                shouldShowPdf(selections[0], selections.length) &&
+                shouldShowPdf(selectedMapVisualizations, isNormalized) &&
                 <ProbabilityDensity
                     data={getArrayOfData()}
-                    selections={selections}
-                    xRange={getPdfDomain(selections)}
+                    map={selectedMapVisualizations[0]}
+                    xRange={getPdfDomain(selectedMapVisualizations)}
                     formatter={legendFormatter}
                     continuous={detailedView}
+                    shouldNormalize={isNormalized}
                 />
             }
         </React.Fragment>

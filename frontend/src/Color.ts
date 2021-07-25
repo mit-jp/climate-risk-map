@@ -1,20 +1,36 @@
-import { scaleSequential, scaleThreshold, schemeRdYlBu } from 'd3';
-import dataDefinitions, { DataIdParams, Normalization } from './DataDefinitions';
-import { ColorScheme } from './Home';
+import * as scales from 'd3-scale-chromatic';
+import { scaleSequential, scaleThreshold, schemeRdYlBu, ScaleSequential, ScaleThreshold, ScaleDiverging, scaleDiverging, scaleDivergingSymlog, scaleSequentialSqrt } from 'd3';
 import chroma from 'chroma-js';
+import { MapVisualization } from './FullMap';
 
 const chromaSpectral = chroma.scale(chroma.brewer.Spectral.reverse()).out("hex");
 const spectralContinuous = scaleSequential<string>(chromaSpectral);
 const redBlue = scaleThreshold<number, string, never>([.05, .25, .75, .95], [...schemeRdYlBu[5]].reverse());
 
+const colorScheme = (map: MapVisualization): ColorScheme => {
+    const domain = map.scaleDomain;
+    const interpolator: (x: number) => string = (scales as any)["interpolate" + map.colorPalette];
+    const scale: ReadonlyArray<string> = (scales as any)["scale" + map.colorPalette][domain.length];
+    // const reverse = map.reverseScale;
+    // TODO reverse the color scale if reverse === true
+    const type = map.scaleType;
 
-const Color = (selections: DataIdParams[], continuous: boolean): ColorScheme => {
-    const normalization = selections[0].normalization;
-
-    switch (normalization) {
-        case Normalization.Raw: return dataDefinitions.get(selections[0].dataGroup)!.color;
-        case Normalization.Percentile: return continuous ? spectralContinuous : redBlue;
+    switch (type) {
+        case "Diverging": return scaleDiverging(domain, interpolator);
+        case "Sequential": return scaleSequential(domain, interpolator);
+        case "Threshold": return scaleThreshold(domain, scale);
+        case "DivergingSymLog": return scaleDivergingSymlog(domain, interpolator);
+        case "SequentialSqrt": return scaleSequentialSqrt(domain, interpolator);
+        default: throw new Error(`Unknown scale type: ${type}`);
     }
+};
+
+const Color = (shouldNormalize: boolean, continuous: boolean, map: MapVisualization): ColorScheme => {
+    return shouldNormalize ?
+        continuous ? spectralContinuous : redBlue :
+        colorScheme(map);
 }
 
 export default Color;
+
+export type ColorScheme = ScaleSequential<string, never> | ScaleThreshold<number, string, never> | ScaleDiverging<string, never>;

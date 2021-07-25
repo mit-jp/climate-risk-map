@@ -1,20 +1,21 @@
 import { scaleSequentialQuantile } from 'd3';
 import { Map, Seq, Set } from 'immutable';
-import { Data } from './appSlice';
+import { Data, DatasetId } from './appSlice';
 import counties from './Counties';
-import dataDefinitions, { DataGroup, DataIdParams, Normalization } from './DataDefinitions';
+import { MapVisualizationId } from './DataSelector';
+import { MapVisualization } from './FullMap';
 import { State } from './States';
 
 export type ProcessedData = Map<string, number | undefined>;
 
 const getDataForSelection = (
     countyIds: Seq.Indexed<string>,
-    selection: DataIdParams,
-    selectionToDataId: Map<DataIdParams, string>,
+    mapId: MapVisualizationId,
+    mapIdToDatasetId: Map<MapVisualizationId, DatasetId>,
     data: Data,
 ): [string, number][] => {
     const dataForSelection: [string, number][] = [];
-    const dataId = selectionToDataId.get(selection)!;
+    const dataId = mapIdToDatasetId.get(mapId)!;
 
     for (const countyId of countyIds) {
         const countyValues = data[countyId];
@@ -30,27 +31,15 @@ const getDataForSelection = (
     return dataForSelection;
 }
 
-const shouldInvert = (selection: DataIdParams) => {
-    // Large values in the drought and groundwater measurements
-    // correspond with low risk, not high risk
-    switch (selection.dataGroup) {
-        case DataGroup.DroughtIndicator:
-        case DataGroup.Groundwater:
-            return true;
-        default:
-            return false;
-    }
-}
-
 const normalizeData = (
-    dataWeights: { [key in DataGroup]?: number },
-    selection: DataIdParams,
+    dataWeights: { [key in MapVisualizationId]?: number },
+    map: MapVisualization,
     totalWeight: number,
     valueByCountyId: Map<string, number>
 ) => {
-    let weight = (dataWeights[selection.dataGroup] ?? 1);
+    let weight = (dataWeights[map.id] ?? 1);
     weight = totalWeight === 0 ? 0 : weight / totalWeight;
-    valueByCountyId = shouldInvert(selection) ?
+    valueByCountyId = map.invertNormalized ?
         valueByCountyId.map(value => -1 * value) :
         valueByCountyId;
 
@@ -59,18 +48,17 @@ const normalizeData = (
 }
 
 const processData = (
-    selections: DataIdParams[],
+    selectedMaps: MapVisualization[],
     data: Data,
-    dataWeights: { [key in DataGroup]?: number },
+    dataWeights: { [key in MapVisualizationId]?: number },
     state: State | undefined,
-): Map<string, number> => {
-    const selectionToDataId = getDataIdsForSelections(selections);
-    const dataGroups = selections.map(selection => selection.dataGroup);
-    const shouldNormalize = selections[0]?.normalization === Normalization.Percentile;
+    shouldNormalize: boolean,
+) => {
+    const mapIdToDataId = getDatasetIdsForMaps(selectedMaps);
 
     let totalWeight = 0;
-    for (const dataGroup of dataGroups) {
-        totalWeight += dataWeights[dataGroup] ?? 1;
+    for (const map of selectedMaps) {
+        totalWeight += dataWeights[map.id] ?? 1;
     }
 
     let countyIds = counties.keySeq();
@@ -80,15 +68,15 @@ const processData = (
 
     const allProcessedData: Map<string, number>[] = [];
 
-    for (const selection of selections) {
+    for (const map of selectedMaps) {
         const countyIdToValue = Map(getDataForSelection(
             countyIds,
-            selection,
-            selectionToDataId,
+            map.id,
+            mapIdToDataId,
             data,
         ));
         if (shouldNormalize) {
-            allProcessedData.push(normalizeData(dataWeights, selection, totalWeight, countyIdToValue));
+            allProcessedData.push(normalizeData(dataWeights, map, totalWeight, countyIdToValue));
         } else {
             allProcessedData.push(countyIdToValue);
         }
@@ -112,21 +100,20 @@ const intersect = (sets: Set<string>[]) => {
     }
 }
 
-const getDataIdsForSelections = (selections: DataIdParams[]) =>
-    Map(selections.map(selection =>
-        [selection, dataDefinitions.get(selection.dataGroup)!.id(selection)]
-    ));
+const getDatasetIdsForMaps = (maps: MapVisualization[]) =>
+    Map(maps.map(map => [map.id, map.dataset]));
 
 const DataProcessor = (
     data: Data,
-    selections: DataIdParams[],
-    dataWeights: { [key in DataGroup]?: number },
-    state: State | undefined
-): Map<string, number> | undefined => {
-    if (selections.length === 0 || Object.keys(data).length === 0) {
+    selectedMaps: MapVisualization[],
+    dataWeights: { [key in MapVisualizationId]?: number },
+    state: State | undefined,
+    shouldNormalize: boolean,
+) => {
+    if (selectedMaps.length === 0 || Object.keys(data).length === 0) {
         return undefined;
     }
-    return processData(selections, data, dataWeights, state);
+    return processData(selectedMaps, data, dataWeights, state, shouldNormalize);
 }
 
 export default DataProcessor;

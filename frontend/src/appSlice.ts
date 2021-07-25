@@ -1,9 +1,7 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import dataDefinitions, { DataGroup, DataIdParams, Dataset, MapType, Normalization, Year } from './DataDefinitions';
 import { TopoJson } from './Home';
 import DataTab from './DataTab';
 import { State } from './States';
-import { getDatasets, getYears } from './SingleDataSelector';
 import { WaterwayValue } from './WaterwayType';
 import DataProcessor from './DataProcessor';
 import { GeoJsonProperties, Feature, Geometry } from 'geojson';
@@ -11,9 +9,14 @@ import { GeometryCollection } from 'topojson-specification';
 import { RootState } from './store';
 import { geoPath } from 'd3';
 import { feature } from 'topojson-client';
+import { DataSource, MapSelection, MapVisualizationId } from './DataSelector';
+import { Interval } from 'luxon';
+import { MapType, MapVisualization } from './FullMap';
 
-export type DataRow = { [key: string]: number | null };
-export type Data = { [key: string]: DataRow };
+export type DatasetId = number;
+export type CountyId = string;
+export type DataRow = { [key in DatasetId]: number | null };
+export type Data = { [key in CountyId]: DataRow };
 export type TransmissionLineType = "Level 2 (230kV-344kV)" | "Level 3 (>= 345kV)" | "Level 2 & 3 (>= 230kV)";
 export type OverlayName = "Highways" | "Major railroads" | "Transmission lines" | "Marine highways" | "Critical habitats";
 export type Overlay = { topoJson?: TopoJson, shouldShow: boolean };
@@ -21,14 +24,14 @@ export type CountyHover = {
     position: { x: number, y: number },
     countyId: string,
 }
-
 interface AppState {
     readonly map?: TopoJson;
     readonly mapTransform?: string;
     readonly overlays: { [key in OverlayName]: Overlay };
     readonly data: Data,
-    readonly dataSelections: { [key in DataTab]: DataIdParams[] },
-    readonly dataWeights: { [key in DataGroup]?: number },
+    readonly mapSelections: { [key in DataTab]: MapSelection[] },
+    readonly dataWeights: { [key in MapVisualizationId]?: number },
+    readonly mapVisualizations: { [key in DataTab]: { [key in MapVisualizationId]: MapVisualization } },
     readonly dataTab: DataTab,
     readonly showDatasetDescription: boolean,
     readonly showDataDescription: boolean,
@@ -42,34 +45,58 @@ interface AppState {
     readonly hoverPosition?: { x: number, y: number },
 }
 
-const defaultSelections: { [key in DataTab]: DataIdParams[] } = {
+const defaultSelections: { [key in DataTab]: MapSelection[] } = {
     [DataTab.RiskMetrics]: [{
-        dataGroup: DataGroup.WaterStress,
-        year: Year.Average,
-        dataset: Dataset.ERA5,
-        normalization: Normalization.Percentile
+        mapVisualization: 1,
+        dateRange: Interval.fromISO("2010-01-01/2015-12-31"),
+        dataSource: 2,
     }],
     [DataTab.Water]: [{
-        dataGroup: DataGroup.WaterStress,
-        year: Year._2015,
-        normalization: Normalization.Raw,
+        mapVisualization: 1,
+        dateRange: Interval.fromISO("2015-01-01/2015-12-31"),
+        dataSource: 2,
     }],
     [DataTab.Land]: [{
-        dataGroup: DataGroup.ErodibleCropland,
-        year: Year._2017,
-        normalization: Normalization.Raw,
+        mapVisualization: 15,
+        dateRange: Interval.fromISO("2017-01-01/2017-01-01"),
+        dataSource: 7,
     }],
     [DataTab.Climate]: [{
-        dataGroup: DataGroup.MaxTemperature,
-        year: Year._2000_2019,
-        dataset: Dataset.ERA5,
-        normalization: Normalization.Raw
+        mapVisualization: 22,
+        dateRange: Interval.fromISO("2000-01-01/2019-01-01"),
+        dataSource: 2,
     }],
-    [DataTab.Economy]: [{ dataGroup: DataGroup.AllIndustries, normalization: Normalization.Raw }],
-    [DataTab.Demographics]: [{ dataGroup: DataGroup.PercentPopulationUnder18, normalization: Normalization.Raw }],
-    [DataTab.ClimateOpinions]: [{ dataGroup: DataGroup.discuss, normalization: Normalization.Raw }],
-    [DataTab.Energy]: [{ dataGroup: DataGroup.FossilFuelsEmployment, normalization: Normalization.Raw }],
-    [DataTab.Health]: [{ dataGroup: DataGroup.PM2_5, normalization: Normalization.Raw }],
+    [DataTab.Economy]: [{
+        mapVisualization: 12,
+        dateRange: Interval.fromISO("2019-01-01/2019-01-01"),
+        dataSource: 6,
+    }],
+    [DataTab.Demographics]: [{
+        mapVisualization: 28,
+        dateRange: Interval.fromISO("2012-01-01/2016-12-31"),
+        dataSource: 6,
+    }],
+    [DataTab.ClimateOpinions]: [{
+        mapVisualization: 35,
+        dateRange: Interval.fromISO("2008-01-01/2020-12-31"),
+        dataSource: 4,
+    }],
+    [DataTab.Energy]: [{
+        mapVisualization: 64,
+        dateRange: Interval.fromISO("2020-01-01/2020-12-31"),
+        dataSource: 11,
+    }],
+};
+
+const defaultMapVisualizations: { [key in DataTab]: { [key in MapVisualizationId]: MapVisualization } } = {
+    [DataTab.RiskMetrics]: {},
+    [DataTab.Water]: {},
+    [DataTab.Land]: {},
+    [DataTab.Climate]: {},
+    [DataTab.Economy]: {},
+    [DataTab.Demographics]: {},
+    [DataTab.ClimateOpinions]: {},
+    [DataTab.Energy]: {},
 };
 
 const initialState: AppState = {
@@ -81,7 +108,8 @@ const initialState: AppState = {
         "Critical habitats": { shouldShow: false },
     },
     data: {},
-    dataSelections: defaultSelections,
+    mapSelections: defaultSelections,
+    mapVisualizations: defaultMapVisualizations,
     dataWeights: {},
     dataTab: DataTab.RiskMetrics,
     showDatasetDescription: false,
@@ -127,43 +155,39 @@ export const appSlice = createSlice({
         },
         clickTab: (state, action: PayloadAction<DataTab>) => {
             state.dataTab = action.payload;
-            const selection = getSelections(state)[0];
-            if (dataDefinitions.get(selection?.dataGroup)?.mapType === MapType.Bubble) {
-                // don't zoom in to state on bubble map. it's unsupported right now
-                state.state = undefined;
-            }
         },
-        changeWeight: (state, action: PayloadAction<{ dataGroup: DataGroup, weight: number }>) => {
-            const { dataGroup, weight } = action.payload;
-            state.dataWeights[dataGroup] = weight;
+        changeWeight: (state, action: PayloadAction<{ mapVisualizationId: MapVisualizationId, weight: number }>) => {
+            const { mapVisualizationId, weight } = action.payload;
+            state.dataWeights[mapVisualizationId] = weight;
         },
-        changeYear: (state, action: PayloadAction<Year>) => {
-            getSelections(state)[0].year = action.payload;
+        changeDateRange: (state, action: PayloadAction<Interval>) => {
+            state.mapSelections[state.dataTab][0].dateRange = action.payload;
         },
-        changeDataset: (state, action: PayloadAction<Dataset>) => {
-            getSelections(state)[0].dataset = action.payload;
+        changeDataSource: (state, action: PayloadAction<number>) => {
+            state.mapSelections[state.dataTab][0].dataSource = action.payload;
         },
-        changeDataGroup: (state, action: PayloadAction<DataGroup>) => {
-            const selection = getSelections(state)[0];
-            selection.dataGroup = action.payload;
-            const possibleYears = getYears(selection);
+        changeMapSelection: (state, action: PayloadAction<MapVisualizationId>) => {
+            const selection = state.mapSelections[state.dataTab][0];
+            selection.mapVisualization = action.payload;
+            const possibleDates = getPossibleDates(state, selection);
+            const possibleDataSources = getPossibleDataSources(state, selection);
 
-            if (selection.year && !possibleYears.includes(selection.year)) {
-                selection.year = undefined;
+            if (selection.dateRange && !possibleDates.includes(selection.dateRange)) {
+                possibleDates.length > 1 ?
+                    selection.dateRange = possibleDates[1] :
+                    selection.dateRange = possibleDates[0];
             }
-            if (getYears(selection).length > 1 && selection.year === undefined) {
-                selection.year = getYears(selection)[1];
+
+            if (!possibleDataSources.hasOwnProperty(selection.dataSource)) {
+                selection.dataSource = possibleDataSources[0];
             }
-            if (getDatasets(selection).length > 1 && selection.dataset === undefined) {
-                selection.dataset = getDatasets(selection)[0];
-            }
-            if (dataDefinitions.get(selection.dataGroup)?.mapType === MapType.Bubble) {
+            if (getMapVisualizations(state)[selection.mapVisualization]?.mapType === MapType.Bubble) {
                 // don't zoom in to state on bubble map. it's unsupported right now
                 state.state = undefined;
             }
         },
-        setSelections: (state, action: PayloadAction<DataIdParams[]>) => {
-            state.dataSelections[state.dataTab] = action.payload;
+        setMapSelections: (state, action: PayloadAction<MapSelection[]>) => {
+            state.mapSelections[state.dataTab] = action.payload;
         },
         setWaterwayValue(state, action: PayloadAction<WaterwayValue>) {
             state.waterwayValue = action.payload;
@@ -188,23 +212,27 @@ export const appSlice = createSlice({
 });
 
 export const {
-    setMap, setData, setShowOverlay, setOverlay, setDetailedView,
-    toggleDatasetDescription, clickTab, changeWeight, changeYear,
-    changeDataset, changeDataGroup, setSelections, toggleDataDescription,
+    setMap, setShowOverlay, setOverlay, setData, setDetailedView,
+    toggleDatasetDescription, clickTab, changeWeight, changeDateRange,
+    changeDataSource, changeMapSelection, setMapSelections, toggleDataDescription,
     setShowDemographics, setShowRiskMetrics, setWaterwayValue, setTransmissionLineType,
     hoverCounty, hoverPosition, clickCounty,
 } = appSlice.actions;
 
-const getSelections = (state: AppState) => state.dataSelections[state.dataTab];
-
-const getSelectedDataset = (selection: DataIdParams) => {
-    // get the selected dataset, or the first one, if there's none selected
-    return selection.dataset ?? dataDefinitions.get(selection.dataGroup)!.datasets[0];
+// Convenience accessors
+const getMapVisualizations = (state: AppState) => state.mapVisualizations[state.dataTab];
+const getPossibleDataSources = (state: AppState, selection: MapSelection): number[] => {
+    const mapVisualization = getMapVisualizations(state)[selection.mapVisualization];
+    return Object.keys(mapVisualization!.dateRangesBySource) as unknown[] as number[];
 }
-const generateSelectedDatasets = (selections: DataIdParams[]) => selections.map(getSelectedDataset);
-export const generateSelectedDataDefinitions = (selections: DataIdParams[]) =>
-    selections.map(selection => dataDefinitions.get(selection.dataGroup)!);
+const getPossibleDates = (state: AppState, selection: MapSelection) => {
+    const mapVisualization = getMapVisualizations(state)[selection.mapVisualization];
+    return mapVisualization!.dateRangesBySource[selection.dataSource];
+}
 
+// Accessors that return a new object every time, or run for a long time.
+// Do not use these as they will always force a re-render, or take too long to re-render.
+// Instead use the selectors that use them.
 const generateMapTransform = (state: State | undefined, map: TopoJson | undefined) => {
     if (state === undefined || map === undefined) {
         return undefined;
@@ -227,19 +255,42 @@ const generateMapTransform = (state: State | undefined, map: TopoJson | undefine
         transform = `translate(${translate})scale(${scale})`;
     return transform;
 }
-export const selectSelections = (state: RootState) => state.app.dataSelections[state.app.dataTab];
-export const selectDataDefinitions = createSelector(selectSelections, generateSelectedDataDefinitions)
-export const selectDatasets = createSelector(selectSelections, generateSelectedDatasets);
-export const selectProcessedData = createSelector(
-    (state: RootState) => state.app.data,
+
+// Selectors
+export const selectIsNormalized = (state: RootState) => state.app.dataTab === DataTab.RiskMetrics;
+export const selectSelections = (state: RootState) => state.app.mapSelections[state.app.dataTab];
+export const selectMapVisualizations = (state: RootState) => getMapVisualizations(state.app);
+export const selectSelectedMapVisualizations = createSelector(
     selectSelections,
+    selectMapVisualizations,
+    (selections, mapVisualizations) => {
+        return Object.keys(mapVisualizations).length === 0 ?
+            [] :
+            selections.map(selection => mapVisualizations[selection.mapVisualization]);
+    }
+)
+export const selectProcessedData = createSelector(
+    state => state.app.data,
+    selectSelectedMapVisualizations,
     state => state.app.dataWeights,
     state => state.app.state,
+    selectIsNormalized,
     DataProcessor
 );
 export const selectMapTransform = createSelector(
     (state: RootState) => state.app.state,
     state => state.app.map,
     generateMapTransform
-)
+);
+export const selectSelectedDataSource = (state: RootState): DataSource | undefined => {
+    const selections = selectSelections(state);
+    const selectedMaps = selectSelectedMapVisualizations(state);
+    if (selections.length !== 1 || selectedMaps.length !== 1) {
+        return undefined;
+    }
+    const selection = selections[0];
+    const selectedMap = selectedMaps[0];
+
+    return selectedMap.sources[selection.dataSource];
+};
 export default appSlice.reducer;

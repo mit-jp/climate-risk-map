@@ -1,8 +1,7 @@
 import { IconButton, makeStyles, Tooltip } from "@material-ui/core";
 import { Info } from "@material-ui/icons";
 import React from "react";
-import { generateSelectedDataDefinitions } from "./appSlice";
-import { DataDefinition, DataIdParams, Normalization } from "./DataDefinitions";
+import { MapVisualization } from "./FullMap";
 
 const useTooltipStyles = makeStyles(theme => ({
     arrow: {
@@ -14,25 +13,28 @@ const useTooltipStyles = makeStyles(theme => ({
     },
 }));
 
-const isNormalized = (selections: DataIdParams[]) => {
-    return selections[0].normalization === Normalization.Percentile;
-}
-
-const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
-    if (selectedDataDefinitions.length > 1) {
+const getTitle = (selectedMaps: MapVisualization[]) => {
+    if (selectedMaps.length > 1) {
         return "Combined data";
+    } else if (selectedMaps.length === 0) {
+        return ""
     } else {
-        return selectedDataDefinitions[0].name(selections[0].normalization);
+        return selectedMaps[0].name;
     }
 }
 
-const MapTitle = ({ selections }: { selections: DataIdParams[] }) => {
+type Props = {
+    selectedMapVisualizations: MapVisualization[],
+    isNormalized: boolean,
+};
+
+const MapTitle = ({ selectedMapVisualizations, isNormalized }: Props) => {
     const tooltipClasses = useTooltipStyles();
     return (
         <h3 id="map-title">
-            {getTitle(generateSelectedDataDefinitions(selections), selections)}
+            {getTitle(selectedMapVisualizations)}
             {
-                isNormalized(selections) &&
+                isNormalized &&
                 <Tooltip
                     classes={tooltipClasses}
                     arrow
