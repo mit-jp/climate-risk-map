@@ -684,6 +684,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequential<string>(scales.interpolatePurples).domain([0, 1000]),
         type: DataType.Demographics,
         description: () => "",
+        normalizations: allNormalizations,
         dataset: Dataset.Census,
     })],
     [DataGroup.PropertyCount, genericDefinition({
