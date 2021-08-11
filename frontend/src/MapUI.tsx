@@ -15,7 +15,7 @@ import ProbabilityDensity from './ProbabilityDensity';
 import { ColorScheme, useThunkDispatch } from './Home';
 import Legend from './Legend';
 import BubbleLegend from './BubbleLegend';
-import { Button, FormControlLabel, MenuItem, Select, Switch, Checkbox, InputLabel, FormControl } from '@material-ui/core';
+import { Button, FormControlLabel, MenuItem, Select, Switch, Checkbox, InputLabel, FormControl, Tooltip, IconButton, makeStyles } from '@material-ui/core';
 import Color from './Color';
 import counties from './Counties';
 import { saveAs } from 'file-saver';
@@ -23,6 +23,7 @@ import waterway_types, { WaterwayValue } from './WaterwayType';
 import { useSelector } from 'react-redux';
 import { RootState, store } from './store';
 import { setDetailedView, setShowRailroads, setShowRoads, setShowTransmissionLines, setShowWaterways, setState } from './appSlice';
+import { Info } from '@material-ui/icons';
 
 export enum Aggregation {
     State = "state",
@@ -30,6 +31,15 @@ export enum Aggregation {
 };
 
 type SVGSelection = Selection<SVGSVGElement | null, unknown, null, undefined>;
+const useTooltipStyles = makeStyles(theme => ({
+    arrow: {
+        color: theme.palette.common.black,
+    },
+    tooltip: {
+        backgroundColor: theme.palette.common.black,
+        fontSize: theme.typography.fontSize,
+    },
+}));
 
 const MapUI = () => {
     const dispatch = useThunkDispatch();
@@ -53,6 +63,7 @@ const MapUI = () => {
         ...state.app,
         selections: state.app.dataSelections[state.app.dataTab] ?? [],
     }));
+    const tooltipClasses = useTooltipStyles();
     const processedData = DataProcessor(data, selections, dataWeights, state);
     const [waterwayValue, setWaterwayValue] = useState<WaterwayValue>("total");
     type TransmissionLinesType = "Level 2 (230kV-345kV)" | "Level 3 (>= 345kV)";
@@ -277,8 +288,7 @@ const MapUI = () => {
                         title={title}
                         color={color}
                         tickFormat={legendFormatter}
-                        ticks={ticks}
-                        showTooltip={isNormalized(selections)} />
+                        ticks={ticks} />
                 }
                 {
                     shouldShowPdf(selections) &&
@@ -297,7 +307,24 @@ const MapUI = () => {
 
     return (
         <div id="map">
-            <h3 id="map-title">{getTitle(getDataDefinitions(selections), selections)}</h3>
+            <h3 id="map-title">
+                {getTitle(getDataDefinitions(selections), selections)}
+                {
+                    shouldShowLegend(selections) &&
+                    isNormalized(selections) &&
+                    <Tooltip
+                        classes={tooltipClasses}
+                        arrow
+                        placement="top"
+                        title="The normalized value is the percentile
+                                of the raw data. If you select multiple data,
+                                we take the mean of the ranked values.">
+                        <IconButton aria-label="info">
+                            <Info />
+                        </IconButton>
+                    </Tooltip>
+                }
+            </h3>
             <svg ref={svgRef} viewBox="0, 0, 1175, 610">
                 <g id="counties"></g>
                 <g id="states"></g>

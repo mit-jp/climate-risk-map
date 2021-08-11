@@ -1,8 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import { select } from "d3";
-import { IconButton, makeStyles, Tooltip } from "@material-ui/core";
-import { Info } from "@material-ui/icons";
 
 type Props = {
     color: any,
@@ -17,18 +15,7 @@ type Props = {
     ticks?: number,
     tickFormat?: any,
     tickValues?: any,
-    showTooltip?: boolean,
 };
-
-const useTooltipStyles = makeStyles(theme => ({
-    arrow: {
-        color: theme.palette.common.black,
-    },
-    tooltip: {
-        backgroundColor: theme.palette.common.black,
-        fontSize: theme.typography.fontSize,
-    },
-}));
 
 const Legend = ({
     color,
@@ -43,9 +30,7 @@ const Legend = ({
     ticks = width / 64,
     tickFormat,
     tickValues,
-    showTooltip,
 }: Props) => {
-    const tooltipClasses = useTooltipStyles();
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
         const svg = select(svgRef.current);
@@ -163,7 +148,7 @@ const Legend = ({
                 .attr("class", "title")
                 .text(title));
     });
-    return <React.Fragment><svg
+    return <svg
         id="legend"
         x="550"
         y="20"
@@ -172,24 +157,7 @@ const Legend = ({
         viewBox={"0 0 " + width + " " + height}
         overflow="visible"
         display="block"
-        ref={svgRef} />
-        {
-            showTooltip &&
-            <foreignObject x="500" y="20" width="46" height="46">
-                <Tooltip
-                    classes={tooltipClasses}
-                    arrow
-                    placement="top"
-                    title="The normalized value is the percentile
-                            of the raw data. If you select multiple data,
-                            we take the mean of the ranked values.">
-                    <IconButton aria-label="info">
-                        <Info />
-                    </IconButton>
-                </Tooltip>
-            </foreignObject>
-        }
-    </React.Fragment>;
+        ref={svgRef} />;
 }
 
 function ramp(color: any, n = 256) {
