@@ -12,7 +12,7 @@ import { json, csv } from 'd3-fetch';
 import { ScaleSequential, ScaleThreshold, ScaleDiverging, autoType, DSVParsedArray } from 'd3';
 import { useDispatch } from 'react-redux';
 import { store } from './store';
-import { Data, DataRow, setData, setMap, setRailroadMap, setRoadMap, setTransmissionLinesLevel2Map, setTransmissionLinesMap, setWaterwayMap } from './appSlice';
+import { Data, DataRow, OverlayName, setData, setMap, setOverlay } from './appSlice';
 import SiteOverview from './SiteOverview';
 
 export type TopoJson = Topology<Objects<GeoJsonProperties>>;
@@ -23,6 +23,14 @@ const csvFiles = [
   "census_employment_acs5_2019.csv",
   "energy_employment.csv",
 ];
+type TopoJsonFile = "usa.json" | "roads-topo.json" | "railroads-topo.json" | "waterways-topo.json" | "transmission-lines-topo.json";
+const overlayToFile: { [key in OverlayName]: TopoJsonFile } = {
+  "Highways": "roads-topo.json",
+  "Major railroads": "railroads-topo.json",
+  "Transmission lines": "transmission-lines-topo.json",
+  "Marine highways": "waterways-topo.json",
+}
+const mapFile: TopoJsonFile = "usa.json";
 
 const mergeFIPSCodes = (csv: DSVParsedArray<DataRow>): [string, DataRow][] =>
   csv.map(row => {
@@ -41,29 +49,6 @@ export const useThunkDispatch = () => useDispatch<typeof store.dispatch>();
 
 const Home = () => {
   const dispatch = useThunkDispatch();
-  useEffect(() => {
-    json<TopoJson>(process.env.PUBLIC_URL + "/usa.json").then(map => dispatch(setMap(map)));
-  }, [dispatch]);
-
-  useEffect(() => {
-    json<TopoJson>(process.env.PUBLIC_URL + "/roads-topo.json").then(map => dispatch(setRoadMap(map)));
-  }, [dispatch]);
-
-  useEffect(() => {
-    json<TopoJson>(process.env.PUBLIC_URL + "/railroads-topo.json").then(map => dispatch(setRailroadMap(map)));
-  }, [dispatch]);
-
-  useEffect(() => {
-    json<TopoJson>(process.env.PUBLIC_URL + "/waterways-topo.json").then(map => dispatch(setWaterwayMap(map)));
-  }, [dispatch]);
-
-  useEffect(() => {
-    json<TopoJson>(process.env.PUBLIC_URL + "/transmission-lines-over-345-topo.json").then(map => dispatch(setTransmissionLinesMap(map)));
-  }, [dispatch]);
-
-  useEffect(() => {
-    json<TopoJson>(process.env.PUBLIC_URL + "/transmission-lines-230-to-345-topo.json").then(map => dispatch(setTransmissionLinesLevel2Map(map)));
-  }, [dispatch]);
 
   useEffect(() => {
     const loadingCsvs = csvFiles.map(csvFile => csv<DataRow>(process.env.PUBLIC_URL + "/" + csvFile, autoType));
@@ -71,7 +56,17 @@ const Home = () => {
       const dataMaps = loadedCsvs.map(mergeFIPSCodes).map(Map);
       const allData = Map<string, DataRow>().mergeDeep(...dataMaps)
       dispatch(setData(allData.toJS() as Data));
-    })
+    });
+
+    json<TopoJson>(process.env.PUBLIC_URL + "/" + mapFile).then(topoJson => {
+      dispatch(setMap(topoJson));
+    });
+
+    for (const [name, file] of Object.entries(overlayToFile) as [OverlayName, TopoJsonFile][]) {
+      json<TopoJson>(process.env.PUBLIC_URL + "/" + file).then(topoJson =>
+        dispatch(setOverlay({ name, topoJson }))
+      );
+    }
   }, [dispatch]);
 
   return (
