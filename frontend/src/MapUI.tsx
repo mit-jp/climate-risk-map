@@ -439,6 +439,10 @@ function drawOverlay(
             strokeWidth = () => 1;
             color = () => "grey";
             break;
+        case "Critical habitats":
+            strokeWidth = () => 1;
+            color = () => "#0099ff";
+            break;
     }
     svg.select("#" + overlayName.replaceAll(" ", "-"))
         .selectAll("path")

@@ -9,7 +9,7 @@ import { WaterwayValue } from './WaterwayType';
 export type DataRow = { [key: string]: number | null };
 export type Data = { [key: string]: DataRow };
 export type TransmissionLineType = "Level 2 (230kV-344kV)" | "Level 3 (>= 345kV)" | "Level 2 & 3 (>= 230kV)";
-export type OverlayName = "Highways" | "Major railroads" | "Transmission lines" | "Marine highways";
+export type OverlayName = "Highways" | "Major railroads" | "Transmission lines" | "Marine highways" | "Critical habitats";
 export type Overlay = { topoJson?: TopoJson, shouldShow: boolean };
 
 interface AppState {
@@ -64,6 +64,7 @@ const initialState: AppState = {
         "Major railroads": { shouldShow: false },
         "Transmission lines": { shouldShow: false },
         "Marine highways": { shouldShow: false },
+        "Critical habitats": { shouldShow: false },
     },
     data: {},
     dataSelections: defaultSelections,

@@ -23,12 +23,18 @@ const csvFiles = [
   "census_employment_acs5_2019.csv",
   "energy_employment.csv",
 ];
-type TopoJsonFile = "usa.json" | "roads-topo.json" | "railroads-topo.json" | "waterways-topo.json" | "transmission-lines-topo.json";
+type TopoJsonFile = "usa.json" |
+  "roads-topo.json" |
+  "railroads-topo.json" |
+  "waterways-topo.json" |
+  "transmission-lines-topo.json" |
+  "critical-habitats-topo.json";
 const overlayToFile: { [key in OverlayName]: TopoJsonFile } = {
   "Highways": "roads-topo.json",
   "Major railroads": "railroads-topo.json",
   "Transmission lines": "transmission-lines-topo.json",
   "Marine highways": "waterways-topo.json",
+  "Critical habitats": "critical-habitats-topo.json",
 }
 const mapFile: TopoJsonFile = "usa.json";
 
