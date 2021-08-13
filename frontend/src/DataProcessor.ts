@@ -33,7 +33,7 @@ const getDataForSelection = (
 const shouldInvert = (selection: DataIdParams) => {
     // Large values in the drought and groundwater measurements
     // correspond with low risk, not high risk
-    switch(selection.dataGroup) {
+    switch (selection.dataGroup) {
         case DataGroup.DroughtIndicator:
         case DataGroup.Groundwater:
             return true;
@@ -61,7 +61,7 @@ const normalizeData = (
 const processData = (
     selections: DataIdParams[],
     data: Data,
-    dataWeights: {[key in DataGroup]?: number},
+    dataWeights: { [key in DataGroup]?: number },
     state: State | undefined,
 ) => {
     const selectionToDataId = getDataIdsForSelections(selections);
@@ -69,7 +69,7 @@ const processData = (
     const shouldNormalize = selections[0]?.normalization === Normalization.Percentile;
 
     let totalWeight = 0;
-    for(const dataGroup of dataGroups) {
+    for (const dataGroup of dataGroups) {
         totalWeight += dataWeights[dataGroup] ?? 1;
     }
 
@@ -117,10 +117,10 @@ const getDataIdsForSelections = (selections: DataIdParams[]) =>
         [selection, dataDefinitions.get(selection.dataGroup)!.id(selection)]
     ));
 
-export default (
+const DataProcessor = (
     data: Data,
     selections: DataIdParams[],
-    dataWeights: {[key in DataGroup]?: number},
+    dataWeights: { [key in DataGroup]?: number },
     state: State | undefined
 ) => {
     if (selections.length === 0 || Object.keys(data).length === 0) {
@@ -128,6 +128,8 @@ export default (
     }
     return processData(selections, data, dataWeights, state);
 }
+
+export default DataProcessor;
 
 export const stateFilter = (state: State) => (county: string) => {
     if (state === undefined) {
