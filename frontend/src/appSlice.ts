@@ -56,6 +56,7 @@ const defaultSelections: { [key in DataTab]: DataIdParams[] } = {
     [DataTab.Demographics]: [{ dataGroup: DataGroup.PercentPopulationUnder18, normalization: Normalization.Raw }],
     [DataTab.ClimateOpinions]: [{ dataGroup: DataGroup.discuss, normalization: Normalization.Raw }],
     [DataTab.Energy]: [{ dataGroup: DataGroup.FossilFuelsEmployment, normalization: Normalization.Raw }],
+    [DataTab.Health]: [{ dataGroup: DataGroup.PM2_5, normalization: Normalization.Raw }],
 };
 
 const initialState: AppState = {

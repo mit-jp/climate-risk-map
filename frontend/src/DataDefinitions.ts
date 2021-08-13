@@ -15,6 +15,7 @@ export enum DataType {
     Land = "land",
     Economic = "economic",
     Demographics = "demographics",
+    Health = "health",
     ClimateOpinions = "climate opinions",
     Energy = "energy",
 }
@@ -88,6 +89,7 @@ export enum DataGroup {
     EfficiencyEmployment = "EfficiencyEmploymentPCTEmp",
     TransmissionEmployment = "TransmissionEmploymentPCTEmp",
     MotorVehiclesEmployment = "MotorVehiclesEmploymentPCTEmp",
+    PM2_5 = "PM2_5",
 }
 
 export type DataIdParams = {
@@ -144,6 +146,7 @@ export enum Dataset {
     FirstStreet = "first street",
     NASS = "National Agricultural Statistics Service",
     USEER = "US Energy and Employment Report",
+    NASA = "NASA Earth Data",
 }
 
 export type DatasetDefinition = {
@@ -297,6 +300,14 @@ export const datasetDefinitions = (dataset: Dataset): DatasetDefinition => {
                 job data for electric power generation, transmission, distribution & storage,
                 fuels, energy efficiency, and motor vehicles.`,
             link: "https://www.usenergyjobs.org/",
+        }
+        case Dataset.NASA: return {
+            name: "NASA Earth Data",
+            description: `We downloaded data for annual 2015.
+            To obtain population weighted PM2.5, we also used the following data:
+            Land Area Data: https://sedac.ciesin.columbia.edu/data/set/gpw-v4-land-water-area-rev11/data-download
+            Population Density for 2015: https://sedac.ciesin.columbia.edu/data/set/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-rev11`,
+            link: "https://beta.sedac.ciesin.columbia.edu/data/set/aqdh-pm2-5-concentrations-contiguous-us-1-km-2000-2016"
         }
         default: throwBadDataset(dataset);
     }
@@ -765,6 +776,14 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         type: DataType.Energy,
         description: () => "",
         dataset: Dataset.USEER,
+    })],
+    [DataGroup.PM2_5, genericDefinition({
+        name: () => "PM2.5",
+        units: "µg/m³",
+        color: scaleSequentialSqrt([4, 10], scales.interpolateYlOrBr),
+        type: DataType.Health,
+        description: () => "Annual PM2.5 concentration data in the U.S. at a resolution of 1 km weighted by population and summed to the county.",
+        dataset: Dataset.NASA,
     })],
 ]);
 export default dataDefinitions;

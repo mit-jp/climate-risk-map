@@ -15,6 +15,7 @@ export enum DataTab {
     Energy = "energy",
     ClimateOpinions = "climate opinions",
     Demographics = "demographics",
+    Health = "health",
 }
 
 export const TabToTypeMap = Map([
@@ -24,6 +25,7 @@ export const TabToTypeMap = Map([
     [DataTab.Energy, DataType.Energy],
     [DataTab.Economy, DataType.Economic],
     [DataTab.Demographics, DataType.Demographics],
+    [DataTab.Health, DataType.Health],
     [DataTab.ClimateOpinions, DataType.ClimateOpinions],
 ]);
 
