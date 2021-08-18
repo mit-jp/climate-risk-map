@@ -14,7 +14,7 @@ const EmptyMap = ({ map }: { map: TopoJson }) => {
         <g id="nation">
             {nation.map(n =>
                 <path
-                    key={n.id}
+                    key={"nation"}
                     d={geoPath()(n)!}
                     stroke="white"
                     fill="#eee"

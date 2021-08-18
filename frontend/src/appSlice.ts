@@ -11,6 +11,10 @@ export type Data = { [key: string]: DataRow };
 export type TransmissionLineType = "Level 2 (230kV-344kV)" | "Level 3 (>= 345kV)" | "Level 2 & 3 (>= 230kV)";
 export type OverlayName = "Highways" | "Major railroads" | "Transmission lines" | "Marine highways" | "Critical habitats";
 export type Overlay = { topoJson?: TopoJson, shouldShow: boolean };
+export type CountyHover = {
+    position: { x: number, y: number },
+    countyId: string,
+}
 
 interface AppState {
     readonly map?: TopoJson;
@@ -27,6 +31,8 @@ interface AppState {
     readonly showDemographics: boolean,
     readonly waterwayValue: WaterwayValue,
     readonly transmissionLineType: TransmissionLineType,
+    readonly hoverCountyId?: string,
+    readonly hoverPosition?: { x: number, y: number },
 }
 
 const defaultSelections: { [key in DataTab]: DataIdParams[] } = {
@@ -155,6 +161,10 @@ export const appSlice = createSlice({
         },
         setTransmissionLineType(state, action: PayloadAction<TransmissionLineType>) {
             state.transmissionLineType = action.payload;
+        },
+        hoverCounty: (state, { payload }: PayloadAction<CountyHover | undefined>) => {
+            state.hoverCountyId = payload?.countyId;
+            state.hoverPosition = payload?.position;
         }
     },
 });
@@ -164,6 +174,7 @@ export const {
     toggleDatasetDescription, clickTab, changeWeight, changeYear,
     changeDataset, changeDataGroup, setSelections, toggleDataDescription,
     setShowDemographics, setShowRiskMetrics, setWaterwayValue, setTransmissionLineType,
+    hoverCounty,
 } = appSlice.actions;
 
 export const getSelections = (state: AppState) => state.dataSelections[state.dataTab];

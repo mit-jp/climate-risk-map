@@ -1,4 +1,4 @@
-import { TopoJson } from "./Home";
+import { TopoJson, useThunkDispatch } from "./Home";
 import React from "react";
 import { Map } from "immutable";
 import { DataDefinition, DataGroup, DataIdParams, DataType, Normalization } from "./DataDefinitions";
@@ -11,9 +11,11 @@ import StateMap from "./StateMap";
 import Legend from "./Legend";
 import { getDataDefinitions } from "./FullMap";
 import ProbabilityDensity from "./ProbabilityDensity";
+import { hoverCounty } from "./appSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "./store";
 
 const MISSING_DATA_COLOR = "#ccc";
-
 
 const getLegendTicks = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
     const normalization = selections[0].normalization;
@@ -58,30 +60,44 @@ type Props = {
 }
 
 const ChoroplethMap = ({ map, selections, data, detailedView, title, legendFormatter }: Props) => {
+    const { hoverCountyId } = useSelector((state: RootState) => ({ ...state.app }));
     const colorScheme = Color(selections, detailedView);
+    const dispatch = useThunkDispatch();
     const color = (countyId: string) => {
         const value = data.get(countyId);
         return colorScheme(value as any) ?? MISSING_DATA_COLOR;
     }
     const path = geoPath();
-    const counties = feature(
+    const countyFeatures = feature(
         map,
         map.objects.counties as GeometryCollection<GeoJsonProperties>
     ).features;
-    const ticks = getLegendTicks(getDataDefinitions(selections), selections);
+    const dataDefinitions = getDataDefinitions(selections);
+    const ticks = getLegendTicks(dataDefinitions, selections);
     const getArrayOfData = () =>
         Array
             .from(data.valueSeq())
             .filter(value => value !== undefined) as number[];
-
+    const handleCountyMouseOver = (event: React.MouseEvent<SVGPathElement, MouseEvent>, countyId: string) =>
+        dispatch(hoverCounty({
+            countyId,
+            position: {
+                x: event.pageX + 20,
+                y: event.pageY - 45,
+            }
+        }));
     return (
         <React.Fragment>
             <g id="counties">
-                {counties.map(county =>
+                {countyFeatures.map(county =>
                     <path
                         key={county.id}
                         fill={color(county.id as string)}
                         d={path(county)!}
+                        onMouseOver={event => handleCountyMouseOver(event, county.id as string)}
+                        opacity={county.id === hoverCountyId ? 0.5 : 1}
+                        stroke={county.id === hoverCountyId ? "black" : undefined}
+                        strokeWidth={county.id === hoverCountyId ? 0.5 : undefined}
                     />
                 )}
             </g>

@@ -5,6 +5,7 @@ import { RootState } from './store';
 import EmptyMap from './EmptyMap';
 import FullMap from './FullMap';
 import MapTitle from './MapTitle';
+import CountyTooltip from './CountyTooltip';
 
 const MapWrapper = () => {
     const {
@@ -35,6 +36,7 @@ const MapWrapper = () => {
                     /> :
                     <EmptyMap map={map} />}
             </svg>
+            {processedData && <CountyTooltip data={processedData} />}
         </div>
     );
 };

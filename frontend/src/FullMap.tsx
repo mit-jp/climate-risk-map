@@ -1,11 +1,11 @@
 import React from "react";
 import BubbleMap from "./BubbleMap";
 import ChoroplethMap from "./ChoroplethMap";
-import dataDefinitions, { DataDefinition, DataGroup, DataIdParams, getUnits, MapType, Normalization, riskMetricFormatter } from "./DataDefinitions";
+import dataDefinitions, { DataDefinition, DataIdParams, getUnits, MapType, Normalization, riskMetricFormatter } from "./DataDefinitions";
 import { Map } from "immutable";
 import { TopoJson } from "./Home";
 
-const getUnitString = (units: string) => units ? ` ${units}` : "";
+export const getUnitString = (units: string) => units ? ` ${units}` : "";
 
 export const getLegendTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
     const dataDefinition = selectedDataDefinitions[0];
