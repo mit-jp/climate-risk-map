@@ -9,6 +9,19 @@ export const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: false,
     }),
+  devTools: {
+    stateSanitizer: (state: any) => {
+      return {
+        ...state,
+        app: {
+          ...state.app,
+          data: state.app.data ? "<Large data not displayed to save memory>" : undefined,
+          map: state.app.map ? "<Large map not displayed to save memory>" : undefined,
+          overlays: "<Large data not displayed to save memory>",
+        }
+      };
+    }
+  }
 });
 
 export type RootState = ReturnType<typeof store.getState>;
