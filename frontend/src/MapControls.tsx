@@ -11,6 +11,7 @@ import states, { State } from './States';
 import { csvFormat } from 'd3';
 import { getDataDefinitions, getLegendTitle } from './MapUI';
 import waterwayTypes, { WaterwayValue } from './WaterwayType';
+import { saveAs } from 'file-saver';
 
 const getFilename = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
     const unitString = getLegendTitle(selectedDataDefinitions, selections);
