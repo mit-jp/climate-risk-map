@@ -1,7 +1,7 @@
 import React from "react";
 import BubbleMap from "./BubbleMap";
 import ChoroplethMap from "./ChoroplethMap";
-import dataDefinitions, { DataDefinition, DataIdParams, getUnits, MapType, Normalization, riskMetricFormatter } from "./DataDefinitions";
+import dataDefinitions, { DataDefinition, DataIdParams, DataType, getUnits, MapType, Normalization, riskMetricFormatter } from "./DataDefinitions";
 import { Map } from "immutable";
 import { TopoJson } from "./Home";
 import { generateSelectedDataDefinitions } from "./appSlice";
@@ -55,7 +55,7 @@ const FullMap = ({ map, selections, data, detailedView }: Props) => {
                 map={map}
                 data={data}
                 title={title}
-                legendFormatter={legendFormatter}
+                color={selectedDataDefinitions[0].type === DataType.Health ? "black" : "rgb(34, 139, 69)"}
             />;
     }
 }

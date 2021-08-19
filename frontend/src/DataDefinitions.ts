@@ -90,6 +90,18 @@ export enum DataGroup {
     TransmissionEmployment = "TransmissionEmploymentPCTEmp",
     MotorVehiclesEmployment = "MotorVehiclesEmploymentPCTEmp",
     PM2_5 = "PM2_5",
+    Deaths_0_5 = "deaths_0-5",
+    Deaths_25_plus = "deaths_25+",
+    Deaths_5_25 = "deaths_5-25",
+    Deaths_0_5_circ = "deaths_0-5_circ",
+    Deaths_25_plus_circ = "deaths_25+_circ",
+    Deaths_5_25_circ = "deaths_5-25_circ",
+    Deaths_0_5_resp = "deaths_0-5_resp",
+    Deaths_25_plus_resp = "deaths_25+_resp",
+    Deaths_5_25_resp = "deaths_5-25_resp",
+    Population_0_5 = "Population_0-5",
+    Population_5_25 = "Population_5-25",
+    Population_25_plus = "Population_25+",
 }
 
 export type DataIdParams = {
@@ -147,6 +159,7 @@ export enum Dataset {
     NASS = "National Agricultural Statistics Service",
     USEER = "US Energy and Employment Report",
     NASA = "NASA Earth Data",
+    CDC = "Centers for Disease Control and Prevention",
 }
 
 export type DatasetDefinition = {
@@ -308,6 +321,12 @@ export const datasetDefinitions = (dataset: Dataset): DatasetDefinition => {
             Land Area Data: https://sedac.ciesin.columbia.edu/data/set/gpw-v4-land-water-area-rev11/data-download
             Population Density for 2015: https://sedac.ciesin.columbia.edu/data/set/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-rev11`,
             link: "https://beta.sedac.ciesin.columbia.edu/data/set/aqdh-pm2-5-concentrations-contiguous-us-1-km-2000-2016"
+        }
+        case Dataset.CDC: return {
+            name: "Centers for Disease Control and Prevention",
+            description: `The agency's main goal to be the protection of public health and safety
+            through the control and prevention of disease, injury, and disability in the US and worldwide.`,
+            link: "https://www.cdc.gov/nchs/nvss/deaths.htm",
         }
         default: throwBadDataset(dataset);
     }
@@ -784,6 +803,51 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         type: DataType.Health,
         description: () => "Annual PM2.5 concentration data in the U.S. at a resolution of 1 km weighted by population and summed to the county.",
         dataset: Dataset.NASA,
+    })],
+    [DataGroup.Deaths_0_5, genericDefinition({
+        name: () => "Deaths, ages 0 to 5",
+        units: "deaths",
+        color: scaleSequentialSqrt([0, 10_000], scales.interpolateYlOrBr),
+        type: DataType.Health,
+        mapType: MapType.Bubble,
+        description: () => "",
+        dataset: Dataset.CDC,
+    })],
+    [DataGroup.Deaths_5_25, genericDefinition({
+        name: () => "Deaths, ages 5 to 25",
+        units: "deaths",
+        color: scaleSequentialSqrt([0, 10_000], scales.interpolateYlOrBr),
+        type: DataType.Health,
+        mapType: MapType.Bubble,
+        description: () => "",
+        dataset: Dataset.CDC,
+    })],
+    [DataGroup.Deaths_25_plus, genericDefinition({
+        name: () => "Deaths, ages 25+",
+        units: "deaths",
+        color: scaleSequentialSqrt([0, 10_000], scales.interpolateYlOrBr),
+        type: DataType.Health,
+        mapType: MapType.Bubble,
+        description: () => "",
+        dataset: Dataset.CDC,
+    })],
+    [DataGroup.Deaths_25_plus_circ, genericDefinition({
+        name: () => "Circulatory Deaths, ages 25+",
+        units: "deaths",
+        color: scaleSequentialSqrt([0, 10_000], scales.interpolateYlOrBr),
+        type: DataType.Health,
+        mapType: MapType.Bubble,
+        description: () => "",
+        dataset: Dataset.CDC,
+    })],
+    [DataGroup.Deaths_25_plus_resp, genericDefinition({
+        name: () => "Respiratory Deaths, ages 25+",
+        units: "deaths",
+        color: scaleSequentialSqrt([0, 10_000], scales.interpolateYlOrBr),
+        type: DataType.Health,
+        mapType: MapType.Bubble,
+        description: () => "",
+        dataset: Dataset.CDC,
     })],
 ]);
 export default dataDefinitions;

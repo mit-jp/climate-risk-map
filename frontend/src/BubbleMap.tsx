@@ -15,12 +15,10 @@ type Props = {
     map: TopoJson,
     data: Map<string, number>,
     title: string,
-    legendFormatter: (n: number | {
-        valueOf(): number;
-    }) => string,
+    color: string,
 }
 
-const BubbleMap = ({ map, data, title, legendFormatter }: Props) => {
+const BubbleMap = ({ map, data, title, color }: Props) => {
     const path = geoPath();
     const counties = feature(
         map,
@@ -41,7 +39,7 @@ const BubbleMap = ({ map, data, title, legendFormatter }: Props) => {
                         transform={`translate(${path.centroid(county)})`}
                         r={countyToRadius(county)}
                         stroke={"#fff"}
-                        fill={"rgb(34, 139, 69)"}
+                        fill={color}
                         strokeOpacity={0.5}
                         fillOpacity={0.5}
                     />
