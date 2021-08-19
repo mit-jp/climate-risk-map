@@ -17,7 +17,6 @@ type StyleProps = {
 const useTooltipStyles = makeStyles({
     root: ({ shouldShow, position }: StyleProps) => ({
         opacity: shouldShow ? 0.95 : 0,
-        transition: "opacity 0.2s ease-in-out",
         position: "absolute",
         padding: "4px",
         background: "white",
@@ -54,7 +53,7 @@ const CountyTooltip = ({ data }: { data: Map<string, number> }) => {
     const countyId = useSelector((state: RootState) => state.app.hoverCountyId);
     const position = useSelector((state: RootState) => state.app.hoverPosition);
     const dataDefinitions = useSelector(selectDataDefinitions);
-    const shouldShow = countyId !== undefined;
+    const shouldShow = countyId !== undefined && position !== undefined;
     const tooltipClasses = useTooltipStyles({ shouldShow, position });
     let text = "";
     if (countyId) {
