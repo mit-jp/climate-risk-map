@@ -11,6 +11,8 @@ import DataDescription from './DataDescription';
 import DatasetDescription from './DatasetDescription';
 import Overlays from './Overlays';
 
+export const ZOOM_TRANSITION = { transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)" };
+
 const MapWrapper = () => {
     const selections = useSelector(selectSelections);
     const map = useSelector((state: RootState) => state.app.map);

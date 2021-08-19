@@ -9,6 +9,8 @@ import StateMap from "./StateMap";
 import EmptyMap from "./EmptyMap";
 import BubbleLegend from "./BubbleLegend";
 
+const BUBBLE_TRANSITION = { transition: "r 0.3s ease-in-out" };
+
 type Props = {
     map: TopoJson,
     data: Map<string, number>,
@@ -34,6 +36,7 @@ const BubbleMap = ({ map, data, title, legendFormatter }: Props) => {
             <g id="bubbles">
                 {counties.map(county =>
                     <circle
+                        style={BUBBLE_TRANSITION}
                         key={county.id}
                         transform={`translate(${path.centroid(county)})`}
                         r={countyToRadius(county)}

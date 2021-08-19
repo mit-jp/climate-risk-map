@@ -13,6 +13,7 @@ import ProbabilityDensity from "./ProbabilityDensity";
 import CountyPath from "./CountyPath";
 import { generateSelectedDataDefinitions, hoverCounty, hoverPosition, selectMapTransform } from "./appSlice";
 import { useSelector } from "react-redux";
+import { ZOOM_TRANSITION } from "./MapWrapper";
 
 const MISSING_DATA_COLOR = "#ccc";
 
@@ -97,6 +98,7 @@ const ChoroplethMap = ({ map, selections, data, detailedView, title, legendForma
                 onMouseMove={onMouseMove}
                 onTouchMove={onTouchMove}
                 transform={transform}
+                style={ZOOM_TRANSITION}
             >
                 {countyFeatures.map(county =>
                     <CountyPath

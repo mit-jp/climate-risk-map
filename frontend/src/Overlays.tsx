@@ -7,6 +7,7 @@ import { GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties, Feature, Geometry } from 'geojson';
 import { geoPath } from "d3";
 import { selectMapTransform } from "./appSlice";
+import { ZOOM_TRANSITION } from "./MapWrapper";
 
 const path = geoPath();
 
@@ -70,7 +71,7 @@ const Overlays = () => {
                 .filter(([_, overlay]) => overlay.shouldShow && overlay.topoJson)
                 .map(([name, overlay]) => [name, overlay.topoJson] as [string, TopoJson])
                 .map(([name, topoJson]) =>
-                    <g id={name.replaceAll(" ", "-")} key={name} transform={transform}>
+                    <g id={name.replaceAll(" ", "-")} key={name} transform={transform} style={ZOOM_TRANSITION}>
                         {generatePaths(name, topoJson)}
                     </g>
                 )}
