@@ -1,7 +1,7 @@
 import { Button, Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch } from '@material-ui/core';
 import React, { } from 'react';
 import { useSelector } from 'react-redux';
-import { Overlay, OverlayName, setDetailedView, setShowOverlay, setTransmissionLineType, setWaterwayValue, TransmissionLineType } from './appSlice';
+import { Overlay, OverlayName, selectSelections, setDetailedView, setShowOverlay, setTransmissionLineType, setWaterwayValue, TransmissionLineType } from './appSlice';
 import { DataDefinition, DataIdParams, Normalization } from './DataDefinitions';
 import { useThunkDispatch } from './Home';
 import { RootState } from './store';
@@ -24,16 +24,11 @@ const getFilename = (selectedDataDefinitions: DataDefinition[], selections: Data
 
 const MapControls = ({ processedData }: { processedData: Map<string, number> | undefined }) => {
     const dispatch = useThunkDispatch();
-    const {
-        selections,
-        detailedView,
-        waterwayValue,
-        overlays,
-        transmissionLineType,
-    } = useSelector((state: RootState) => ({
-        ...state.app,
-        selections: state.app.dataSelections[state.app.dataTab] ?? [],
-    }));
+    const overlays = useSelector((state: RootState) => state.app.overlays);
+    const detailedView = useSelector((state: RootState) => state.app.detailedView);
+    const waterwayValue = useSelector((state: RootState) => state.app.waterwayValue);
+    const transmissionLineType = useSelector((state: RootState) => state.app.transmissionLineType);
+    const selections = useSelector(selectSelections);
     const transmissionLinesTypes: TransmissionLineType[] = ["Level 2 (230kV-344kV)", "Level 3 (>= 345kV)", "Level 2 & 3 (>= 230kV)"];
 
     const subControl = (overlayName: OverlayName) => {
@@ -71,7 +66,7 @@ const MapControls = ({ processedData }: { processedData: Map<string, number> | u
     const mapToggleUI = () => {
         return (Object.entries(overlays) as [OverlayName, Overlay][])
             .map(([overlayName, overlay]) => {
-                return <React.Fragment>
+                return <React.Fragment key={overlayName}>
                     <FormControlLabel
                         control={
                             <Checkbox

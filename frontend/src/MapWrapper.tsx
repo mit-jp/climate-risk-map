@@ -6,6 +6,10 @@ import FullMap from './FullMap';
 import MapTitle from './MapTitle';
 import { selectProcessedData, selectSelections } from './appSlice';
 import CountyTooltip from './CountyTooltip';
+import MapControls from './MapControls';
+import DataDescription from './DataDescription';
+import DatasetDescription from './DatasetDescription';
+import Overlays from './Overlays';
 
 const MapWrapper = () => {
     const selections = useSelector(selectSelections);
@@ -28,8 +32,12 @@ const MapWrapper = () => {
                         detailedView={detailedView}
                     /> :
                     <EmptyMap map={map} />}
+                <Overlays />
             </svg>
             {processedData && <CountyTooltip data={processedData} />}
+            {map && <MapControls processedData={processedData} />}
+            <DataDescription />
+            <DatasetDescription />
         </div>
     );
 };

@@ -6,7 +6,11 @@ import { State } from './States';
 import { getDatasets, getYears } from './SingleDataSelector';
 import { WaterwayValue } from './WaterwayType';
 import DataProcessor from './DataProcessor';
+import { GeoJsonProperties, Feature, Geometry } from 'geojson';
+import { GeometryCollection } from 'topojson-specification';
 import { RootState } from './store';
+import { geoPath } from 'd3';
+import { feature } from 'topojson-client';
 
 export type DataRow = { [key: string]: number | null };
 export type Data = { [key: string]: DataRow };
@@ -20,6 +24,7 @@ export type CountyHover = {
 
 interface AppState {
     readonly map?: TopoJson;
+    readonly mapTransform?: string;
     readonly overlays: { [key in OverlayName]: Overlay };
     readonly data: Data,
     readonly dataSelections: { [key in DataTab]: DataIdParams[] },
@@ -195,6 +200,28 @@ const generateSelectedDatasets = (selections: DataIdParams[]) => selections.map(
 export const generateSelectedDataDefinitions = (selections: DataIdParams[]) =>
     selections.map(selection => dataDefinitions.get(selection.dataGroup)!);
 
+const generateMapTransform = (state: State | undefined, map: TopoJson | undefined) => {
+    if (state === undefined || map === undefined) {
+        return undefined;
+    }
+    const stateFeatures = feature(
+        map,
+        map.objects.states as GeometryCollection<GeoJsonProperties>
+    ).features.reduce((accumulator, currentValue) => {
+        accumulator[currentValue.id as State] = currentValue;
+        return accumulator;
+    }, {} as { [key in State]: Feature<Geometry, GeoJsonProperties> });
+    const width = 900;
+    const bounds = geoPath().bounds(stateFeatures[state]),
+        dx = bounds[1][0] - bounds[0][0],
+        dy = bounds[1][1] - bounds[0][1],
+        x = (bounds[0][0] + bounds[1][0]) / 2,
+        y = (bounds[0][1] + bounds[1][1]) / 2,
+        scale = .9 / Math.max(dx / width, dy / 610),
+        translate = [width / 2 - scale * x, 610 / 2 - scale * y],
+        transform = `translate(${translate})scale(${scale})`;
+    return transform;
+}
 export const selectSelections = (state: RootState) => state.app.dataSelections[state.app.dataTab];
 export const selectDataDefinitions = createSelector(selectSelections, generateSelectedDataDefinitions)
 export const selectDatasets = createSelector(selectSelections, generateSelectedDatasets);
@@ -205,4 +232,9 @@ export const selectProcessedData = createSelector(
     state => state.app.state,
     DataProcessor
 );
+export const selectMapTransform = createSelector(
+    (state: RootState) => state.app.state,
+    state => state.app.map,
+    generateMapTransform
+)
 export default appSlice.reducer;

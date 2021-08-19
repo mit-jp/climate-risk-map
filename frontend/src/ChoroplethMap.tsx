@@ -5,16 +5,14 @@ import { DataDefinition, DataGroup, DataIdParams, DataType, Normalization } from
 import { geoPath } from 'd3';
 import { feature } from 'topojson-client';
 import { GeometryCollection } from 'topojson-specification';
-import { GeoJsonProperties, Feature, Geometry } from 'geojson';
+import { GeoJsonProperties } from 'geojson';
 import Color from "./Color";
 import StateMap from "./StateMap";
 import Legend from "./Legend";
 import ProbabilityDensity from "./ProbabilityDensity";
 import CountyPath from "./CountyPath";
-import { generateSelectedDataDefinitions, hoverCounty, hoverPosition } from "./appSlice";
+import { generateSelectedDataDefinitions, hoverCounty, hoverPosition, selectMapTransform } from "./appSlice";
 import { useSelector } from "react-redux";
-import { RootState } from "./store";
-import { State } from "./States";
 
 const MISSING_DATA_COLOR = "#ccc";
 
@@ -49,14 +47,6 @@ const getPdfDomain = (selections: DataIdParams[]) => {
     return undefined;
 }
 const path = geoPath();
-const getStateFeatures = (map: TopoJson) =>
-    feature(
-        map,
-        map.objects.states as GeometryCollection<GeoJsonProperties>
-    ).features.reduce((accumulator, currentValue) => {
-        accumulator[currentValue.id as State] = currentValue;
-        return accumulator;
-    }, {} as { [key in State]: Feature<Geometry, GeoJsonProperties> });
 
 const getCountyFeatures = (map: TopoJson) =>
     feature(
@@ -64,21 +54,6 @@ const getCountyFeatures = (map: TopoJson) =>
         map.objects.counties as GeometryCollection<GeoJsonProperties>
     ).features;
 
-const calculateTransform = (state: State | undefined, stateFeatures: { [key in State]: Feature<Geometry, GeoJsonProperties> }) => {
-    if (state === undefined) {
-        return undefined;
-    }
-    const width = 900;
-    const bounds = path.bounds(stateFeatures[state]),
-        dx = bounds[1][0] - bounds[0][0],
-        dy = bounds[1][1] - bounds[0][1],
-        x = (bounds[0][0] + bounds[1][0]) / 2,
-        y = (bounds[0][1] + bounds[1][1]) / 2,
-        scale = .9 / Math.max(dx / width, dy / 610),
-        translate = [width / 2 - scale * x, 610 / 2 - scale * y],
-        transform = `translate(${translate})scale(${scale})`;
-    return transform;
-}
 type Props = {
     map: TopoJson,
     selections: DataIdParams[],
@@ -92,14 +67,13 @@ type Props = {
 
 const ChoroplethMap = ({ map, selections, data, detailedView, title, legendFormatter }: Props) => {
     const dispatch = useThunkDispatch();
-    const state = useSelector((state: RootState) => state.app.state);
+    const transform = useSelector(selectMapTransform);
     const colorScheme = Color(selections, detailedView);
     const color = (countyId: string) => {
         const value = data.get(countyId);
         return colorScheme(value as any) ?? MISSING_DATA_COLOR;
     }
     const countyFeatures = getCountyFeatures(map);
-    const stateFeatures = getStateFeatures(map);
     const dataDefinitions = generateSelectedDataDefinitions(selections);
     const ticks = getLegendTicks(dataDefinitions, selections);
     const getArrayOfData = () =>
@@ -113,7 +87,7 @@ const ChoroplethMap = ({ map, selections, data, detailedView, title, legendForma
     const onMove = (position: { x: number, y: number }) =>
         dispatch(hoverPosition(position));
     const onHoverEnd = () => dispatch(hoverCounty());
-    const transform = calculateTransform(state, stateFeatures);
+
     return (
         <React.Fragment>
             <g
