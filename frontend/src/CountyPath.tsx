@@ -4,7 +4,7 @@ import { clickCounty, hoverCounty } from "./appSlice";
 import { useThunkDispatch } from "./Home";
 import { RootState } from "./store";
 
-const COLOR_TRANSITION = { transition: "fill 0.3s ease-in-out" };
+const COLOR_TRANSITION = { transition: "fill 0.2s ease-in-out" };
 
 type Props = {
     color: string;
