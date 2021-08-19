@@ -10,7 +10,6 @@ import DatasetDescription from './DatasetDescription';
 import { Map as ImmutableMap } from 'immutable';
 import states, { State } from './States';
 import Counties from './Counties';
-import DataProcessor from './DataProcessor';
 import ProbabilityDensity from './ProbabilityDensity';
 import { ColorScheme, useThunkDispatch } from './Home';
 import Legend from './Legend';
@@ -19,7 +18,7 @@ import { Tooltip, IconButton, makeStyles } from '@material-ui/core';
 import Color from './Color';
 import { useSelector } from 'react-redux';
 import { RootState, store } from './store';
-import { Overlay, OverlayName, setState, TransmissionLineType } from './appSlice';
+import { Overlay, OverlayName, selectProcessedData, setState, TransmissionLineType } from './appSlice';
 import { Info } from '@material-ui/icons';
 import MapControls from './MapControls';
 import { WaterwayValue } from './WaterwayType';
@@ -52,12 +51,13 @@ const MapUI = () => {
         waterwayValue,
         transmissionLineType,
         detailedView,
+        processedData,
     } = useSelector((state: RootState) => ({
         ...state.app,
         selections: state.app.dataSelections[state.app.dataTab] ?? [],
+        processedData: selectProcessedData(state),
     }));
     const tooltipClasses = useTooltipStyles();
-    const processedData = DataProcessor(data, selections, dataWeights, state);
 
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {

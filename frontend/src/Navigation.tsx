@@ -22,7 +22,7 @@ const dataTabs = Object.values(DataTab);
 
 const Navigation = () => {
     const dispatch = useThunkDispatch();
-    const { dataTab: selectedDataTab } = useSelector((state: RootState) => state.app)
+    const selectedDataTab = useSelector((state: RootState) => state.app.dataTab)
 
     return (
         <nav>

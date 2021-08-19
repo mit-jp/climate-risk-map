@@ -4,6 +4,7 @@ import ChoroplethMap from "./ChoroplethMap";
 import dataDefinitions, { DataDefinition, DataIdParams, getUnits, MapType, Normalization, riskMetricFormatter } from "./DataDefinitions";
 import { Map } from "immutable";
 import { TopoJson } from "./Home";
+import { generateSelectedDataDefinitions } from "./appSlice";
 
 export const getUnitString = (units: string) => units ? ` ${units}` : "";
 
@@ -26,10 +27,6 @@ const getLegendFormatter = (selectedDataDefinitions: DataDefinition[], selection
     }
 }
 
-export const getDataDefinitions = (selections: DataIdParams[]) => {
-    return selections.map(selection => dataDefinitions.get(selection.dataGroup)!);
-}
-
 type Props = {
     map: TopoJson,
     selections: DataIdParams[],
@@ -39,7 +36,7 @@ type Props = {
 
 const FullMap = ({ map, selections, data, detailedView }: Props) => {
     const firstSelection = selections[0];
-    const selectedDataDefinitions = getDataDefinitions(selections);
+    const selectedDataDefinitions = generateSelectedDataDefinitions(selections);
     const mapType = dataDefinitions.get(firstSelection.dataGroup)!.mapType;
     const title = getLegendTitle(selectedDataDefinitions, selections);
     const legendFormatter = getLegendFormatter(selectedDataDefinitions, selections);

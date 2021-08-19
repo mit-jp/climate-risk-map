@@ -63,7 +63,7 @@ const processData = (
     data: Data,
     dataWeights: { [key in DataGroup]?: number },
     state: State | undefined,
-) => {
+): Map<string, number> => {
     const selectionToDataId = getDataIdsForSelections(selections);
     const dataGroups = selections.map(selection => selection.dataGroup);
     const shouldNormalize = selections[0]?.normalization === Normalization.Percentile;
@@ -122,7 +122,7 @@ const DataProcessor = (
     selections: DataIdParams[],
     dataWeights: { [key in DataGroup]?: number },
     state: State | undefined
-) => {
+): Map<string, number> | undefined => {
     if (selections.length === 0 || Object.keys(data).length === 0) {
         return undefined;
     }

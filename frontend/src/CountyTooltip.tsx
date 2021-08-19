@@ -3,10 +3,11 @@ import React from "react";
 import counties from "./Counties";
 import states, { State } from "./States";
 import { DataDefinition, DataIdParams, getUnits, Normalization, riskMetricFormatter } from "./DataDefinitions";
-import { getDataDefinitions, getUnitString } from "./FullMap";
+import { getUnitString } from "./FullMap";
 import { Map } from "immutable";
 import { useSelector } from "react-redux";
 import { RootState } from "./store";
+import { selectDataDefinitions, selectSelections } from "./appSlice";
 
 type StyleProps = {
     shouldShow: boolean,
@@ -49,15 +50,10 @@ const format = (value: number | undefined, dataDefinitions: DataDefinition[], se
 }
 
 const CountyTooltip = ({ data }: { data: Map<string, number> }) => {
-    const {
-        hoverCountyId: countyId,
-        hoverPosition: position,
-        selections,
-    } = useSelector((state: RootState) => ({
-        ...state.app,
-        selections: state.app.dataSelections[state.app.dataTab] ?? [],
-    }));
-    const dataDefinitions = getDataDefinitions(selections);
+    const selections = useSelector(selectSelections);
+    const countyId = useSelector((state: RootState) => state.app.hoverCountyId);
+    const position = useSelector((state: RootState) => state.app.hoverPosition);
+    const dataDefinitions = useSelector(selectDataDefinitions);
     const shouldShow = countyId !== undefined;
     const tooltipClasses = useTooltipStyles({ shouldShow, position });
     let text = "";

@@ -4,7 +4,7 @@ import { DataTab } from './DataTab';
 import { RootState } from './store';
 
 const SiteOverview = () => {
-    const { dataTab } = useSelector((state: RootState) => ({ ...state.app }));
+    const dataTab = useSelector((state: RootState) => state.app.dataTab);
 
     if (dataTab !== DataTab.RiskMetrics) {
         return null;

@@ -1,16 +1,15 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { getSelections, toggleDataDescription } from './appSlice';
+import { selectSelections, toggleDataDescription } from './appSlice';
 import dataDefinitions from './DataDefinitions';
 import { useThunkDispatch } from './Home';
 import { RootState } from './store';
 
 const DataDescription = () => {
     const dispatch = useThunkDispatch();
-    const {selections, showDataDescription} = useSelector((state: RootState) => ({
-        ...state.app,
-        selections: getSelections(state.app),
-    }));
+    const showDataDescription = useSelector((state: RootState) => state.app.showDataDescription);
+    const selections = useSelector(selectSelections);
+
     if (selections.length !== 1) {
         return null;
     }
@@ -23,12 +22,12 @@ const DataDescription = () => {
     }
 
     return <div id="description">
-    <button
-        onClick={() => dispatch(toggleDataDescription())}
-        className={showDataDescription ? "shown" : undefined}>
-        About the {name} data
-    </button>
-    {showDataDescription && <p>{description}</p>}
+        <button
+            onClick={() => dispatch(toggleDataDescription())}
+            className={showDataDescription ? "shown" : undefined}>
+            About the {name} data
+        </button>
+        {showDataDescription && <p>{description}</p>}
     </div>
 }
 

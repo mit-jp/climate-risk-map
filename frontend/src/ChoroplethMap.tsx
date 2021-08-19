@@ -9,11 +9,9 @@ import { GeoJsonProperties } from 'geojson';
 import Color from "./Color";
 import StateMap from "./StateMap";
 import Legend from "./Legend";
-import { getDataDefinitions } from "./FullMap";
 import ProbabilityDensity from "./ProbabilityDensity";
-import { hoverCounty } from "./appSlice";
-import { useSelector } from "react-redux";
-import { RootState } from "./store";
+import CountyPath from "./CountyPath";
+import { generateSelectedDataDefinitions, hoverCounty } from "./appSlice";
 
 const MISSING_DATA_COLOR = "#ccc";
 
@@ -36,7 +34,7 @@ const shouldShowPdf = (selection: DataIdParams, numSelections: number) => {
 }
 
 const getPdfDomain = (selections: DataIdParams[]) => {
-    const firstSelection = getDataDefinitions(selections)[0];
+    const firstSelection = generateSelectedDataDefinitions(selections)[0];
     if (firstSelection === undefined) {
         return undefined;
     }
@@ -60,9 +58,8 @@ type Props = {
 }
 
 const ChoroplethMap = ({ map, selections, data, detailedView, title, legendFormatter }: Props) => {
-    const { hoverCountyId } = useSelector((state: RootState) => ({ ...state.app }));
-    const colorScheme = Color(selections, detailedView);
     const dispatch = useThunkDispatch();
+    const colorScheme = Color(selections, detailedView);
     const color = (countyId: string) => {
         const value = data.get(countyId);
         return colorScheme(value as any) ?? MISSING_DATA_COLOR;
@@ -72,32 +69,22 @@ const ChoroplethMap = ({ map, selections, data, detailedView, title, legendForma
         map,
         map.objects.counties as GeometryCollection<GeoJsonProperties>
     ).features;
-    const dataDefinitions = getDataDefinitions(selections);
+    const dataDefinitions = generateSelectedDataDefinitions(selections);
     const ticks = getLegendTicks(dataDefinitions, selections);
     const getArrayOfData = () =>
         Array
             .from(data.valueSeq())
             .filter(value => value !== undefined) as number[];
-    const handleCountyMouseOver = (event: React.MouseEvent<SVGPathElement, MouseEvent>, countyId: string) =>
-        dispatch(hoverCounty({
-            countyId,
-            position: {
-                x: event.pageX + 20,
-                y: event.pageY - 45,
-            }
-        }));
+
     return (
         <React.Fragment>
-            <g id="counties">
+            <g id="counties" onMouseOut={() => dispatch(hoverCounty(undefined))}>
                 {countyFeatures.map(county =>
-                    <path
+                    <CountyPath
                         key={county.id}
-                        fill={color(county.id as string)}
+                        color={color(county.id as string)}
                         d={path(county)!}
-                        onMouseOver={event => handleCountyMouseOver(event, county.id as string)}
-                        opacity={county.id === hoverCountyId ? 0.5 : 1}
-                        stroke={county.id === hoverCountyId ? "black" : undefined}
-                        strokeWidth={county.id === hoverCountyId ? 0.5 : undefined}
+                        id={county.id as string}
                     />
                 )}
             </g>

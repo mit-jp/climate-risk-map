@@ -5,7 +5,7 @@ import DatasetSelector from './DatasetSelector';
 import { TabToTypeMap } from './Navigation';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
-import { changeDataGroup, changeDataset, changeYear, getSelections } from './appSlice';
+import { changeDataGroup, changeDataset, changeYear, selectSelections } from './appSlice';
 import { useThunkDispatch } from './Home';
 
 export const getYears = (selection: DataIdParams) =>
@@ -15,10 +15,8 @@ export const getDatasets = (selection: DataIdParams) =>
     dataDefinitions.get(selection.dataGroup)!.datasets;
 
 const SingleDataSelector = () => {
-    const { selection, dataTab } = useSelector((state: RootState) => ({
-        ...state.app,
-        selection: getSelections(state.app)[0],
-    }))
+    const dataTab = useSelector((state: RootState) => state.app.dataTab);
+    const selection = useSelector((state: RootState) => selectSelections(state)[0]);
     const dispatch = useThunkDispatch();
 
     const onYearChange = (event: ChangeEvent<HTMLInputElement>) => {

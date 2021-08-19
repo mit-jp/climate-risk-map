@@ -1,16 +1,15 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { getSelections, toggleDatasetDescription } from './appSlice';
-import dataDefinitions, { DataIdParams, datasetDefinitions } from './DataDefinitions';
+import { selectDatasets, toggleDatasetDescription } from './appSlice';
+import { datasetDefinitions } from './DataDefinitions';
 import { useThunkDispatch } from './Home';
 import { RootState } from './store';
 
 const DatasetDescription = () => {
     const dispatch = useThunkDispatch();
-    const {datasets, shouldShow} = useSelector((state: RootState) => ({
-        shouldShow: state.app.showDatasetDescription,
-        datasets: getSelections(state.app).map(getDataset)
-    }));
+    const shouldShow = useSelector((state: RootState) => state.app.showDatasetDescription);
+    const datasets = useSelector(selectDatasets);
+
     if (datasets.length !== 1) {
         return null;
     }
@@ -25,11 +24,6 @@ const DatasetDescription = () => {
         {shouldShow && <p><a href={datasetDefinition.link}>{datasetDefinition.name} website</a></p>}
 
     </div>
-}
-
-const getDataset = (selection: DataIdParams) => {
-    // get the selected dataset, or the first one, if there's none selected
-    return selection.dataset ?? dataDefinitions.get(selection.dataGroup)!.datasets[0];
 }
 
 export default DatasetDescription;

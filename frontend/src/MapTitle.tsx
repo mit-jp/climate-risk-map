@@ -1,8 +1,8 @@
 import { IconButton, makeStyles, Tooltip } from "@material-ui/core";
 import { Info } from "@material-ui/icons";
 import React from "react";
+import { generateSelectedDataDefinitions } from "./appSlice";
 import { DataDefinition, DataIdParams, Normalization } from "./DataDefinitions";
-import { getDataDefinitions } from "./FullMap";
 
 const useTooltipStyles = makeStyles(theme => ({
     arrow: {
@@ -30,7 +30,7 @@ const MapTitle = ({ selections }: { selections: DataIdParams[] }) => {
     const tooltipClasses = useTooltipStyles();
     return (
         <h3 id="map-title">
-            {getTitle(getDataDefinitions(selections), selections)}
+            {getTitle(generateSelectedDataDefinitions(selections), selections)}
             {
                 isNormalized(selections) &&
                 <Tooltip

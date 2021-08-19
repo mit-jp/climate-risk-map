@@ -1,28 +1,21 @@
 import React from 'react';
-import DataProcessor from './DataProcessor';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
 import EmptyMap from './EmptyMap';
 import FullMap from './FullMap';
 import MapTitle from './MapTitle';
+import { selectProcessedData, selectSelections } from './appSlice';
 import CountyTooltip from './CountyTooltip';
 
 const MapWrapper = () => {
-    const {
-        selections,
-        map,
-        data,
-        dataWeights,
-        state,
-        detailedView,
-    } = useSelector((state: RootState) => ({
-        ...state.app,
-        selections: state.app.dataSelections[state.app.dataTab] ?? [],
-    }));
+    const selections = useSelector(selectSelections);
+    const map = useSelector((state: RootState) => state.app.map);
+    const detailedView = useSelector((state: RootState) => state.app.detailedView);
+    const processedData = useSelector(selectProcessedData);
+
     if (map === undefined) {
         return <p>Loading</p>;
     }
-    const processedData = DataProcessor(data, selections, dataWeights, state);
     return (
         <div id="map">
             {processedData && <MapTitle selections={selections} />}

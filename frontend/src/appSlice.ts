@@ -1,10 +1,12 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import dataDefinitions, { DataGroup, DataIdParams, Dataset, MapType, Normalization, Year } from './DataDefinitions';
 import { TopoJson } from './Home';
 import DataTab from './DataTab';
 import { State } from './States';
 import { getDatasets, getYears } from './SingleDataSelector';
 import { WaterwayValue } from './WaterwayType';
+import DataProcessor from './DataProcessor';
+import { RootState } from './store';
 
 export type DataRow = { [key: string]: number | null };
 export type Data = { [key: string]: DataRow };
@@ -177,6 +179,24 @@ export const {
     hoverCounty,
 } = appSlice.actions;
 
-export const getSelections = (state: AppState) => state.dataSelections[state.dataTab];
+const getSelections = (state: AppState) => state.dataSelections[state.dataTab];
 
+const getSelectedDataset = (selection: DataIdParams) => {
+    // get the selected dataset, or the first one, if there's none selected
+    return selection.dataset ?? dataDefinitions.get(selection.dataGroup)!.datasets[0];
+}
+const generateSelectedDatasets = (selections: DataIdParams[]) => selections.map(getSelectedDataset);
+export const generateSelectedDataDefinitions = (selections: DataIdParams[]) =>
+    selections.map(selection => dataDefinitions.get(selection.dataGroup)!);
+
+export const selectSelections = (state: RootState) => state.app.dataSelections[state.app.dataTab];
+export const selectDataDefinitions = createSelector(selectSelections, generateSelectedDataDefinitions)
+export const selectDatasets = createSelector(selectSelections, generateSelectedDatasets);
+export const selectProcessedData = createSelector(
+    (state: RootState) => state.app.data,
+    selectSelections,
+    state => state.app.dataWeights,
+    state => state.app.state,
+    DataProcessor
+);
 export default appSlice.reducer;

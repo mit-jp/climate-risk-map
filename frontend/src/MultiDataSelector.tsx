@@ -6,7 +6,7 @@ import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { useThunkDispatch } from './Home';
 import { useSelector } from 'react-redux';
-import { changeWeight, getSelections, setSelections, setShowRiskMetrics, setShowDemographics } from './appSlice';
+import { changeWeight, selectSelections, setSelections, setShowRiskMetrics, setShowDemographics } from './appSlice';
 import { RootState, store } from './store';
 
 const getYears = (dataGroup: DataGroup) =>
@@ -78,15 +78,10 @@ const marks = [{ value: 0.1, label: "min" }, { value: 1, label: "max" }]
 
 const MultiDataSelector = () => {
     const dispatch = useThunkDispatch();
-    const {
-        selections,
-        dataWeights,
-        showRiskMetrics,
-        showDemographics,
-    } = useSelector((state: RootState) => ({
-        ...state.app,
-        selections: getSelections(state.app),
-    }));
+    const dataWeights = useSelector((state: RootState) => state.app.dataWeights);
+    const showRiskMetrics = useSelector((state: RootState) => state.app.showRiskMetrics);
+    const showDemographics = useSelector((state: RootState) => state.app.showDemographics);
+    const selections = useSelector(selectSelections);
 
     const selectionMap = Map(selections.map(selection => [selection.dataGroup, selection]));
 
