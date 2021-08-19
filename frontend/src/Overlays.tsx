@@ -56,11 +56,12 @@ const Overlays = () => {
         }
         return features.map((feature, index) =>
             <path
-                key={index}
+                key={feature.id ?? index}
                 stroke={color(feature)}
                 strokeWidth={strokeWidth(feature)}
                 fill="none"
                 d={path(feature) ?? undefined}
+                style={{ transition: "stroke-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)" }}
             />
         );
     }
