@@ -164,9 +164,11 @@ export const appSlice = createSlice({
         setTransmissionLineType(state, action: PayloadAction<TransmissionLineType>) {
             state.transmissionLineType = action.payload;
         },
-        hoverCounty: (state, { payload }: PayloadAction<CountyHover | undefined>) => {
-            state.hoverCountyId = payload?.countyId;
-            state.hoverPosition = payload?.position;
+        hoverCounty: (state, { payload }: PayloadAction<string | undefined>) => {
+            state.hoverCountyId = payload;
+        },
+        hoverPosition: (state, { payload }: PayloadAction<{ x: number, y: number } | undefined>) => {
+            state.hoverPosition = payload;
         }
     },
 });
@@ -176,7 +178,7 @@ export const {
     toggleDatasetDescription, clickTab, changeWeight, changeYear,
     changeDataset, changeDataGroup, setSelections, toggleDataDescription,
     setShowDemographics, setShowRiskMetrics, setWaterwayValue, setTransmissionLineType,
-    hoverCounty,
+    hoverCounty, hoverPosition,
 } = appSlice.actions;
 
 const getSelections = (state: AppState) => state.dataSelections[state.dataTab];

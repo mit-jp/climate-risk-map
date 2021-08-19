@@ -11,7 +11,7 @@ import StateMap from "./StateMap";
 import Legend from "./Legend";
 import ProbabilityDensity from "./ProbabilityDensity";
 import CountyPath from "./CountyPath";
-import { generateSelectedDataDefinitions, hoverCounty } from "./appSlice";
+import { generateSelectedDataDefinitions, hoverCounty, hoverPosition } from "./appSlice";
 
 const MISSING_DATA_COLOR = "#ccc";
 
@@ -75,10 +75,22 @@ const ChoroplethMap = ({ map, selections, data, detailedView, title, legendForma
         Array
             .from(data.valueSeq())
             .filter(value => value !== undefined) as number[];
-
+    const onMouseMove = (event: React.MouseEvent<SVGGElement, MouseEvent>) =>
+        onMove({ x: event.pageX + 10, y: event.pageY - 25 });
+    const onTouchMove = (event: React.TouchEvent<SVGGElement>) =>
+        onMove({ x: event.touches[0].pageX + 30, y: event.touches[0].pageY - 45 })
+    const onMove = (position: { x: number, y: number }) =>
+        dispatch(hoverPosition(position));
+    const onHoverEnd = () => dispatch(hoverCounty());
     return (
         <React.Fragment>
-            <g id="counties" onMouseOut={() => dispatch(hoverCounty(undefined))}>
+            <g
+                id="counties"
+                onMouseOut={onHoverEnd}
+                onTouchEnd={onHoverEnd}
+                onMouseMove={onMouseMove}
+                onTouchMove={onTouchMove}
+            >
                 {countyFeatures.map(county =>
                     <CountyPath
                         key={county.id}
