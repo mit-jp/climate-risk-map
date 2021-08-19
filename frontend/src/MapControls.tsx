@@ -1,7 +1,7 @@
 import { Button, Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch } from '@material-ui/core';
 import React, { } from 'react';
 import { useSelector } from 'react-redux';
-import { Overlay, OverlayName, selectSelections, setDetailedView, setShowOverlay, setTransmissionLineType, setWaterwayValue, TransmissionLineType } from './appSlice';
+import { generateSelectedDataDefinitions, Overlay, OverlayName, selectSelections, setDetailedView, setShowOverlay, setTransmissionLineType, setWaterwayValue, TransmissionLineType } from './appSlice';
 import { DataDefinition, DataIdParams, Normalization } from './DataDefinitions';
 import { useThunkDispatch } from './Home';
 import { RootState } from './store';
@@ -9,9 +9,9 @@ import { Map } from 'immutable';
 import counties from './Counties';
 import states, { State } from './States';
 import { csvFormat } from 'd3';
-import { getDataDefinitions, getLegendTitle } from './MapUI';
 import waterwayTypes, { WaterwayValue } from './WaterwayType';
 import { saveAs } from 'file-saver';
+import { getLegendTitle } from './FullMap';
 
 const getFilename = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
     const unitString = getLegendTitle(selectedDataDefinitions, selections);
@@ -95,7 +95,7 @@ const MapControls = ({ processedData }: { processedData: Map<string, number> | u
         if (objectData) {
             const csv = csvFormat(objectData, ["fipsCode", "state", "county", "value"]);
             const blob = new Blob([csv], { type: "text/plain;charset=utf-8" });
-            saveAs(blob, getFilename(getDataDefinitions(selections), selections) + ".csv");
+            saveAs(blob, getFilename(generateSelectedDataDefinitions(selections), selections) + ".csv");
         }
     }
 
