@@ -18,12 +18,12 @@ function epanechnikov(bandwidth: number) {
 }
 
 function kde(kernel: (x: number) => number,
-             thresholds: number[],
-             data: number[]): [number, number][] {
+    thresholds: number[],
+    data: number[]): [number, number][] {
     return thresholds.map((t: number) => [t, mean(data, (d: number) => kernel(t - d))!]);
 }
 
-const ProbabilityDensity = ({ data, selections, xRange = undefined, width = 300, height = 200, formatter, continuous=true }: Props) => {
+const ProbabilityDensity = ({ data, selections, xRange = undefined, width = 300, height = 200, formatter, continuous = true }: Props) => {
     const svgRef = useRef<SVGSVGElement>(null);
     useEffect(() => {
         if (data === undefined || selections === undefined) {
@@ -95,8 +95,12 @@ const ProbabilityDensity = ({ data, selections, xRange = undefined, width = 300,
         width={width}
         height={height}
         x={850}
-        y={350}
+        y={362}
     >
+        <rect
+            width="100%"
+            height="100%"
+            fill="rgba(255, 255, 255, 0.8)" />
         <g id="histogram"></g>
         <path id="kde"></path>
         <g id="xAxis"></g>

@@ -18,7 +18,7 @@ import { Tooltip, IconButton, makeStyles } from '@material-ui/core';
 import Color from './Color';
 import { useSelector } from 'react-redux';
 import { RootState, store } from './store';
-import { Overlay, OverlayName, selectProcessedData, setState, TransmissionLineType } from './appSlice';
+import { Overlay, OverlayName, selectProcessedData, TransmissionLineType } from './appSlice';
 import { Info } from '@material-ui/icons';
 import MapControls from './MapControls';
 import { WaterwayValue } from './WaterwayType';
@@ -122,9 +122,6 @@ const MapUI = () => {
                 scale = .9 / Math.max(dx / width, dy / 610),
                 translate = [width / 2 - scale * x, 610 / 2 - scale * y];
 
-            svg.select("#counties")
-                .selectAll("path")
-                .on("click", () => dispatch(setState(undefined)));
             svg.select("#state-borders")
                 .selectAll("path")
                 .attr("stroke", "none");
@@ -477,7 +474,6 @@ function drawChoropleth(
             const value = processedData.get(d.id as string);
             return colorScheme(value as any) ?? missingDataColor;
         })
-        .attr("d", path).on("click", (_, feature) => dispatch(setState((feature?.id as string).slice(0, 2) as State)));
     svg.select("#states").selectAll("path").attr("fill", "none");
     svg.select("#counties")
         .transition()

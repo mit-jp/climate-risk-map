@@ -105,9 +105,6 @@ export const appSlice = createSlice({
         setData: (state, action: PayloadAction<Data>) => {
             state.data = action.payload;
         },
-        setState: (state, action: PayloadAction<State | undefined>) => {
-            state.state = action.payload;
-        },
         setShowRiskMetrics: (state, action: PayloadAction<boolean>) => {
             state.showRiskMetrics = action.payload;
         },
@@ -169,16 +166,23 @@ export const appSlice = createSlice({
         },
         hoverPosition: (state, { payload }: PayloadAction<{ x: number, y: number } | undefined>) => {
             state.hoverPosition = payload;
-        }
+        },
+        clickCounty: (state, { payload }: PayloadAction<string>) => {
+            if (state.state) {
+                state.state = undefined;
+            } else {
+                state.state = payload.slice(0, 2) as State;
+            }
+        },
     },
 });
 
 export const {
-    setMap, setData, setState, setShowOverlay, setOverlay, setDetailedView,
+    setMap, setData, setShowOverlay, setOverlay, setDetailedView,
     toggleDatasetDescription, clickTab, changeWeight, changeYear,
     changeDataset, changeDataGroup, setSelections, toggleDataDescription,
     setShowDemographics, setShowRiskMetrics, setWaterwayValue, setTransmissionLineType,
-    hoverCounty, hoverPosition,
+    hoverCounty, hoverPosition, clickCounty,
 } = appSlice.actions;
 
 const getSelections = (state: AppState) => state.dataSelections[state.dataTab];

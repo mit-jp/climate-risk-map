@@ -21,12 +21,12 @@ const Legend = ({
     color,
     title,
     tickSize = 6,
-    width = 320,
-    height = 44 + tickSize,
-    marginTop = 18,
-    marginRight = 0,
+    width = 345,
+    height = 54 + tickSize,
+    marginTop = 28,
+    marginRight = 10,
     marginBottom = 16 + tickSize,
-    marginLeft = 0,
+    marginLeft = 10,
     ticks = width / 64,
     tickFormat,
     tickValues,
@@ -36,7 +36,10 @@ const Legend = ({
         const svg = select(svgRef.current);
 
         svg.selectAll("*").remove();
-
+        svg.append("rect")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("fill", "rgba(255, 255, 255, 0.8)");
         let tickAdjust = (g: any) => g.selectAll(".tick line").attr("y1", marginTop + marginBottom - height);
         let x: any;
 
@@ -157,6 +160,7 @@ const Legend = ({
         viewBox={"0 0 " + width + " " + height}
         overflow="visible"
         display="block"
+        style={{ backgroundColor: "white" }}
         ref={svgRef} />;
 }
 
