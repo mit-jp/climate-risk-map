@@ -102,6 +102,15 @@ export enum DataGroup {
     Population_0_5 = "Population_0-5",
     Population_5_25 = "Population_5-25",
     Population_25_plus = "Population_25+",
+    Mortality_0_5 = "mort_0-5",
+    Mortality_5_25 = "mort_5-25",
+    Mortality_25_plus = "mort_25+",
+    Mortality_0_5_circ = "mort_0-5_circ",
+    Mortality_5_25_circ = "mort_5-25_circ",
+    Mortality_25_plus_circ = "mort_25+_circ",
+    Mortality_0_5_resp = "mort_0-5_resp",
+    Mortality_5_25_resp = "mort_5-25_resp",
+    Mortality_25_plus_resp = "mort_25+_resp",
 }
 
 export type DataIdParams = {
@@ -806,7 +815,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     })],
     [DataGroup.Deaths_0_5, genericDefinition({
         name: () => "Deaths, ages 0 to 5",
-        units: "deaths",
+        units: "deaths / year",
         color: scaleSequentialSqrt([0, 10_000], scales.interpolateYlOrBr),
         type: DataType.Health,
         mapType: MapType.Bubble,
@@ -815,7 +824,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     })],
     [DataGroup.Deaths_5_25, genericDefinition({
         name: () => "Deaths, ages 5 to 25",
-        units: "deaths",
+        units: "deaths / year",
         color: scaleSequentialSqrt([0, 10_000], scales.interpolateYlOrBr),
         type: DataType.Health,
         mapType: MapType.Bubble,
@@ -824,7 +833,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     })],
     [DataGroup.Deaths_25_plus, genericDefinition({
         name: () => "Deaths, ages 25+",
-        units: "deaths",
+        units: "deaths / year",
         color: scaleSequentialSqrt([0, 10_000], scales.interpolateYlOrBr),
         type: DataType.Health,
         mapType: MapType.Bubble,
@@ -833,7 +842,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     })],
     [DataGroup.Deaths_25_plus_circ, genericDefinition({
         name: () => "Circulatory Deaths, ages 25+",
-        units: "deaths",
+        units: "deaths / year",
         color: scaleSequentialSqrt([0, 10_000], scales.interpolateYlOrBr),
         type: DataType.Health,
         mapType: MapType.Bubble,
@@ -842,12 +851,62 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     })],
     [DataGroup.Deaths_25_plus_resp, genericDefinition({
         name: () => "Respiratory Deaths, ages 25+",
-        units: "deaths",
+        units: "deaths / year",
         color: scaleSequentialSqrt([0, 10_000], scales.interpolateYlOrBr),
         type: DataType.Health,
         mapType: MapType.Bubble,
         description: () => "",
         dataset: Dataset.CDC,
     })],
+    [DataGroup.Mortality_0_5, genericDefinition({
+        name: () => "Death Rate, ages 0 to 5",
+        units: "deaths per 1,000 people per year",
+        color: scaleSequential([0, 3], scales.interpolateYlOrBr),
+        type: DataType.Health,
+        mapType: MapType.Choropleth,
+        description: () => "",
+        dataset: Dataset.CDC,
+
+    })],
+    [DataGroup.Mortality_5_25, genericDefinition({
+        name: () => "Death Rate, ages 5 to 25",
+        units: "deaths per 1,000 people per year",
+        color: scaleSequential([0, 1], scales.interpolateYlOrBr),
+        type: DataType.Health,
+        mapType: MapType.Choropleth,
+        description: () => "",
+        dataset: Dataset.CDC,
+
+    })],
+    [DataGroup.Mortality_25_plus, genericDefinition({
+        name: () => "Death Rate, ages 25+",
+        units: "deaths per 1,000 people per year",
+        color: scaleSequential([5, 25], scales.interpolateYlOrBr),
+        type: DataType.Health,
+        mapType: MapType.Choropleth,
+        description: () => "",
+        dataset: Dataset.CDC,
+
+    })],
+    [DataGroup.Mortality_25_plus_circ, genericDefinition({
+        name: () => "Circulatory Death Rate, ages 25+",
+        units: "deaths per 1,000 people per year",
+        color: scaleSequential([0, 10], scales.interpolateYlOrBr),
+        type: DataType.Health,
+        mapType: MapType.Choropleth,
+        description: () => "",
+        dataset: Dataset.CDC,
+
+    })],
+    [DataGroup.Mortality_25_plus_resp, genericDefinition({
+        name: () => "Respiratory Death Rate, ages 25+",
+        units: "deaths per 1,000 people per year",
+        color: scaleSequential([0, 4], scales.interpolateYlOrBr),
+        type: DataType.Health,
+        mapType: MapType.Choropleth,
+        description: () => "",
+        dataset: Dataset.CDC,
+    })],
 ]);
 export default dataDefinitions;
+
