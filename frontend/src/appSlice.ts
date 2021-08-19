@@ -127,6 +127,11 @@ export const appSlice = createSlice({
         },
         clickTab: (state, action: PayloadAction<DataTab>) => {
             state.dataTab = action.payload;
+            const selection = getSelections(state)[0];
+            if (dataDefinitions.get(selection?.dataGroup)?.mapType === MapType.Bubble) {
+                // don't zoom in to state on bubble map. it's unsupported right now
+                state.state = undefined;
+            }
         },
         changeWeight: (state, action: PayloadAction<{ dataGroup: DataGroup, weight: number }>) => {
             const { dataGroup, weight } = action.payload;
