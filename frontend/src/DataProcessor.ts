@@ -1,6 +1,6 @@
 import { scaleSequentialQuantile } from 'd3';
 import { Map, Seq, Set } from 'immutable';
-import { Data, DatasetId } from './appSlice';
+import { Data, DataByDataset } from './appSlice';
 import counties from './Counties';
 import { MapVisualizationId } from './DataSelector';
 import { MapVisualization } from './FullMap';
@@ -11,22 +11,19 @@ export type ProcessedData = Map<string, number | undefined>;
 const getDataForSelection = (
     countyIds: Seq.Indexed<string>,
     mapId: MapVisualizationId,
-    mapIdToDatasetId: Map<MapVisualizationId, DatasetId>,
-    data: Data,
+    mapIdToDatasetId: Map<MapVisualizationId, number>,
+    data: DataByDataset,
 ): [string, number][] => {
     const dataForSelection: [string, number][] = [];
     const dataId = mapIdToDatasetId.get(mapId)!;
+    const dataMapForSelection: Data = data[dataId];
 
     for (const countyId of countyIds) {
-        const countyValues = data[countyId];
-        if (countyValues === undefined) {
-            continue;
-        }
-        const value = countyValues[dataId];
+        const value = dataMapForSelection[countyId];
         if (value === null || value === undefined) {
             continue;
         }
-        dataForSelection.push([countyId, +value]);
+        dataForSelection.push([countyId, value]);
     }
     return dataForSelection;
 }
@@ -39,7 +36,7 @@ const normalizeData = (
 ) => {
     let weight = (dataWeights[map.id] ?? 1);
     weight = totalWeight === 0 ? 0 : weight / totalWeight;
-    valueByCountyId = map.invertNormalized ?
+    valueByCountyId = map.invert_normalized ?
         valueByCountyId.map(value => -1 * value) :
         valueByCountyId;
 
@@ -49,7 +46,7 @@ const normalizeData = (
 
 const processData = (
     selectedMaps: MapVisualization[],
-    data: Data,
+    data: DataByDataset,
     dataWeights: { [key in MapVisualizationId]?: number },
     state: State | undefined,
     shouldNormalize: boolean,
@@ -104,7 +101,7 @@ const getDatasetIdsForMaps = (maps: MapVisualization[]) =>
     Map(maps.map(map => [map.id, map.dataset]));
 
 const DataProcessor = (
-    data: Data,
+    data: DataByDataset,
     selectedMaps: MapVisualization[],
     dataWeights: { [key in MapVisualizationId]?: number },
     state: State | undefined,

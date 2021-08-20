@@ -29,7 +29,7 @@ const SingleDataSelector = () => {
 
     const shouldShowYears = (map: MapVisualization) =>
         selection.mapVisualization === map.id &&
-        map.dateRangesBySource[selection.dataSource].length > 1;
+        map.date_ranges_by_source[selection.dataSource].length > 1;
 
     const shouldShowDatasets = (map: MapVisualization) =>
         selection.mapVisualization === map.id &&
@@ -53,7 +53,7 @@ const SingleDataSelector = () => {
                     {shouldShowYears(map) &&
                         <YearSelector
                             id={map.id.toString()}
-                            years={map.dateRangesBySource[selection.dataSource]}
+                            years={map.date_ranges_by_source[selection.dataSource]}
                             selectedYear={selection.dateRange}
                             onSelectionChange={onDateRangeChange}
                         />

@@ -22,17 +22,31 @@ async fn get_by_data_category(
         Ok(map_visualizations) => {
             let mut map_visualization_models: Vec<MapVisualizationModel> = Vec::new();
             for map_visualization in map_visualizations {
-                let sources_and_dates_maybe = app_state
+                let sources_and_dates = app_state
                     .database
                     .source_and_date
                     .by_dataset(map_visualization.dataset)
                     .await;
-                if sources_and_dates_maybe.is_err() {
+                let data_sources = app_state
+                    .database
+                    .data_source
+                    .by_dataset(map_visualization.dataset)
+                    .await;
+                let pdf_domain = app_state.database.domain.pdf(map_visualization.id).await;
+                let scale_domain = app_state.database.domain.scale(map_visualization.id).await;
+                if sources_and_dates.is_err()
+                    || data_sources.is_err()
+                    || pdf_domain.is_err()
+                    || scale_domain.is_err()
+                {
                     return HttpResponse::NotFound().finish();
                 }
                 map_visualization_models.push(MapVisualizationModel::new(
                     map_visualization,
-                    sources_and_dates_maybe.unwrap(),
+                    sources_and_dates.unwrap(),
+                    data_sources.unwrap(),
+                    pdf_domain.unwrap().into_iter().map(|x| x.value).collect(),
+                    scale_domain.unwrap().into_iter().map(|x| x.value).collect(),
                 ));
             }
             HttpResponse::Ok().json(map_visualization_models)

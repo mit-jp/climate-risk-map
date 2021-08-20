@@ -67,8 +67,8 @@ const MultiDataSelector = () => {
         const checked = event.target.checked;
         var changedSelections;
         if (checked) {
-            const source = map.defaultDataSource ?? map.sources[0].id;
-            const dateRange = map.defaultDateRange ?? map.dateRangesBySource[source][0];
+            const source = map.default_source ?? map.sources[0].id;
+            const dateRange = map.default_date_range ?? map.date_ranges_by_source[source][0];
             changedSelections = selectionMap.set(map.id, {
                 mapVisualization: map.id,
                 dataSource: source,

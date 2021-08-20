@@ -1,12 +1,12 @@
 import React from 'react';
 import { Map } from 'immutable';
 import { useThunkDispatch } from './Home';
-import { clickTab } from './appSlice';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
+import { loadMapsAndSetTab } from './appSlice';
 import DataTab from './DataTab';
 
-export const TabToTypeDataCategory = Map([
+export const TabToDataCategory = Map([
     [DataTab.RiskMetrics, 8],
     [DataTab.Climate, 3],
     [DataTab.Water, 1],
@@ -28,7 +28,7 @@ const Navigation = () => {
             <ul>
                 {dataTabs.map(dataTab =>
                     <li className={selectedDataTab === dataTab ? "selected" : undefined}
-                        onClick={event => dispatch(clickTab(event.currentTarget.textContent as DataTab))}
+                        onClick={event => dispatch(loadMapsAndSetTab(event.currentTarget.textContent as DataTab))}
                         key={dataTab}>
                         {dataTab}
                     </li>

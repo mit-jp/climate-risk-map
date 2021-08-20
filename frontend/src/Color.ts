@@ -8,12 +8,12 @@ const spectralContinuous = scaleSequential<string>(chromaSpectral);
 const redBlue = scaleThreshold<number, string, never>([.05, .25, .75, .95], [...schemeRdYlBu[5]].reverse());
 
 const colorScheme = (map: MapVisualization): ColorScheme => {
-    const domain = map.scaleDomain;
-    const interpolator: (x: number) => string = (scales as any)["interpolate" + map.colorPalette];
-    const scale: ReadonlyArray<string> = (scales as any)["scale" + map.colorPalette][domain.length];
+    const domain = map.scale_domain;
+    const interpolator: (x: number) => string = (scales as any)["interpolate" + map.color_palette];
+    const scale: ReadonlyArray<string> = (scales as any)["scale" + map.color_palette][domain.length];
     // const reverse = map.reverseScale;
     // TODO reverse the color scale if reverse === true
-    const type = map.scaleType;
+    const type = map.scale_type;
 
     switch (type) {
         case "Diverging": return scaleDiverging(domain, interpolator);

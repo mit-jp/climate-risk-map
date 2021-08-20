@@ -1,22 +1,24 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { TopoJson } from './Home';
-import DataTab from './DataTab';
+import { TabToDataCategory } from './Navigation';
 import { State } from './States';
 import { WaterwayValue } from './WaterwayType';
 import DataProcessor from './DataProcessor';
 import { GeoJsonProperties, Feature, Geometry } from 'geojson';
 import { GeometryCollection } from 'topojson-specification';
-import { RootState } from './store';
-import { geoPath } from 'd3';
+import { AppThunk, RootState } from './store';
+import { geoPath, json } from 'd3';
 import { feature } from 'topojson-client';
 import { DataSource, MapSelection, MapVisualizationId } from './DataSelector';
 import { Interval } from 'luxon';
-import { MapType, MapVisualization } from './FullMap';
+import { ColorPalette, FormatterType, MapType, MapVisualization, ScaleType } from './FullMap';
+import DataTab from './DataTab';
 
-export type DatasetId = number;
 export type CountyId = string;
+export type DatasetId = number;
 export type DataRow = { [key in DatasetId]: number | null };
-export type Data = { [key in CountyId]: DataRow };
+export type Data = { [key in CountyId]: number | null };
+export type DataByDataset = { [key in DatasetId]: Data };
 export type TransmissionLineType = "Level 2 (230kV-344kV)" | "Level 3 (>= 345kV)" | "Level 2 & 3 (>= 230kV)";
 export type OverlayName = "Highways" | "Major railroads" | "Transmission lines" | "Marine highways" | "Critical habitats";
 export type Overlay = { topoJson?: TopoJson, shouldShow: boolean };
@@ -24,11 +26,16 @@ export type CountyHover = {
     position: { x: number, y: number },
     countyId: string,
 }
+export type TabAndMapVisualizations = {
+    dataTab: DataTab,
+    mapVisualizations: MapVisualization[],
+}
+
 interface AppState {
     readonly map?: TopoJson;
     readonly mapTransform?: string;
     readonly overlays: { [key in OverlayName]: Overlay };
-    readonly data: Data,
+    readonly data: DataByDataset,
     readonly mapSelections: { [key in DataTab]: MapSelection[] },
     readonly dataWeights: { [key in MapVisualizationId]?: number },
     readonly mapVisualizations: { [key in DataTab]: { [key in MapVisualizationId]: MapVisualization } },
@@ -135,7 +142,7 @@ export const appSlice = createSlice({
         setShowOverlay: (state, { payload }: PayloadAction<{ name: OverlayName, shouldShow: boolean }>) => {
             state.overlays[payload.name].shouldShow = payload.shouldShow;
         },
-        setData: (state, action: PayloadAction<Data>) => {
+        setData: (state, action: PayloadAction<DataByDataset>) => {
             state.data = action.payload;
         },
         setShowRiskMetrics: (state, action: PayloadAction<boolean>) => {
@@ -153,7 +160,7 @@ export const appSlice = createSlice({
         toggleDataDescription: state => {
             state.showDataDescription = !state.showDataDescription;
         },
-        clickTab: (state, action: PayloadAction<DataTab>) => {
+        setDataTab: (state, action: PayloadAction<DataTab>) => {
             state.dataTab = action.payload;
         },
         changeWeight: (state, action: PayloadAction<{ mapVisualizationId: MapVisualizationId, weight: number }>) => {
@@ -169,19 +176,18 @@ export const appSlice = createSlice({
         changeMapSelection: (state, action: PayloadAction<MapVisualizationId>) => {
             const selection = state.mapSelections[state.dataTab][0];
             selection.mapVisualization = action.payload;
-            const possibleDates = getPossibleDates(state, selection);
             const possibleDataSources = getPossibleDataSources(state, selection);
-
+            if (!possibleDataSources.hasOwnProperty(selection.dataSource)) {
+                selection.dataSource = possibleDataSources[0];
+            }
+            const possibleDates = getPossibleDates(state, selection);
             if (selection.dateRange && !possibleDates.includes(selection.dateRange)) {
                 possibleDates.length > 1 ?
                     selection.dateRange = possibleDates[1] :
                     selection.dateRange = possibleDates[0];
             }
 
-            if (!possibleDataSources.hasOwnProperty(selection.dataSource)) {
-                selection.dataSource = possibleDataSources[0];
-            }
-            if (getMapVisualizations(state)[selection.mapVisualization]?.mapType === MapType.Bubble) {
+            if (state.mapVisualizations[state.dataTab][selection.mapVisualization]?.map_type === MapType.Bubble) {
                 // don't zoom in to state on bubble map. it's unsupported right now
                 state.state = undefined;
             }
@@ -208,26 +214,33 @@ export const appSlice = createSlice({
                 state.state = payload.slice(0, 2) as State;
             }
         },
+        setMapVisualizations: (state, action: PayloadAction<TabAndMapVisualizations>) => {
+            const mapByMapId = action.payload.mapVisualizations.reduce((accumulator: { [key in MapVisualizationId]: MapVisualization }, map) => {
+                accumulator[map.id] = map;
+                return accumulator;
+            }, {});
+            state.mapVisualizations[action.payload.dataTab] = mapByMapId;
+        }
     },
 });
 
 export const {
     setMap, setShowOverlay, setOverlay, setData, setDetailedView,
-    toggleDatasetDescription, clickTab, changeWeight, changeDateRange,
+    toggleDatasetDescription, changeWeight, changeDateRange, setDataTab,
     changeDataSource, changeMapSelection, setMapSelections, toggleDataDescription,
     setShowDemographics, setShowRiskMetrics, setWaterwayValue, setTransmissionLineType,
-    hoverCounty, hoverPosition, clickCounty,
+    hoverCounty, hoverPosition, clickCounty, setMapVisualizations,
 } = appSlice.actions;
 
 // Convenience accessors
 const getMapVisualizations = (state: AppState) => state.mapVisualizations[state.dataTab];
 const getPossibleDataSources = (state: AppState, selection: MapSelection): number[] => {
     const mapVisualization = getMapVisualizations(state)[selection.mapVisualization];
-    return Object.keys(mapVisualization!.dateRangesBySource) as unknown[] as number[];
+    return Object.keys(mapVisualization!.date_ranges_by_source) as unknown[] as number[];
 }
 const getPossibleDates = (state: AppState, selection: MapSelection) => {
     const mapVisualization = getMapVisualizations(state)[selection.mapVisualization];
-    return mapVisualization!.dateRangesBySource[selection.dataSource];
+    return mapVisualization!.date_ranges_by_source[selection.dataSource];
 }
 
 // Accessors that return a new object every time, or run for a long time.
@@ -293,4 +306,90 @@ export const selectSelectedDataSource = (state: RootState): DataSource | undefin
 
     return selectedMap.sources[selection.dataSource];
 };
+
+interface MapVisualizationJson {
+    id: MapVisualizationId;
+    dataset: number;
+    map_type: MapType;
+    subcategory: number | null;
+    units: string;
+    short_name: string;
+    name: string;
+    description: string;
+    legend_ticks: number | null;
+    should_normalize: boolean;
+    color_palette: ColorPalette;
+    reverse_scale: boolean;
+    invert_normalized: boolean;
+    scale_type: ScaleType;
+    scale_domain: number[];
+    date_ranges_by_source: { [key: number]: { start_date: string, end_date: string }[] };
+    sources: { [key: number]: DataSource };
+    show_pdf: boolean;
+    pdf_domain: [number, number];
+    default_date_range: { start_date: string, end_date: string } | null;
+    default_source: number | null;
+    formatter_type: FormatterType;
+    legend_formatter_type: FormatterType | null;
+    decimals: number;
+    legend_decimals: number | null;
+};
+
+const intervalFromJson = (json: { start_date: string, end_date: string }) =>
+    Interval.fromISO(json.start_date + "/" + json.end_date);
+
+const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualization => {
+    const date_ranges_by_source = Object.entries(json.date_ranges_by_source)
+        .map(([sourceId, dateRanges]) =>
+            [
+                parseInt(sourceId),
+                dateRanges.map(dateRange => intervalFromJson(dateRange))
+            ] as [number, Interval[]])
+        .reduce((accumulator, [sourceId, dateRanges]) => {
+            accumulator[sourceId] = dateRanges;
+            return accumulator;
+        }, {} as { [key: number]: Interval[] });
+    const default_date_range = json.default_date_range === null ?
+        undefined :
+        intervalFromJson(json.default_date_range);
+    return {
+        id: json.id,
+        dataset: json.dataset,
+        map_type: json.map_type,
+        subcategory: json.subcategory ?? undefined,
+        units: json.units,
+        short_name: json.short_name,
+        name: json.name,
+        description: json.description,
+        legend_ticks: json.legend_ticks ?? undefined,
+        should_normalize: json.should_normalize,
+        color_palette: json.color_palette,
+        reverse_scale: json.reverse_scale,
+        invert_normalized: json.invert_normalized,
+        scale_type: json.scale_type,
+        scale_domain: json.scale_domain,
+        date_ranges_by_source,
+        sources: json.sources,
+        show_pdf: json.show_pdf,
+        pdf_domain: json.pdf_domain,
+        default_date_range,
+        default_source: json.default_source ?? undefined,
+        formatter_type: json.formatter_type,
+        legend_formatter_type: json.legend_formatter_type ?? undefined,
+        decimals: json.decimals,
+        legend_decimals: json.legend_decimals ?? undefined,
+    };
+}
+
+// Thunks
+export const loadMapsAndSetTab = (dataTab: DataTab): AppThunk => (dispatch) => {
+    json<MapVisualizationJson[]>("api/data-category/" + TabToDataCategory.get(dataTab) + "/map-visualization")
+        .then(mapVisualizations =>
+            dispatch(setMapVisualizations({
+                dataTab,
+                mapVisualizations: mapVisualizations ? mapVisualizations.map(jsonToMapVisualization) : [],
+            })));
+    dispatch(setDataTab(dataTab));
+};
+
 export default appSlice.reducer;

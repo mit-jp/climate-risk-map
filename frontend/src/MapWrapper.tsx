@@ -4,7 +4,7 @@ import { RootState } from './store';
 import EmptyMap from './EmptyMap';
 import FullMap from './FullMap';
 import MapTitle from './MapTitle';
-import { selectIsNormalized, selectProcessedData, selectSelectedMapVisualizations } from './appSlice';
+import { selectIsNormalized, selectMapVisualizations, selectProcessedData, selectSelectedMapVisualizations, selectSelections } from './appSlice';
 import CountyTooltip from './CountyTooltip';
 import MapControls from './MapControls';
 import DataDescription from './DataDescription';
@@ -15,6 +15,8 @@ export const ZOOM_TRANSITION = { transition: "all 0.5s cubic-bezier(0.4, 0, 0.2,
 
 const MapWrapper = () => {
     const selectedMapVisualizations = useSelector(selectSelectedMapVisualizations);
+    const mapVisualizations = useSelector(selectMapVisualizations);
+    const selections = useSelector(selectSelections);
     const map = useSelector((state: RootState) => state.app.map);
     const detailedView = useSelector((state: RootState) => state.app.detailedView);
     const processedData = useSelector(selectProcessedData);
@@ -35,7 +37,9 @@ const MapWrapper = () => {
                 {processedData ?
                     <FullMap
                         map={map}
+                        mapVisualizations={mapVisualizations}
                         selectedMapVisualizations={selectedMapVisualizations}
+                        selections={selections}
                         data={processedData}
                         detailedView={detailedView}
                         isNormalized={isNormalized}

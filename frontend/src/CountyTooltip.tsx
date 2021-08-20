@@ -2,11 +2,12 @@ import { makeStyles } from "@material-ui/core";
 import React from "react";
 import counties from "./Counties";
 import states, { State } from "./States";
-import { getUnitString, MapVisualization, riskMetricFormatter } from "./FullMap";
+import { getUnitString, MapVisualization } from "./FullMap";
 import { Map } from "immutable";
 import { useSelector } from "react-redux";
 import { RootState } from "./store";
 import { selectIsNormalized, selectSelectedMapVisualizations } from "./appSlice";
+import { createFormatter, Formatter } from "./ChoroplethMap";
 
 type StyleProps = {
     shouldShow: boolean,
@@ -26,10 +27,9 @@ const useTooltipStyles = makeStyles({
     })
 });
 
-const getFormatter = (selectedMaps: MapVisualization[], isNormalized: boolean) =>
-    isNormalized ?
-        riskMetricFormatter :
-        selectedMaps[0].formatter;
+const getFormatter = (selectedMaps: MapVisualization[], isNormalized: boolean): Formatter =>
+    createFormatter(selectedMaps[0].formatter_type, selectedMaps[0].decimals, isNormalized);
+
 
 const getUnits = (dataDefinition: MapVisualization, isNormalized: boolean) =>
     isNormalized ?

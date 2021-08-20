@@ -1,7 +1,7 @@
 import { TopoJson, useThunkDispatch } from "./Home";
 import React from "react";
 import { Map } from "immutable";
-import { geoPath } from 'd3';
+import { format, geoPath } from 'd3';
 import { feature } from 'topojson-client';
 import { GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
@@ -13,24 +13,51 @@ import CountyPath from "./CountyPath";
 import { hoverCounty, hoverPosition, selectMapTransform } from "./appSlice";
 import { useSelector } from "react-redux";
 import { ZOOM_TRANSITION } from "./MapWrapper";
-import { MapType, MapVisualization } from "./FullMap";
+import { FormatterType, MapType, MapVisualization } from "./FullMap";
 
 const MISSING_DATA_COLOR = "#ccc";
 
 const getLegendTicks = (selectedMaps: MapVisualization[], isNormalized: boolean) =>
     isNormalized ?
         undefined :
-        selectedMaps[0].legendTicks;
+        selectedMaps[0].legend_ticks;
+
+export type Formatter = (n: number | { valueOf(): number }) => string;
+
+export const riskMetricFormatter = (d: number | { valueOf(): number; }) =>
+    format(".0%")(d).slice(0, -1);
+
+export const createFormatter = (formatterType: FormatterType, decimals: number, isNormalized: boolean) => {
+    if (isNormalized) {
+        return riskMetricFormatter;
+    } else {
+        switch (formatterType) {
+            case FormatterType.MONEY:
+                return format("$,." + decimals + "s");
+            case FormatterType.NEAREST_SI_UNIT:
+                return format("~s");
+            case FormatterType.DEFAULT:
+            default:
+                return format(",." + decimals + "f");
+        }
+    }
+}
+const getLegendFormatter = (selectedMaps: MapVisualization[], isNormalized: boolean): Formatter => {
+    const firstMap = selectedMaps[0];
+    const formatterType = firstMap.legend_formatter_type ?? firstMap.formatter_type;
+    const decimals = firstMap.legend_decimals ?? firstMap.decimals;
+    return createFormatter(formatterType, decimals, isNormalized);
+}
 
 function shouldShowPdf(selectedMaps: MapVisualization[], isNormalized: boolean) {
     const firstSelection = selectedMaps[0];
-    if (selectedMaps[0] !== undefined && selectedMaps[0].showPdf === false) {
+    if (selectedMaps[0] !== undefined && selectedMaps[0].show_pdf === false) {
         return false;
     }
     if (isNormalized) {
         return selectedMaps.length > 1;
     }
-    return firstSelection !== undefined && firstSelection.mapType === MapType.Choropleth;
+    return firstSelection !== undefined && firstSelection.map_type === MapType.Choropleth;
 }
 
 function getPdfDomain(selectedMaps: MapVisualization[]) {
@@ -39,7 +66,7 @@ function getPdfDomain(selectedMaps: MapVisualization[]) {
         return undefined;
     }
 
-    return firstSelection.pdfDomain;
+    return firstSelection.pdf_domain;
 }
 const path = geoPath();
 
@@ -55,13 +82,10 @@ type Props = {
     data: Map<string, number>,
     detailedView: boolean,
     title: string,
-    legendFormatter: (n: number | {
-        valueOf(): number;
-    }) => string,
     isNormalized: boolean,
 }
 
-const ChoroplethMap = ({ map, selectedMapVisualizations, data, detailedView, title, legendFormatter, isNormalized }: Props) => {
+const ChoroplethMap = ({ map, selectedMapVisualizations, data, detailedView, title, isNormalized }: Props) => {
     const dispatch = useThunkDispatch();
     const transform = useSelector(selectMapTransform);
     const colorScheme = Color(isNormalized, detailedView, selectedMapVisualizations[0]);
@@ -70,7 +94,8 @@ const ChoroplethMap = ({ map, selectedMapVisualizations, data, detailedView, tit
         return colorScheme(value as any) ?? MISSING_DATA_COLOR;
     }
     const countyFeatures = getCountyFeatures(map);
-    const ticks = getLegendTicks(selectedMapVisualizations, isNormalized);
+    const legendTicks = getLegendTicks(selectedMapVisualizations, isNormalized);
+    const legendFormatter = getLegendFormatter(selectedMapVisualizations, isNormalized);
     const getArrayOfData = () =>
         Array
             .from(data.valueSeq())
@@ -108,7 +133,7 @@ const ChoroplethMap = ({ map, selectedMapVisualizations, data, detailedView, tit
                 title={title}
                 color={colorScheme}
                 tickFormat={legendFormatter}
-                ticks={ticks} />
+                ticks={legendTicks} />
             {
                 shouldShowPdf(selectedMapVisualizations, isNormalized) &&
                 <ProbabilityDensity
