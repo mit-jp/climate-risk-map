@@ -1,8 +1,12 @@
 {
     "cSpell.words": [
+        "Csvs",
+        "Symlog",
         "actix",
         "chrono",
         "luxon",
-        "sqlx"
+        "reduxjs",
+        "sqlx",
+        "topojson"
     ]
 }

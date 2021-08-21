@@ -13,6 +13,13 @@ pub struct Data {
 }
 
 #[derive(FromRow, Deserialize, Serialize)]
+pub struct SimpleData {
+    pub county_id: i16,
+    pub state_id: i16,
+    pub value: Option<f64>,
+}
+
+#[derive(FromRow, Deserialize, Serialize)]
 pub struct SourceAndDate {
     pub source: i32,
     pub start_date: NaiveDate,

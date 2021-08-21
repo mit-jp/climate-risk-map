@@ -1,13 +1,15 @@
 use super::AppState;
-use super::Data;
+use super::{SimpleData, SourceAndDate};
 use actix_web::{get, web, HttpResponse, Responder};
+use chrono::NaiveDate;
+use serde::Deserialize;
 use std::io::{Error, ErrorKind};
 
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get);
 }
 
-fn data_to_body(data: Result<Vec<Data>, sqlx::Error>) -> Result<String, Error> {
+fn data_to_body(data: Result<Vec<SimpleData>, sqlx::Error>) -> Result<String, Error> {
     let mut writer = csv::Writer::from_writer(vec![]);
     data.ok()
         .and_then(|data| {
@@ -22,11 +24,33 @@ fn data_to_body(data: Result<Vec<Data>, sqlx::Error>) -> Result<String, Error> {
         .ok_or_else(|| Error::new(ErrorKind::Other, "Something went wrong"))
 }
 
+#[derive(Deserialize)]
+struct Info {
+    source: i32,
+    start_date: NaiveDate,
+    end_date: NaiveDate,
+}
+
 #[get("/data/{id}")]
-async fn get(id: web::Path<i32>, app_state: web::Data<AppState<'_>>) -> impl Responder {
+async fn get(
+    id: web::Path<i32>,
+    info: web::Query<Info>,
+    app_state: web::Data<AppState<'_>>,
+) -> impl Responder {
     println!("GET: /data/{}", id);
 
-    let data = app_state.database.data.by_id(id.into_inner()).await;
+    let data = app_state
+        .database
+        .data
+        .by_id_source_date(
+            id.into_inner(),
+            SourceAndDate {
+                source: info.source,
+                start_date: info.start_date,
+                end_date: info.end_date,
+            },
+        )
+        .await;
 
     match data_to_body(data) {
         Ok(body) => HttpResponse::Ok().content_type("text/csv").body(body),

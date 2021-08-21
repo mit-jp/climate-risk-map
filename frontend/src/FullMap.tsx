@@ -1,11 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import BubbleMap from "./BubbleMap";
 import ChoroplethMap from "./ChoroplethMap";
 import { Map } from "immutable";
-import { TopoJson, useThunkDispatch } from "./Home";
-import { Data, DataByDataset, setData } from "./appSlice";
-import { DataSource, MapSelection, MapVisualizationId } from "./DataSelector";
-import { autoType, csv, DSVParsedArray } from "d3";
+import { TopoJson } from "./Home";
+import { DataSource, MapVisualizationId } from "./DataSelector";
 import { Interval } from "luxon";
 
 export const getUnitString = (units: string) => units ? ` ${units}` : "";
@@ -70,42 +68,15 @@ export interface MapVisualization {
     legend_decimals?: number;
 };
 
-const mergeFIPSCodes = (csv: DSVParsedArray<Data>): [string, Data][] =>
-    csv.map(row => {
-        let stateId = row["state_id"]!.toString();
-        let countyId = row["county_id"]!.toString();
-        delete row["state_id"];
-        delete row["county_id"];
-        stateId = "0".repeat(2 - stateId.length) + stateId;
-        countyId = "0".repeat(3 - countyId.length) + countyId;
-        return [stateId + countyId, row];
-    });
-
-
 type Props = {
     map: TopoJson,
     selectedMapVisualizations: MapVisualization[],
-    mapVisualizations: { [key in MapVisualizationId]: MapVisualization },
-    selections: MapSelection[],
     data: Map<string, number>,
     detailedView: boolean,
     isNormalized: boolean,
 }
 
-const FullMap = ({ map, selectedMapVisualizations, mapVisualizations, selections, data, detailedView, isNormalized }: Props) => {
-    const dispatch = useThunkDispatch();
-    useEffect(() => {
-        const loadingCsvs = selections.map(selection => {
-            const dataset = mapVisualizations[selection.mapVisualization].dataset;
-            const dateRange = selection.dateRange.toISODate();
-            return csv<Data>("api/data/" + dataset + "?dateRange=" + dateRange, autoType);
-        });
-        Promise.all(loadingCsvs).then(loadedCsvs => {
-            const dataMaps = loadedCsvs.map(mergeFIPSCodes).map(Map);
-            const allData = Map<string, Data>().mergeDeep(...dataMaps)
-            dispatch(setData(allData.toJS() as DataByDataset));
-        })
-    }, [dispatch, mapVisualizations, selections]);
+const FullMap = ({ map, selectedMapVisualizations, data, detailedView, isNormalized }: Props) => {
     const mapType = selectedMapVisualizations[0]!.map_type;
     const title = getLegendTitle(selectedMapVisualizations, isNormalized);
     switch (mapType) {

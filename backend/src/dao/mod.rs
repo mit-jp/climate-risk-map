@@ -1,5 +1,6 @@
 use super::model::{
-    County, Data, DataCategory, DataSource, Dataset, Domain, MapVisualization, SourceAndDate, State,
+    County, Data, DataCategory, DataSource, Dataset, Domain, MapVisualization, SimpleData,
+    SourceAndDate, State,
 };
 
 mod county_dao;

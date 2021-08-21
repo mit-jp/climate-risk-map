@@ -1,4 +1,4 @@
-use super::model::{Data, MapVisualizationModel};
+use super::model::{MapVisualizationModel, SimpleData, SourceAndDate};
 use super::AppState;
 
 pub mod county_controller;

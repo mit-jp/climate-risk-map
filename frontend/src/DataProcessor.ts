@@ -107,7 +107,7 @@ const DataProcessor = (
     state: State | undefined,
     shouldNormalize: boolean,
 ) => {
-    if (selectedMaps.length === 0 || Object.keys(data).length === 0) {
+    if (selectedMaps.length === 0 || !dataIsLoaded(data, selectedMaps)) {
         return undefined;
     }
     return processData(selectedMaps, data, dataWeights, state, shouldNormalize);
@@ -121,3 +121,9 @@ export const stateFilter = (state: State) => (county: string) => {
     }
     return county.slice(0, 2) === state;
 }
+function dataIsLoaded(data: DataByDataset, selectedMaps: MapVisualization[]) {
+    const selectedDatasets = selectedMaps.map(map => map.dataset);
+    const loadedDatasets = Object.keys(data).map(id => parseInt(id));
+    return selectedDatasets.every(dataset => loadedDatasets.includes(dataset));
+}
+
