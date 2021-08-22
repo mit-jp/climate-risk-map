@@ -10,8 +10,9 @@ import { json } from 'd3-fetch';
 import { useDispatch } from 'react-redux';
 import { store } from './store';
 import MapWrapper from './MapWrapper';
-import { OverlayName, setMap, setOverlay } from './appSlice';
+import { loadMapsAndSetTab, OverlayName, setMap, setOverlay } from './appSlice';
 import SiteOverview from './SiteOverview';
+import DataTab from './DataTab';
 
 export type TopoJson = Topology<Objects<GeoJsonProperties>>;
 
@@ -34,7 +35,7 @@ export const useThunkDispatch = () => useDispatch<typeof store.dispatch>();
 
 const Home = () => {
   const dispatch = useThunkDispatch();
-
+  dispatch(loadMapsAndSetTab(DataTab.RiskMetrics));
   useEffect(() => {
     json<TopoJson>(process.env.PUBLIC_URL + "/" + mapFile).then(topoJson => {
       dispatch(setMap(topoJson));
