@@ -26,7 +26,7 @@ const YearSelector = ({ years, selectedYear, onSelectionChange, id }: Props) => 
                     value={year.toISODate()}
                     id={id + year.toISODate()}
                     onChange={onSelectionChange}
-                    checked={year === selectedYear}
+                    checked={year.equals(selectedYear)}
                 />
                 <label htmlFor={id + year.toISODate()}>{readable(year)}</label>
             </React.Fragment>
