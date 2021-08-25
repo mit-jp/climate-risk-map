@@ -35,8 +35,9 @@ export const useThunkDispatch = () => useDispatch<typeof store.dispatch>();
 
 const Home = () => {
   const dispatch = useThunkDispatch();
-  dispatch(loadMapsAndSetTab(DataTab.RiskMetrics));
+
   useEffect(() => {
+    dispatch(loadMapsAndSetTab(DataTab.RiskMetrics));
     json<TopoJson>(process.env.PUBLIC_URL + "/" + mapFile).then(topoJson => {
       dispatch(setMap(topoJson));
     });

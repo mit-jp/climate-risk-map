@@ -20,7 +20,8 @@ export const store = configureStore({
           overlays: "<Large data not displayed to save memory>",
         }
       };
-    }
+    },
+    actionsBlacklist: ['app/hoverCounty', 'app/hoverPosition'],
   }
 });
 
