@@ -10,7 +10,7 @@ import { json } from 'd3-fetch';
 import { useDispatch } from 'react-redux';
 import { store } from './store';
 import MapWrapper from './MapWrapper';
-import { loadMapsAndSetTab, OverlayName, setMap, setOverlay } from './appSlice';
+import { MapVisualizationJson, OverlayName, setDataTab, setMap, setMapVisualizations, setOverlay } from './appSlice';
 import SiteOverview from './SiteOverview';
 import DataTab from './DataTab';
 
@@ -37,7 +37,7 @@ const Home = () => {
   const dispatch = useThunkDispatch();
 
   useEffect(() => {
-    dispatch(loadMapsAndSetTab(DataTab.RiskMetrics));
+    dispatch(setDataTab(DataTab.RiskMetrics));
     json<TopoJson>(process.env.PUBLIC_URL + "/" + mapFile).then(topoJson => {
       dispatch(setMap(topoJson));
     });
@@ -47,6 +47,10 @@ const Home = () => {
         dispatch(setOverlay({ name, topoJson }))
       );
     }
+
+    json<{ [key: number]: { [key: number]: MapVisualizationJson } }>("api/map-visualization").then(mapVisualizations => {
+      dispatch(setMapVisualizations(mapVisualizations));
+    });
   }, [dispatch]);
 
   return (

@@ -1,26 +1,26 @@
 use super::{AppState, MapVisualizationModel};
 use actix_web::{get, web, HttpResponse, Responder};
+use std::collections::HashMap;
 
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get_all);
-    cfg.service(get);
-    cfg.service(get_by_data_category);
 }
 
-#[get("/data-category/{data_category}/map-visualization")]
-async fn get_by_data_category(
-    data_category: web::Path<i32>,
-    app_state: web::Data<AppState<'_>>,
-) -> impl Responder {
-    let map_visualizations = app_state
-        .database
-        .map_visualization
-        .by_data_category(data_category.into_inner())
-        .await;
+#[get("/map-visualization")]
+async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
+    println!("GET: /map-visualization/");
+
+    let map_visualizations = app_state.database.map_visualization.all().await;
     match map_visualizations {
-        Err(_) => HttpResponse::NotFound().finish(),
+        Err(e) => {
+            println!("Error: {}", e);
+            HttpResponse::NotFound().finish()
+        }
         Ok(map_visualizations) => {
-            let mut map_visualization_models: Vec<MapVisualizationModel> = Vec::new();
+            let mut map_visualizations_by_category: HashMap<
+                i32,
+                HashMap<i32, MapVisualizationModel>,
+            > = HashMap::new();
             for map_visualization in map_visualizations {
                 let sources_and_dates = app_state
                     .database
@@ -41,42 +41,20 @@ async fn get_by_data_category(
                 {
                     return HttpResponse::NotFound().finish();
                 }
-                map_visualization_models.push(MapVisualizationModel::new(
+                let map_visualizations_for_category = map_visualizations_by_category
+                    .entry(map_visualization.data_tab)
+                    .or_insert_with(HashMap::new);
+                let map_visualization_model = MapVisualizationModel::new(
                     map_visualization,
                     sources_and_dates.unwrap(),
                     data_sources.unwrap(),
                     pdf_domain.unwrap().into_iter().map(|x| x.value).collect(),
                     scale_domain.unwrap().into_iter().map(|x| x.value).collect(),
-                ));
+                );
+                map_visualizations_for_category
+                    .insert(map_visualization_model.id, map_visualization_model);
             }
-            HttpResponse::Ok().json(map_visualization_models)
+            HttpResponse::Ok().json(map_visualizations_by_category)
         }
-    }
-}
-
-#[get("/map-visualization")]
-async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
-    println!("GET: /map-visualization/");
-
-    let map_visualizations = app_state.database.map_visualization.all().await;
-    match map_visualizations {
-        Err(_) => HttpResponse::NotFound().finish(),
-        Ok(map_visualizations) => HttpResponse::Ok().json(map_visualizations),
-    }
-}
-
-#[get("/map-visualization/{id}")]
-async fn get(id: web::Path<i32>, app_state: web::Data<AppState<'_>>) -> impl Responder {
-    println!("GET: /map-visualization/{}", id);
-
-    let counties = app_state
-        .database
-        .map_visualization
-        .by_dataset(id.into_inner())
-        .await;
-
-    match counties {
-        Err(_) => HttpResponse::NotFound().finish(),
-        Ok(counties) => HttpResponse::Ok().json(counties),
     }
 }

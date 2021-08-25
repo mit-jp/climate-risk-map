@@ -45,6 +45,7 @@ export interface MapVisualization {
     dataset: number;
     map_type: MapType;
     subcategory?: number;
+    data_tab: number;
     units: string;
     short_name: string;
     name: string;

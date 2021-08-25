@@ -1,13 +1,13 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { TopoJson } from './Home';
-import { TabToDataCategory } from './Navigation';
+import { DatabaseToTab } from './Navigation';
 import { State } from './States';
 import { WaterwayValue } from './WaterwayType';
 import DataProcessor from './DataProcessor';
 import { GeoJsonProperties, Feature, Geometry } from 'geojson';
 import { GeometryCollection } from 'topojson-specification';
-import { AppThunk, RootState } from './store';
-import { geoPath, json } from 'd3';
+import { RootState } from './store';
+import { geoPath } from 'd3';
 import { feature } from 'topojson-client';
 import { DataSource, MapSelection, MapVisualizationId } from './DataSelector';
 import { Interval } from 'luxon';
@@ -214,12 +214,25 @@ export const appSlice = createSlice({
                 state.state = payload.slice(0, 2) as State;
             }
         },
-        setMapVisualizations: (state, action: PayloadAction<TabAndMapVisualizations>) => {
-            const mapByMapId = action.payload.mapVisualizations.reduce((accumulator: { [key in MapVisualizationId]: MapVisualization }, map) => {
-                accumulator[map.id] = map;
-                return accumulator;
-            }, {});
-            state.mapVisualizations[action.payload.dataTab] = mapByMapId;
+        setMapVisualizations: (state, { payload }: PayloadAction<{ [key: number]: { [key: number]: MapVisualizationJson } } | undefined>) => {
+            if (payload === undefined) {
+                return;
+            }
+            const mapVisualizationsByTab = Object
+                .entries(payload)
+                .reduce((accumulator, [key, mapVisualizationJsons]) => {
+                    const mapVisualizations = Object.entries(mapVisualizationJsons)
+                        .reduce(
+                            (accumulator, [key, mapVisualizationJson]) => {
+                                accumulator[parseInt(key)] = jsonToMapVisualization(mapVisualizationJson);
+                                return accumulator;
+                            },
+                            {} as { [key in MapVisualizationId]: MapVisualization }
+                        );
+                    accumulator[DatabaseToTab.get(parseInt(key))!] = mapVisualizations;
+                    return accumulator;
+                }, {} as { [key in DataTab]: { [key in MapVisualizationId]: MapVisualization } });
+            state.mapVisualizations = mapVisualizationsByTab;
         }
     },
 });
@@ -307,11 +320,12 @@ export const selectSelectedDataSource = (state: RootState): DataSource | undefin
     return selectedMap.sources[selection.dataSource];
 };
 
-interface MapVisualizationJson {
+export interface MapVisualizationJson {
     id: MapVisualizationId;
     dataset: number;
     map_type: MapType;
     subcategory: number | null;
+    data_tab: number;
     units: string;
     short_name: string;
     name: string;
@@ -357,6 +371,7 @@ const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualization =>
         dataset: json.dataset,
         map_type: json.map_type,
         subcategory: json.subcategory ?? undefined,
+        data_tab: json.data_tab,
         units: json.units,
         short_name: json.short_name,
         name: json.name,
@@ -380,16 +395,5 @@ const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualization =>
         legend_decimals: json.legend_decimals ?? undefined,
     };
 }
-
-// Thunks
-export const loadMapsAndSetTab = (dataTab: DataTab): AppThunk => (dispatch) => {
-    json<MapVisualizationJson[]>("api/data-category/" + TabToDataCategory.get(dataTab) + "/map-visualization")
-        .then(mapVisualizations =>
-            dispatch(setMapVisualizations({
-                dataTab,
-                mapVisualizations: mapVisualizations ? mapVisualizations.map(jsonToMapVisualization) : [],
-            })));
-    dispatch(setDataTab(dataTab));
-};
 
 export default appSlice.reducer;
