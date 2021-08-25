@@ -33,10 +33,9 @@ FROM
     dataset,
     color_palette,
     scale_type
-WHERE
-    dataset.id = map_visualization.dataset
-    AND map_visualization.color_palette = color_palette.id
-    AND map_visualization.scale_type = scale_type.id
+WHERE dataset.id = map_visualization.dataset
+AND map_visualization.color_palette = color_palette.id
+AND map_visualization.scale_type = scale_type.id
 "#;
 
 impl<'c> Table<'c, MapVisualization> {
@@ -72,7 +71,7 @@ impl<'c> Table<'c, MapVisualization> {
         sqlx::query_as(&format!(
             "{} {}
             AND map_visualization.dataset = $1",
-            SELECT, FROM,
+            SELECT, FROM
         ))
         .bind(dataset)
         .fetch_one(&*self.pool)
@@ -81,11 +80,9 @@ impl<'c> Table<'c, MapVisualization> {
 
     pub async fn by_id(&self, id: i32) -> Result<MapVisualization, sqlx::Error> {
         sqlx::query_as(&format!(
-            "{}
-            FROM map_visualization, dataset
-            WHERE id = $1
-            AND map_visualization.dataset = dataset.id",
-            SELECT,
+            "{} {}
+            AND map_visualization.id = $1",
+            SELECT, FROM
         ))
         .bind(id)
         .fetch_one(&*self.pool)
@@ -93,13 +90,8 @@ impl<'c> Table<'c, MapVisualization> {
     }
 
     pub async fn all(&self) -> Result<Vec<MapVisualization>, sqlx::Error> {
-        sqlx::query_as(&format!(
-            "{}
-            FROM map_visualization, dataset
-            WHERE map_visualization.dataset = dataset.id",
-            SELECT
-        ))
-        .fetch_all(&*self.pool)
-        .await
+        sqlx::query_as(&format!("{} {}", SELECT, FROM))
+            .fetch_all(&*self.pool)
+            .await
     }
 }
