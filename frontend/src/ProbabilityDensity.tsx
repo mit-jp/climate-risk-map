@@ -7,7 +7,7 @@ type Props = {
     data: number[] | undefined,
     map: MapVisualization | undefined,
     shouldNormalize: boolean,
-    xRange?: [number, number] | undefined,
+    xRange?: [number, number] | undefined | [],
     width?: number,
     height?: number,
     formatter?: any,
@@ -39,7 +39,7 @@ const ProbabilityDensity = ({
         if (data === undefined || map === undefined) {
             return;
         }
-        const domain = xRange === undefined ? extent(data) as [number, number] : xRange;
+        const domain = xRange === undefined || xRange.length === 0 ? extent(data) as [number, number] : xRange;
         const x = scaleLinear()
             .domain(domain)
             .nice()
