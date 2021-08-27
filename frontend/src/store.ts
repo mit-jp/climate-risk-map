@@ -1,14 +1,16 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import appReducer from './appSlice';
+import { mapApi } from './MapApi';
 
 export const store = configureStore({
   reducer: {
     app: appReducer,
+    [mapApi.reducerPath]: mapApi.reducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: false,
-    }),
+    }).concat(mapApi.middleware),
   devTools: {
     stateSanitizer: (state: any) => {
       return {

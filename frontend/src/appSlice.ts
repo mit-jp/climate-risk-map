@@ -3,7 +3,6 @@ import { TopoJson } from './Home';
 import { DatabaseToTab } from './Navigation';
 import { State } from './States';
 import { WaterwayValue } from './WaterwayType';
-import DataProcessor from './DataProcessor';
 import { GeoJsonProperties, Feature, Geometry } from 'geojson';
 import { GeometryCollection } from 'topojson-specification';
 import { RootState } from './store';
@@ -14,11 +13,6 @@ import { Interval } from 'luxon';
 import { ColorPalette, FormatterType, MapType, MapVisualization, ScaleType } from './FullMap';
 import DataTab from './DataTab';
 
-export type CountyId = string;
-export type DatasetId = number;
-export type DataRow = { [key in DatasetId]: number | null };
-export type Data = { [key in CountyId]: number | null };
-export type DataByDataset = { [key in DatasetId]: Data };
 export type TransmissionLineType = "Level 2 (230kV-344kV)" | "Level 3 (>= 345kV)" | "Level 2 & 3 (>= 230kV)";
 export type OverlayName = "Highways" | "Major railroads" | "Transmission lines" | "Marine highways" | "Critical habitats";
 export type Overlay = { topoJson?: TopoJson, shouldShow: boolean };
@@ -35,7 +29,6 @@ interface AppState {
     readonly map?: TopoJson;
     readonly mapTransform?: string;
     readonly overlays: { [key in OverlayName]: Overlay };
-    readonly data: DataByDataset,
     readonly mapSelections: { [key in DataTab]: MapSelection[] },
     readonly dataWeights: { [key in MapVisualizationId]?: number },
     readonly mapVisualizations: { [key in DataTab]: { [key in MapVisualizationId]: MapVisualization } },
@@ -114,7 +107,6 @@ const initialState: AppState = {
         "Marine highways": { shouldShow: false },
         "Critical habitats": { shouldShow: false },
     },
-    data: {},
     mapSelections: defaultSelections,
     mapVisualizations: defaultMapVisualizations,
     dataWeights: {},
@@ -141,9 +133,6 @@ export const appSlice = createSlice({
         },
         setShowOverlay: (state, { payload }: PayloadAction<{ name: OverlayName, shouldShow: boolean }>) => {
             state.overlays[payload.name].shouldShow = payload.shouldShow;
-        },
-        setData: (state, action: PayloadAction<DataByDataset>) => {
-            state.data = action.payload;
         },
         setShowRiskMetrics: (state, action: PayloadAction<boolean>) => {
             state.showRiskMetrics = action.payload;
@@ -238,7 +227,7 @@ export const appSlice = createSlice({
 });
 
 export const {
-    setMap, setShowOverlay, setOverlay, setData, setDetailedView,
+    setMap, setShowOverlay, setOverlay, setDetailedView,
     toggleDatasetDescription, changeWeight, changeDateRange, setDataTab,
     changeDataSource, changeMapSelection, setMapSelections, toggleDataDescription,
     setShowDemographics, setShowRiskMetrics, setWaterwayValue, setTransmissionLineType,
@@ -295,18 +284,23 @@ export const selectSelectedMapVisualizations = createSelector(
             selections.map(selection => mapVisualizations[selection.mapVisualization]);
     }
 )
-export const selectProcessedData = createSelector(
-    state => state.app.data,
-    selectSelectedMapVisualizations,
-    state => state.app.dataWeights,
-    state => state.app.state,
-    selectIsNormalized,
-    DataProcessor
-);
 export const selectMapTransform = createSelector(
     (state: RootState) => state.app.state,
     state => state.app.map,
     generateMapTransform
+);
+export const selectDataQueryParams = createSelector(
+    selectMapVisualizations,
+    selectSelections,
+    (mapVisualizations, selections) =>
+        Object.entries(mapVisualizations).length > 0 && selections.length > 0 ?
+            selections.map(selection => ({
+                dataset: mapVisualizations[selection.mapVisualization].dataset,
+                source: selection.dataSource,
+                startDate: selection.dateRange.start.toISODate(),
+                endDate: selection.dateRange.end.toISODate(),
+            })) :
+            undefined
 );
 export const selectSelectedDataSource = (state: RootState): DataSource | undefined => {
     const selections = selectSelections(state);

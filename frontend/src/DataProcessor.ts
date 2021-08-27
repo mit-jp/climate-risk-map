@@ -1,6 +1,6 @@
 import { scaleSequentialQuantile } from 'd3';
 import { Map, Seq, Set } from 'immutable';
-import { Data, DataByDataset } from './appSlice';
+import { Data, DataByDataset } from './MapApi';
 import counties from './Counties';
 import { MapVisualizationId } from './DataSelector';
 import { MapVisualization } from './FullMap';
