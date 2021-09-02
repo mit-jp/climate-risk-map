@@ -682,7 +682,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.MaxTemperature, climateDefinition({
         name: normalization => normalization === Normalization.Raw ? "Maximum Month Temperature" : "Temperature Stress Indicator",
         units: "°C",
-        color: scaleDiverging<string>(x => scales.interpolateSpectral(1 - x)).domain([20, 30, 40]),
+        color: scaleDiverging<string>(x => scales.interpolateRdYlBu(1 - x)).domain([20, 30, 40]),
         normalizations: allNormalizations,
         description: () => "The hottest month out of all months in the years selected. Directly calculated from the reanalysis data",
     })],
