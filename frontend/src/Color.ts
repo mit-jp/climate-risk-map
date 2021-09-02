@@ -1,10 +1,8 @@
-import { scaleSequential, scaleThreshold, schemeRdYlBu } from 'd3';
+import { scaleSequential, scaleThreshold, schemeRdYlBu, interpolateRdYlBu } from 'd3';
 import dataDefinitions, { DataIdParams, Normalization } from './DataDefinitions';
 import { ColorScheme } from './Home';
-import chroma from 'chroma-js';
 
-const chromaSpectral = chroma.scale(chroma.brewer.Spectral.reverse()).out("hex");
-const spectralContinuous = scaleSequential<string>(chromaSpectral);
+const redBlueContinuous = scaleSequential<string>(x => interpolateRdYlBu(1 - x));
 const redBlue = scaleThreshold<number, string, never>([.05, .25, .75, .95], [...schemeRdYlBu[5]].reverse());
 
 
@@ -13,7 +11,7 @@ const Color = (selections: DataIdParams[], continuous: boolean): ColorScheme => 
 
     switch (normalization) {
         case Normalization.Raw: return dataDefinitions.get(selections[0].dataGroup)!.color;
-        case Normalization.Percentile: return continuous ? spectralContinuous : redBlue;
+        case Normalization.Percentile: return continuous ? redBlueContinuous : redBlue;
     }
 }
 
