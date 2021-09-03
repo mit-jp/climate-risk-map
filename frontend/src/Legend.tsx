@@ -13,8 +13,7 @@ type Props = {
     marginBottom?: number,
     marginLeft?: number,
     ticks?: number,
-    tickFormat?: any,
-    tickValues?: any,
+    tickFormat: (n: number | { valueOf(): number }) => string,
 };
 
 const Legend = ({
@@ -29,27 +28,21 @@ const Legend = ({
     marginLeft = 10,
     ticks = width / 64,
     tickFormat,
-    tickValues,
 }: Props) => {
     let legend;
-    const tickAdjust = (g: any) => g.selectAll(".tick line").attr("y1", marginTop + marginBottom - height);
-    let x: any;
+    let xScale: any;
+    let tickValues: number[] | undefined;
 
     if (color.interpolator) {
-        x = Object.assign(
+        xScale = Object.assign(
             color.copy().interpolator(d3.interpolateRound(marginLeft, width - marginRight)),
             { range() { return [marginLeft, width - marginRight]; } }
         );
 
-        // scaleSequentialQuantile doesn’t implement ticks or tickFormat.
-        if (!x.ticks) {
-            if (tickValues === undefined) {
-                const n = Math.round(ticks + 1);
-                tickValues = d3.range(n).map(i => d3.quantile(color.domain(), i / (n - 1)));
-            }
-            if (typeof tickFormat !== "function") {
-                tickFormat = d3.format(tickFormat === undefined ? ",f" : tickFormat);
-            }
+        // scaleSequentialQuantile doesn’t implement ticks.
+        if (!xScale.ticks) {
+            const n = Math.round(ticks + 1);
+            tickValues = d3.range(n).map(i => d3.quantile(color.domain(), i / (n - 1)) as number);
         }
 
         legend = <image
@@ -61,28 +54,26 @@ const Legend = ({
             xlinkHref={ramp(color.interpolator()).toDataURL()}
         />;
     } else if (color.invertExtent) {
-        const thresholds
-            = color.thresholds ? color.thresholds() // scaleQuantize
-                : color.quantiles ? color.quantiles() // scaleQuantile
-                    : color.domain(); // scaleThreshold
+        const thresholds = color.thresholds
+            ? color.thresholds() // scaleQuantize
+            : color.quantiles
+                ? color.quantiles() // scaleQuantile
+                : color.domain(); // scaleThreshold
 
-        const thresholdFormat
-            = tickFormat === undefined ? (d: any) => d
-                : typeof tickFormat === "string" ? d3.format(tickFormat)
-                    : tickFormat;
-
-        x = d3.scaleLinear()
+        xScale = d3.scaleLinear()
             .domain([-1, color.range().length - 1])
             .rangeRound([marginLeft, width - marginRight]);
 
         tickValues = d3.range(thresholds.length);
-        tickFormat = (i: number) => thresholdFormat(thresholds[i], i);
+        const originalTickFormat = tickFormat;
+        tickFormat = i => originalTickFormat(thresholds[i.valueOf()]);
         legend = <g>
             {color.range().map((color: string, i: number) =>
                 <rect
-                    x={x(i - 1)}
+                    key={i}
+                    x={xScale(i - 1)}
                     y={marginTop}
-                    width={x(i) - x(i - 1)}
+                    width={xScale(i) - xScale(i - 1)}
                     height={height - marginTop - marginBottom}
                     fill={color}
                 />
@@ -115,8 +106,11 @@ const Legend = ({
                 marginLeft={marginLeft}
                 marginTop={marginTop}
                 title={title}
-                tickAdjust={tickAdjust}
-                x={x}
+                xScale={xScale}
+                tickFormat={tickFormat}
+                numTicks={ticks}
+                tickSize={tickSize}
+                tickValues={tickValues}
             />
         </svg >);
 }
