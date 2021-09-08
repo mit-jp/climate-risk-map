@@ -180,6 +180,7 @@ export enum Dataset {
     NASA = "NASA Earth Data",
     CDC = "Centers for Disease Control and Prevention",
     EIA = "US Energy Information Administration",
+    SEDAC = "SEDAC",
 }
 
 export type DatasetDefinition = {
@@ -215,7 +216,8 @@ const getClimateDataId = (params: DataIdParams) => {
     return dataId;
 };
 const getRegularId = (params: DataIdParams) => params.dataGroup as string
-
+const deathDescription = `County-level, age-specific, cause-specific mortality data across the US.
+Deaths in counties with a small number of deaths are omitted, due to privacy constraints.`
 // Externally-visible signature
 function throwBadDataset(dataset: never): never;
 // Implementation signature
@@ -359,6 +361,11 @@ export const datasetDefinitions = (dataset: Dataset): DatasetDefinition => {
             forecasting purposes.`,
             link: "https://www.eia.gov/state/seds/",
         }
+        case Dataset.SEDAC: return {
+            name: "NASA Socioeconomic Data and Applications Center",
+            description: `A Data Center in NASA's Earth Observing System Data and Information System`,
+            link: "https://sedac.ciesin.columbia.edu/data/sets/browse",
+        }
         default: throwBadDataset(dataset);
     }
 }
@@ -485,11 +492,14 @@ const demographicDefinition = (builder: DemographicDefinitionBuilder): DataDefin
 const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.PM2_5, genericDefinition({
         name: () => "PM2.5",
-        units: "µg/m³",
+        units: "µg/m³ (population weighted average)",
         color: scaleSequentialSqrt([4, 10], scales.interpolateYlOrBr),
         type: DataType.Health,
         normalizations: allNormalizations,
-        description: () => "Annual PM2.5 concentration data in the U.S. at a resolution of 1 km weighted by population and summed to the county.",
+        description: () => `Gridded concentrations of fine particulate matter (PM2.5) (Di et al, 2021)
+        are combined with gridded population data (CIESIN, 2018) to provide an estimate of
+        the annual average level of PM2.5 experienced by the population of each county in the US. 
+        Link: Di et al, 2021 (https://doi.org/10.7927/0rvr-4538) and CIESIN, 2018 (https://doi.org/10.7927/H4F47M65)`,
         dataset: Dataset.NASA,
     })],
     [DataGroup.WaterStress, genericDefinition({
@@ -903,7 +913,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequentialSqrt([0, 10_000], scales.interpolateYlOrBr),
         type: DataType.Health,
         mapType: MapType.Bubble,
-        description: () => "",
+        description: () => deathDescription,
         dataset: Dataset.CDC,
     })],
     [DataGroup.Deaths_5_25, genericDefinition({
@@ -912,7 +922,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequentialSqrt([0, 10_000], scales.interpolateYlOrBr),
         type: DataType.Health,
         mapType: MapType.Bubble,
-        description: () => "",
+        description: () => deathDescription,
         dataset: Dataset.CDC,
     })],
     [DataGroup.Deaths_25_plus, genericDefinition({
@@ -921,7 +931,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequentialSqrt([0, 10_000], scales.interpolateYlOrBr),
         type: DataType.Health,
         mapType: MapType.Bubble,
-        description: () => "",
+        description: () => deathDescription,
         dataset: Dataset.CDC,
     })],
     [DataGroup.Deaths_25_plus_circ, genericDefinition({
@@ -930,7 +940,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequentialSqrt([0, 10_000], scales.interpolateYlOrBr),
         type: DataType.Health,
         mapType: MapType.Bubble,
-        description: () => "",
+        description: () => deathDescription,
         dataset: Dataset.CDC,
     })],
     [DataGroup.Deaths_25_plus_resp, genericDefinition({
@@ -939,7 +949,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequentialSqrt([0, 10_000], scales.interpolateYlOrBr),
         type: DataType.Health,
         mapType: MapType.Bubble,
-        description: () => "",
+        description: () => deathDescription,
         dataset: Dataset.CDC,
     })],
     [DataGroup.Mortality_0_5, genericDefinition({
@@ -948,7 +958,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequential([0, 3], scales.interpolateYlOrBr),
         type: DataType.Health,
         mapType: MapType.Choropleth,
-        description: () => "",
+        description: () => deathDescription,
         dataset: Dataset.CDC,
 
     })],
@@ -958,7 +968,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequential([0, 1], scales.interpolateYlOrBr),
         type: DataType.Health,
         mapType: MapType.Choropleth,
-        description: () => "",
+        description: () => deathDescription,
         dataset: Dataset.CDC,
 
     })],
@@ -968,7 +978,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequential([5, 25], scales.interpolateYlOrBr),
         type: DataType.Health,
         mapType: MapType.Choropleth,
-        description: () => "",
+        description: () => deathDescription,
         dataset: Dataset.CDC,
 
     })],
@@ -978,7 +988,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequential([0, 10], scales.interpolateYlOrBr),
         type: DataType.Health,
         mapType: MapType.Choropleth,
-        description: () => "",
+        description: () => deathDescription,
         dataset: Dataset.CDC,
 
     })],
@@ -988,7 +998,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         color: scaleSequential([0, 4], scales.interpolateYlOrBr),
         type: DataType.Health,
         mapType: MapType.Choropleth,
-        description: () => "",
+        description: () => deathDescription,
         dataset: Dataset.CDC,
     })],
 ]);
