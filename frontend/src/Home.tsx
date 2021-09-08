@@ -23,6 +23,7 @@ const csvFiles = [
   "census_employment_acs5_2019.csv",
   "energy_employment.csv",
   "mortality.csv",
+  "energy.csv",
 ];
 type TopoJsonFile = "usa.json" |
   "roads-topo.json" |

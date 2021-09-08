@@ -111,6 +111,12 @@ export enum DataGroup {
     Mortality_0_5_resp = "mort_0-5_resp",
     Mortality_5_25_resp = "mort_5-25_resp",
     Mortality_25_plus_resp = "mort_25+_resp",
+    energy_expenditure_per_capita = "energy_expenditure_per_capita",
+    transportation_energy_expenditure_per_capita = "transportation_energy_expenditure_per_capita",
+    residential_energy_expenditure_per_capita = "residential_energy_expenditure_per_capita",
+    energy_expenditure_share_of_gdp = "energy_expenditure_share_of_gdp",
+    transportation_energy_expenditure_share_of_gdp = "transportation_energy_expenditure_share_of_gdp",
+    residential_energy_expenditure_share_of_gdp = "residential_energy_expenditure_share_of_gdp",
 }
 
 export type DataIdParams = {
@@ -173,6 +179,7 @@ export enum Dataset {
     USEER = "US Energy and Employment Report",
     NASA = "NASA Earth Data",
     CDC = "Centers for Disease Control and Prevention",
+    EIA = "US Energy Information Administration",
 }
 
 export type DatasetDefinition = {
@@ -196,6 +203,7 @@ export enum Year {
 }
 
 export const riskMetricFormatter = (d: number | { valueOf(): number; }) => format(".0%")(d).slice(0, -1)
+export const percentFormatter = (d: number | { valueOf(): number; }) => format(".1%")(d).slice(0, -1)
 export const regularNumber = format(",.0f");
 const money = format("$,.2s");
 const nearestSI = format("~s");
@@ -340,6 +348,16 @@ export const datasetDefinitions = (dataset: Dataset): DatasetDefinition => {
             description: `The agency's main goal to be the protection of public health and safety
             through the control and prevention of disease, injury, and disability in the US and worldwide.`,
             link: "https://www.cdc.gov/nchs/nvss/deaths.htm",
+        }
+        case Dataset.EIA: return {
+            name: "US Energy Information Administration",
+            description: `The State Energy Data System (SEDS) is the source of the U.S.
+            Energy Information Administration's (EIA) comprehensive state energy statistics.
+            EIA's goal in maintaining SEDS is to create historical time series of energy
+            production, consumption, prices, and expenditures by state that are defined
+            as consistently as possible over time and across sectors for analysis and
+            forecasting purposes.`,
+            link: "https://www.eia.gov/state/seds/",
         }
         default: throwBadDataset(dataset);
     }
@@ -717,7 +735,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     })],
     [DataGroup.PerCapitapersonalincome2018, genericDefinition({
         name: () => "Per capita personal income 2018",
-        units: "USD / person",
+        units: "USD per person",
         formatter: money,
         legendFormatter: money,
         color: scaleDiverging<string>(scales.interpolateBrBG).domain([10000, 40000, 100000]),
@@ -780,7 +798,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.FossilFuelsEmployment, genericDefinition({
         name: () => "Employment in Fossil Fuels",
         units: "% of employed people",
-        color: scaleSequentialSqrt([0, 15], scales.interpolateGreens),
+        color: scaleSequentialSqrt([0, 15], scales.interpolateOranges),
         type: DataType.Energy,
         description: () => "",
         normalizations: allNormalizations,
@@ -805,7 +823,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.TransmissionEmployment, genericDefinition({
         name: () => "Employment in Transmission",
         units: "% of employed people",
-        color: scaleSequentialSqrt([0, 10], scales.interpolateGreens),
+        color: scaleSequentialSqrt([0, 10], scales.interpolateOranges),
         type: DataType.Energy,
         description: () => "",
         dataset: Dataset.USEER,
@@ -813,10 +831,70 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.MotorVehiclesEmployment, genericDefinition({
         name: () => "Employment in Motor Vehicles",
         units: "% of employed people",
-        color: scaleSequentialSqrt([0, 10], scales.interpolateGreens),
+        color: scaleSequentialSqrt([0, 10], scales.interpolateOranges),
         type: DataType.Energy,
         description: () => "",
         dataset: Dataset.USEER,
+    })],
+    [DataGroup.energy_expenditure_per_capita, genericDefinition({
+        name: () => "Energy Expenditure Per Capita",
+        units: "USD per person",
+        color: scaleSequential([3000, 9000], scales.interpolateOranges),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.EIA,
+        formatter: money,
+        legendFormatter: money,
+    })],
+    [DataGroup.residential_energy_expenditure_per_capita, genericDefinition({
+        name: () => "Residential Energy Expenditure Per Capita",
+        units: "USD per person",
+        color: scaleSequential([600, 1600], scales.interpolateOranges),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.EIA,
+        formatter: money,
+        legendFormatter: money,
+    })],
+    [DataGroup.transportation_energy_expenditure_per_capita, genericDefinition({
+        name: () => "Transportation Energy Expenditure Per Capita",
+        units: "USD per person",
+        color: scaleSequential([900, 5000], scales.interpolateOranges),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.EIA,
+        formatter: money,
+        legendFormatter: money,
+    })],
+    [DataGroup.energy_expenditure_share_of_gdp, genericDefinition({
+        name: () => "Energy Expenditure as Share of GDP",
+        units: "% of GDP",
+        color: scaleSequential([0.02, 0.12], scales.interpolateOranges),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.EIA,
+        formatter: percentFormatter,
+        legendFormatter: percentFormatter,
+    })],
+    [DataGroup.residential_energy_expenditure_share_of_gdp, genericDefinition({
+        name: () => "Residential Energy Expenditure as Share of GDP",
+        units: "% of GDP",
+        color: scaleSequential([0.008, 0.03], scales.interpolateOranges),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.EIA,
+        formatter: percentFormatter,
+        legendFormatter: percentFormatter,
+    })],
+    [DataGroup.transportation_energy_expenditure_share_of_gdp, genericDefinition({
+        name: () => "Transportation Energy Expenditure as Share of GDP",
+        units: "% of GDP",
+        color: scaleSequential([0.01, 0.06], scales.interpolateOranges),
+        type: DataType.Energy,
+        description: () => "",
+        dataset: Dataset.EIA,
+        formatter: percentFormatter,
+        legendFormatter: percentFormatter,
     })],
     [DataGroup.Deaths_0_5, genericDefinition({
         name: () => "Deaths, ages 0 to 5",
