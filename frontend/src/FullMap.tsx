@@ -1,7 +1,7 @@
 import React from "react";
 import BubbleMap from "./BubbleMap";
 import ChoroplethMap from "./ChoroplethMap";
-import dataDefinitions, { DataDefinition, DataIdParams, DataType, getUnits, MapType, Normalization, riskMetricFormatter } from "./DataDefinitions";
+import dataDefinitions, { DataDefinition, DataIdParams, DataType, getUnits, isDemographics, MapType, Normalization, riskMetricFormatter } from "./DataDefinitions";
 import { Map } from "immutable";
 import { TopoJson } from "./Home";
 import { generateSelectedDataDefinitions } from "./appSlice";
@@ -12,10 +12,12 @@ export const getLegendTitle = (selectedDataDefinitions: DataDefinition[], select
     const dataDefinition = selectedDataDefinitions[0];
     const units = getUnits(dataDefinition, selections[0].normalization);
     const unitString = getUnitString(units);
-    if (selectedDataDefinitions.length === 1) {
+    const numSelectedRiskMetrics = selectedDataDefinitions.filter(d => !isDemographics(d.type)).length;
+
+    if (selectedDataDefinitions.length === 1 || numSelectedRiskMetrics === 0) {
         return unitString;
     } else {
-        return "Mean of selected data";
+        return "Combined Risk";
     }
 }
 

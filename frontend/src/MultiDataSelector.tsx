@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import dataDefinitions, { DataIdParams, DataGroup, Normalization, Year, Dataset, DataDefinition, DataType } from './DataDefinitions';
+import dataDefinitions, { DataIdParams, DataGroup, Normalization, Year, Dataset, DataDefinition, DataType, isDemographics } from './DataDefinitions';
 import { Map } from 'immutable';
 import Slider from '@material-ui/core/Slider';
 import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
@@ -140,10 +140,7 @@ const MultiDataSelector = () => {
                     Risk Metrics
                 </AccordionSummary>
                 <AccordionDetails>
-                    {getDataList(dataType =>
-                        dataType !== DataType.Demographics &&
-                        dataType !== DataType.Economic
-                    )}
+                    {getDataList(dataType => !isDemographics(dataType))}
                 </AccordionDetails>
             </Accordion>
             <Accordion expanded={showDemographics} onChange={onDemographicsToggled}>
@@ -155,10 +152,7 @@ const MultiDataSelector = () => {
                     Environmental Justice
                 </AccordionSummary>
                 <AccordionDetails>
-                    {getDataList(dataType =>
-                        dataType === DataType.Demographics ||
-                        dataType === DataType.Economic
-                    )}
+                    {getDataList(isDemographics)}
                 </AccordionDetails>
             </Accordion>
         </form>

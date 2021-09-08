@@ -140,6 +140,8 @@ export enum Normalization {
     Raw,
     Percentile,
 }
+export const isDemographics = (dataType: DataType) =>
+    dataType === DataType.Demographics || dataType === DataType.Economic;
 
 const employmentDescription = () => "A percentage of employed people in this specific industry. Nonmetropolitan areas and rural counties are also included. These statistics cover wage and salary jobs and self-employment.";
 
@@ -147,8 +149,10 @@ export const getUnits = (dataDefinition: DataDefinition, normalization: Normaliz
     let units = "";
     if (normalization === Normalization.Raw) {
         units = dataDefinition.units;
+    } else if (isDemographics(dataDefinition.type)) {
+        units = "Scaled Value";
     } else {
-        units = "Normalized Value";
+        units = "Risk";
     }
     return units;
 }
