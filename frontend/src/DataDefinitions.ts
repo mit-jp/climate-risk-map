@@ -873,6 +873,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         type: DataType.Energy,
         description: () => "",
         dataset: Dataset.EIA,
+        normalizations: allNormalizations,
         formatter: percentFormatter,
         legendFormatter: percentFormatter,
     })],
