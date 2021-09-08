@@ -2,8 +2,10 @@ import React from "react";
 
 type Props = {
     height: number;
+    width: number;
     marginBottom: number;
     marginLeft: number;
+    marginRight: number;
     marginTop: number;
     title: string;
     xScale: any;
@@ -11,12 +13,15 @@ type Props = {
     tickFormat: (n: number | { valueOf(): number }) => string;
     tickSize: number;
     tickValues?: number[];
+    showHighLowLabels: boolean;
 };
 
 const LegendTicks = ({
     height,
+    width,
     marginBottom,
     marginLeft,
+    marginRight,
     marginTop,
     title,
     xScale,
@@ -24,6 +29,7 @@ const LegendTicks = ({
     tickFormat,
     tickSize,
     tickValues,
+    showHighLowLabels,
 }: Props) => {
     const y1 = marginTop + marginBottom - height;
     const y2 = y1 + height - marginTop - marginBottom + tickSize;
@@ -36,6 +42,38 @@ const LegendTicks = ({
             fontSize="10"
             fontFamily="sans-serif"
             textAnchor="middle">
+            {
+                showHighLowLabels &&
+                <React.Fragment>
+                    <text
+                        x={marginLeft}
+                        y={y1 - 6}
+                        fontSize={14}
+                        fill="currentColor"
+                        textAnchor="start"
+                        className="high-low-label">
+                        Low
+                    </text>
+                    <text
+                        x={marginLeft + (width - marginRight) / 2}
+                        y={y1 - 6}
+                        fontSize={14}
+                        fill="currentColor"
+                        textAnchor="middle"
+                        className="high-low-label">
+                        Medium
+                    </text>
+                    <text
+                        x={marginLeft + width - marginRight}
+                        y={y1 - 6}
+                        fontSize={14}
+                        fill="currentColor"
+                        textAnchor="end"
+                        className="high-low-label">
+                        High
+                    </text>
+                </React.Fragment>
+            }
             <g className="ticks">
                 {ticks.map((tick, i) => {
                     const x = xScale(tick);
@@ -57,7 +95,7 @@ const LegendTicks = ({
             </g>
             <text
                 x={marginLeft}
-                y={y1 - 6}
+                y={showHighLowLabels ? y1 - 18 : y1 - 6}
                 fontSize={14}
                 fill="currentColor"
                 textAnchor="start"

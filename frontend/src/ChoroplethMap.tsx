@@ -64,9 +64,10 @@ type Props = {
     legendFormatter: (n: number | {
         valueOf(): number;
     }) => string,
+    isNormalized: boolean,
 }
 
-const ChoroplethMap = ({ map, selections, data, detailedView, title, legendFormatter }: Props) => {
+const ChoroplethMap = ({ map, selections, data, detailedView, title, legendFormatter, isNormalized }: Props) => {
     const dispatch = useThunkDispatch();
     const transform = useSelector(selectMapTransform);
     const colorScheme = Color(selections, detailedView);
@@ -114,7 +115,9 @@ const ChoroplethMap = ({ map, selections, data, detailedView, title, legendForma
                 title={title}
                 color={colorScheme}
                 tickFormat={legendFormatter}
-                ticks={ticks} />
+                ticks={ticks}
+                showHighLowLabels={isNormalized}
+            />
             {
                 shouldShowPdf(selections[0], selections.length) &&
                 <ProbabilityDensity

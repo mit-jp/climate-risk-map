@@ -38,6 +38,7 @@ type Props = {
 
 const FullMap = ({ map, selections, data, detailedView }: Props) => {
     const firstSelection = selections[0];
+    const isNormalized = firstSelection.normalization !== Normalization.Raw;
     const selectedDataDefinitions = generateSelectedDataDefinitions(selections);
     const mapType = dataDefinitions.get(firstSelection.dataGroup)!.mapType;
     const title = getLegendTitle(selectedDataDefinitions, selections);
@@ -51,6 +52,7 @@ const FullMap = ({ map, selections, data, detailedView }: Props) => {
                 detailedView={detailedView}
                 title={title}
                 legendFormatter={legendFormatter}
+                isNormalized={isNormalized}
             />;
         case MapType.Bubble:
             return <BubbleMap

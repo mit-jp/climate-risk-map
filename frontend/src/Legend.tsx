@@ -14,6 +14,7 @@ type Props = {
     marginLeft?: number,
     ticks?: number,
     tickFormat: (n: number | { valueOf(): number }) => string,
+    showHighLowLabels?: boolean,
 };
 
 const Legend = ({
@@ -28,6 +29,7 @@ const Legend = ({
     marginLeft = 10,
     ticks = width / 64,
     tickFormat,
+    showHighLowLabels = false,
 }: Props) => {
     let legend;
     let xScale: any;
@@ -102,8 +104,10 @@ const Legend = ({
             {legend}
             <LegendTicks
                 height={height}
+                width={width}
                 marginBottom={marginBottom}
                 marginLeft={marginLeft}
+                marginRight={marginRight}
                 marginTop={marginTop}
                 title={title}
                 xScale={xScale}
@@ -111,6 +115,7 @@ const Legend = ({
                 numTicks={ticks}
                 tickSize={tickSize}
                 tickValues={tickValues}
+                showHighLowLabels={showHighLowLabels}
             />
         </svg >);
 }
