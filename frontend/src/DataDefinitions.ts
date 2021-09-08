@@ -465,6 +465,15 @@ const demographicDefinition = (builder: DemographicDefinitionBuilder): DataDefin
 });
 
 const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
+    [DataGroup.PM2_5, genericDefinition({
+        name: () => "PM2.5",
+        units: "µg/m³",
+        color: scaleSequentialSqrt([4, 10], scales.interpolateYlOrBr),
+        type: DataType.Health,
+        normalizations: allNormalizations,
+        description: () => "Annual PM2.5 concentration data in the U.S. at a resolution of 1 km weighted by population and summed to the county.",
+        dataset: Dataset.NASA,
+    })],
     [DataGroup.WaterStress, genericDefinition({
         name: () => "Water Stress",
         id: params => (params.dataGroup as string) + params.year,
@@ -808,14 +817,6 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         type: DataType.Energy,
         description: () => "",
         dataset: Dataset.USEER,
-    })],
-    [DataGroup.PM2_5, genericDefinition({
-        name: () => "PM2.5",
-        units: "µg/m³",
-        color: scaleSequentialSqrt([4, 10], scales.interpolateYlOrBr),
-        type: DataType.Health,
-        description: () => "Annual PM2.5 concentration data in the U.S. at a resolution of 1 km weighted by population and summed to the county.",
-        dataset: Dataset.NASA,
     })],
     [DataGroup.Deaths_0_5, genericDefinition({
         name: () => "Deaths, ages 0 to 5",

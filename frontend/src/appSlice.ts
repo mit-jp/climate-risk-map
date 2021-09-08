@@ -43,12 +43,7 @@ interface AppState {
 }
 
 const defaultSelections: { [key in DataTab]: DataIdParams[] } = {
-    [DataTab.RiskMetrics]: [{
-        dataGroup: DataGroup.WaterStress,
-        year: Year.Average,
-        dataset: Dataset.ERA5,
-        normalization: Normalization.Percentile
-    }],
+    [DataTab.RiskMetrics]: [{ dataGroup: DataGroup.PM2_5, normalization: Normalization.Percentile }],
     [DataTab.Water]: [{
         dataGroup: DataGroup.WaterStress,
         year: Year._2015,
