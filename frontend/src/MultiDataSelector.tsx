@@ -149,7 +149,7 @@ const MultiDataSelector = () => {
                     id="panel1a-header"
                     expandIcon={<ExpandMoreIcon />}
                 >
-                    Environmental Justice
+                    Environmental Equity
                 </AccordionSummary>
                 <AccordionDetails>
                     {getDataList(isDemographics)}
