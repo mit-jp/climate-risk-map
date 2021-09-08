@@ -244,6 +244,10 @@ footer #navigation li {
     background: #eee;
 }
 
+.padded {
+    padding: 0em 1em 0em 1em
+}
+
 .MuiToggleButtonGroup-root {
     margin-top: 1em;
     margin-bottom: 1em;

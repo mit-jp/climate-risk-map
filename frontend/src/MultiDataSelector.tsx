@@ -2,7 +2,7 @@ import React, { ChangeEvent } from 'react';
 import dataDefinitions, { DataIdParams, DataGroup, Normalization, Year, Dataset, DataDefinition, DataType, isDemographics } from './DataDefinitions';
 import { Map } from 'immutable';
 import Slider from '@material-ui/core/Slider';
-import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
+import { Accordion, AccordionDetails, AccordionSummary, Checkbox, FormControlLabel, makeStyles } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { useThunkDispatch } from './Home';
 import { useSelector } from 'react-redux';
@@ -46,17 +46,18 @@ const checkBox = (dataGroup: DataGroup,
     dataSelections: DataIdParams[],
     dataWeights: { [key in DataGroup]?: number },
     dispatch: typeof store.dispatch) => {
-    return <div key={dataGroup} className={shouldBeChecked(dataGroup) ? "selected-group" : undefined}>
-
-        <input
-            className="data-group"
+    return <div key={dataGroup} className={shouldBeChecked(dataGroup) ? "selected-group padded" : "padded"}>
+        <FormControlLabel
             id={dataGroup}
-            checked={shouldBeChecked(dataGroup)}
-            type="checkbox"
-            value={dataGroup}
-            onChange={onSelectionToggled}
-            name="dataGroup" />
-        <label className="data-group" htmlFor={dataGroup}>{definition.name(Normalization.Percentile)}</label>
+            control={<Checkbox
+                checked={shouldBeChecked(dataGroup)}
+                value={dataGroup}
+                onChange={onSelectionToggled}
+                name="dataGroup"
+                color="primary"
+            />}
+            label={definition.name(Normalization.Percentile)}
+        />
         {shouldBeChecked(dataGroup) && multipleChecked(dataSelections) &&
             <div className="weight">
                 <div className="weight-label">Weight</div>
@@ -73,6 +74,11 @@ const checkBox = (dataGroup: DataGroup,
     </div>;
 }
 
+const useAccordionStyles = makeStyles({
+    root: {
+        padding: 0,
+    }
+});
 
 const marks = [{ value: 0.1, label: "min" }, { value: 1, label: "max" }]
 
@@ -82,7 +88,7 @@ const MultiDataSelector = () => {
     const showRiskMetrics = useSelector((state: RootState) => state.app.showRiskMetrics);
     const showDemographics = useSelector((state: RootState) => state.app.showDemographics);
     const selections = useSelector(selectSelections);
-
+    const accordionClasses = useAccordionStyles();
     const selectionMap = Map(selections.map(selection => [selection.dataGroup, selection]));
 
     const onSelectionToggled = (event: ChangeEvent<HTMLInputElement>) => {
@@ -139,7 +145,7 @@ const MultiDataSelector = () => {
                 >
                     Risk Metrics
                 </AccordionSummary>
-                <AccordionDetails>
+                <AccordionDetails classes={accordionClasses}>
                     {getDataList(dataType => !isDemographics(dataType))}
                 </AccordionDetails>
             </Accordion>
@@ -151,7 +157,7 @@ const MultiDataSelector = () => {
                 >
                     Environmental Equity
                 </AccordionSummary>
-                <AccordionDetails>
+                <AccordionDetails classes={accordionClasses}>
                     {getDataList(isDemographics)}
                 </AccordionDetails>
             </Accordion>
