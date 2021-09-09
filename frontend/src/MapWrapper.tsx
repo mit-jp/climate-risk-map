@@ -36,21 +36,22 @@ const MapWrapper = () => {
     return (
         <div id="map">
             {
-                processedData &&
-                <MapTitle
-                    selectedMapVisualizations={selectedMapVisualizations}
-                    isNormalized={isNormalized} />
+                selectedMapVisualizations.length > 0
+                    ? <MapTitle
+                        selectedMapVisualizations={selectedMapVisualizations}
+                        isNormalized={isNormalized} />
+                    : <div id="empty-title"></div>
             }
             <svg viewBox="0, 0, 1175, 610">
-                {processedData ?
-                    <FullMap
+                {processedData
+                    ? <FullMap
                         map={map}
                         selectedMapVisualizations={selectedMapVisualizations}
                         data={processedData}
                         detailedView={detailedView}
                         isNormalized={isNormalized}
-                    /> :
-                    <EmptyMap map={map} />}
+                    />
+                    : <EmptyMap map={map} />}
                 <Overlays />
             </svg>
             {processedData && <CountyTooltip data={processedData} />}

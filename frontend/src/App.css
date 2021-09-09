@@ -20,12 +20,19 @@ h1, h2 {
 #map-title {
     font-weight: 400;
     font-size: 25px;
+    line-height: 48px;
+    margin: 25px 0 0 0;
     width: 82%;
     text-align: center;
 }
 
+#empty-title {
+    height: 48px;
+    margin-top: 25px;
+}
+
 #root {
-    margin: 0;
+    margin: 25px 0 0 0;
     width: 100%;
     max-width: 1800px;
     background: #fff;
