@@ -5,7 +5,7 @@
 Install Postgres and set up a user with privileges to create a database.
 
 ```
-CREATE USER 'mit' WITH CREATEDB PASSWORD 'password';
+CREATE USER mit WITH CREATEDB PASSWORD 'password';
 ```
 
 Copy `.env.template` to `.env` and replace values with your own, or set them as environment variables. Environment variables overwrite anything in the `.env` file. The `.env` file is an optional convenience mostly for dev builds.

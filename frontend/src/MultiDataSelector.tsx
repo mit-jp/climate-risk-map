@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from 'react';
 import { Map } from 'immutable';
 import Slider from '@material-ui/core/Slider';
-import { Accordion, AccordionDetails, AccordionSummary } from '@material-ui/core';
+import { Accordion, AccordionDetails, AccordionSummary, Checkbox, FormControlLabel, makeStyles } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { useThunkDispatch } from './Home';
 import { useSelector } from 'react-redux';
@@ -22,17 +22,19 @@ const checkBox = (
     dataWeights: { [key in MapVisualizationId]?: number },
     dispatch: typeof store.dispatch
 ) => {
-    return <div key={map.id} className={shouldBeChecked(map.id) ? "selected-group" : undefined}>
+    return <div key={map.id} className={shouldBeChecked(map.id) ? "selected-group padded" : "padded"}>
 
-        <input
-            className="data-group"
+        <FormControlLabel
             id={map.id.toString()}
-            checked={shouldBeChecked(map.id)}
-            type="checkbox"
-            value={map.id}
-            onChange={onSelectionToggled}
-            name="mapId" />
-        <label className="data-group" htmlFor={map.id.toString()}>{map.name}</label>
+            control={<Checkbox
+                checked={shouldBeChecked(map.id)}
+                value={map.id}
+                onChange={onSelectionToggled}
+                name="mapId"
+                color="primary"
+            />}
+            label={map.name}
+        />
         {shouldBeChecked(map.id) && multipleChecked(selections) &&
             <div className="weight">
                 <div className="weight-label">Weight</div>
@@ -49,6 +51,11 @@ const checkBox = (
     </div>;
 }
 
+const useAccordionStyles = makeStyles({
+    root: {
+        padding: 0,
+    }
+});
 
 const marks = [{ value: 0.1, label: "min" }, { value: 1, label: "max" }]
 
@@ -59,6 +66,7 @@ const MultiDataSelector = () => {
     const showDemographics = useSelector((state: RootState) => state.app.showDemographics);
     const maps = useSelector(selectMapVisualizations);
     const selections = useSelector(selectSelections);
+    const accordionClasses = useAccordionStyles();
 
     const selectionMap = Map(selections.map(selection => [selection.mapVisualization, selection]));
 
@@ -116,7 +124,7 @@ const MultiDataSelector = () => {
                 >
                     Risk Metrics
                 </AccordionSummary>
-                <AccordionDetails>
+                <AccordionDetails classes={accordionClasses}>
                     {getDataList(map => map.subcategory === 1)}
                 </AccordionDetails>
             </Accordion>
@@ -126,9 +134,9 @@ const MultiDataSelector = () => {
                     id="panel1a-header"
                     expandIcon={<ExpandMoreIcon />}
                 >
-                    Environmental Justice
+                    Environmental Equity
                 </AccordionSummary>
-                <AccordionDetails>
+                <AccordionDetails classes={accordionClasses}>
                     {getDataList(map => map.subcategory === 2)}
                 </AccordionDetails>
             </Accordion>

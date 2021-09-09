@@ -18,10 +18,11 @@ export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: b
     const dataDefinition = selectedMaps[0];
     const units = getUnits(dataDefinition, isNormalized);
     const unitString = getUnitString(units);
+    
     if (selectedMaps.length === 1) {
         return unitString;
     } else {
-        return "Mean of selected data";
+        return "Combined Risk";
     }
 }
 

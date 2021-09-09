@@ -133,7 +133,9 @@ const ChoroplethMap = ({ map, selectedMapVisualizations, data, detailedView, tit
                 title={title}
                 color={colorScheme}
                 tickFormat={legendFormatter}
-                ticks={legendTicks} />
+                ticks={legendTicks}
+                showHighLowLabels={isNormalized}
+            />
             {
                 shouldShowPdf(selectedMapVisualizations, isNormalized) &&
                 <ProbabilityDensity

@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import * as d3 from "d3";
-import { select } from "d3";
+import LegendTicks from "./LegendTicks";
 
 type Props = {
     color: any,
@@ -13,8 +13,8 @@ type Props = {
     marginBottom?: number,
     marginLeft?: number,
     ticks?: number,
-    tickFormat?: any,
-    tickValues?: any,
+    tickFormat: (n: number | { valueOf(): number }) => string,
+    showHighLowLabels?: boolean,
 };
 
 const Legend = ({
@@ -29,139 +29,95 @@ const Legend = ({
     marginLeft = 10,
     ticks = width / 64,
     tickFormat,
-    tickValues,
+    showHighLowLabels = false,
 }: Props) => {
-    const svgRef = useRef<SVGSVGElement>(null);
-    useEffect(() => {
-        const svg = select(svgRef.current);
+    let legend;
+    let xScale: any;
+    let tickValues: number[] | undefined;
 
-        svg.selectAll("*").remove();
-        svg.append("rect")
-            .attr("width", "100%")
-            .attr("height", "100%")
-            .attr("fill", "rgba(255, 255, 255, 0.8)");
-        let tickAdjust = (g: any) => g.selectAll(".tick line").attr("y1", marginTop + marginBottom - height);
-        let x: any;
+    if (color.interpolator) {
+        xScale = Object.assign(
+            color.copy().interpolator(d3.interpolateRound(marginLeft, width - marginRight)),
+            { range() { return [marginLeft, width - marginRight]; } }
+        );
 
-        // Continuous
-        if (color.interpolate) {
-            const n = Math.min(color.domain().length, color.range().length);
-
-            x = color.copy().rangeRound(d3.quantize(d3.interpolate(marginLeft, width - marginRight), n));
-
-            svg.append("image")
-                .attr("x", marginLeft)
-                .attr("y", marginTop)
-                .attr("width", width - marginLeft - marginRight)
-                .attr("height", height - marginTop - marginBottom)
-                .attr("preserveAspectRatio", "none")
-                .attr("xlink:href", ramp(color.copy().domain(d3.quantize(d3.interpolate(0, 1), n))).toDataURL());
+        // scaleSequentialQuantile doesn’t implement ticks.
+        if (!xScale.ticks) {
+            const n = Math.round(ticks + 1);
+            tickValues = d3.range(n).map(i => d3.quantile(color.domain(), i / (n - 1)) as number);
         }
 
-        // Sequential
-        else if (color.interpolator) {
-            x = Object.assign(color.copy()
-                .interpolator(d3.interpolateRound(marginLeft, width - marginRight)),
-                { range() { return [marginLeft, width - marginRight]; } });
+        legend = <image
+            x={marginLeft}
+            y={marginTop}
+            width={width - marginLeft - marginRight}
+            height={height - marginTop - marginBottom}
+            preserveAspectRatio="none"
+            xlinkHref={ramp(color.interpolator()).toDataURL()}
+        />;
+    } else if (color.invertExtent) {
+        const thresholds = color.thresholds
+            ? color.thresholds() // scaleQuantize
+            : color.quantiles
+                ? color.quantiles() // scaleQuantile
+                : color.domain(); // scaleThreshold
 
-            svg.append("image")
-                .attr("x", marginLeft)
-                .attr("y", marginTop)
-                .attr("width", width - marginLeft - marginRight)
-                .attr("height", height - marginTop - marginBottom)
-                .attr("preserveAspectRatio", "none")
-                .attr("xlink:href", ramp(color.interpolator()).toDataURL());
+        xScale = d3.scaleLinear()
+            .domain([-1, color.range().length - 1])
+            .rangeRound([marginLeft, width - marginRight]);
 
-            // scaleSequentialQuantile doesn’t implement ticks or tickFormat.
-            if (!x.ticks) {
-                if (tickValues === undefined) {
-                    const n = Math.round(ticks + 1);
-                    tickValues = d3.range(n).map(i => d3.quantile(color.domain(), i / (n - 1)));
-                }
-                if (typeof tickFormat !== "function") {
-                    tickFormat = d3.format(tickFormat === undefined ? ",f" : tickFormat);
-                }
-            }
-        }
+        tickValues = d3.range(thresholds.length);
+        const originalTickFormat = tickFormat;
+        tickFormat = i => originalTickFormat(thresholds[i.valueOf()]);
+        legend = <g>
+            {color.range().map((color: string, i: number) =>
+                <rect
+                    key={i}
+                    x={xScale(i - 1)}
+                    y={marginTop}
+                    width={xScale(i) - xScale(i - 1)}
+                    height={height - marginTop - marginBottom}
+                    fill={color}
+                />
+            )}
+        </g>;
+    } else {
+        legend = null;
+    }
 
-        // Threshold
-        else if (color.invertExtent) {
-            const thresholds
-                = color.thresholds ? color.thresholds() // scaleQuantize
-                    : color.quantiles ? color.quantiles() // scaleQuantile
-                        : color.domain(); // scaleThreshold
-
-            const thresholdFormat
-                = tickFormat === undefined ? (d: any) => d
-                    : typeof tickFormat === "string" ? d3.format(tickFormat)
-                        : tickFormat;
-
-            x = d3.scaleLinear()
-                .domain([-1, color.range().length - 1])
-                .rangeRound([marginLeft, width - marginRight]);
-
-            svg.append("g")
-                .selectAll("rect")
-                .data(color.range())
-                .join("rect")
-                .attr("x", (d, i) => x(i - 1))
-                .attr("y", marginTop)
-                .attr("width", (d, i) => x(i) - x(i - 1))
-                .attr("height", height - marginTop - marginBottom)
-                .attr("fill", (d: any) => d);
-
-            tickValues = d3.range(thresholds.length);
-            tickFormat = (i: number) => thresholdFormat(thresholds[i], i);
-        }
-
-        // Ordinal
-        else {
-            x = d3.scaleBand()
-                .domain(color.domain())
-                .rangeRound([marginLeft, width - marginRight]);
-
-            svg.append("g")
-                .selectAll("rect")
-                .data(color.domain())
-                .join("rect")
-                .attr("x", x)
-                .attr("y", marginTop)
-                .attr("width", Math.max(0, x.bandwidth() - 1))
-                .attr("height", height - marginTop - marginBottom)
-                .attr("fill", color);
-
-            tickAdjust = () => { };
-        }
-
-        svg.append("g")
-            .attr("transform", `translate(0,${height - marginBottom})`)
-            .call(d3.axisBottom(x)
-                .ticks(ticks, typeof tickFormat === "string" ? tickFormat : undefined)
-                .tickFormat(typeof tickFormat === "function" ? tickFormat : undefined)
-                .tickSize(tickSize)
-                .tickValues(tickValues))
-            .call(tickAdjust)
-            .call(g => g.select(".domain").remove())
-            .call(g => g.append("text")
-                .attr("x", marginLeft)
-                .attr("y", marginTop + marginBottom - height - 6)
-                .attr("font-size", 14)
-                .attr("fill", "currentColor")
-                .attr("text-anchor", "start")
-                .attr("class", "title")
-                .text(title));
-    });
-    return <svg
-        id="legend"
-        x="550"
-        y="20"
-        width={width}
-        height={height}
-        viewBox={"0 0 " + width + " " + height}
-        overflow="visible"
-        display="block"
-        style={{ backgroundColor: "white" }}
-        ref={svgRef} />;
+    return (
+        <svg
+            id="legend"
+            x="550"
+            y="20"
+            width={width}
+            height={height}
+            viewBox={"0 0 " + width + " " + height}
+            overflow="visible"
+            display="block"
+            style={{ backgroundColor: "white" }}>
+            <rect
+                width="100%"
+                height="100%"
+                fill="rgba(255, 255, 255, 0.8)"
+            />
+            {legend}
+            <LegendTicks
+                height={height}
+                width={width}
+                marginBottom={marginBottom}
+                marginLeft={marginLeft}
+                marginRight={marginRight}
+                marginTop={marginTop}
+                title={title}
+                xScale={xScale}
+                tickFormat={tickFormat}
+                numTicks={ticks}
+                tickSize={tickSize}
+                tickValues={tickValues}
+                showHighLowLabels={showHighLowLabels}
+            />
+        </svg >);
 }
 
 function ramp(color: any, n = 256) {
