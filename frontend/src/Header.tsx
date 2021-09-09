@@ -6,9 +6,9 @@ import jointProgramLogo from './joint-program-logo.jpg'
 const Header = () =>
     <header>
         <div id="mst-title">
-            <img src={mstLogo} alt="Environmental Systems Triage" id="mst-logo" />
+            <img src={mstLogo} alt="Socio-Environmental Systems Risk Triage" id="mst-logo" />
             <div id="title-and-subtitle">
-                <h1>Environmental Systems Triage</h1>
+                <h1>Socio-Environmental Systems Risk Triage</h1>
                 <p>
                     An open-science visualization platform to combine, overlay,
                     and diagnose landscapes of socioeconomic, health, and
