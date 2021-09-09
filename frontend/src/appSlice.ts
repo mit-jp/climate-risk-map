@@ -341,6 +341,7 @@ export interface MapVisualizationJson {
     legend_formatter_type: FormatterType | null;
     decimals: number;
     legend_decimals: number | null;
+    order: number;
 };
 
 const intervalFromJson = (json: { start_date: string, end_date: string }) =>
@@ -387,6 +388,7 @@ const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualization =>
         legend_formatter_type: json.legend_formatter_type ?? undefined,
         decimals: json.decimals,
         legend_decimals: json.legend_decimals ?? undefined,
+        order: json.order,
     };
 }
 

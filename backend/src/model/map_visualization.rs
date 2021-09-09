@@ -30,6 +30,7 @@ pub struct MapVisualization {
     pub default_start_date: Option<NaiveDate>,
     pub default_end_date: Option<NaiveDate>,
     pub default_source: Option<i32>,
+    pub order: i16,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -60,6 +61,7 @@ pub struct MapVisualizationModel {
     pub legend_formatter_type: Option<i32>,
     pub decimals: i16,
     pub legend_decimals: Option<i16>,
+    pub order: i16,
 }
 
 impl MapVisualizationModel {
@@ -118,6 +120,7 @@ impl MapVisualizationModel {
             legend_formatter_type: map_visualization.legend_formatter_type,
             decimals: map_visualization.decimals,
             legend_decimals: map_visualization.legend_decimals,
+            order: map_visualization.order,
         }
     }
 }

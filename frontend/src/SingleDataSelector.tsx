@@ -36,7 +36,9 @@ const SingleDataSelector = () => {
         Object.keys(map.sources).length > 1;
 
     const mapList = () =>
-        Array.from(Object.values(mapVisualizations))
+        Object
+            .values(mapVisualizations)
+            .sort((a, b) => a.order - b.order)
             .map(map =>
                 <div key={map.id}>
                     <input

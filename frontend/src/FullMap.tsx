@@ -18,7 +18,7 @@ export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: b
     const dataDefinition = selectedMaps[0];
     const units = getUnits(dataDefinition, isNormalized);
     const unitString = getUnitString(units);
-    
+
     if (selectedMaps.length === 1) {
         return unitString;
     } else {
@@ -68,6 +68,7 @@ export interface MapVisualization {
     legend_formatter_type?: FormatterType;
     decimals: number;
     legend_decimals?: number;
+    order: number;
 };
 
 type Props = {
@@ -80,7 +81,7 @@ type Props = {
 
 const FullMap = ({ map, selectedMapVisualizations, data, detailedView, isNormalized }: Props) => {
     const mapType = selectedMapVisualizations[0]!.map_type;
-    const title = getLegendTitle(selectedMapVisualizations, isNormalized);
+    const legendTitle = getLegendTitle(selectedMapVisualizations, isNormalized);
     switch (mapType) {
         case MapType.Choropleth:
             return <ChoroplethMap
@@ -88,14 +89,14 @@ const FullMap = ({ map, selectedMapVisualizations, data, detailedView, isNormali
                 selectedMapVisualizations={selectedMapVisualizations}
                 data={data}
                 detailedView={detailedView}
-                title={title}
+                legendTitle={legendTitle}
                 isNormalized={isNormalized}
             />;
         case MapType.Bubble:
             return <BubbleMap
                 map={map}
                 data={data}
-                title={title}
+                legendTitle={legendTitle}
                 color={"rgb(34, 139, 69)"}
             />;
     }

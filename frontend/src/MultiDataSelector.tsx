@@ -102,6 +102,7 @@ const MultiDataSelector = () => {
 
     const getDataList = (dataFilter: (map: MapVisualization) => boolean) =>
         Object.values(maps)
+            .sort((a, b) => a.order - b.order)
             .filter(map => dataFilter(map))
             .map(map =>
                 checkBox(

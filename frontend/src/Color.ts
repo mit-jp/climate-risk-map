@@ -7,10 +7,10 @@ const redBlue = scaleThreshold<number, string, never>([.05, .25, .75, .95], [...
 
 const colorScheme = (map: MapVisualization): ColorScheme => {
     const domain = map.scale_domain;
-    const interpolator: (x: number) => string = (scales as any)["interpolate" + map.color_palette];
+    const interpolator: (x: number) => string = map.reverse_scale
+        ? x => (scales as any)["interpolate" + map.color_palette](1 - x)
+        : (scales as any)["interpolate" + map.color_palette];
     const scale: ReadonlyArray<string> = (scales as any)["scheme" + map.color_palette][domain.length];
-    // const reverse = map.reverseScale;
-    // TODO reverse the color scale if reverse === true
     const type = map.scale_type;
 
     switch (type) {

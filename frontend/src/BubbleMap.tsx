@@ -14,11 +14,11 @@ const BUBBLE_TRANSITION = { transition: "r 0.3s ease-in-out" };
 type Props = {
     map: TopoJson,
     data: Map<string, number>,
-    title: string,
+    legendTitle: string,
     color: string,
 }
 
-const BubbleMap = ({ map, data, title, color }: Props) => {
+const BubbleMap = ({ map, data, legendTitle, color }: Props) => {
     const path = geoPath();
     const counties = feature(
         map,
@@ -45,7 +45,7 @@ const BubbleMap = ({ map, data, title, color }: Props) => {
                     />
                 )}
             </g>
-            <BubbleLegend radius={valueToRadius} title={title} />
+            <BubbleLegend radius={valueToRadius} title={legendTitle} />
         </React.Fragment>
     )
 }

@@ -7,7 +7,7 @@ SELECT
     map_visualization.id,
     dataset.units,
     dataset.short_name,
-    dataset."name",
+    COALESCE(map_visualization."name", dataset."name") as name,
     dataset.description,
     map_visualization.subcategory,
     map_visualization.dataset,
@@ -25,7 +25,8 @@ SELECT
     map_visualization.show_pdf,
     map_visualization.default_start_date,
     map_visualization.default_end_date,
-    map_visualization.default_source
+    map_visualization.default_source,
+    map_visualization_collection.order
 "#;
 
 const FROM: &str = r#"

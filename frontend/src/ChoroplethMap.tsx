@@ -81,11 +81,11 @@ type Props = {
     selectedMapVisualizations: MapVisualization[],
     data: Map<string, number>,
     detailedView: boolean,
-    title: string,
+    legendTitle: string,
     isNormalized: boolean,
 }
 
-const ChoroplethMap = ({ map, selectedMapVisualizations, data, detailedView, title, isNormalized }: Props) => {
+const ChoroplethMap = ({ map, selectedMapVisualizations, data, detailedView, legendTitle, isNormalized }: Props) => {
     const dispatch = useThunkDispatch();
     const transform = useSelector(selectMapTransform);
     const colorScheme = Color(isNormalized, detailedView, selectedMapVisualizations[0]);
@@ -130,7 +130,7 @@ const ChoroplethMap = ({ map, selectedMapVisualizations, data, detailedView, tit
             </g>
             <StateMap map={map} transform={transform} />
             <Legend
-                title={title}
+                title={legendTitle}
                 color={colorScheme}
                 tickFormat={legendFormatter}
                 ticks={legendTicks}
