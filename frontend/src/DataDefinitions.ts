@@ -612,7 +612,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         dataset: Dataset.FirstStreet,
     })],
     [DataGroup.AllIndustries, genericDefinition({
-        name: () => "Employment in all industries 2019",
+        name: () => "Employment in all industries",
         units: "people",
         color: scaleSequential<string>(scales.interpolateGreens).domain([0, 1000000]),
         type: DataType.Economic,
@@ -729,19 +729,19 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         description: () => "The hottest month out of all months in the years selected. Directly calculated from the reanalysis data",
     })],
     [DataGroup.MiningQuarryingAndOilAndGasExtraction, employmentDefinition({
-        name: "Mining, Quarrying, and Oil & Gas Extraction 2019",
+        name: "Employment in Mining, Quarrying, and Oil & Gas Extraction",
         color: scaleSequentialSqrt([0, 50], scales.interpolateGreens)
     })],
     [DataGroup.Construction, employmentDefinition({
-        name: "Construction 2019",
+        name: "Employment in Construction",
         color: scaleSequential<string>(scales.interpolateGreens).domain([0, 15])
     })],
     [DataGroup.AgricultureForestryFishingAndHunting, employmentDefinition({
-        name: "Agriculture, forestry, fishing, and hunting 2019",
+        name: "Employment in Agriculture, forestry, fishing, and hunting",
         color: scaleSequentialSqrt<string>(scales.interpolateGreens).domain([0, 50])
     })],
     [DataGroup.HealthcareAndSocialAssistance, employmentDefinition({
-        name: "Healthcare and social assistance 2019",
+        name: "Employment in Healthcare and social assistance",
         color: scaleSequential<string>(scales.interpolateGreens).domain([5, 25])
     })],
     [DataGroup.PerCapitapersonalincome2018, genericDefinition({
