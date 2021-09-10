@@ -117,6 +117,7 @@ export enum DataGroup {
     energy_expenditure_share_of_gdp = "energy_expenditure_share_of_gdp",
     transportation_energy_expenditure_share_of_gdp = "transportation_energy_expenditure_share_of_gdp",
     residential_energy_expenditure_share_of_gdp = "residential_energy_expenditure_share_of_gdp",
+    PerCritHab = "PerCritHab",
 }
 
 export type DataIdParams = {
@@ -181,6 +182,7 @@ export enum Dataset {
     CDC = "Centers for Disease Control and Prevention",
     EIA = "US Energy Information Administration",
     SEDAC = "SEDAC",
+    USFWS = "USFWS",
 }
 
 export type DatasetDefinition = {
@@ -366,6 +368,12 @@ export const datasetDefinitions = (dataset: Dataset): DatasetDefinition => {
             name: "NASA Socioeconomic Data and Applications Center",
             description: `A Data Center in NASA's Earth Observing System Data and Information System`,
             link: "https://sedac.ciesin.columbia.edu/data/sets/browse",
+        }
+        case Dataset.USFWS: return {
+            name: "US Fish and Wildlife Service",
+            description: `The U.S. Fish and Wildlife Service is the premier government agency dedicated
+            to the conservation, protection, and enhancement of fish, wildlife and plants, and their habitats.`,
+            link: "https://ecos.fws.gov/ecp/report/critical-habitat",
         }
         default: throwBadDataset(dataset);
     }
@@ -1007,6 +1015,20 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         dataset: Dataset.CDC,
         formatter: deathFormatter,
         legendFormatter: deathFormatter,
+    })],
+    [DataGroup.PerCritHab, genericDefinition({
+        name: () => "Critical Habitat",
+        units: "%",
+        color: scaleSequential(scales.interpolateYlOrBr),
+        type: DataType.Land,
+        mapType: MapType.Choropleth,
+        description: () => `The data we are providing is the percent of land in
+        a county that is considered critical habitat according to the USFWS
+        Threatened & Endangered Species Active Critical Habitat Report.
+        We have represented as % of total county area.`,
+        dataset: Dataset.USFWS,
+        formatter: percentFormatter,
+        legendFormatter: percentFormatter,
     })],
 ]);
 export default dataDefinitions;
