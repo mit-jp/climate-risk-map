@@ -491,7 +491,7 @@ const demographicDefinition = (builder: DemographicDefinitionBuilder): DataDefin
 
 const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.PM2_5, genericDefinition({
-        name: () => "PM2.5",
+        name: () => "Exposure to airborne particulate matter",
         units: "µg/m³ (population weighted average)",
         color: scaleSequentialSqrt([4, 10], scales.interpolateYlOrBr),
         type: DataType.Health,
