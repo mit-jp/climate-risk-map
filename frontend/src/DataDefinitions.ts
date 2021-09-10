@@ -206,6 +206,7 @@ export enum Year {
 export const riskMetricFormatter = (d: number | { valueOf(): number; }) => format(".0%")(d).slice(0, -1)
 export const percentFormatter = (d: number | { valueOf(): number; }) => format(".1%")(d).slice(0, -1)
 export const regularNumber = format(",.0f");
+const deathFormatter = format(",.1f");
 const money = format("$,.2s");
 const nearestSI = format("~s");
 const years = [Year._1980_1999, Year._2000_2019, Year._1980_2019];
@@ -960,7 +961,8 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         mapType: MapType.Choropleth,
         description: () => deathDescription,
         dataset: Dataset.CDC,
-
+        formatter: deathFormatter,
+        legendFormatter: deathFormatter,
     })],
     [DataGroup.Mortality_5_25, genericDefinition({
         name: () => "Death Rate, ages 5 to 25",
@@ -970,7 +972,8 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         mapType: MapType.Choropleth,
         description: () => deathDescription,
         dataset: Dataset.CDC,
-
+        formatter: deathFormatter,
+        legendFormatter: deathFormatter,
     })],
     [DataGroup.Mortality_25_plus, genericDefinition({
         name: () => "Death Rate, ages 25+",
@@ -980,7 +983,8 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         mapType: MapType.Choropleth,
         description: () => deathDescription,
         dataset: Dataset.CDC,
-
+        formatter: deathFormatter,
+        legendFormatter: deathFormatter,
     })],
     [DataGroup.Mortality_25_plus_circ, genericDefinition({
         name: () => "Circulatory Death Rate, ages 25+",
@@ -990,7 +994,8 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         mapType: MapType.Choropleth,
         description: () => deathDescription,
         dataset: Dataset.CDC,
-
+        formatter: deathFormatter,
+        legendFormatter: deathFormatter,
     })],
     [DataGroup.Mortality_25_plus_resp, genericDefinition({
         name: () => "Respiratory Death Rate, ages 25+",
@@ -1000,6 +1005,8 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         mapType: MapType.Choropleth,
         description: () => deathDescription,
         dataset: Dataset.CDC,
+        formatter: deathFormatter,
+        legendFormatter: deathFormatter,
     })],
 ]);
 export default dataDefinitions;
