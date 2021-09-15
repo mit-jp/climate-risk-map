@@ -165,9 +165,10 @@ export const appSlice = createSlice({
         changeMapSelection: (state, action: PayloadAction<MapVisualizationId>) => {
             const selection = state.mapSelections[state.dataTab][0];
             selection.mapVisualization = action.payload;
+            const mapVisualization = state.mapVisualizations[state.dataTab][selection.mapVisualization];
             const possibleDataSources = getPossibleDataSources(state, selection);
-            if (!possibleDataSources.hasOwnProperty(selection.dataSource)) {
-                selection.dataSource = possibleDataSources[0];
+            if (!possibleDataSources.includes(selection.dataSource)) {
+                selection.dataSource = mapVisualization?.default_source ?? possibleDataSources[0];
             }
             const possibleDates = getPossibleDates(state, selection);
             if (selection.dateRange && !possibleDates.includes(selection.dateRange)) {
@@ -176,7 +177,7 @@ export const appSlice = createSlice({
                     selection.dateRange = possibleDates[0];
             }
 
-            if (state.mapVisualizations[state.dataTab][selection.mapVisualization]?.map_type === MapType.Bubble) {
+            if (mapVisualization?.map_type === MapType.Bubble) {
                 // don't zoom in to state on bubble map. it's unsupported right now
                 state.state = undefined;
             }
