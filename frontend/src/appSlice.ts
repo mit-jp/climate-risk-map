@@ -238,7 +238,7 @@ export const {
 const getMapVisualizations = (state: AppState) => state.mapVisualizations[state.dataTab];
 const getPossibleDataSources = (state: AppState, selection: MapSelection): number[] => {
     const mapVisualization = getMapVisualizations(state)[selection.mapVisualization];
-    return Object.keys(mapVisualization!.date_ranges_by_source) as unknown[] as number[];
+    return Object.keys(mapVisualization!.date_ranges_by_source).map(key => parseInt(key));
 }
 const getPossibleDates = (state: AppState, selection: MapSelection) => {
     const mapVisualization = getMapVisualizations(state)[selection.mapVisualization];
