@@ -1,5 +1,5 @@
 export enum DataTab {
-    RiskMetrics = "multi-system metrics",
+    RiskMetrics = "combined data",
     Water = "water",
     Land = "land",
     Climate = "climate",
