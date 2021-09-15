@@ -19,11 +19,13 @@ export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: b
     const units = getUnits(dataDefinition, isNormalized);
     const unitString = getUnitString(units);
 
-    if (selectedMaps.length === 1) {
-        return unitString;
-    } else {
-        return "Combined Risk";
-    }
+    return isNormalized
+        ? selectedMaps.some(value => value.subcategory === 1)
+            ? selectedMaps.length > 1
+                ? "Combined Risk"
+                : "Risk"
+            : "Scaled Value"
+        : unitString;
 }
 
 export enum Aggregation {
