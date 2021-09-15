@@ -118,6 +118,7 @@ export enum DataGroup {
     transportation_energy_expenditure_share_of_gdp = "transportation_energy_expenditure_share_of_gdp",
     residential_energy_expenditure_share_of_gdp = "residential_energy_expenditure_share_of_gdp",
     PerCritHab = "PerCritHab",
+    homeless_per_10000 = "homeless_per_10000",
 }
 
 export type DataIdParams = {
@@ -183,6 +184,7 @@ export enum Dataset {
     EIA = "US Energy Information Administration",
     SEDAC = "SEDAC",
     USFWS = "USFWS",
+    HUD = "HUD",
 }
 
 export type DatasetDefinition = {
@@ -374,6 +376,17 @@ export const datasetDefinitions = (dataset: Dataset): DatasetDefinition => {
             description: `The U.S. Fish and Wildlife Service is the premier government agency dedicated
             to the conservation, protection, and enhancement of fish, wildlife and plants, and their habitats.`,
             link: "https://ecos.fws.gov/ecp/report/critical-habitat",
+        }
+        case Dataset.HUD: return {
+            name: "U.S. Department of Housing and Urban Development",
+            description: `The U.S. Department of Housing and Urban Development's Office of Policy Development
+            and Research (PD&R) supports the Department's efforts to help create cohesive, economically healthy communities.
+
+            PD&R is responsible for maintaining current information on housing needs, market conditions, and existing programs,
+            as well as conducting research on priority housing and community development issues. The Office provides 
+            reliable and objective data and analysis to help inform policy decisions. PD&R is committed to involving a
+            greater diversity of perspectives, methods, and researchers in HUD research.`,
+            link: "https://www.huduser.gov/portal/datasets/ahar/2020-ahar-part-1-pit-estimates-of-homelessness-in-the-us.html"
         }
         default: throwBadDataset(dataset);
     }
@@ -767,6 +780,17 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
     [DataGroup.PercentNonwhite, demographicDefinition({ name: () => "Nonwhite Population", domainMax: 100 })],
     [DataGroup.PercentofPopulationBelowPovertyLevel, demographicDefinition({ name: () => "Population Below Poverty Level" })],
     [DataGroup.UnemploymentRate, demographicDefinition({ name: () => "Unemployment Rate", domainMax: 20 })],
+    [DataGroup.homeless_per_10000, genericDefinition({
+        name: () => "People experiencing homelessness",
+        color: scaleSequential([0, 30], scales.interpolatePurples),
+        description: () => `The number of people experiencing homelessness per 10,000 people in 2019.
+            We divided the US Housing and Urban Development people experiencing homelessness in 2019
+            and divided it by the Census Bureau's population counts in 2019.`,
+        units: "per 10,000 people",
+        dataset: Dataset.HUD,
+        normalizations: allNormalizations,
+        type: DataType.Demographics,
+    })],
     [DataGroup.Populationpersquaremile2010, genericDefinition({
         name: () => "Population Density",
         units: "people / sq mile",

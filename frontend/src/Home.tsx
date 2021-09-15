@@ -24,6 +24,7 @@ const csvFiles = [
   "energy_employment.csv",
   "mortality.csv",
   "energy.csv",
+  "homelessness.csv",
 ];
 type TopoJsonFile = "usa.json" |
   "roads-topo.json" |
