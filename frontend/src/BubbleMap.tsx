@@ -13,7 +13,7 @@ const BUBBLE_TRANSITION = { transition: "r 0.3s ease-in-out" };
 
 type Props = {
     map: TopoJson,
-    data: Map<string, number>,
+    data?: Map<string, number>,
     legendTitle: string,
     color: string,
 }
@@ -24,8 +24,14 @@ const BubbleMap = ({ map, data, legendTitle, color }: Props) => {
         map,
         map.objects.counties as GeometryCollection<GeoJsonProperties>
     ).features;
-    const valueToRadius = makeValueToRadius(counties, data);
-    const countyToRadius = makeCountyToRadius(valueToRadius, data);
+
+    let valueToRadius = undefined;
+    let countyToRadius: ((county: Feature<Geometry, GeoJsonProperties>) => number) | undefined = undefined;
+    if (data) {
+        valueToRadius = makeValueToRadius(counties, data);
+        countyToRadius = makeCountyToRadius(valueToRadius, data);
+    }
+
 
     return (
         <React.Fragment>
@@ -37,7 +43,7 @@ const BubbleMap = ({ map, data, legendTitle, color }: Props) => {
                         style={BUBBLE_TRANSITION}
                         key={county.id}
                         transform={`translate(${path.centroid(county)})`}
-                        r={countyToRadius(county)}
+                        r={countyToRadius ? countyToRadius(county) : 0}
                         stroke={"#fff"}
                         fill={color}
                         strokeOpacity={0.5}
@@ -45,7 +51,7 @@ const BubbleMap = ({ map, data, legendTitle, color }: Props) => {
                     />
                 )}
             </g>
-            <BubbleLegend radius={valueToRadius} title={legendTitle} />
+            {valueToRadius && <BubbleLegend radius={valueToRadius} title={legendTitle} />}
         </React.Fragment>
     )
 }

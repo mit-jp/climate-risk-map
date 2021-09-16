@@ -3,7 +3,7 @@ import { scaleSequential, scaleThreshold, schemeRdYlBu, interpolateRdYlBu, Scale
 import { MapVisualization } from './FullMap';
 
 const redBlueContinuous = scaleSequential<string>(x => interpolateRdYlBu(1 - x));
-const redBlue = scaleThreshold<number, string, never>([.05, .25, .75, .95], [...schemeRdYlBu[5]].reverse());
+export const redBlue = scaleThreshold<number, string, never>([.05, .25, .75, .95], [...schemeRdYlBu[5]].reverse());
 
 const colorScheme = (map: MapVisualization): ColorScheme => {
     const domain = map.scale_domain;

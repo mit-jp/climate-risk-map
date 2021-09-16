@@ -34,6 +34,7 @@
     "react-redux": "^7.2.4",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
+    "react-useinterval": "^1.0.2",
     "topojson-client": "^3.1.0",
     "tslib": "^2.3.1",
     "typescript": "~4.3"
@@ -62,6 +63,7 @@
     ]
   },
   "devDependencies": {
-    "@types/luxon": "^1.27.1"
+    "@types/luxon": "^1.27.1",
+    "@types/randomcolor": "^0.5.6"
   }
 }

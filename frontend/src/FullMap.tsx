@@ -1,10 +1,11 @@
 import React from "react";
-import BubbleMap from "./BubbleMap";
 import ChoroplethMap from "./ChoroplethMap";
 import { Map } from "immutable";
-import { TopoJson } from "./Home";
+
 import { DataSource, MapVisualizationId } from "./DataSelector";
 import { Interval } from "luxon";
+import { RootState } from "./store";
+import { useSelector } from "react-redux";
 
 export const getUnitString = (units: string) => units ? ` ${units}` : "";
 
@@ -74,34 +75,21 @@ export interface MapVisualization {
 };
 
 type Props = {
-    map: TopoJson,
-    selectedMapVisualizations: MapVisualization[],
+    countyPaths: { path: string, id: string }[],
+    mapVisualization: MapVisualization | undefined,
     data: Map<string, number>,
     detailedView: boolean,
     isNormalized: boolean,
 }
 
-const FullMap = ({ map, selectedMapVisualizations, data, detailedView, isNormalized }: Props) => {
-    const mapType = selectedMapVisualizations[0]!.map_type;
-    const legendTitle = getLegendTitle(selectedMapVisualizations, isNormalized);
-    switch (mapType) {
-        case MapType.Choropleth:
-            return <ChoroplethMap
-                map={map}
-                selectedMapVisualizations={selectedMapVisualizations}
-                data={data}
-                detailedView={detailedView}
-                legendTitle={legendTitle}
-                isNormalized={isNormalized}
-            />;
-        case MapType.Bubble:
-            return <BubbleMap
-                map={map}
-                data={data}
-                legendTitle={legendTitle}
-                color={"rgb(34, 139, 69)"}
-            />;
-    }
+const FullMap = ({ countyPaths, mapVisualization, data, detailedView, isNormalized }: Props) => {
+    return <ChoroplethMap
+        countyPaths={countyPaths}
+        mapVisualization={mapVisualization}
+        data={data}
+        detailedView={detailedView}
+        isNormalized={isNormalized}
+    />;
 }
 
 export default FullMap;

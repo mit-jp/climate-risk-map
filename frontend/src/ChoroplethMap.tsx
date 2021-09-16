@@ -1,26 +1,10 @@
-import { TopoJson, useThunkDispatch } from "./Home";
 import React from "react";
-import { Map } from "immutable";
-import { format, geoPath } from 'd3';
-import { feature } from 'topojson-client';
-import { GeometryCollection } from 'topojson-specification';
-import { GeoJsonProperties } from 'geojson';
-import Color from "./Color";
-import StateMap from "./StateMap";
-import Legend from "./Legend";
-import ProbabilityDensity from "./ProbabilityDensity";
-import CountyPath from "./CountyPath";
-import { hoverCounty, hoverPosition, selectMapTransform } from "./appSlice";
-import { useSelector } from "react-redux";
-import { ZOOM_TRANSITION } from "./MapWrapper";
-import { FormatterType, MapType, MapVisualization } from "./FullMap";
+import { format } from 'd3';
+import { FormatterType, MapVisualization } from "./FullMap";
+import Color, { redBlue } from "./Color";
+import { Map } from 'immutable';
 
 const MISSING_DATA_COLOR = "#ccc";
-
-const getLegendTicks = (selectedMaps: MapVisualization[], isNormalized: boolean) =>
-    isNormalized ?
-        undefined :
-        selectedMaps[0].legend_ticks;
 
 export type Formatter = (n: number | { valueOf(): number }) => string;
 
@@ -42,111 +26,36 @@ export const createFormatter = (formatterType: FormatterType, decimals: number, 
         }
     }
 }
-const getLegendFormatter = (selectedMaps: MapVisualization[], isNormalized: boolean): Formatter => {
-    const firstMap = selectedMaps[0];
-    const formatterType = firstMap.legend_formatter_type ?? firstMap.formatter_type;
-    const decimals = firstMap.legend_decimals ?? firstMap.decimals;
-    return createFormatter(formatterType, decimals, isNormalized);
-}
-
-function shouldShowPdf(selectedMaps: MapVisualization[], isNormalized: boolean) {
-    const firstSelection = selectedMaps[0];
-    if (selectedMaps[0] !== undefined && selectedMaps[0].show_pdf === false) {
-        return false;
-    }
-    if (isNormalized) {
-        return selectedMaps.length > 1;
-    }
-    return firstSelection !== undefined && firstSelection.map_type === MapType.Choropleth;
-}
-
-function getPdfDomain(selectedMaps: MapVisualization[]) {
-    const firstSelection = selectedMaps[0];
-    if (firstSelection === undefined) {
-        return undefined;
-    }
-
-    return firstSelection.pdf_domain;
-}
-const path = geoPath();
-
-const getCountyFeatures = (map: TopoJson) =>
-    feature(
-        map,
-        map.objects.counties as GeometryCollection<GeoJsonProperties>
-    ).features;
 
 type Props = {
-    map: TopoJson,
-    selectedMapVisualizations: MapVisualization[],
-    data: Map<string, number>,
-    detailedView: boolean,
-    legendTitle: string,
+    countyPaths: { path: string, id: string }[],
     isNormalized: boolean,
+    detailedView: boolean,
+    mapVisualization: MapVisualization | undefined,
+    data: Map<string, number>,
 }
 
-const ChoroplethMap = ({ map, selectedMapVisualizations, data, detailedView, legendTitle, isNormalized }: Props) => {
-    const dispatch = useThunkDispatch();
-    const transform = useSelector(selectMapTransform);
-    const colorScheme = Color(isNormalized, detailedView, selectedMapVisualizations[0]);
+const ChoroplethMap = ({ countyPaths, isNormalized, detailedView, mapVisualization, data }: Props) => {
+    const colorScheme = mapVisualization
+        ? Color(isNormalized, detailedView, mapVisualization)
+        : redBlue;
     const color = (countyId: string) => {
         const value = data.get(countyId);
         return colorScheme(value as any) ?? MISSING_DATA_COLOR;
     }
-    const countyFeatures = getCountyFeatures(map);
-    const legendTicks = getLegendTicks(selectedMapVisualizations, isNormalized);
-    const legendFormatter = getLegendFormatter(selectedMapVisualizations, isNormalized);
-    const getArrayOfData = () =>
-        Array
-            .from(data.valueSeq())
-            .filter(value => value !== undefined) as number[];
-    const onMouseMove = (event: React.MouseEvent<SVGGElement, MouseEvent>) =>
-        onMove({ x: event.pageX + 10, y: event.pageY - 25 });
-    const onTouchMove = (event: React.TouchEvent<SVGGElement>) =>
-        onMove({ x: event.touches[0].pageX + 30, y: event.touches[0].pageY - 45 })
-    const onMove = (position: { x: number, y: number }) =>
-        dispatch(hoverPosition(position));
-    const onHoverEnd = () => dispatch(hoverCounty());
-
     return (
         <React.Fragment>
             <g
                 id="counties"
-                onMouseOut={onHoverEnd}
-                onTouchEnd={onHoverEnd}
-                onMouseMove={onMouseMove}
-                onTouchMove={onTouchMove}
-                transform={transform}
-                style={ZOOM_TRANSITION}
             >
-                {countyFeatures.map(county =>
-                    <CountyPath
-                        key={county.id}
-                        color={color(county.id as string)}
-                        d={path(county)!}
-                        id={county.id as string}
+                {countyPaths.map(({ id, path }) =>
+                    <path
+                        key={id}
+                        fill={color(id)}
+                        d={path}
                     />
                 )}
             </g>
-            <StateMap map={map} transform={transform} />
-            <Legend
-                title={legendTitle}
-                color={colorScheme}
-                tickFormat={legendFormatter}
-                ticks={legendTicks}
-                showHighLowLabels={isNormalized}
-            />
-            {
-                shouldShowPdf(selectedMapVisualizations, isNormalized) &&
-                <ProbabilityDensity
-                    data={getArrayOfData()}
-                    map={selectedMapVisualizations[0]}
-                    xRange={getPdfDomain(selectedMapVisualizations)}
-                    formatter={legendFormatter}
-                    continuous={detailedView}
-                    shouldNormalize={isNormalized}
-                />
-            }
         </React.Fragment>
     )
 }

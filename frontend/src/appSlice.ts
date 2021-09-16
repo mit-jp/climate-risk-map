@@ -26,7 +26,7 @@ export type TabAndMapVisualizations = {
 }
 
 interface AppState {
-    readonly map?: TopoJson;
+    readonly countyPaths?: { id: string, path: string }[];
     readonly mapTransform?: string;
     readonly overlays: { [key in OverlayName]: Overlay };
     readonly mapSelections: { [key in DataTab]: MapSelection[] },
@@ -43,6 +43,7 @@ interface AppState {
     readonly transmissionLineType: TransmissionLineType,
     readonly hoverCountyId?: string,
     readonly hoverPosition?: { x: number, y: number },
+    readonly color: string;
 }
 
 const defaultSelections: { [key in DataTab]: MapSelection[] } = {
@@ -119,14 +120,27 @@ const initialState: AppState = {
     showDemographics: true,
     waterwayValue: "total",
     transmissionLineType: "Level 3 (>= 345kV)",
+    color: "#000",
 };
+const getCountyFeatures = (map: TopoJson) =>
+    feature(
+        map,
+        map.objects.counties as GeometryCollection<GeoJsonProperties>
+    ).features;
+
+const path = geoPath();
 
 export const appSlice = createSlice({
     name: 'app',
     initialState,
     reducers: {
-        setMap: (state, action: PayloadAction<TopoJson | undefined>) => {
-            state.map = action.payload;
+        setMap: (state, { payload }: PayloadAction<TopoJson | undefined>) => {
+            if (payload) {
+                state.countyPaths = getCountyFeatures(payload).map(feature => ({
+                    path: path(feature)!,
+                    id: feature.id as string,
+                }));
+            }
         },
         setOverlay: (state, { payload }: PayloadAction<{ name: OverlayName, topoJson?: TopoJson }>) => {
             state.overlays[payload.name].topoJson = payload.topoJson;
@@ -223,7 +237,7 @@ export const appSlice = createSlice({
                     return accumulator;
                 }, {} as { [key in DataTab]: { [key in MapVisualizationId]: MapVisualization } });
             state.mapVisualizations = mapVisualizationsByTab;
-        }
+        },
     },
 });
 
@@ -285,11 +299,6 @@ export const selectSelectedMapVisualizations = createSelector(
             selections.map(selection => mapVisualizations[selection.mapVisualization]);
     }
 )
-export const selectMapTransform = createSelector(
-    (state: RootState) => state.app.state,
-    state => state.app.map,
-    generateMapTransform
-);
 export const selectDataQueryParams = createSelector(
     selectMapVisualizations,
     selectSelections,

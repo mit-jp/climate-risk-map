@@ -1,10 +1,4 @@
 import React from "react";
-import { useSelector } from "react-redux";
-import { clickCounty, hoverCounty } from "./appSlice";
-import { useThunkDispatch } from "./Home";
-import { RootState } from "./store";
-
-const COLOR_TRANSITION = { transition: "fill 0.2s ease-in-out" };
 
 type Props = {
     color: string;
@@ -12,21 +6,10 @@ type Props = {
     id: string;
 };
 
-const CountyPath = ({ color, d, id }: Props) => {
-    const dispatch = useThunkDispatch();
-    const isHovered = useSelector((state: RootState) => state.app.hoverCountyId === id);
-    const setHoverCounty = () => dispatch(hoverCounty(id));
-    const onClick = () => dispatch(clickCounty(id));
+const CountyPath = ({ color, d }: Props) => {
     return <path
         fill={color}
         d={d}
-        onMouseOver={setHoverCounty}
-        onTouchStart={setHoverCounty}
-        onClick={onClick}
-        opacity={isHovered ? 0.5 : 1}
-        stroke={isHovered ? "black" : undefined}
-        strokeWidth={isHovered ? 0.5 : undefined}
-        style={COLOR_TRANSITION}
     />
 }
 
