@@ -76,19 +76,13 @@ export interface MapVisualization {
 
 type Props = {
     countyPaths: { path: string, id: string }[],
-    mapVisualization: MapVisualization | undefined,
     data: Map<string, number>,
-    detailedView: boolean,
-    isNormalized: boolean,
 }
 
-const FullMap = ({ countyPaths, mapVisualization, data, detailedView, isNormalized }: Props) => {
+const FullMap = ({ countyPaths, data }: Props) => {
     return <ChoroplethMap
         countyPaths={countyPaths}
-        mapVisualization={mapVisualization}
         data={data}
-        detailedView={detailedView}
-        isNormalized={isNormalized}
     />;
 }
 

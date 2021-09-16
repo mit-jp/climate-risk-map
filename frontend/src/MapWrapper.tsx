@@ -13,50 +13,30 @@ import DataSourceDescription from './DataSourceDescription';
 import { useGetDataQuery } from './MapApi';
 import { skipToken } from '@reduxjs/toolkit/dist/query';
 import DataProcessor from './DataProcessor';
+import randomColor from 'randomcolor';
 import { Map } from 'immutable';
 import Counties from './Counties';
+import ChoroplethMap from './ChoroplethMap';
 
 export const ZOOM_TRANSITION = { transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)" };
 
 const MapWrapper = () => {
     const selectedMapVisualizations = useSelector(selectSelectedMapVisualizations);
     const countyPaths = useSelector((state: RootState) => state.app.countyPaths);
-    const detailedView = useSelector((state: RootState) => state.app.detailedView);
-    const isNormalized = useSelector(selectIsNormalized);
-    // const state = useSelector((state: RootState) => state.app.state);
-    // const dataWeights = useSelector((state: RootState) => state.app.dataWeights);
-    // const queryParams = useSelector(selectDataQueryParams);
-    // const { data } = useGetDataQuery(queryParams ?? skipToken);
-
-    // const processedData = data ?
-    //     DataProcessor(data, selectedMapVisualizations, dataWeights, state, isNormalized) :
-    //     undefined;
-
-    const processedData = Counties.map(_ => Math.random());
-
     if (countyPaths === undefined) {
         return <p>Loading</p>;
     }
     return (
         <div id="map">
-            {
-                selectedMapVisualizations.length > 0
-                    ? <MapTitle
-                        selectedMapVisualizations={selectedMapVisualizations}
-                        isNormalized={isNormalized} />
-                    : <div id="empty-title"></div>
-            }
+            <div id="empty-title"></div>
             <svg viewBox="0, 0, 1175, 610">
-                <FullMap
+                <ChoroplethMap
                     countyPaths={countyPaths}
-                    mapVisualization={selectedMapVisualizations[0]}
-                    data={processedData ?? Map()}
-                    detailedView={detailedView}
-                    isNormalized={isNormalized}
+                    data={Map()}
                 />
                 <Overlays />
             </svg>
-            {countyPaths && <MapControls processedData={processedData} />}
+            {countyPaths && <MapControls processedData={Map()} />}
             <DataDescription />
             <DataSourceDescription />
         </div>

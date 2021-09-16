@@ -10,8 +10,11 @@ import { geoPath } from 'd3';
 import { feature } from 'topojson-client';
 import { DataSource, MapSelection, MapVisualizationId } from './DataSelector';
 import { Interval } from 'luxon';
+import { Map } from 'immutable';
 import { ColorPalette, FormatterType, MapType, MapVisualization, ScaleType } from './FullMap';
 import DataTab from './DataTab';
+import randomColor from 'randomcolor';
+import Counties from './Counties';
 
 export type TransmissionLineType = "Level 2 (230kV-344kV)" | "Level 3 (>= 345kV)" | "Level 2 & 3 (>= 230kV)";
 export type OverlayName = "Highways" | "Major railroads" | "Transmission lines" | "Marine highways" | "Critical habitats";
@@ -27,6 +30,8 @@ export type TabAndMapVisualizations = {
 
 interface AppState {
     readonly countyPaths?: { id: string, path: string }[];
+    readonly color: string;
+    readonly data: { [key: string]: number };
     readonly mapTransform?: string;
     readonly overlays: { [key in OverlayName]: Overlay };
     readonly mapSelections: { [key in DataTab]: MapSelection[] },
@@ -43,7 +48,6 @@ interface AppState {
     readonly transmissionLineType: TransmissionLineType,
     readonly hoverCountyId?: string,
     readonly hoverPosition?: { x: number, y: number },
-    readonly color: string;
 }
 
 const defaultSelections: { [key in DataTab]: MapSelection[] } = {
@@ -108,6 +112,8 @@ const initialState: AppState = {
         "Marine highways": { shouldShow: false },
         "Critical habitats": { shouldShow: false },
     },
+    data: {},
+    color: "#444",
     mapSelections: defaultSelections,
     mapVisualizations: defaultMapVisualizations,
     dataWeights: {},
@@ -120,7 +126,6 @@ const initialState: AppState = {
     showDemographics: true,
     waterwayValue: "total",
     transmissionLineType: "Level 3 (>= 345kV)",
-    color: "#000",
 };
 const getCountyFeatures = (map: TopoJson) =>
     feature(
@@ -195,9 +200,11 @@ export const appSlice = createSlice({
                 // don't zoom in to state on bubble map. it's unsupported right now
                 state.state = undefined;
             }
+            state.data = Counties.map(_ => Math.random()).toObject();
         },
         setMapSelections: (state, action: PayloadAction<MapSelection[]>) => {
             state.mapSelections[state.dataTab] = action.payload;
+            state.data = Counties.map(_ => Math.random()).toObject();
         },
         setWaterwayValue(state, action: PayloadAction<WaterwayValue>) {
             state.waterwayValue = action.payload;
@@ -238,6 +245,10 @@ export const appSlice = createSlice({
                 }, {} as { [key in DataTab]: { [key in MapVisualizationId]: MapVisualization } });
             state.mapVisualizations = mapVisualizationsByTab;
         },
+        setColor: state => {
+            state.color = randomColor();
+            state.data = Counties.map(_ => Math.random()).toObject();
+        }
     },
 });
 
@@ -246,7 +257,7 @@ export const {
     toggleDatasetDescription, changeWeight, changeDateRange, setDataTab,
     changeDataSource, changeMapSelection, setMapSelections, toggleDataDescription,
     setShowDemographics, setShowRiskMetrics, setWaterwayValue, setTransmissionLineType,
-    hoverCounty, hoverPosition, clickCounty, setMapVisualizations,
+    hoverCounty, hoverPosition, clickCounty, setMapVisualizations, setColor,
 } = appSlice.actions;
 
 // Convenience accessors

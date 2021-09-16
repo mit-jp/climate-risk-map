@@ -1,7 +1,7 @@
 import { Button, Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch } from '@material-ui/core';
 import React, { } from 'react';
 import { useSelector } from 'react-redux';
-import { Overlay, OverlayName, selectIsNormalized, selectSelectedMapVisualizations, setDetailedView, setShowOverlay, setTransmissionLineType, setWaterwayValue, TransmissionLineType } from './appSlice';
+import { Overlay, OverlayName, selectIsNormalized, selectSelectedMapVisualizations, setColor, setDetailedView, setShowOverlay, setTransmissionLineType, setWaterwayValue, TransmissionLineType } from './appSlice';
 import { useThunkDispatch } from './Home';
 import { RootState } from './store';
 import { Map } from 'immutable';
@@ -104,6 +104,9 @@ const MapControls = ({ processedData }: Props) => {
     }
 
     return <div id="map-controls">
+        <Button variant="contained" onClick={() => dispatch(setColor())}>
+            Color
+        </Button>
         {mapToggleUI()}
         {isNormalized && processedData &&
             <FormControlLabel

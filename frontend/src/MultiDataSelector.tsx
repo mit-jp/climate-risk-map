@@ -5,7 +5,7 @@ import { Accordion, AccordionDetails, AccordionSummary, Checkbox, FormControlLab
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { useThunkDispatch } from './Home';
 import { useSelector } from 'react-redux';
-import { changeWeight, selectSelections, setMapSelections, setShowRiskMetrics, setShowDemographics, selectMapVisualizations } from './appSlice';
+import { changeWeight, selectSelections, setMapSelections, setShowRiskMetrics, setShowDemographics, selectMapVisualizations, setColor } from './appSlice';
 import { RootState, store } from './store';
 import { MapSelection, MapVisualizationId } from './DataSelector';
 import { MapVisualization } from './FullMap';
@@ -71,21 +71,7 @@ const MultiDataSelector = () => {
     const selectionMap = Map(selections.map(selection => [selection.mapVisualization, selection]));
 
     const onSelectionToggled = (event: ChangeEvent<HTMLInputElement>) => {
-        const map = maps[parseInt(event.target.value)];
-        const checked = event.target.checked;
-        var changedSelections;
-        if (checked) {
-            const source = map.default_source ?? map.sources[parseInt(Object.keys(map.sources)[0])].id;
-            const dateRange = map.default_date_range ?? map.date_ranges_by_source[source][0];
-            changedSelections = selectionMap.set(map.id, {
-                mapVisualization: map.id,
-                dataSource: source,
-                dateRange,
-            });
-        } else {
-            changedSelections = selectionMap.delete(map.id);
-        }
-        dispatch(setMapSelections(Array.from(changedSelections.values())));
+        dispatch(setColor());
     }
 
     const onRiskMetricsToggled = (_: ChangeEvent<{}>, expanded: boolean) => {

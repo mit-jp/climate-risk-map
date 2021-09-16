@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { format } from 'd3';
 import { FormatterType, MapVisualization } from "./FullMap";
 import Color, { redBlue } from "./Color";
 import { Map } from 'immutable';
+import { RootState } from "./store";
+import { useSelector } from "react-redux";
+import Counties from "./Counties";
 
 const MISSING_DATA_COLOR = "#ccc";
 
@@ -29,20 +32,11 @@ export const createFormatter = (formatterType: FormatterType, decimals: number, 
 
 type Props = {
     countyPaths: { path: string, id: string }[],
-    isNormalized: boolean,
-    detailedView: boolean,
-    mapVisualization: MapVisualization | undefined,
     data: Map<string, number>,
 }
 
-const ChoroplethMap = ({ countyPaths, isNormalized, detailedView, mapVisualization, data }: Props) => {
-    const colorScheme = mapVisualization
-        ? Color(isNormalized, detailedView, mapVisualization)
-        : redBlue;
-    const color = (countyId: string) => {
-        const value = data.get(countyId);
-        return colorScheme(value as any) ?? MISSING_DATA_COLOR;
-    }
+const ChoroplethMap = ({ countyPaths }: Props) => {
+    const data = useSelector((state: RootState) => state.app.data);
     return (
         <React.Fragment>
             <g
@@ -51,7 +45,7 @@ const ChoroplethMap = ({ countyPaths, isNormalized, detailedView, mapVisualizati
                 {countyPaths.map(({ id, path }) =>
                     <path
                         key={id}
-                        fill={color(id)}
+                        fill={redBlue(data[id] || 0)}
                         d={path}
                     />
                 )}
