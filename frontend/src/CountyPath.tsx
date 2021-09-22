@@ -3,8 +3,6 @@ import { clickCounty, hoverCounty } from "./appSlice";
 import { useThunkDispatch } from "./Home";
 import { RootState } from "./store";
 
-const COLOR_TRANSITION = { transition: "fill 0.2s ease-in-out" };
-
 type Props = {
     color: string;
     d: string;
@@ -25,7 +23,6 @@ const CountyPath = ({ color, d, id }: Props) => {
         opacity={isHovered ? 0.5 : 1}
         stroke={isHovered ? "black" : undefined}
         strokeWidth={isHovered ? 0.5 : undefined}
-        style={COLOR_TRANSITION}
     />
 }
 
