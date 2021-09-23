@@ -4,7 +4,7 @@ import {
   Switch,
   Route
 } from "react-router-dom";
-import Editor from './Editor';
+import Editor from './editor/Editor';
 
 const App = () => {
   return (

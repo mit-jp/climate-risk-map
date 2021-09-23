@@ -7,10 +7,11 @@ import { Objects, Topology } from 'topojson-specification';
 import { GeoJsonProperties } from 'geojson';
 import './App.css';
 import { json } from 'd3-fetch';
+import { fetchMapVisualizations } from './MapVisualization';
 import { useDispatch } from 'react-redux';
 import { store } from './store';
 import MapWrapper from './MapWrapper';
-import { MapVisualizationJson, OverlayName, setDataTab, setMap, setMapVisualizations, setOverlay } from './appSlice';
+import { OverlayName, setDataTab, setMap, setMapVisualizations, setOverlay } from './appSlice';
 import SiteOverview from './SiteOverview';
 import DataTab from './DataTab';
 
@@ -47,9 +48,10 @@ const Home = () => {
         dispatch(setOverlay({ name, topoJson }))
       );
     }
-
-    json<{ [key: number]: { [key: number]: MapVisualizationJson } }>("api/map-visualization").then(mapVisualizations => {
-      dispatch(setMapVisualizations(mapVisualizations));
+    fetchMapVisualizations().then(mapVisualizations => {
+      if (mapVisualizations) {
+        dispatch(setMapVisualizations(mapVisualizations));
+      }
     });
   }, [dispatch]);
 

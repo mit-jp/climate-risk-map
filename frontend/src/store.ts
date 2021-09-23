@@ -1,6 +1,6 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import appReducer from './appSlice';
-import editorReducer from './editorSlice';
+import editorReducer from './editor/editorSlice';
 import { mapApi } from './MapApi';
 
 export const store = configureStore({

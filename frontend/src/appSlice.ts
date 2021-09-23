@@ -1,6 +1,5 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { TopoJson } from './Home';
-import { DatabaseToTab } from './Navigation';
 import { State } from './States';
 import { WaterwayValue } from './WaterwayType';
 import { GeoJsonProperties, Feature, Geometry } from 'geojson';
@@ -10,7 +9,7 @@ import { geoPath } from 'd3';
 import { feature } from 'topojson-client';
 import { MapSelection } from './DataSelector';
 import { Interval } from 'luxon';
-import { ColorPalette, DataSource, FormatterType, MapType, MapVisualization, MapVisualizationId, ScaleType } from "./MapVisualization";
+import { DataSource, defaultMapVisualizations, MapType, MapVisualization, MapVisualizationByTab, MapVisualizationId } from "./MapVisualization";
 import DataTab from './DataTab';
 
 export type TransmissionLineType = "Level 2 (230kV-344kV)" | "Level 3 (>= 345kV)" | "Level 2 & 3 (>= 230kV)";
@@ -31,7 +30,7 @@ interface AppState {
     readonly overlays: { [key in OverlayName]: Overlay };
     readonly mapSelections: { [key in DataTab]: MapSelection[] },
     readonly dataWeights: { [key in MapVisualizationId]?: number },
-    readonly mapVisualizations: { [key in DataTab]: { [key in MapVisualizationId]: MapVisualization } },
+    readonly mapVisualizations: MapVisualizationByTab,
     readonly dataTab: DataTab,
     readonly showDatasetDescription: boolean,
     readonly showDataDescription: boolean,
@@ -86,17 +85,6 @@ const defaultSelections: { [key in DataTab]: MapSelection[] } = {
         dateRange: Interval.fromISO("2020-01-01/2020-12-31"),
         dataSource: 11,
     }],
-};
-
-const defaultMapVisualizations: { [key in DataTab]: { [key in MapVisualizationId]: MapVisualization } } = {
-    [DataTab.RiskMetrics]: {},
-    [DataTab.Water]: {},
-    [DataTab.Land]: {},
-    [DataTab.Climate]: {},
-    [DataTab.Economy]: {},
-    [DataTab.Demographics]: {},
-    [DataTab.ClimateOpinions]: {},
-    [DataTab.Energy]: {},
 };
 
 const initialState: AppState = {
@@ -204,25 +192,8 @@ export const appSlice = createSlice({
                 state.state = payload.slice(0, 2) as State;
             }
         },
-        setMapVisualizations: (state, { payload }: PayloadAction<{ [key: number]: { [key: number]: MapVisualizationJson } } | undefined>) => {
-            if (payload === undefined) {
-                return;
-            }
-            const mapVisualizationsByTab = Object
-                .entries(payload)
-                .reduce((accumulator, [key, mapVisualizationJsons]) => {
-                    const mapVisualizations = Object.entries(mapVisualizationJsons)
-                        .reduce(
-                            (accumulator, [key, mapVisualizationJson]) => {
-                                accumulator[parseInt(key)] = jsonToMapVisualization(mapVisualizationJson);
-                                return accumulator;
-                            },
-                            {} as { [key in MapVisualizationId]: MapVisualization }
-                        );
-                    accumulator[DatabaseToTab.get(parseInt(key))!] = mapVisualizations;
-                    return accumulator;
-                }, {} as { [key in DataTab]: { [key in MapVisualizationId]: MapVisualization } });
-            state.mapVisualizations = mapVisualizationsByTab;
+        setMapVisualizations: (state, { payload }: PayloadAction<MapVisualizationByTab>) => {
+            state.mapVisualizations = payload;
         }
     },
 });
@@ -314,83 +285,5 @@ export const selectSelectedDataSource = (state: RootState): DataSource | undefin
 
     return selectedMap.sources[selection.dataSource];
 };
-
-export interface MapVisualizationJson {
-    id: MapVisualizationId;
-    dataset: number;
-    map_type: MapType;
-    subcategory: number | null;
-    data_tab: number;
-    units: string;
-    short_name: string;
-    name: string;
-    description: string;
-    legend_ticks: number | null;
-    should_normalize: boolean;
-    color_palette: ColorPalette;
-    reverse_scale: boolean;
-    invert_normalized: boolean;
-    scale_type: ScaleType;
-    scale_domain: number[];
-    date_ranges_by_source: { [key: number]: { start_date: string, end_date: string }[] };
-    sources: { [key: number]: DataSource };
-    show_pdf: boolean;
-    pdf_domain: [number, number];
-    default_date_range: { start_date: string, end_date: string } | null;
-    default_source: number | null;
-    formatter_type: FormatterType;
-    legend_formatter_type: FormatterType | null;
-    decimals: number;
-    legend_decimals: number | null;
-    order: number;
-};
-
-const intervalFromJson = (json: { start_date: string, end_date: string }) =>
-    Interval.fromISO(json.start_date + "/" + json.end_date);
-
-const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualization => {
-    const date_ranges_by_source = Object.entries(json.date_ranges_by_source)
-        .map(([sourceId, dateRanges]) =>
-            [
-                parseInt(sourceId),
-                dateRanges.map(dateRange => intervalFromJson(dateRange))
-            ] as [number, Interval[]])
-        .reduce((accumulator, [sourceId, dateRanges]) => {
-            accumulator[sourceId] = dateRanges;
-            return accumulator;
-        }, {} as { [key: number]: Interval[] });
-    const default_date_range = json.default_date_range === null ?
-        undefined :
-        intervalFromJson(json.default_date_range);
-    return {
-        id: json.id,
-        dataset: json.dataset,
-        map_type: json.map_type,
-        subcategory: json.subcategory ?? undefined,
-        data_tab: json.data_tab,
-        units: json.units,
-        short_name: json.short_name,
-        name: json.name,
-        description: json.description,
-        legend_ticks: json.legend_ticks ?? undefined,
-        should_normalize: json.should_normalize,
-        color_palette: json.color_palette,
-        reverse_scale: json.reverse_scale,
-        invert_normalized: json.invert_normalized,
-        scale_type: json.scale_type,
-        scale_domain: json.scale_domain,
-        date_ranges_by_source,
-        sources: json.sources,
-        show_pdf: json.show_pdf,
-        pdf_domain: json.pdf_domain,
-        default_date_range,
-        default_source: json.default_source ?? undefined,
-        formatter_type: json.formatter_type,
-        legend_formatter_type: json.legend_formatter_type ?? undefined,
-        decimals: json.decimals,
-        legend_decimals: json.legend_decimals ?? undefined,
-        order: json.order,
-    };
-}
 
 export default appSlice.reducer;
