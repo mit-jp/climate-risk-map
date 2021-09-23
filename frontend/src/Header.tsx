@@ -1,4 +1,3 @@
-import React from 'react';
 import mstLogo from './MST-logo.jpg';
 import mitLogo from './MIT-logo.svg';
 import jointProgramLogo from './joint-program-logo.jpg'

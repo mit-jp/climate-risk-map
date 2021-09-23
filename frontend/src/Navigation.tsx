@@ -1,4 +1,3 @@
-import React from 'react';
 import { Map } from 'immutable';
 import { useThunkDispatch } from './Home';
 import { useSelector } from 'react-redux';

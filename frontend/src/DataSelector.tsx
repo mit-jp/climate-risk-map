@@ -1,4 +1,3 @@
-import React from 'react';
 import MultiDataSelector from './MultiDataSelector';
 import SingleDataSelector from './SingleDataSelector';
 import DataTab from './DataTab';

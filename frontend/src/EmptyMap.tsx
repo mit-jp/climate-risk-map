@@ -1,5 +1,4 @@
 import { TopoJson } from "./Home";
-import React from 'react';
 import { feature } from "topojson-client";
 import { geoPath } from "d3";
 import { GeoJsonProperties } from 'geojson';

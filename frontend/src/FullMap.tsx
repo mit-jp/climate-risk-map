@@ -1,4 +1,3 @@
-import React from "react";
 import BubbleMap from "./BubbleMap";
 import ChoroplethMap from "./ChoroplethMap";
 import { Map } from "immutable";
@@ -31,18 +30,18 @@ export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: b
 export enum Aggregation {
     State = "state",
     County = "county",
-};
+}
 export enum MapType {
     Choropleth = 1,
     Bubble = 2,
-};
+}
 export type ColorPalette = string;
 export type ScaleType = "Diverging" | "Sequential" | "DivergingSymLog" | "Threshold" | "SequentialSqrt";
 export enum FormatterType {
     MONEY = 1,
     NEAREST_SI_UNIT = 2,
     DEFAULT = 3,
-};
+}
 export interface MapVisualization {
     id: MapVisualizationId;
     dataset: number;
@@ -71,7 +70,7 @@ export interface MapVisualization {
     decimals: number;
     legend_decimals?: number;
     order: number;
-};
+}
 
 type Props = {
     map: TopoJson,

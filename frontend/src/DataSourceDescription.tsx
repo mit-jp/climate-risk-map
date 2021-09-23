@@ -1,4 +1,3 @@
-import React from 'react';
 import { useSelector } from 'react-redux';
 import { selectSelectedDataSource, toggleDatasetDescription } from './appSlice';
 import { useThunkDispatch } from './Home';

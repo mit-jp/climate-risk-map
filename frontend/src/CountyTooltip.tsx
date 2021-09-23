@@ -1,5 +1,4 @@
 import makeStyles from '@mui/styles/makeStyles';
-import React from "react";
 import counties from "./Counties";
 import states, { State } from "./States";
 import { getUnitString, MapVisualization } from "./FullMap";

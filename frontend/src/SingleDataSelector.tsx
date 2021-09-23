@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import { ChangeEvent } from 'react';
 import YearSelector from './YearSelector';
 import DataSourceSelector from './DatasetSelector';
 import { useSelector } from 'react-redux';

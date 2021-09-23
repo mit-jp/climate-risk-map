@@ -1,4 +1,3 @@
-import React from "react";
 import { useSelector } from "react-redux";
 import { clickCounty, hoverCounty } from "./appSlice";
 import { useThunkDispatch } from "./Home";

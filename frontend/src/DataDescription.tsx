@@ -1,4 +1,3 @@
-import React from 'react';
 import { useSelector } from 'react-redux';
 import { selectSelectedMapVisualizations, toggleDataDescription } from './appSlice';
 import { useThunkDispatch } from './Home';

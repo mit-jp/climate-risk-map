@@ -1,5 +1,5 @@
 import { ScalePower, select, Selection } from 'd3';
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 function drawBubbleLegend(g: Selection<SVGGElement | null, unknown, null, undefined>,
     radius: ScalePower<number, number, never>,

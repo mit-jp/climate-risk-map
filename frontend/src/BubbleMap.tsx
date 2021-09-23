@@ -1,5 +1,5 @@
 import { TopoJson } from "./Home";
-import React from "react";
+import { Fragment } from "react";
 import { Map } from "immutable";
 import { geoPath, max, ScalePower, scaleSqrt } from 'd3';
 import { feature } from 'topojson-client';
@@ -28,7 +28,7 @@ const BubbleMap = ({ map, data, legendTitle, color }: Props) => {
     const countyToRadius = makeCountyToRadius(valueToRadius, data);
 
     return (
-        <React.Fragment>
+        <Fragment>
             <EmptyMap map={map} />
             <StateMap map={map} />
             <g id="bubbles">
@@ -46,8 +46,8 @@ const BubbleMap = ({ map, data, legendTitle, color }: Props) => {
                 )}
             </g>
             <BubbleLegend radius={valueToRadius} title={legendTitle} />
-        </React.Fragment>
-    )
+        </Fragment>
+    );
 }
 
 function makeValueToRadius(

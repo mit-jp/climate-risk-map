@@ -1,7 +1,6 @@
 import { IconButton, Tooltip } from "@mui/material";
 import makeStyles from '@mui/styles/makeStyles';
 import { Info } from "@mui/icons-material";
-import React from "react";
 import { MapVisualization } from "./FullMap";
 
 const useTooltipStyles = makeStyles(theme => ({

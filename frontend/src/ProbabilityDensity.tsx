@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { scaleLinear, extent, bin, select, mean, max, axisBottom, axisLeft, line, curveBasis } from 'd3';
 import Color from './Color';
 import { MapVisualization } from './FullMap';

@@ -1,4 +1,4 @@
-import React from "react";
+import { Fragment } from "react";
 import { useSelector } from "react-redux";
 import { feature } from "topojson-client";
 import { TopoJson } from "./Home";
@@ -67,7 +67,7 @@ const Overlays = () => {
     }
 
     return (
-        <React.Fragment>
+        <Fragment>
             {Object.entries(overlays)
                 .filter(([_, overlay]) => overlay.shouldShow && overlay.topoJson)
                 .map(([name, overlay]) => [name, overlay.topoJson] as [string, TopoJson])
@@ -76,7 +76,7 @@ const Overlays = () => {
                         {generatePaths(name, topoJson)}
                     </g>
                 )}
-        </React.Fragment>
+        </Fragment>
     );
 };
 

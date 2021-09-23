@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import { Fragment, ChangeEvent } from 'react';
 import { Interval } from 'luxon';
 
 type Props = {
@@ -20,7 +20,7 @@ const readable = (interval: Interval) => {
 const YearSelector = ({ years, selectedYear, onSelectionChange, id }: Props) => {
     const getYears = () => {
         return years.map(year =>
-            <React.Fragment key={year.toISODate()}>
+            <Fragment key={year.toISODate()}>
                 <input
                     type="radio"
                     value={year.toISODate()}
@@ -29,8 +29,8 @@ const YearSelector = ({ years, selectedYear, onSelectionChange, id }: Props) => 
                     checked={year.equals(selectedYear)}
                 />
                 <label htmlFor={id + year.toISODate()}>{readable(year)}</label>
-            </React.Fragment>
-        )
+            </Fragment>
+        );
     }
     return (
         <div className="sub-selector">

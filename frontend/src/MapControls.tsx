@@ -1,5 +1,5 @@
 import { Button, Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch } from '@mui/material';
-import React, { } from 'react';
+import { Fragment } from 'react';
 import { useSelector } from 'react-redux';
 import { Overlay, OverlayName, selectIsNormalized, selectSelectedMapVisualizations, setDetailedView, setShowOverlay, setTransmissionLineType, setWaterwayValue, TransmissionLineType } from './appSlice';
 import { useThunkDispatch } from './Home';
@@ -70,18 +70,20 @@ const MapControls = ({ processedData }: Props) => {
     const mapToggleUI = () => {
         return (Object.entries(overlays) as [OverlayName, Overlay][])
             .map(([overlayName, overlay]) => {
-                return <React.Fragment key={overlayName}>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                onChange={(_, value) => dispatch(setShowOverlay({ name: overlayName, shouldShow: value }))}
-                                title={overlayName}
-                                color="primary" />
-                        }
-                        label={overlayName}
-                    />
-                    {overlay.shouldShow && subControl(overlayName)}
-                </React.Fragment>
+                return (
+                    <Fragment key={overlayName}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    onChange={(_, value) => dispatch(setShowOverlay({ name: overlayName, shouldShow: value }))}
+                                    title={overlayName}
+                                    color="primary" />
+                            }
+                            label={overlayName}
+                        />
+                        {overlay.shouldShow && subControl(overlayName)}
+                    </Fragment>
+                );
 
             });
     };

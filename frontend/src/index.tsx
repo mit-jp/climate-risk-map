@@ -1,4 +1,4 @@
-import React from 'react';
+import { StrictMode } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
@@ -17,7 +17,7 @@ declare module '@mui/styles/defaultTheme' {
 const theme = createTheme();
 
 ReactDOM.render(
-  <React.StrictMode>
+  <StrictMode>
     <Provider store={store}>
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>
@@ -25,7 +25,7 @@ ReactDOM.render(
         </ThemeProvider>
       </StyledEngineProvider>
     </Provider>
-  </React.StrictMode>,
+  </StrictMode>,
   document.getElementById('root')
 );
 

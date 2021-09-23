@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { Fragment, useEffect } from 'react';
 import Footer from './Footer';
 import Header from './Header';
 import Navigation from './Navigation';
@@ -54,7 +54,7 @@ const Home = () => {
   }, [dispatch]);
 
   return (
-    <React.Fragment>
+    <Fragment>
       <Header />
       <Navigation />
       <SiteOverview />
@@ -63,7 +63,7 @@ const Home = () => {
         <MapWrapper />
       </div>
       <Footer />
-    </React.Fragment>
+    </Fragment>
   );
 };
 
