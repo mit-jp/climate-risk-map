@@ -1,4 +1,3 @@
-import makeStyles from '@mui/styles/makeStyles';
 import counties from "./Counties";
 import states, { State } from "./States";
 import { getUnitString, MapVisualization } from "./FullMap";
@@ -7,24 +6,6 @@ import { useSelector } from "react-redux";
 import { RootState } from "./store";
 import { selectIsNormalized, selectSelectedMapVisualizations } from "./appSlice";
 import { createFormatter, Formatter } from "./ChoroplethMap";
-
-type StyleProps = {
-    shouldShow: boolean,
-    position?: { x: number, y: number }
-};
-
-const useTooltipStyles = makeStyles({
-    root: ({ shouldShow, position }: StyleProps) => ({
-        opacity: shouldShow ? 0.95 : 0,
-        position: "absolute",
-        padding: "4px",
-        background: "white",
-        pointerEvents: "none",
-        left: position?.x,
-        top: position?.y,
-        zIndex: 100,
-    })
-});
 
 const getFormatter = (selectedMaps: MapVisualization[], isNormalized: boolean): Formatter =>
     createFormatter(selectedMaps[0].formatter_type, selectedMaps[0].decimals, isNormalized);
@@ -58,7 +39,6 @@ const CountyTooltip = ({ data }: { data: Map<string, number> }) => {
     const position = useSelector((state: RootState) => state.app.hoverPosition);
     const isNormalized = useSelector(selectIsNormalized);
     const shouldShow = countyId !== undefined && position !== undefined;
-    const tooltipClasses = useTooltipStyles({ shouldShow, position });
     let text = "";
     if (countyId) {
         const county = counties.get(countyId);
@@ -72,7 +52,16 @@ const CountyTooltip = ({ data }: { data: Map<string, number> }) => {
     }
 
     return (
-        <div className={tooltipClasses.root}>
+        <div style={{
+            opacity: shouldShow ? 0.95 : 0,
+            position: "absolute",
+            padding: "4px",
+            background: "white",
+            pointerEvents: "none",
+            left: position?.x,
+            top: position?.y,
+            zIndex: 100,
+        }}>
             {text}
         </div>
     );
