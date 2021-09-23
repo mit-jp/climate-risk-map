@@ -252,7 +252,7 @@ footer #navigation li {
 }
 
 .padded {
-    padding: 0em 1em 0em 1em
+    padding: 0em 12px 0em 12px;
 }
 
 .MuiToggleButtonGroup-root {
@@ -272,11 +272,12 @@ h2 {
 
 .weight {
     display: flex;
-    margin: 0 1em;
+    margin: 0 0 0 30px;
+    padding-bottom: 12px;
 }
 
 .weight-label {
-    margin-top: 0.2em;
+    align-self: center;
     font-size: 0.875rem;
 }
 

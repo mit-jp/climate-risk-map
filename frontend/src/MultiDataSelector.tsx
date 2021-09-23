@@ -39,6 +39,7 @@ const checkBox = (
             <div className="weight">
                 <div className="weight-label">Weight</div>
                 <Slider
+                    size="small"
                     className="weight-slider"
                     min={0.1}
                     max={1}
