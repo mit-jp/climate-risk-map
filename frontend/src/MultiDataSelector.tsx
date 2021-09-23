@@ -1,8 +1,9 @@
 import React, { ChangeEvent } from 'react';
 import { Map } from 'immutable';
-import Slider from '@material-ui/core/Slider';
-import { Accordion, AccordionDetails, AccordionSummary, Checkbox, FormControlLabel, makeStyles } from '@material-ui/core';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Slider from '@mui/material/Slider';
+import { Accordion, AccordionDetails, AccordionSummary, Checkbox, FormControlLabel } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useThunkDispatch } from './Home';
 import { useSelector } from 'react-redux';
 import { changeWeight, selectSelections, setMapSelections, setShowRiskMetrics, setShowDemographics, selectMapVisualizations } from './appSlice';

@@ -5,16 +5,25 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
 import { store } from './store';
-import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider, Theme, StyledEngineProvider, createTheme } from '@mui/material/styles';
 
-const theme = createMuiTheme();
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
+
+const theme = createTheme();
 
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <ThemeProvider theme={theme}>
-        <App />
-      </ThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          <App />
+        </ThemeProvider>
+      </StyledEngineProvider>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')

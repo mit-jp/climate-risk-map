@@ -1,5 +1,6 @@
-import { IconButton, makeStyles, Tooltip } from "@material-ui/core";
-import { Info } from "@material-ui/icons";
+import { IconButton, Tooltip } from "@mui/material";
+import makeStyles from '@mui/styles/makeStyles';
+import { Info } from "@mui/icons-material";
 import React from "react";
 import { MapVisualization } from "./FullMap";
 
@@ -42,7 +43,7 @@ const MapTitle = ({ selectedMapVisualizations, isNormalized }: Props) => {
                     title="The normalized value is the percentile
                 of the raw data. If you select multiple data,
                 we take the mean of the ranked values.">
-                    <IconButton aria-label="info">
+                    <IconButton aria-label="info" size="large">
                         <Info />
                     </IconButton>
                 </Tooltip>

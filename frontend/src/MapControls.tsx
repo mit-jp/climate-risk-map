@@ -1,4 +1,4 @@
-import { Button, Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch } from '@material-ui/core';
+import { Button, Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, Switch } from '@mui/material';
 import React, { } from 'react';
 import { useSelector } from 'react-redux';
 import { Overlay, OverlayName, selectIsNormalized, selectSelectedMapVisualizations, setDetailedView, setShowOverlay, setTransmissionLineType, setWaterwayValue, TransmissionLineType } from './appSlice';

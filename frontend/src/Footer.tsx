@@ -1,6 +1,6 @@
 import React from 'react';
-import { Facebook, GitHub, Mail, RssFeed, Twitter } from '@material-ui/icons';
-import { IconButton, Link } from '@material-ui/core';
+import { Facebook, GitHub, Mail, RssFeed, Twitter } from '@mui/icons-material';
+import { IconButton, Link } from '@mui/material';
 
 const Footer = () =>
     <footer>
@@ -16,7 +16,7 @@ const Footer = () =>
                     href="https://www.facebook.com/MITGlobalChange/"
                     target="_blank"
                     rel="noopener noreferrer"
-                >
+                    size="large">
                     <Facebook fontSize="large" style={{ color: "#fff" }} />
                 </IconButton>
             </li>
@@ -27,7 +27,7 @@ const Footer = () =>
                     href="https://twitter.com/mitglobalchange"
                     target="_blank"
                     rel="noopener noreferrer"
-                >
+                    size="large">
                     <Twitter fontSize="large" style={{ color: "#fff" }} />
                 </IconButton>
             </li>
@@ -38,7 +38,7 @@ const Footer = () =>
                     href="https://globalchange.mit.edu/rss-feeds"
                     target="_blank"
                     rel="noopener noreferrer"
-                >
+                    size="large">
                     <RssFeed fontSize="large" style={{ color: "#fff" }} />
                 </IconButton>
             </li>
@@ -49,7 +49,7 @@ const Footer = () =>
                     href="http://eepurl.com/uV5Ur"
                     target="_blank"
                     rel="noopener noreferrer"
-                >
+                    size="large">
                     <Mail fontSize="large" style={{ color: "#fff" }} />
                 </IconButton>
             </li>
@@ -60,7 +60,7 @@ const Footer = () =>
                     href="http://github.com/cypressf/climate-risk-map"
                     target="_blank"
                     rel="noopener noreferrer"
-                >
+                    size="large">
                     <GitHub fontSize="large" style={{ color: "#fff" }} />
                 </IconButton>
             </li>
