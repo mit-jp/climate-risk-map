@@ -1,18 +1,17 @@
 {
     "cSpell.words": [
+        "actix",
+        "browserslist",
+        "chrono",
         "COUNTYFP",
         "Csvs",
-        "reduxjs",
-        "STATEFP",
-        "Symlog",
-        "Csvs",
         "Jsons",
-        "Symlog",
-        "actix",
-        "chrono",
         "luxon",
+        "predeploy",
         "reduxjs",
         "sqlx",
+        "STATEFP",
+        "Symlog",
         "topojson"
     ]
 }
