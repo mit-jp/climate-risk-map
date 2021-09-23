@@ -1,17 +1,6 @@
-import { IconButton, Tooltip } from "@mui/material";
-import makeStyles from '@mui/styles/makeStyles';
+import { IconButton, styled, Tooltip, TooltipProps, tooltipClasses } from "@mui/material";
 import { Info } from "@mui/icons-material";
 import { MapVisualization } from "./FullMap";
-
-const useTooltipStyles = makeStyles(theme => ({
-    arrow: {
-        color: theme.palette.common.black,
-    },
-    tooltip: {
-        backgroundColor: theme.palette.common.black,
-        fontSize: theme.typography.fontSize,
-    },
-}));
 
 const getTitle = (selectedMaps: MapVisualization[]) => {
     if (selectedMaps.length > 1) {
@@ -28,27 +17,37 @@ type Props = {
     isNormalized: boolean,
 };
 
-const MapTitle = ({ selectedMapVisualizations, isNormalized }: Props) => {
-    const tooltipClasses = useTooltipStyles();
-    return (
-        <h3 id="map-title">
-            {getTitle(selectedMapVisualizations)}
-            {
-                isNormalized &&
-                <Tooltip
-                    classes={tooltipClasses}
-                    arrow
-                    placement="top"
-                    title="The normalized value is the percentile
+const BigTooltip = styled(({ className, ...props }: TooltipProps) =>
+    <Tooltip
+        {...props}
+        arrow
+        placement="top"
+        classes={{ popper: className }}
+    />
+)(({ theme }) => ({
+    [`& .${tooltipClasses.arrow}`]: {
+        color: theme.palette.common.black,
+    },
+    [`& .${tooltipClasses.tooltip}`]: {
+        backgroundColor: theme.palette.common.black,
+        fontSize: theme.typography.fontSize,
+    },
+}));
+
+const MapTitle = ({ selectedMapVisualizations, isNormalized }: Props) =>
+    <h3 id="map-title">
+        {getTitle(selectedMapVisualizations)}
+        {
+            isNormalized &&
+            <BigTooltip
+                title="The normalized value is the percentile
                 of the raw data. If you select multiple data,
                 we take the mean of the ranked values.">
-                    <IconButton aria-label="info" size="large">
-                        <Info />
-                    </IconButton>
-                </Tooltip>
-            }
-        </h3>
-    );
-}
+                <IconButton aria-label="info" size="large">
+                    <Info />
+                </IconButton>
+            </BigTooltip>
+        }
+    </h3>
 
 export default MapTitle;

@@ -2,7 +2,6 @@ import { ChangeEvent } from 'react';
 import { Map } from 'immutable';
 import Slider from '@mui/material/Slider';
 import { Accordion, AccordionDetails, AccordionSummary, Checkbox, FormControlLabel } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useThunkDispatch } from './Home';
 import { useSelector } from 'react-redux';
@@ -52,12 +51,6 @@ const checkBox = (
     </div>;
 }
 
-const useAccordionStyles = makeStyles({
-    root: {
-        padding: 0,
-    }
-});
-
 const marks = [{ value: 0.1, label: "min" }, { value: 1, label: "max" }]
 
 const MultiDataSelector = () => {
@@ -67,7 +60,6 @@ const MultiDataSelector = () => {
     const showDemographics = useSelector((state: RootState) => state.app.showDemographics);
     const maps = useSelector(selectMapVisualizations);
     const selections = useSelector(selectSelections);
-    const accordionClasses = useAccordionStyles();
 
     const selectionMap = Map(selections.map(selection => [selection.mapVisualization, selection]));
 
@@ -126,7 +118,7 @@ const MultiDataSelector = () => {
                 >
                     Risk Metrics
                 </AccordionSummary>
-                <AccordionDetails classes={accordionClasses}>
+                <AccordionDetails style={{ padding: 0 }}>
                     {getDataList(map => map.subcategory === 1)}
                 </AccordionDetails>
             </Accordion>
@@ -138,12 +130,12 @@ const MultiDataSelector = () => {
                 >
                     Environmental Equity
                 </AccordionSummary>
-                <AccordionDetails classes={accordionClasses}>
+                <AccordionDetails style={{ padding: 0 }}>
                     {getDataList(map => map.subcategory === 2)}
                 </AccordionDetails>
             </Accordion>
         </form>
-    )
+    );
 }
 
 export default MultiDataSelector;

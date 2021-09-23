@@ -5,26 +5,26 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux';
 import { store } from './store';
-import { ThemeProvider, Theme, StyledEngineProvider, createTheme } from '@mui/material/styles';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
-
-
-const theme = createTheme();
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#435e7c',
+    },
+    secondary: {
+      main: '#A5C2A6',
+    },
+  }
+});
 
 ReactDOM.render(
   <StrictMode>
-    <Provider store={store}>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={theme}>
-          <App />
-        </ThemeProvider>
-      </StyledEngineProvider>
-    </Provider>
+    <ThemeProvider theme={theme}>
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </ThemeProvider>
   </StrictMode>,
   document.getElementById('root')
 );
