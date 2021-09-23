@@ -6,7 +6,7 @@ import { changeMapSelection, changeDataSource, changeDateRange, selectSelections
 import { RootState } from './store';
 import { useThunkDispatch } from './Home';
 import { Interval } from 'luxon';
-import { MapVisualization } from './FullMap';
+import { MapVisualization } from "./MapVisualization";
 
 const SingleDataSelector = () => {
     const selection = useSelector((state: RootState) => selectSelections(state)[0]);

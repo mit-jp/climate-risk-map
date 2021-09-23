@@ -1,6 +1,6 @@
 import { IconButton, styled, Tooltip, TooltipProps, tooltipClasses } from "@mui/material";
 import { Info } from "@mui/icons-material";
-import { MapVisualization } from "./FullMap";
+import { MapVisualization } from "./MapVisualization";
 
 const getTitle = (selectedMaps: MapVisualization[]) => {
     if (selectedMaps.length > 1) {

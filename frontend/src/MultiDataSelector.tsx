@@ -7,8 +7,8 @@ import { useThunkDispatch } from './Home';
 import { useSelector } from 'react-redux';
 import { changeWeight, selectSelections, setMapSelections, setShowRiskMetrics, setShowDemographics, selectMapVisualizations } from './appSlice';
 import { RootState, store } from './store';
-import { MapSelection, MapVisualizationId } from './DataSelector';
-import { MapVisualization } from './FullMap';
+import { MapSelection } from './DataSelector';
+import { MapVisualization, MapVisualizationId } from "./MapVisualization";
 
 const multipleChecked = (selections: MapSelection[]) => {
     return selections.length > 1;

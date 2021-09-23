@@ -10,7 +10,8 @@ import states, { State } from './States';
 import { csvFormat } from 'd3';
 import waterwayTypes, { WaterwayValue } from './WaterwayType';
 import { saveAs } from 'file-saver';
-import { getLegendTitle, MapVisualization } from './FullMap';
+import { getLegendTitle } from './FullMap';
+import { MapVisualization } from "./MapVisualization";
 
 const getFilename = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
     const unitString = getLegendTitle(selectedMaps, isNormalized);

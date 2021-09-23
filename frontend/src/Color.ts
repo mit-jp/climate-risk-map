@@ -1,6 +1,6 @@
 import * as scales from 'd3-scale-chromatic';
 import { scaleSequential, scaleThreshold, schemeRdYlBu, interpolateRdYlBu, ScaleSequential, ScaleThreshold, ScaleDiverging, scaleDiverging, scaleDivergingSymlog, scaleSequentialSqrt } from 'd3';
-import { MapVisualization } from './FullMap';
+import { MapVisualization } from "./MapVisualization";
 
 const redBlueContinuous = scaleSequential<string>(x => interpolateRdYlBu(1 - x));
 const redBlue = scaleThreshold<number, string, never>([.05, .25, .75, .95], [...schemeRdYlBu[5]].reverse());

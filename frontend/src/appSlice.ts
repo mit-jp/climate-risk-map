@@ -8,9 +8,9 @@ import { GeometryCollection } from 'topojson-specification';
 import { RootState } from './store';
 import { geoPath } from 'd3';
 import { feature } from 'topojson-client';
-import { DataSource, MapSelection, MapVisualizationId } from './DataSelector';
+import { MapSelection } from './DataSelector';
 import { Interval } from 'luxon';
-import { ColorPalette, FormatterType, MapType, MapVisualization, ScaleType } from './FullMap';
+import { ColorPalette, DataSource, FormatterType, MapType, MapVisualization, MapVisualizationId, ScaleType } from "./MapVisualization";
 import DataTab from './DataTab';
 
 export type TransmissionLineType = "Level 2 (230kV-344kV)" | "Level 3 (>= 345kV)" | "Level 2 & 3 (>= 230kV)";

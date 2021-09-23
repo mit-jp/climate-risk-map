@@ -1,6 +1,7 @@
 import counties from "./Counties";
 import states, { State } from "./States";
-import { getUnitString, MapVisualization } from "./FullMap";
+import { getUnitString } from "./FullMap";
+import { MapVisualization } from "./MapVisualization";
 import { Map } from "immutable";
 import { useSelector } from "react-redux";
 import { RootState } from "./store";

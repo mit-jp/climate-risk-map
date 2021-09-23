@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { scaleLinear, extent, bin, select, mean, max, axisBottom, axisLeft, line, curveBasis } from 'd3';
 import Color from './Color';
-import { MapVisualization } from './FullMap';
+import { MapVisualization } from "./MapVisualization";
 const margin = ({ top: 20, right: 30, bottom: 30, left: 40 });
 type Props = {
     data: number[] | undefined,

@@ -4,6 +4,7 @@ import DataTab from './DataTab';
 import { useSelector } from 'react-redux';
 import { RootState } from './store';
 import { Interval } from 'luxon';
+import { MapVisualizationId } from './MapVisualization';
 
 const DataSelector = () => {
     const dataTab = useSelector((state: RootState) => state.app.dataTab);
@@ -11,15 +12,6 @@ const DataSelector = () => {
         <MultiDataSelector /> :
         <SingleDataSelector />
 
-};
-
-export type MapVisualizationId = number;
-
-export type DataSource = {
-    name: string,
-    id: number,
-    description: string,
-    link: string,
 };
 
 export type MapSelection = {

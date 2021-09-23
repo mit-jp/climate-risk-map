@@ -2,8 +2,7 @@ import { scaleSequentialQuantile } from 'd3';
 import { Map, Seq, Set } from 'immutable';
 import { Data, DataByDataset } from './MapApi';
 import counties from './Counties';
-import { MapVisualizationId } from './DataSelector';
-import { MapVisualization } from './FullMap';
+import { MapVisualization, MapVisualizationId } from "./MapVisualization";
 import { State } from './States';
 
 export type ProcessedData = Map<string, number | undefined>;

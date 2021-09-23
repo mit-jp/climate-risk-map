@@ -13,7 +13,7 @@ import CountyPath from "./CountyPath";
 import { hoverCounty, hoverPosition, selectMapTransform } from "./appSlice";
 import { useSelector } from "react-redux";
 import { ZOOM_TRANSITION } from "./MapWrapper";
-import { FormatterType, MapType, MapVisualization } from "./FullMap";
+import { FormatterType, MapType, MapVisualization } from "./MapVisualization";
 
 const MISSING_DATA_COLOR = "#ccc";
 

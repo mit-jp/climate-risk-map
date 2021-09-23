@@ -1,5 +1,5 @@
 import { Fragment, ChangeEvent } from 'react';
-import { DataSource } from './DataSelector';
+import { DataSource } from './MapVisualization';
 
 type Props = {
     id: string,
