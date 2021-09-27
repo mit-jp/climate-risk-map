@@ -50,7 +50,7 @@ impl<'c> Table<'c, MapVisualization> {
             .fetch_all(&*self.pool)
             .await
     }
-    pub async fn get_by_id(&self, id: i32) -> Result<MapVisualization, sqlx::Error> {
+    pub async fn get(&self, id: i32) -> Result<MapVisualization, sqlx::Error> {
         sqlx::query_as(&format!(
             "{} {} AND map_visualization.id = $1",
             SELECT, FROM
