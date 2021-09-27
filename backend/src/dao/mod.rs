@@ -1,8 +1,9 @@
 use super::model::{
-    County, Data, DataCategory, DataSource, Dataset, Domain, MapVisualization, SimpleData,
-    SourceAndDate, State,
+    ColorPalette, County, Data, DataCategory, DataSource, Dataset, Domain, MapVisualization,
+    SimpleData, SourceAndDate, State,
 };
 
+mod color_palette_dao;
 mod county_dao;
 mod data_category_dao;
 mod data_dao;

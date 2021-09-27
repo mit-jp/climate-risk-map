@@ -1,3 +1,4 @@
+mod color_palette;
 mod county;
 mod data;
 mod data_category;
@@ -18,3 +19,4 @@ pub type MapVisualization = map_visualization::MapVisualization;
 pub type MapVisualizationModel = map_visualization::MapVisualizationModel;
 pub type DataCategory = data_category::DataCategory;
 pub type Domain = domain::Domain;
+pub type ColorPalette = color_palette::ColorPalette;

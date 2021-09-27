@@ -2,13 +2,13 @@ import { json } from "d3";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { TopoJson } from "../TopoJson";
-import { getDataQueryParams, MapVisualization } from "../MapVisualization";
 import { RootState, store } from "../store";
 import "./Editor.css";
 import { clickMapVisualization, clickTab, selectSelectedTabAndMapVisualization, setMap } from "./editorSlice";
 import { Tab, useGetMapVisualizationsQuery, useGetTabsQuery } from "../MapApi";
 import EditorMap from "./EditorMap";
 import MapVisualizationList, { EmptyMapVisualizationList } from "./MapVisualizationList";
+import MapOptions, { EmptyMapOptions } from "./MapOptions";
 
 export const useThunkDispatch = () => useDispatch<typeof store.dispatch>();
 
@@ -51,7 +51,10 @@ const Editor = () => {
                     selection={selectedMapVisualization}
                     detailedView={true}
                 />}
-                <MapOptions />
+                {selectedMapVisualization
+                    ? <MapOptions mapVisualization={selectedMapVisualization} />
+                    : <EmptyMapOptions />
+                }
             </div>
         </div>
     );
@@ -73,7 +76,5 @@ const Navigation = ({ tabs, selectedTabId }: { tabs: Tab[], selectedTabId?: numb
         </nav>
     );
 }
-
-const MapOptions = () => <div id="map-options">map options</div>;
 
 export default Editor;

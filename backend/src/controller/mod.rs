@@ -1,6 +1,7 @@
 use super::model::{MapVisualizationModel, SimpleData, SourceAndDate};
 use super::AppState;
 
+pub mod color_palette_controller;
 pub mod county_controller;
 pub mod data_category_controller;
 pub mod data_controller;

@@ -76,6 +76,9 @@ export const mapApi = createApi({
         getTabs: builder.query<Tab[], undefined>({
             query: () => "data-category",
         }),
+        getColorPalettes: builder.query<string[], undefined>({
+            query: () => "color-palette",
+        }),
     }),
 });
 
@@ -84,4 +87,5 @@ export const {
     useGetDataQuery,
     useGetMapVisualizationsQuery,
     useGetTabsQuery,
+    useGetColorPalettesQuery,
 } = mapApi;

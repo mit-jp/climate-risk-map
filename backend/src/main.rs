@@ -21,6 +21,7 @@ async fn main() -> std::io::Result<()> {
             .configure(controller::dataset_controller::init)
             .configure(controller::map_visualization_controller::init)
             .configure(controller::data_category_controller::init)
+            .configure(controller::color_palette_controller::init)
     })
     .bind(config.app_url())?;
     println!("Listening on: {}", config.app_url());
