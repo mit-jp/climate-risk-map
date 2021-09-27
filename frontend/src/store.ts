@@ -22,6 +22,10 @@ export const store = configureStore({
           data: state.app.data ? "<Large data not displayed to save memory>" : undefined,
           map: state.app.map ? "<Large map not displayed to save memory>" : undefined,
           overlays: "<Large data not displayed to save memory>",
+        },
+        editor: {
+          ...state.editor,
+          map: state.editor.map ? "<Large map not displayed to save memory>" : undefined,
         }
       };
     },

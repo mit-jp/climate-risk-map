@@ -1,7 +1,7 @@
 import BubbleMap from "./BubbleMap";
 import ChoroplethMap from "./ChoroplethMap";
 import { Map } from "immutable";
-import { TopoJson } from "./Home";
+import { TopoJson } from "./TopoJson";
 import { MapType, MapVisualization } from "./MapVisualization";
 
 export const getUnitString = (units: string) => units ? ` ${units}` : "";

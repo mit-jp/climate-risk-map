@@ -1,4 +1,4 @@
-import { TopoJson } from "./Home";
+import { TopoJson } from "./TopoJson";
 import { Fragment } from "react";
 import { Map } from "immutable";
 import { geoPath, max, ScalePower, scaleSqrt } from 'd3';

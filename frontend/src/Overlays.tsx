@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import { useSelector } from "react-redux";
 import { feature } from "topojson-client";
-import { TopoJson } from "./Home";
+import { TopoJson } from "./TopoJson";
 import { RootState } from "./store";
 import { GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties, Feature, Geometry } from 'geojson';

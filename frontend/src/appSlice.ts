@@ -1,5 +1,5 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TopoJson } from './Home';
+import { TopoJson } from './TopoJson';
 import { State } from './States';
 import { WaterwayValue } from './WaterwayType';
 import { GeoJsonProperties, Feature, Geometry } from 'geojson';
@@ -9,7 +9,7 @@ import { geoPath } from 'd3';
 import { feature } from 'topojson-client';
 import { MapSelection } from './DataSelector';
 import { Interval } from 'luxon';
-import { DataSource, defaultMapVisualizations, MapType, MapVisualization, MapVisualizationByTab, MapVisualizationId } from "./MapVisualization";
+import { DataSource, defaultMapVisualizations, MapType, MapVisualization, MapVisualizationByTabId, MapVisualizationId, TabToId } from "./MapVisualization";
 import DataTab from './DataTab';
 
 export type TransmissionLineType = "Level 2 (230kV-344kV)" | "Level 3 (>= 345kV)" | "Level 2 & 3 (>= 230kV)";
@@ -30,7 +30,7 @@ interface AppState {
     readonly overlays: { [key in OverlayName]: Overlay };
     readonly mapSelections: { [key in DataTab]: MapSelection[] },
     readonly dataWeights: { [key in MapVisualizationId]?: number },
-    readonly mapVisualizations: MapVisualizationByTab,
+    readonly mapVisualizations: MapVisualizationByTabId,
     readonly dataTab: DataTab,
     readonly showDatasetDescription: boolean,
     readonly showDataDescription: boolean,
@@ -153,7 +153,7 @@ export const appSlice = createSlice({
         changeMapSelection: (state, action: PayloadAction<MapVisualizationId>) => {
             const selection = state.mapSelections[state.dataTab][0];
             selection.mapVisualization = action.payload;
-            const mapVisualization = state.mapVisualizations[state.dataTab][selection.mapVisualization];
+            const mapVisualization = state.mapVisualizations[TabToId[state.dataTab]][selection.mapVisualization];
             const possibleDataSources = getPossibleDataSources(state, selection);
             if (!possibleDataSources.includes(selection.dataSource)) {
                 selection.dataSource = mapVisualization?.default_source ?? possibleDataSources[0];
@@ -192,7 +192,7 @@ export const appSlice = createSlice({
                 state.state = payload.slice(0, 2) as State;
             }
         },
-        setMapVisualizations: (state, { payload }: PayloadAction<MapVisualizationByTab>) => {
+        setMapVisualizations: (state, { payload }: PayloadAction<MapVisualizationByTabId>) => {
             state.mapVisualizations = payload;
         }
     },
@@ -207,7 +207,7 @@ export const {
 } = appSlice.actions;
 
 // Convenience accessors
-const getMapVisualizations = (state: AppState) => state.mapVisualizations[state.dataTab];
+const getMapVisualizations = (state: AppState) => state.mapVisualizations[TabToId[state.dataTab]];
 const getPossibleDataSources = (state: AppState, selection: MapSelection): number[] => {
     const mapVisualization = getMapVisualizations(state)[selection.mapVisualization];
     return Object.keys(mapVisualization!.date_ranges_by_source).map(key => parseInt(key));

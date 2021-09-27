@@ -1,4 +1,5 @@
-import { TopoJson, useThunkDispatch } from "./Home";
+import { useThunkDispatch } from "./Home";
+import { TopoJson } from "./TopoJson";
 import * as React from "react";
 import { Map } from "immutable";
 import { format, geoPath } from 'd3';

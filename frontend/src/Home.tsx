@@ -3,8 +3,6 @@ import Footer from './Footer';
 import Header from './Header';
 import Navigation from './Navigation';
 import DataSelector from './DataSelector';
-import { Objects, Topology } from 'topojson-specification';
-import { GeoJsonProperties } from 'geojson';
 import './App.css';
 import { json } from 'd3-fetch';
 import { fetchMapVisualizations } from './MapVisualization';
@@ -14,8 +12,7 @@ import MapWrapper from './MapWrapper';
 import { OverlayName, setDataTab, setMap, setMapVisualizations, setOverlay } from './appSlice';
 import SiteOverview from './SiteOverview';
 import DataTab from './DataTab';
-
-export type TopoJson = Topology<Objects<GeoJsonProperties>>;
+import { TopoJson } from './TopoJson';
 
 type TopoJsonFile = "usa.json" |
   "roads-topo.json" |
@@ -49,10 +46,8 @@ const Home = () => {
       );
     }
     fetchMapVisualizations().then(mapVisualizations => {
-      if (mapVisualizations) {
-        dispatch(setMapVisualizations(mapVisualizations));
-      }
-    });
+      dispatch(setMapVisualizations(mapVisualizations));
+    }).catch(console.error);
   }, [dispatch]);
 
   return (

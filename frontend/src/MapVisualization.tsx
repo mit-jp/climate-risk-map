@@ -1,18 +1,18 @@
 import { Interval } from "luxon";
 import DataTab from "./DataTab";
 import { json } from "d3";
-import { Map } from "immutable";
+import { DataQueryParams } from "./MapApi";
 
-export const DatabaseToTab = Map([
-    [8, DataTab.RiskMetrics],
-    [3, DataTab.Climate],
-    [1, DataTab.Water],
-    [2, DataTab.Land],
-    [5, DataTab.Energy],
-    [4, DataTab.Economy],
-    [7, DataTab.Demographics],
-    [6, DataTab.ClimateOpinions],
-]);
+export const TabToId: { [key in DataTab]: number } = {
+    [DataTab.RiskMetrics]: 8,
+    [DataTab.Climate]: 3,
+    [DataTab.Water]: 1,
+    [DataTab.Land]: 2,
+    [DataTab.Energy]: 5,
+    [DataTab.Economy]: 4,
+    [DataTab.Demographics]: 7,
+    [DataTab.ClimateOpinions]: 6,
+};
 export type MapVisualizationId = number;
 export type ScaleType = "Diverging" | "Sequential" | "DivergingSymLog" | "Threshold" | "SequentialSqrt";
 export enum FormatterType {
@@ -31,7 +31,7 @@ export enum MapType {
     Choropleth = 1,
     Bubble = 2,
 }
-export type MapVisualizationByTab = { [key in DataTab]: { [key in MapVisualizationId]: MapVisualization } };
+export type MapVisualizationByTabId = { [key: number]: { [key in MapVisualizationId]: MapVisualization } };
 export interface MapVisualization {
     id: MapVisualizationId;
     dataset: number;
@@ -141,21 +141,42 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
     };
 }
 
-export const defaultMapVisualizations: MapVisualizationByTab = {
-    [DataTab.RiskMetrics]: {},
-    [DataTab.Water]: {},
-    [DataTab.Land]: {},
-    [DataTab.Climate]: {},
-    [DataTab.Economy]: {},
-    [DataTab.Demographics]: {},
-    [DataTab.ClimateOpinions]: {},
-    [DataTab.Energy]: {},
+export const defaultMapVisualizations: MapVisualizationByTabId = {
+    8: {},
+    1: {},
+    2: {},
+    3: {},
+    4: {},
+    7: {},
+    6: {},
+    5: {},
 };
 
-export const fetchMapVisualizations = async (): Promise<MapVisualizationByTab | undefined> => {
+export const getDefaultSource = (mapVisualization: MapVisualization) =>
+    mapVisualization.default_source ??
+    Object
+        .keys(mapVisualization.date_ranges_by_source)
+        .map(key => parseInt(key))[0];
+
+export const getDefaultDateRange = (mapVisualization: MapVisualization) =>
+    mapVisualization.default_date_range ??
+    mapVisualization.date_ranges_by_source[getDefaultSource(mapVisualization)][0];
+
+export const getDataQueryParams = (mapVisualization: MapVisualization): DataQueryParams[] => {
+    const source = getDefaultSource(mapVisualization);
+    const dateRange = getDefaultDateRange(mapVisualization);
+    return [{
+        dataset: mapVisualization.dataset,
+        source,
+        startDate: dateRange.start.toISODate(),
+        endDate: dateRange.end.toISODate(),
+    }];
+};
+
+export const fetchMapVisualizations = async (): Promise<MapVisualizationByTabId> => {
     const rawJson = await json<{ [key: number]: { [key: number]: MapVisualizationJson } }>("api/map-visualization");
     if (rawJson === undefined) {
-        return undefined;
+        return Promise.reject("Failed to fetch map visualizations");
     }
     const mapVisualizationsByTab = Object
         .entries(rawJson)
@@ -168,8 +189,8 @@ export const fetchMapVisualizations = async (): Promise<MapVisualizationByTab | 
                     },
                     {} as { [key in MapVisualizationId]: MapVisualization }
                 );
-            accumulator[DatabaseToTab.get(parseInt(key))!] = mapVisualizations;
+            accumulator[parseInt(key)!] = mapVisualizations;
             return accumulator;
-        }, {} as MapVisualizationByTab);
+        }, {} as MapVisualizationByTabId);
     return mapVisualizationsByTab;
 };

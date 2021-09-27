@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { autoType, csv, DSVParsedArray } from 'd3';
+import { fetchMapVisualizations, MapVisualizationByTabId } from './MapVisualization';
 
 export type CountyId = string;
 export type DatasetId = number;
@@ -12,6 +13,7 @@ export type DataQueryParams = {
     startDate: string,
     endDate: string,
 };
+export type Tab = { id: number, name: string };
 
 type CsvRow = {
     state_id: number;
@@ -65,10 +67,21 @@ export const mapApi = createApi({
                     );
             }
         }),
+        getMapVisualizations: builder.query<MapVisualizationByTabId, undefined>({
+            queryFn: () => fetchMapVisualizations().then(
+                data => ({ data }),
+                error => ({ error })
+            ),
+        }),
+        getTabs: builder.query<Tab[], undefined>({
+            query: () => "data-category",
+        }),
     }),
 });
 
 export const {
     useLazyGetDataQuery,
     useGetDataQuery,
+    useGetMapVisualizationsQuery,
+    useGetTabsQuery,
 } = mapApi;

@@ -1,4 +1,4 @@
-import { TopoJson } from "./Home";
+import { TopoJson } from "./TopoJson";
 import { feature } from "topojson-client";
 import { geoPath } from "d3";
 import { GeoJsonProperties } from 'geojson';
