@@ -1,5 +1,6 @@
 use super::MapVisualization;
 use super::Table;
+use sqlx::postgres::PgQueryResult;
 
 const SELECT: &str = r#"
 SELECT
@@ -47,6 +48,26 @@ impl<'c> Table<'c, MapVisualization> {
     pub async fn all(&self) -> Result<Vec<MapVisualization>, sqlx::Error> {
         sqlx::query_as(&format!("{} {}", SELECT, FROM))
             .fetch_all(&*self.pool)
+            .await
+    }
+    pub async fn get_by_id(&self, id: i32) -> Result<MapVisualization, sqlx::Error> {
+        sqlx::query_as(&format!(
+            "{} {} AND map_visualization.id = $1",
+            SELECT, FROM
+        ))
+        .bind(id)
+        .fetch_one(&*self.pool)
+        .await
+    }
+    pub async fn set_color_palette(
+        &self,
+        id: i32,
+        color_palette_id: i32,
+    ) -> Result<PgQueryResult, sqlx::Error> {
+        sqlx::query("UPDATE map_visualization SET color_palette = $1 WHERE id = $2")
+            .bind(color_palette_id)
+            .bind(id)
+            .execute(&*self.pool)
             .await
     }
 }

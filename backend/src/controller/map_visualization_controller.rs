@@ -1,9 +1,11 @@
 use super::{AppState, MapVisualizationModel};
-use actix_web::{get, web, HttpResponse, Responder};
+use crate::model::ColorPalette;
+use actix_web::{get, patch, web, HttpResponse, Responder};
 use std::collections::HashMap;
 
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get_all);
+    cfg.service(update_color_palette);
 }
 
 #[get("/map-visualization")]
@@ -56,5 +58,25 @@ async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
             }
             HttpResponse::Ok().json(map_visualizations_by_category)
         }
+    }
+}
+
+#[patch("/map-visualization/{id}")]
+async fn update_color_palette(
+    id: web::Path<i32>,
+    color_palette: web::Json<ColorPalette>,
+    app_state: web::Data<AppState<'_>>,
+) -> impl Responder {
+    println!("PATCH: /map-visualization/{}", id);
+
+    let result = app_state
+        .database
+        .map_visualization
+        .set_color_palette(id.into_inner(), color_palette.id)
+        .await;
+
+    match result {
+        Err(_) => HttpResponse::NotFound().finish(),
+        Ok(_) => HttpResponse::Ok().finish(),
     }
 }
