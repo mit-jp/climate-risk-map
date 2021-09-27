@@ -5,10 +5,11 @@ import { TopoJson } from "../TopoJson";
 import { RootState, store } from "../store";
 import "./Editor.css";
 import { clickMapVisualization, clickTab, selectSelectedTabAndMapVisualization, setMap } from "./editorSlice";
-import { Tab, useGetMapVisualizationsQuery, useGetTabsQuery } from "../MapApi";
+import { Tab, useGetMapVisualizationQuery, useGetMapVisualizationsQuery, useGetTabsQuery } from "../MapApi";
 import EditorMap from "./EditorMap";
 import MapVisualizationList, { EmptyMapVisualizationList } from "./MapVisualizationList";
 import MapOptions, { EmptyMapOptions } from "./MapOptions";
+import { skipToken } from "@reduxjs/toolkit/dist/query";
 
 export const useThunkDispatch = () => useDispatch<typeof store.dispatch>();
 
@@ -17,9 +18,7 @@ const Editor = () => {
     const { data: allMapVisualizations } = useGetMapVisualizationsQuery(undefined);
     const { data: tabs } = useGetTabsQuery(undefined);
     const { selectedTabId, selectedMapVisualizationId } = useSelector(selectSelectedTabAndMapVisualization);
-    const selectedMapVisualization = allMapVisualizations && selectedTabId !== undefined && selectedMapVisualizationId !== undefined
-        ? allMapVisualizations[selectedTabId][selectedMapVisualizationId]
-        : undefined;
+    const { data: selectedMapVisualization } = useGetMapVisualizationQuery(selectedMapVisualizationId ?? skipToken);
     const mapVisualizationsForTab = allMapVisualizations && selectedTabId !== undefined
         ? Object.values(allMapVisualizations[selectedTabId]).sort((a, b) => a.order - b.order)
         : undefined;

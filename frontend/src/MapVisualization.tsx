@@ -176,6 +176,14 @@ export const getDataQueryParams = (mapVisualization: MapVisualization): DataQuer
     }];
 };
 
+export const fetchMapVisualization = async (id: number): Promise<MapVisualization> => {
+    const rawJson = await json<MapVisualizationJson>(`api/map-visualization/${id}`);
+    if (rawJson === undefined) {
+        return Promise.reject("Failed to fetch map visualization");
+    }
+    return jsonToMapVisualization(rawJson);
+};
+
 export const fetchMapVisualizations = async (): Promise<MapVisualizationByTabId> => {
     const rawJson = await json<{ [key: number]: { [key: number]: MapVisualizationJson } }>("api/map-visualization");
     if (rawJson === undefined) {

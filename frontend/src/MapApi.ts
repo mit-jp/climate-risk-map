@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { autoType, csv, DSVParsedArray } from 'd3';
-import { ColorPalette, fetchMapVisualizations, MapVisualization, MapVisualizationByTabId } from './MapVisualization';
+import { ColorPalette, fetchMapVisualization, fetchMapVisualizations, MapVisualization, MapVisualizationByTabId } from './MapVisualization';
 
 export type CountyId = string;
 export type DatasetId = number;
@@ -68,6 +68,13 @@ export const mapApi = createApi({
                     );
             }
         }),
+        getMapVisualization: builder.query<MapVisualization, number>({
+            queryFn: (id) => fetchMapVisualization(id).then(
+                data => ({ data }),
+                error => ({ error })
+            ),
+            providesTags: (_result, _error, id) => [{ type: "MapVisualization", id }],
+        }),
         getMapVisualizations: builder.query<MapVisualizationByTabId, undefined>({
             queryFn: () => fetchMapVisualizations().then(
                 data => ({ data }),
@@ -96,6 +103,14 @@ export const mapApi = createApi({
                 body: colorPalette,
             }),
             invalidatesTags: (_result, _error, { mapVisualizationId }) => [{ type: "MapVisualization", mapVisualizationId }],
+            async onQueryStarted({ mapVisualizationId, ...colorPalette }, { dispatch, queryFulfilled }) {
+                const patchResult = dispatch(
+                    mapApi.util.updateQueryData("getMapVisualization", mapVisualizationId, draft => {
+                        draft.color_palette = colorPalette;
+                    })
+                );
+                queryFulfilled.catch(() => patchResult.undo());
+            }
         }),
     }),
 });
@@ -106,5 +121,6 @@ export const {
     useGetMapVisualizationsQuery,
     useGetTabsQuery,
     useGetColorPalettesQuery,
+    useGetMapVisualizationQuery,
     useUpdateMapVisualizationMutation,
 } = mapApi;
