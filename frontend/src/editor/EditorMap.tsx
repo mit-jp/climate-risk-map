@@ -35,7 +35,7 @@ const EditorMap = ({
             {selection
                 ? <MapTitle
                     selectedMapVisualizations={[selection]}
-                    isNormalized={selection.should_normalize} />
+                    isNormalized={false} />
                 : <EmptyMapTitle />
             }
             <svg viewBox="0, 0, 1175, 610">
@@ -45,7 +45,7 @@ const EditorMap = ({
                         selectedMapVisualizations={[selection]}
                         data={processedData}
                         detailedView={detailedView}
-                        isNormalized={selection.should_normalize}
+                        isNormalized={false}
                     />
                     : <EmptyMap map={map} />}
             </svg>

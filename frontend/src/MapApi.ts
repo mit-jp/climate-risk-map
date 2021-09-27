@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { autoType, csv, DSVParsedArray } from 'd3';
-import { ColorPalette, fetchMapVisualizations, MapVisualizationByTabId } from './MapVisualization';
+import { ColorPalette, fetchMapVisualizations, MapVisualization, MapVisualizationByTabId } from './MapVisualization';
 
 export type CountyId = string;
 export type DatasetId = number;
@@ -48,6 +48,7 @@ export const mapApi = createApi({
     reducerPath: "mapApi",
     keepUnusedDataFor: 5 * 60, // 5 minutes
     baseQuery: fetchBaseQuery({ baseUrl: "api/" }),
+    tagTypes: ["MapVisualization"],
     endpoints: (builder) => ({
         getData: builder.query<DataByDataset, DataQueryParams[]>({
             queryFn: (queryParams) => {
@@ -72,12 +73,29 @@ export const mapApi = createApi({
                 data => ({ data }),
                 error => ({ error })
             ),
+            providesTags: (data) => data
+                ? [
+                    ...Object.values(data)
+                        .map(mapsById => Object.keys(mapsById))
+                        .flat()
+                        .map(id => ({ type: "MapVisualization", id } as const)),
+                    { type: "MapVisualization", id: "ALL" }
+                ]
+                : [{ type: "MapVisualization", id: "ALL" }],
         }),
         getTabs: builder.query<Tab[], undefined>({
             query: () => "data-category",
         }),
         getColorPalettes: builder.query<ColorPalette[], undefined>({
             query: () => "color-palette",
+        }),
+        updateMapVisualization: builder.mutation<MapVisualization, ColorPalette & { mapVisualizationId: number }>({
+            query: ({ mapVisualizationId, ...colorPalette }) => ({
+                url: `map-visualization/${mapVisualizationId}`,
+                method: "PATCH",
+                body: colorPalette,
+            }),
+            invalidatesTags: (_result, _error, { mapVisualizationId }) => [{ type: "MapVisualization", mapVisualizationId }],
         }),
     }),
 });
@@ -88,4 +106,5 @@ export const {
     useGetMapVisualizationsQuery,
     useGetTabsQuery,
     useGetColorPalettesQuery,
+    useUpdateMapVisualizationMutation,
 } = mapApi;

@@ -1,5 +1,5 @@
 import { Autocomplete, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField } from "@mui/material";
-import { useGetColorPalettesQuery } from "../MapApi";
+import { useGetColorPalettesQuery, useUpdateMapVisualizationMutation } from "../MapApi";
 import { MapVisualization, ScaleType } from "../MapVisualization";
 
 const scales: ScaleType[] = [
@@ -12,6 +12,7 @@ const scales: ScaleType[] = [
 
 const MapOptions = ({ mapVisualization }: { mapVisualization: MapVisualization }) => {
     const { data: colorPalettes } = useGetColorPalettesQuery(undefined);
+    const [setColorPalette] = useUpdateMapVisualizationMutation();
     return <form id="map-options">
         <FormControl component="fieldset">
             <FormLabel component="legend">Map Type</FormLabel>
@@ -35,9 +36,11 @@ const MapOptions = ({ mapVisualization }: { mapVisualization: MapVisualization }
             />
             {colorPalettes && <Autocomplete
                 disablePortal
-                defaultValue={mapVisualization.color_palette}
+                value={mapVisualization.color_palette}
                 options={colorPalettes}
+                onChange={(_, colorPalette) => colorPalette && setColorPalette({ ...colorPalette, mapVisualizationId: mapVisualization.id })}
                 getOptionLabel={(option) => option.name}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
                 sx={{ width: 300 }}
                 renderInput={(params) => <TextField {...params} label="Color Palette" />}
             />}
