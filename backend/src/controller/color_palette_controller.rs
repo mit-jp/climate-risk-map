@@ -13,12 +13,6 @@ async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
 
     match color_palettes {
         Err(_) => HttpResponse::NotFound().finish(),
-        Ok(color_palettes) => {
-            let color_palettes: Vec<String> = color_palettes
-                .into_iter()
-                .map(|color_palette| color_palette.name)
-                .collect();
-            return HttpResponse::Ok().json(color_palettes);
-        }
+        Ok(color_palettes) => HttpResponse::Ok().json(color_palettes),
     }
 }

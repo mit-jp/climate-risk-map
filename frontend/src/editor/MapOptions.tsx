@@ -37,6 +37,7 @@ const MapOptions = ({ mapVisualization }: { mapVisualization: MapVisualization }
                 disablePortal
                 defaultValue={mapVisualization.color_palette}
                 options={colorPalettes}
+                getOptionLabel={(option) => option.name}
                 sx={{ width: 300 }}
                 renderInput={(params) => <TextField {...params} label="Color Palette" />}
             />}

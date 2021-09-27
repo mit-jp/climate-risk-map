@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { autoType, csv, DSVParsedArray } from 'd3';
-import { fetchMapVisualizations, MapVisualizationByTabId } from './MapVisualization';
+import { ColorPalette, fetchMapVisualizations, MapVisualizationByTabId } from './MapVisualization';
 
 export type CountyId = string;
 export type DatasetId = number;
@@ -76,7 +76,7 @@ export const mapApi = createApi({
         getTabs: builder.query<Tab[], undefined>({
             query: () => "data-category",
         }),
-        getColorPalettes: builder.query<string[], undefined>({
+        getColorPalettes: builder.query<ColorPalette[], undefined>({
             query: () => "color-palette",
         }),
     }),

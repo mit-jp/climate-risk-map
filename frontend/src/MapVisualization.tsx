@@ -26,7 +26,10 @@ export type DataSource = {
     description: string,
     link: string,
 };
-export type ColorPalette = string;
+export type ColorPalette = {
+    name: string;
+    id: number;
+}
 export enum MapType {
     Choropleth = 1,
     Bubble = 2,

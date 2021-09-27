@@ -1,5 +1,6 @@
 use super::DataSource;
 use super::SourceAndDate;
+use crate::model::ColorPalette;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
@@ -18,7 +19,8 @@ pub struct MapVisualization {
     pub map_type: i32,
     pub legend_ticks: Option<i16>,
     pub should_normalize: bool,
-    pub color_palette: String,
+    pub color_palette_name: String,
+    pub color_palette_id: i32,
     pub reverse_scale: bool,
     pub invert_normalized: bool,
     pub scale_type: String,
@@ -46,7 +48,7 @@ pub struct MapVisualizationModel {
     pub description: String,
     pub legend_ticks: Option<i16>,
     pub should_normalize: bool,
-    pub color_palette: String,
+    pub color_palette: ColorPalette,
     pub reverse_scale: bool,
     pub invert_normalized: bool,
     pub scale_type: String,
@@ -102,7 +104,10 @@ impl MapVisualizationModel {
             description: map_visualization.description,
             legend_ticks: map_visualization.legend_ticks,
             should_normalize: map_visualization.should_normalize,
-            color_palette: map_visualization.color_palette,
+            color_palette: ColorPalette {
+                name: map_visualization.color_palette_name,
+                id: map_visualization.color_palette_id,
+            },
             reverse_scale: map_visualization.reverse_scale,
             invert_normalized: map_visualization.invert_normalized,
             scale_type: map_visualization.scale_type,
