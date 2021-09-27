@@ -8,6 +8,7 @@ import "./Editor.css";
 import { clickMapVisualization, clickTab, selectSelectedTabAndMapVisualization, setMap } from "./editorSlice";
 import { Tab, useGetMapVisualizationsQuery, useGetTabsQuery } from "../MapApi";
 import EditorMap from "./EditorMap";
+import MapVisualizationList, { EmptyMapVisualizationList } from "./MapVisualizationList";
 
 export const useThunkDispatch = () => useDispatch<typeof store.dispatch>();
 
@@ -23,7 +24,6 @@ const Editor = () => {
         ? Object.values(allMapVisualizations[selectedTabId]).sort((a, b) => a.order - b.order)
         : undefined;
     const map = useSelector((state: RootState) => state.editor.map);
-    const queryParams = selectedMapVisualization ? getDataQueryParams(selectedMapVisualization) : undefined;
 
     useEffect(() => {
         json<TopoJson>(process.env.PUBLIC_URL + "/usa.json").then(topoJson => {
@@ -40,15 +40,16 @@ const Editor = () => {
                 : <EmptyNavigation />}
             <div id="editor">
                 {mapVisualizationsForTab
-                    ? <MapVisualizationList mapVisualizations={mapVisualizationsForTab} selectedMapVisualizationId={selectedMapVisualizationId} />
+                    ? <MapVisualizationList
+                        mapVisualizations={mapVisualizationsForTab}
+                        selectedId={selectedMapVisualizationId}
+                        onClick={map => dispatch(clickMapVisualization(map))} />
                     : <EmptyMapVisualizationList />
                 }
-                {map && selectedMapVisualization && queryParams && <EditorMap
+                {map && <EditorMap
                     map={map}
                     selection={selectedMapVisualization}
                     detailedView={true}
-                    isNormalized={selectedMapVisualization.should_normalize}
-                    queryParams={queryParams}
                 />}
                 <MapOptions />
             </div>
@@ -70,26 +71,6 @@ const Navigation = ({ tabs, selectedTabId }: { tabs: Tab[], selectedTabId?: numb
                 )}
             </ul>
         </nav>
-    );
-}
-const EmptyMapVisualizationList = () => <ol></ol>;
-const MapVisualizationList = ({ mapVisualizations, selectedMapVisualizationId }:
-    {
-        mapVisualizations: MapVisualization[],
-        selectedMapVisualizationId?: number
-    }) => {
-    const dispatch = useThunkDispatch();
-    return (
-        <ol>
-            {mapVisualizations.map(mapVisualization =>
-                <li
-                    className={selectedMapVisualizationId === mapVisualization.id ? "selected" : undefined}
-                    key={mapVisualization.id}
-                    onClick={() => dispatch(clickMapVisualization(mapVisualization))}>
-                    {mapVisualization.name}
-                </li>
-            )}
-        </ol>
     );
 }
 

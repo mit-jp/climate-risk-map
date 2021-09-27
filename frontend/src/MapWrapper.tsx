@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from './store';
 import EmptyMap from './EmptyMap';
 import FullMap from './FullMap';
-import MapTitle from './MapTitle';
+import MapTitle, { EmptyMapTitle } from './MapTitle';
 import { selectDataQueryParams, selectIsNormalized, selectSelectedMapVisualizations } from './appSlice';
 import CountyTooltip from './CountyTooltip';
 import MapControls from './MapControls';
@@ -39,7 +39,7 @@ const MapWrapper = () => {
                     ? <MapTitle
                         selectedMapVisualizations={selectedMapVisualizations}
                         isNormalized={isNormalized} />
-                    : <div id="empty-title"></div>
+                    : <EmptyMapTitle />
             }
             <svg viewBox="0, 0, 1175, 610">
                 {processedData

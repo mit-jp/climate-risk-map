@@ -50,4 +50,5 @@ const MapTitle = ({ selectedMapVisualizations, isNormalized }: Props) =>
         }
     </h3>
 
+export const EmptyMapTitle = () => <div id="empty-title"></div>;
 export default MapTitle;
