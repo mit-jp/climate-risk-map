@@ -99,6 +99,14 @@ const MapControls = ({ processedData }: { processedData: Map<string, number> | u
         }
     }
 
+    const downloadImage = () => {
+        const svg = document.getElementById("map-svg");
+        if (svg?.outerHTML) {
+            const blob = new Blob([svg.outerHTML], { type: "text/plain" });
+            saveAs(blob, getFilename(generateSelectedDataDefinitions(selections), selections) + ".svg");
+        }
+    }
+
     return <div id="map-controls">
         {mapToggleUI()}
         {selections[0]?.normalization === Normalization.Percentile && processedData &&
@@ -115,6 +123,8 @@ const MapControls = ({ processedData }: { processedData: Map<string, number> | u
             />
         }
         {processedData && <Button variant="outlined" onClick={downloadData}>Download data</Button>}
+        {processedData && <Button variant="outlined" onClick={downloadImage}>Download Image</Button>}
+
     </div>
 }
 

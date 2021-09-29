@@ -263,6 +263,10 @@ h2 {
     margin-top: 2em;
 }
 
+#map-controls button {
+    margin-right: 1em;
+}
+
 .weight {
     display: flex;
     margin: 0 1em;
