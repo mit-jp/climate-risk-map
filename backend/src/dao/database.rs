@@ -1,6 +1,6 @@
 use super::{
     ColorPalette, County, Data, DataCategory, DataSource, Dataset, Domain, MapVisualization,
-    SourceAndDate, State,
+    ScaleType, SourceAndDate, State,
 };
 use sqlx::postgres::PgRow;
 use sqlx::{FromRow, PgPool};
@@ -37,6 +37,7 @@ pub struct Database<'c> {
     pub data_source: Arc<Table<'c, DataSource>>,
     pub domain: Arc<Table<'c, Domain>>,
     pub color_palette: Arc<Table<'c, ColorPalette>>,
+    pub scale_type: Arc<Table<'c, ScaleType>>,
 }
 
 impl Database<'_> {
@@ -55,6 +56,7 @@ impl Database<'_> {
             data_source: Arc::from(Table::new(pool.clone())),
             domain: Arc::from(Table::new(pool.clone())),
             color_palette: Arc::from(Table::new(pool.clone())),
+            scale_type: Arc::from(Table::new(pool.clone())),
         }
     }
 }

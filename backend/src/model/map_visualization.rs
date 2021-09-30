@@ -7,6 +7,89 @@ use sqlx::FromRow;
 use std::collections::HashMap;
 
 #[derive(FromRow, Deserialize, Serialize)]
+pub struct MapVisualizationDaoPatch {
+    pub id: i32,
+    pub dataset: Option<i32>,
+    pub map_type: Option<i32>,
+    pub subcategory: Option<i32>,
+    pub data_tab: Option<i32>,
+    pub name: Option<String>,
+    pub legend_ticks: Option<i16>,
+    pub should_normalize: Option<bool>,
+    pub color_palette_id: Option<i32>,
+    pub reverse_scale: Option<bool>,
+    pub invert_normalized: Option<bool>,
+    pub scale_type: Option<i32>,
+    pub show_pdf: Option<bool>,
+    pub default_start_date: Option<NaiveDate>,
+    pub default_end_date: Option<NaiveDate>,
+    pub default_source: Option<i32>,
+    pub formatter_type: Option<i32>,
+    pub legend_formatter_type: Option<i32>,
+    pub decimals: Option<i16>,
+    pub legend_decimals: Option<i16>,
+}
+
+impl MapVisualizationDaoPatch {
+    pub fn new(patch: MapVisualizationPatch) -> MapVisualizationDaoPatch {
+        MapVisualizationDaoPatch {
+            id: patch.id,
+            dataset: patch.dataset,
+            map_type: patch.map_type,
+            subcategory: patch.subcategory,
+            data_tab: patch.data_tab,
+            name: patch.name,
+            legend_ticks: patch.legend_ticks,
+            should_normalize: patch.should_normalize,
+            color_palette_id: patch.color_palette.map(|color_palette| color_palette.id),
+            reverse_scale: patch.reverse_scale,
+            invert_normalized: patch.invert_normalized,
+            scale_type: patch.scale_type.map(|scale_type| scale_type.id),
+            show_pdf: patch.show_pdf,
+            default_start_date: patch.default_start_date,
+            default_end_date: patch.default_end_date,
+            default_source: patch.default_source,
+            formatter_type: patch.formatter_type,
+            legend_formatter_type: patch.legend_formatter_type,
+            decimals: patch.decimals,
+            legend_decimals: patch.legend_decimals,
+        }
+    }
+}
+
+#[derive(FromRow, Deserialize, Serialize)]
+pub struct MapVisualizationPatch {
+    pub id: i32,
+    pub dataset: Option<i32>,
+    pub map_type: Option<i32>,
+    pub subcategory: Option<i32>,
+    pub data_tab: Option<i32>,
+    pub name: Option<String>,
+    pub legend_ticks: Option<i16>,
+    pub should_normalize: Option<bool>,
+    pub color_palette: Option<ColorPalette>,
+    pub reverse_scale: Option<bool>,
+    pub invert_normalized: Option<bool>,
+    pub scale_type: Option<ScaleType>,
+    pub scale_domain: Option<Vec<f64>>,
+    pub show_pdf: Option<bool>,
+    pub pdf_domain: Option<Vec<f64>>,
+    pub default_start_date: Option<NaiveDate>,
+    pub default_end_date: Option<NaiveDate>,
+    pub default_source: Option<i32>,
+    pub formatter_type: Option<i32>,
+    pub legend_formatter_type: Option<i32>,
+    pub decimals: Option<i16>,
+    pub legend_decimals: Option<i16>,
+}
+
+#[derive(FromRow, Deserialize, Serialize)]
+pub struct ScaleType {
+    pub id: i32,
+    pub name: String,
+}
+
+#[derive(FromRow, Deserialize, Serialize)]
 pub struct MapVisualization {
     pub id: i32,
     pub units: String,
@@ -23,7 +106,8 @@ pub struct MapVisualization {
     pub color_palette_id: i32,
     pub reverse_scale: bool,
     pub invert_normalized: bool,
-    pub scale_type: String,
+    pub scale_type_id: i32,
+    pub scale_type_name: String,
     pub formatter_type: i32,
     pub decimals: i16,
     pub legend_formatter_type: Option<i32>,
@@ -51,7 +135,7 @@ pub struct MapVisualizationModel {
     pub color_palette: ColorPalette,
     pub reverse_scale: bool,
     pub invert_normalized: bool,
-    pub scale_type: String,
+    pub scale_type: ScaleType,
     pub scale_domain: Vec<f64>,
     pub date_ranges_by_source: HashMap<i32, Vec<DateRange>>,
     pub sources: HashMap<i32, DataSource>,
@@ -110,7 +194,10 @@ impl MapVisualizationModel {
             },
             reverse_scale: map_visualization.reverse_scale,
             invert_normalized: map_visualization.invert_normalized,
-            scale_type: map_visualization.scale_type,
+            scale_type: ScaleType {
+                id: map_visualization.scale_type_id,
+                name: map_visualization.scale_type_name,
+            },
             scale_domain,
             date_ranges_by_source,
             sources: data_sources

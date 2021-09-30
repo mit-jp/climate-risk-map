@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { autoType, csv, DSVParsedArray } from 'd3';
-import { ColorPalette, fetchMapVisualization, fetchMapVisualizations, MapVisualization, MapVisualizationByTabId } from './MapVisualization';
+import { applyPatch, ColorPalette, fetchMapVisualization, fetchMapVisualizations, MapVisualization, MapVisualizationByTabId, MapVisualizationPatch, ScaleType } from './MapVisualization';
 
 export type CountyId = string;
 export type DatasetId = number;
@@ -96,18 +96,19 @@ export const mapApi = createApi({
         getColorPalettes: builder.query<ColorPalette[], undefined>({
             query: () => "color-palette",
         }),
-        updateMapVisualization: builder.mutation<MapVisualization, ColorPalette & { mapVisualizationId: number }>({
-            query: ({ mapVisualizationId, ...colorPalette }) => ({
-                url: `map-visualization/${mapVisualizationId}`,
+        getScaleTypes: builder.query<ScaleType[], undefined>({
+            query: () => "scale-type",
+        }),
+        updateMapVisualization: builder.mutation<MapVisualization, MapVisualizationPatch>({
+            query: patch => ({
+                url: `map-visualization/${patch.id}`,
                 method: "PATCH",
-                body: colorPalette,
+                body: patch,
             }),
-            invalidatesTags: (_result, _error, { mapVisualizationId }) => [{ type: "MapVisualization", mapVisualizationId }],
-            async onQueryStarted({ mapVisualizationId, ...colorPalette }, { dispatch, queryFulfilled }) {
+            invalidatesTags: (_result, _error, { id }) => [{ type: "MapVisualization", id }],
+            async onQueryStarted(patch, { dispatch, queryFulfilled }) {
                 const patchResult = dispatch(
-                    mapApi.util.updateQueryData("getMapVisualization", mapVisualizationId, draft => {
-                        draft.color_palette = colorPalette;
-                    })
+                    mapApi.util.updateQueryData("getMapVisualization", patch.id, draft => applyPatch(draft, patch))
                 );
                 queryFulfilled.catch(() => patchResult.undo());
             }
@@ -121,6 +122,7 @@ export const {
     useGetMapVisualizationsQuery,
     useGetTabsQuery,
     useGetColorPalettesQuery,
+    useGetScaleTypesQuery,
     useGetMapVisualizationQuery,
     useUpdateMapVisualizationMutation,
 } = mapApi;

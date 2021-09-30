@@ -1,4 +1,4 @@
-import { Interval } from "luxon";
+import { DateTime, Interval } from "luxon";
 import DataTab from "./DataTab";
 import { json } from "d3";
 import { DataQueryParams } from "./MapApi";
@@ -14,7 +14,8 @@ export const TabToId: { [key in DataTab]: number } = {
     [DataTab.ClimateOpinions]: 6,
 };
 export type MapVisualizationId = number;
-export type ScaleType = "Diverging" | "Sequential" | "DivergingSymLog" | "Threshold" | "SequentialSqrt";
+export type ScaleType = { id: number, name: ScaleTypeName };
+export type ScaleTypeName = "Diverging" | "Sequential" | "DivergingSymLog" | "Threshold" | "SequentialSqrt";
 export enum FormatterType {
     MONEY = 1,
     NEAREST_SI_UNIT = 2,
@@ -35,6 +36,33 @@ export enum MapType {
     Bubble = 2,
 }
 export type MapVisualizationByTabId = { [key: number]: { [key in MapVisualizationId]: MapVisualization } };
+
+export interface MapVisualizationPatch {
+    id: MapVisualizationId;
+    dataset?: number;
+    map_type?: MapType;
+    subcategory?: number;
+    data_tab?: number;
+    name?: string;
+    description?: string;
+    legend_ticks?: number;
+    should_normalize?: boolean;
+    color_palette?: ColorPalette;
+    reverse_scale?: boolean;
+    invert_normalized?: boolean;
+    scale_type?: ScaleType;
+    scale_domain?: number[];
+    show_pdf?: boolean;
+    pdf_domain?: [number, number];
+    default_start_date?: DateTime;
+    default_end_date?: DateTime;
+    default_source?: number;
+    formatter_type?: FormatterType;
+    legend_formatter_type?: FormatterType;
+    decimals?: number;
+    legend_decimals?: number;
+}
+
 export interface MapVisualization {
     id: MapVisualizationId;
     dataset: number;
@@ -94,6 +122,16 @@ export interface MapVisualizationJson {
     legend_decimals: number | null;
     order: number;
 };
+
+export const applyPatch = (draft: MapVisualization, patch: MapVisualizationPatch) => {
+    Object.assign(draft, patch);
+    if (patch.default_end_date && patch.default_start_date) {
+        draft.default_date_range = Interval.fromDateTimes(
+            patch.default_start_date,
+            patch.default_end_date,
+        );
+    }
+}
 
 
 const intervalFromJson = (json: { start_date: string, end_date: string }) =>

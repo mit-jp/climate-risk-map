@@ -1,6 +1,5 @@
 use super::{AppState, MapVisualizationModel};
-use crate::model::ColorPalette;
-use crate::model::MapVisualization;
+use crate::model::{MapVisualization, MapVisualizationDaoPatch, MapVisualizationPatch};
 use actix_web::{get, patch, web, HttpResponse, Responder};
 use futures::future::try_join4;
 use std::collections::HashMap;
@@ -8,7 +7,7 @@ use std::collections::HashMap;
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get);
     cfg.service(get_all);
-    cfg.service(update_color_palette);
+    cfg.service(patch);
 }
 
 async fn get_map_visualization_model(
@@ -95,9 +94,9 @@ async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
 }
 
 #[patch("/map-visualization/{id}")]
-async fn update_color_palette(
+async fn patch(
     id: web::Path<i32>,
-    color_palette: web::Json<ColorPalette>,
+    patch: web::Json<MapVisualizationPatch>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
     println!("PATCH: /map-visualization/{}", id);
@@ -105,11 +104,14 @@ async fn update_color_palette(
     let result = app_state
         .database
         .map_visualization
-        .set_color_palette(id.into_inner(), color_palette.id)
+        .update(&MapVisualizationDaoPatch::new(patch.into_inner()))
         .await;
 
     match result {
-        Err(_) => HttpResponse::NotFound().finish(),
+        Err(e) => {
+            println!("{}", e);
+            HttpResponse::NotFound().finish()
+        }
         Ok(_) => HttpResponse::Ok().finish(),
     }
 }

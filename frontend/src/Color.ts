@@ -12,7 +12,7 @@ const colorScheme = (map: MapVisualization): ColorScheme => {
         ? x => (scales as any)["interpolate" + colorPalette](1 - x)
         : (scales as any)["interpolate" + colorPalette];
     const scale: ReadonlyArray<string> = (scales as any)["scheme" + colorPalette][domain.length];
-    const type = map.scale_type;
+    const type = map.scale_type.name;
 
     switch (type) {
         case "Diverging": return scaleDiverging(domain, interpolator);
