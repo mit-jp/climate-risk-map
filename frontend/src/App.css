@@ -288,3 +288,8 @@ h2 {
 .MuiAccordionDetails-root {
     flex-direction: column;
 }
+
+#map-options {
+    display: flex;
+    flex-direction: column;
+}
