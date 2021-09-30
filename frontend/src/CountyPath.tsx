@@ -7,9 +7,10 @@ type Props = {
     color: string;
     d: string;
     id: string;
+    showTooltip: boolean;
 };
 
-const CountyPath = ({ color, d, id }: Props) => {
+const CountyPath = ({ color, d, id, showTooltip }: Props) => {
     const dispatch = useThunkDispatch();
     const isHovered = useSelector((state: RootState) => state.app.hoverCountyId === id);
     const setHoverCounty = () => dispatch(hoverCounty(id));
@@ -17,8 +18,8 @@ const CountyPath = ({ color, d, id }: Props) => {
     return <path
         fill={color}
         d={d}
-        onMouseOver={setHoverCounty}
-        onTouchStart={setHoverCounty}
+        onMouseOver={showTooltip ? setHoverCounty : undefined}
+        onTouchStart={showTooltip ? setHoverCounty : undefined}
         onClick={onClick}
         opacity={isHovered ? 0.5 : 1}
         stroke={isHovered ? "black" : undefined}

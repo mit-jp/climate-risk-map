@@ -2,6 +2,7 @@ import { DateTime, Interval } from "luxon";
 import DataTab from "./DataTab";
 import { json } from "d3";
 import { DataQueryParams } from "./MapApi";
+import { nullableTypeAnnotation } from "@babel/types";
 
 export const TabToId: { [key in DataTab]: number } = {
     [DataTab.RiskMetrics]: 8,
@@ -41,26 +42,25 @@ export interface MapVisualizationPatch {
     id: MapVisualizationId;
     dataset?: number;
     map_type?: MapType;
-    subcategory?: number;
-    data_tab?: number;
-    name?: string;
-    description?: string;
-    legend_ticks?: number;
+    subcategory?: number | null;
+    data_tab?: number | null;
+    name?: string | null;
+    legend_ticks?: number | null;
     should_normalize?: boolean;
     color_palette?: ColorPalette;
     reverse_scale?: boolean;
     invert_normalized?: boolean;
     scale_type?: ScaleType;
-    scale_domain?: number[];
+    scale_domain?: number[] | null;
     show_pdf?: boolean;
-    pdf_domain?: [number, number];
-    default_start_date?: DateTime;
-    default_end_date?: DateTime;
-    default_source?: number;
+    pdf_domain?: [number, number] | null;
+    default_start_date?: DateTime | null;
+    default_end_date?: DateTime | null;
+    default_source?: number | null;
     formatter_type?: FormatterType;
-    legend_formatter_type?: FormatterType;
+    legend_formatter_type?: FormatterType | null;
     decimals?: number;
-    legend_decimals?: number;
+    legend_decimals?: number | null;
 }
 
 export interface MapVisualization {

@@ -49,6 +49,7 @@ const MapWrapper = () => {
                         data={processedData}
                         detailedView={detailedView}
                         isNormalized={isNormalized}
+                        showTooltip={true}
                     />
                     : <EmptyMap map={map} />}
                 <Overlays />

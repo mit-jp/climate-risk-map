@@ -84,9 +84,10 @@ type Props = {
     detailedView: boolean,
     legendTitle: string,
     isNormalized: boolean,
+    showTooltip?: boolean,
 }
 
-const ChoroplethMap = ({ map, selectedMapVisualizations, data, detailedView, legendTitle, isNormalized }: Props) => {
+const ChoroplethMap = ({ map, selectedMapVisualizations, data, detailedView, legendTitle, isNormalized, showTooltip = false }: Props) => {
     const dispatch = useThunkDispatch();
     const transform = useSelector(selectMapTransform);
     const colorScheme = Color(isNormalized, detailedView, selectedMapVisualizations[0]);
@@ -113,15 +114,16 @@ const ChoroplethMap = ({ map, selectedMapVisualizations, data, detailedView, leg
         <React.Fragment>
             <g
                 id="counties"
-                onMouseOut={onHoverEnd}
-                onTouchEnd={onHoverEnd}
-                onMouseMove={onMouseMove}
-                onTouchMove={onTouchMove}
+                onMouseOut={showTooltip ? onHoverEnd : undefined}
+                onTouchEnd={showTooltip ? onHoverEnd : undefined}
+                onMouseMove={showTooltip ? onMouseMove : undefined}
+                onTouchMove={showTooltip ? onTouchMove : undefined}
                 transform={transform}
                 style={ZOOM_TRANSITION}
             >
                 {countyFeatures.map(county =>
                     <CountyPath
+                        showTooltip={showTooltip}
                         key={county.id}
                         color={color(county.id as string)}
                         d={path(county)!}

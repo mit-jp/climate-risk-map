@@ -37,9 +37,10 @@ type Props = {
     data: Map<string, number>,
     detailedView: boolean,
     isNormalized: boolean,
+    showTooltip?: boolean,
 }
 
-const FullMap = ({ map, selectedMapVisualizations, data, detailedView, isNormalized }: Props) => {
+const FullMap = ({ map, selectedMapVisualizations, data, detailedView, isNormalized, showTooltip = false }: Props) => {
     const mapType = selectedMapVisualizations[0]!.map_type;
     const legendTitle = getLegendTitle(selectedMapVisualizations, isNormalized);
     switch (mapType) {
@@ -51,6 +52,7 @@ const FullMap = ({ map, selectedMapVisualizations, data, detailedView, isNormali
                 detailedView={detailedView}
                 legendTitle={legendTitle}
                 isNormalized={isNormalized}
+                showTooltip={showTooltip}
             />;
         case MapType.Bubble:
             return <BubbleMap
