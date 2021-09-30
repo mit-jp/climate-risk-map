@@ -292,4 +292,9 @@ h2 {
 #map-options {
     display: flex;
     flex-direction: column;
+    padding-right: 0.5em;
+}
+
+.MuiAutocomplete-root {
+    margin: 0.5em 0;
 }
