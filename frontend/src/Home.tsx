@@ -31,13 +31,15 @@ type TopoJsonFile = "usa.json" |
   "railroads-topo.json" |
   "waterways-topo.json" |
   "transmission-lines-topo.json" |
-  "critical-habitats-topo.json";
+  "critical-habitats-topo.json" |
+  "toxic-sites-topo.json";
 const overlayToFile: { [key in OverlayName]: TopoJsonFile } = {
   "Highways": "roads-topo.json",
   "Major railroads": "railroads-topo.json",
   "Transmission lines": "transmission-lines-topo.json",
   "Marine highways": "waterways-topo.json",
   "Critical water habitats": "critical-habitats-topo.json",
+  "Toxic sites": "toxic-sites-topo.json",
 }
 const mapFile: TopoJsonFile = "usa.json";
 
