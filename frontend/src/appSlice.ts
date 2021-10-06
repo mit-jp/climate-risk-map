@@ -15,7 +15,7 @@ import { feature } from 'topojson-client';
 export type DataRow = { [key: string]: number | null };
 export type Data = { [key: string]: DataRow };
 export type TransmissionLineType = "Level 2 (230kV-344kV)" | "Level 3 (>= 345kV)" | "Level 2 & 3 (>= 230kV)";
-export type OverlayName = "Highways" | "Major railroads" | "Transmission lines" | "Marine highways" | "Critical habitats";
+export type OverlayName = "Highways" | "Major railroads" | "Transmission lines" | "Marine highways" | "Critical water habitats";
 export type Overlay = { topoJson?: TopoJson, shouldShow: boolean };
 export type CountyHover = {
     position: { x: number, y: number },
@@ -73,7 +73,7 @@ const initialState: AppState = {
         "Major railroads": { shouldShow: false },
         "Transmission lines": { shouldShow: false },
         "Marine highways": { shouldShow: false },
-        "Critical habitats": { shouldShow: false },
+        "Critical water habitats": { shouldShow: false },
     },
     data: {},
     dataSelections: defaultSelections,

@@ -1041,7 +1041,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         legendFormatter: deathFormatter,
     })],
     [DataGroup.PerCritHab, genericDefinition({
-        name: () => "Critical Habitat",
+        name: () => "Critical Land Habitat",
         units: "%",
         color: scaleSequential(scales.interpolateYlOrBr),
         type: DataType.Land,

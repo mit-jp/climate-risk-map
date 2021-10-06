@@ -37,7 +37,7 @@ const overlayToFile: { [key in OverlayName]: TopoJsonFile } = {
   "Major railroads": "railroads-topo.json",
   "Transmission lines": "transmission-lines-topo.json",
   "Marine highways": "waterways-topo.json",
-  "Critical habitats": "critical-habitats-topo.json",
+  "Critical water habitats": "critical-habitats-topo.json",
 }
 const mapFile: TopoJsonFile = "usa.json";
 
@@ -62,7 +62,7 @@ const Home = () => {
   useEffect(() => {
     const loadingCsvs = csvFiles.map(csvFile => csv<DataRow>(process.env.PUBLIC_URL + "/" + csvFile, autoType));
     Promise.all(loadingCsvs).then(loadedCsvs => {
-      const dataMaps = loadedCsvs.map(mergeFIPSCodes).map(Map);
+      const dataMaps = loadedCsvs.map(mergeFIPSCodes).map(pair => Map<string, DataRow>(pair));
       const allData = Map<string, DataRow>().mergeDeep(...dataMaps)
       dispatch(setData(allData.toJS() as Data));
     });
