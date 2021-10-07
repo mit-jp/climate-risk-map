@@ -87,6 +87,7 @@ const MapOptions = ({ mapVisualization }: { mapVisualization: MapVisualization }
         <FormControl component="fieldset">
             <FormLabel component="legend">Legend</FormLabel>
             <TextField
+                sx={{ margin: "0.5em 0" }}
                 label="Custom Legend Tick Count"
                 type="number"
                 InputLabelProps={{
@@ -102,6 +103,7 @@ const MapOptions = ({ mapVisualization }: { mapVisualization: MapVisualization }
                 }}
             />
             <TextField
+                sx={{ margin: "0.5em 0" }}
                 label="Decimal places"
                 type="number"
                 InputLabelProps={{
