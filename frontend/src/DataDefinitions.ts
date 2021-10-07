@@ -656,7 +656,7 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         units: "USD per capita",
         formatter: money,
         legendFormatter: money,
-        color: scaleSequential([10_000, 100_000], scales.interpolateGreens),
+        color: scaleDiverging([10_000, 40_000, 100_000], scales.interpolateBrBG),
         type: DataType.Economic,
         description: () => "The GDP in each county divided by the number of people in that county. A comprehensive measure of the economies of counties, metropolitan statistical areas, and some other local areas. Gross domestic product estimates the value of the goods and services produced in an area. It can be used to compare the size and growth of county economies across the nation.",
         dataset: Dataset.BEA,
