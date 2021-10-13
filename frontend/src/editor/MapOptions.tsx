@@ -1,4 +1,5 @@
 import { Autocomplete, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Checkbox } from "@mui/material";
+import { useState } from "react";
 import { useGetColorPalettesQuery, useGetScaleTypesQuery, useUpdateMapVisualizationMutation } from "../MapApi";
 import { FormatterType, MapType, MapVisualization } from "../MapVisualization";
 
@@ -6,6 +7,7 @@ const MapOptions = ({ mapVisualization }: { mapVisualization: MapVisualization }
     const { data: colorPalettes } = useGetColorPalettesQuery(undefined);
     const { data: scales } = useGetScaleTypesQuery(undefined);
     const [updateMap] = useUpdateMapVisualizationMutation();
+    const [customLegendFormat, setCustomLegendFormat] = useState<boolean>(false);
 
     return <form id="map-options">
         <FormControl component="fieldset">
@@ -111,6 +113,34 @@ const MapOptions = ({ mapVisualization }: { mapVisualization: MapVisualization }
                 }}
                 value={mapVisualization.decimals}
             />
+            <FormControlLabel
+                control={<Checkbox
+                    checked={mapVisualization.reverse_scale}
+                    onChange={(_, reverse_scale) => updateMap({ ...mapVisualization, reverse_scale })}
+                />}
+                label="Invert" />
+            <FormControlLabel
+                control={<Checkbox
+                    checked={mapVisualization.legend_formatter_type !== undefined || customLegendFormat}
+                    onChange={(_, shouldCustomize) => {
+                        setCustomLegendFormat(shouldCustomize);
+                        shouldCustomize
+                            ? updateMap({ ...mapVisualization, legend_formatter_type: mapVisualization.legend_formatter_type })
+                            : updateMap({ ...mapVisualization, legend_formatter_type: null });
+                    }}
+                />}
+                label="Custom legend format" />
+            {(customLegendFormat || mapVisualization.legend_formatter_type) && <RadioGroup
+                aria-label="legend-formatter"
+                value={mapVisualization.legend_formatter_type}
+                name="legend-formatter"
+                onChange={(_, legend_formatter_type) => updateMap({ ...mapVisualization, legend_formatter_type: parseInt(legend_formatter_type) })}
+            >
+                <FormControlLabel value={FormatterType.DEFAULT} control={<Radio />} label="Default" />
+                <FormControlLabel value={FormatterType.MONEY} control={<Radio />} label="Money" />
+                <FormControlLabel value={FormatterType.NEAREST_SI_UNIT} control={<Radio />} label="Nearest SI Unit" />
+            </RadioGroup>}
+
         </FormControl>
 
     </form>;
