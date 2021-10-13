@@ -621,7 +621,11 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         name: normalization => normalization === Normalization.Raw ? "10 Year Flood Risk" : "Flood risk",
         color: scaleSequential(scales.interpolateBlues).domain([4, 9]),
         type: DataType.Water,
-        description: () => "",
+        description: () => `The risk metric is based on the First Street Foundation’s county-level
+        Flood Risk factor for a 10-year return period event (also displayed in the Water tab on this
+            platform).  The risk factor value gauges the expected depth of the flood event, with the
+            county-level aggregate value based on the averaged flood depth taken over all properties
+            within the county.`,
         dataset: Dataset.FirstStreet,
         normalizations: allNormalizations,
     })],
@@ -629,7 +633,11 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         name: () => "100 Year Flood Risk",
         color: scaleSequential(scales.interpolateBlues).domain([4, 9]),
         type: DataType.Water,
-        description: () => "",
+        description: () => `The risk metric is based on the First Street Foundation’s county-level
+        Flood Risk factor for a 10-year return period event (also displayed in the Water tab on this
+            platform).  The risk factor value gauges the expected depth of the flood event, with the
+            county-level aggregate value based on the averaged flood depth taken over all properties
+            within the county.`,
         dataset: Dataset.FirstStreet,
     })],
     [DataGroup.AllIndustries, genericDefinition({
