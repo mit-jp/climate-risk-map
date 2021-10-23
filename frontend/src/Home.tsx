@@ -11,7 +11,6 @@ import { store } from './store';
 import MapWrapper from './MapWrapper';
 import { OverlayName, setDataTab, setMap, setMapVisualizations, setOverlay } from './appSlice';
 import SiteOverview from './SiteOverview';
-import DataTab from './DataTab';
 import { TopoJson } from './TopoJson';
 
 type TopoJsonFile = "usa.json" |
@@ -25,7 +24,7 @@ const overlayToFile: { [key in OverlayName]: TopoJsonFile } = {
   "Major railroads": "railroads-topo.json",
   "Transmission lines": "transmission-lines-topo.json",
   "Marine highways": "waterways-topo.json",
-  "Critical habitats": "critical-habitats-topo.json",
+  "Critical water habitats": "critical-habitats-topo.json",
 }
 const mapFile: TopoJsonFile = "usa.json";
 
@@ -35,13 +34,12 @@ const Home = () => {
   const dispatch = useThunkDispatch();
 
   useEffect(() => {
-    dispatch(setDataTab(DataTab.RiskMetrics));
-    json<TopoJson>(process.env.PUBLIC_URL + "/" + mapFile).then(topoJson => {
+    json<TopoJson>(mapFile).then(topoJson => {
       dispatch(setMap(topoJson));
     });
 
     for (const [name, file] of Object.entries(overlayToFile) as [OverlayName, TopoJsonFile][]) {
-      json<TopoJson>(process.env.PUBLIC_URL + "/" + file).then(topoJson =>
+      json<TopoJson>(file).then(topoJson =>
         dispatch(setOverlay({ name, topoJson }))
       );
     }

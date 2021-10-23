@@ -8,7 +8,7 @@ import Editor from './editor/Editor';
 
 const App = () => {
   return (
-    <Router basename={process.env.PUBLIC_URL}>
+    <Router>
       <Switch>
         <Route path="/editor">
           <Editor />

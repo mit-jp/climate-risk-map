@@ -25,7 +25,7 @@ const Editor = () => {
     const map = useSelector((state: RootState) => state.editor.map);
 
     useEffect(() => {
-        json<TopoJson>(process.env.PUBLIC_URL + "/usa.json").then(topoJson => {
+        json<TopoJson>("usa.json").then(topoJson => {
             if (topoJson) {
                 dispatch(setMap(topoJson));
             }

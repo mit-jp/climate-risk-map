@@ -6,7 +6,7 @@ import { RootState } from "./store";
 import { GeometryCollection } from 'topojson-specification';
 import { GeoJsonProperties, Feature, Geometry } from 'geojson';
 import { geoPath } from "d3";
-import { selectMapTransform } from "./appSlice";
+import { OverlayName, selectMapTransform } from "./appSlice";
 import { ZOOM_TRANSITION } from "./MapWrapper";
 
 const path = geoPath();
@@ -17,7 +17,7 @@ const Overlays = () => {
     const transmissionLineType = useSelector((state: RootState) => state.app.transmissionLineType);
     const transform = useSelector(selectMapTransform);
 
-    const generatePaths = (name: string, topoJson: TopoJson) => {
+    const generatePaths = (name: OverlayName, topoJson: TopoJson) => {
         let features = feature(
             topoJson,
             topoJson.objects.overlay as GeometryCollection<GeoJsonProperties>
@@ -49,7 +49,7 @@ const Overlays = () => {
                 strokeWidth = () => 1;
                 color = () => "grey";
                 break;
-            case "Critical habitats":
+            case "Critical water habitats":
                 strokeWidth = () => 1;
                 color = () => "#0099ff";
                 break;
@@ -70,7 +70,7 @@ const Overlays = () => {
         <Fragment>
             {Object.entries(overlays)
                 .filter(([_, overlay]) => overlay.shouldShow && overlay.topoJson)
-                .map(([name, overlay]) => [name, overlay.topoJson] as [string, TopoJson])
+                .map(([name, overlay]) => [name, overlay.topoJson] as [OverlayName, TopoJson])
                 .map(([name, topoJson]) =>
                     <g id={name.replaceAll(" ", "-")} key={name} transform={transform} style={ZOOM_TRANSITION}>
                         {generatePaths(name, topoJson)}

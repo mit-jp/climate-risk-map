@@ -106,6 +106,14 @@ const MapControls = ({ processedData }: Props) => {
         }
     }
 
+    const downloadImage = () => {
+        const svg = document.getElementById("map-svg");
+        if (svg?.outerHTML) {
+            const blob = new Blob([svg.outerHTML], { type: "text/plain" });
+            saveAs(blob, getFilename(selectedMapVisualizations, isNormalized) + ".svg");
+        }
+    }
+
     return <div id="map-controls">
         {mapToggleUI()}
         {isNormalized && processedData &&
@@ -122,6 +130,8 @@ const MapControls = ({ processedData }: Props) => {
             />
         }
         {processedData && <Button variant="outlined" onClick={downloadData}>Download data</Button>}
+        {processedData && <Button variant="outlined" onClick={downloadImage}>Download Image</Button>}
+
     </div>
 }
 

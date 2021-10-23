@@ -10,8 +10,11 @@
         "predeploy",
         "reduxjs",
         "sqlx",
+        "Socio",
         "STATEFP",
         "Symlog",
-        "topojson"
+        "topojson",
+        "vite",
+        "vitejs"
     ]
 }
