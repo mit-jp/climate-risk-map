@@ -1,10 +1,14 @@
 {
     "cSpell.words": [
+        "browserslist",
         "COUNTYFP",
         "Csvs",
         "reduxjs",
+        "Socio",
         "STATEFP",
         "Symlog",
-        "topojson"
+        "topojson",
+        "vite",
+        "vitejs"
     ]
 }

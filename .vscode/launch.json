@@ -9,8 +9,16 @@
             "request": "launch",
             "name": "Launch Chrome against localhost",
             "url": "http://localhost:3000",
-            "webRoot": "${workspaceFolder}",
+            "webRoot": "${workspaceFolder}/frontend/",
             "runtimeExecutable": "/Users/cypressf/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-        }
+        },
+        {
+            "name": "Launch Firefox against localhost",
+            "type": "firefox",
+            "request": "launch",
+            "reAttach": true,
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}/frontend/",
+        },
     ]
 }

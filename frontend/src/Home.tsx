@@ -60,19 +60,19 @@ const Home = () => {
   const dispatch = useThunkDispatch();
 
   useEffect(() => {
-    const loadingCsvs = csvFiles.map(csvFile => csv<DataRow>(process.env.PUBLIC_URL + "/" + csvFile, autoType));
+    const loadingCsvs = csvFiles.map(csvFile => csv<DataRow>(csvFile, autoType));
     Promise.all(loadingCsvs).then(loadedCsvs => {
       const dataMaps = loadedCsvs.map(mergeFIPSCodes).map(pair => Map<string, DataRow>(pair));
       const allData = Map<string, DataRow>().mergeDeep(...dataMaps)
       dispatch(setData(allData.toJS() as Data));
     });
 
-    json<TopoJson>(process.env.PUBLIC_URL + "/" + mapFile).then(topoJson => {
+    json<TopoJson>(mapFile).then(topoJson => {
       dispatch(setMap(topoJson));
     });
 
     for (const [name, file] of Object.entries(overlayToFile) as [OverlayName, TopoJsonFile][]) {
-      json<TopoJson>(process.env.PUBLIC_URL + "/" + file).then(topoJson =>
+      json<TopoJson>(file).then(topoJson =>
         dispatch(setOverlay({ name, topoJson }))
       );
     }
