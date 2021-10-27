@@ -1,19 +1,7 @@
 import { DateTime, Interval } from "luxon";
-import DataTab from "./DataTab";
 import { json } from "d3";
-import { DataQueryParams } from "./MapApi";
-import { nullableTypeAnnotation } from "@babel/types";
+import type { DataQueryParams } from "./DataApi";
 
-export const TabToId: { [key in DataTab]: number } = {
-    [DataTab.RiskMetrics]: 8,
-    [DataTab.Climate]: 3,
-    [DataTab.Water]: 1,
-    [DataTab.Land]: 2,
-    [DataTab.Energy]: 5,
-    [DataTab.Economy]: 4,
-    [DataTab.Demographics]: 7,
-    [DataTab.ClimateOpinions]: 6,
-};
 export type MapVisualizationId = number;
 export type ScaleType = { id: number, name: ScaleTypeName };
 export type ScaleTypeName = "Diverging" | "Sequential" | "DivergingSymLog" | "Threshold" | "SequentialSqrt";
@@ -36,7 +24,7 @@ export enum MapType {
     Choropleth = 1,
     Bubble = 2,
 }
-export type MapVisualizationByTabId = { [key: number]: { [key in MapVisualizationId]: MapVisualization } };
+export type MapVisualizationByTabId = { [key: number]: { [key in MapVisualizationId]: MapConfig } };
 
 export interface MapVisualizationPatch {
     id: MapVisualizationId;
@@ -63,7 +51,7 @@ export interface MapVisualizationPatch {
     legend_decimals?: number | null;
 }
 
-export interface MapVisualization {
+export interface MapConfig {
     id: MapVisualizationId;
     dataset: number;
     map_type: MapType;
@@ -123,7 +111,7 @@ export interface MapVisualizationJson {
     order: number;
 };
 
-export const applyPatch = (draft: MapVisualization, patch: MapVisualizationPatch) => {
+export const applyPatch = (draft: MapConfig, patch: MapVisualizationPatch) => {
     Object.assign(draft, patch);
     if (patch.default_end_date && patch.default_start_date) {
         draft.default_date_range = Interval.fromDateTimes(
@@ -137,7 +125,7 @@ export const applyPatch = (draft: MapVisualization, patch: MapVisualizationPatch
 const intervalFromJson = (json: { start_date: string, end_date: string }) =>
     Interval.fromISO(json.start_date + "/" + json.end_date);
 
-export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualization => {
+export const jsonToMapVisualization = (json: MapVisualizationJson): MapConfig => {
     const date_ranges_by_source = Object.entries(json.date_ranges_by_source)
         .map(([sourceId, dateRanges]) =>
             [
@@ -193,28 +181,28 @@ export const defaultMapVisualizations: MapVisualizationByTabId = {
     5: {},
 };
 
-export const getDefaultSource = (mapVisualization: MapVisualization) =>
+export const getDefaultSource = (mapVisualization: MapConfig) =>
     mapVisualization.default_source ??
     Object
         .keys(mapVisualization.date_ranges_by_source)
         .map(key => parseInt(key))[0];
 
-export const getDefaultDateRange = (mapVisualization: MapVisualization) =>
+export const getDefaultDateRange = (mapVisualization: MapConfig) =>
     mapVisualization.default_date_range ??
     mapVisualization.date_ranges_by_source[getDefaultSource(mapVisualization)][0];
 
-export const getDataQueryParams = (mapVisualization: MapVisualization): DataQueryParams[] => {
+export const getDataQueryParams = (mapVisualization: MapConfig): DataQueryParams => {
     const source = getDefaultSource(mapVisualization);
     const dateRange = getDefaultDateRange(mapVisualization);
-    return [{
+    return {
         dataset: mapVisualization.dataset,
         source,
         startDate: dateRange.start.toISODate(),
         endDate: dateRange.end.toISODate(),
-    }];
+    };
 };
 
-export const fetchMapVisualization = async (id: number): Promise<MapVisualization> => {
+export const fetchMapVisualization = async (id: number): Promise<MapConfig> => {
     const rawJson = await json<MapVisualizationJson>(`api/map-visualization/${id}`);
     if (rawJson === undefined) {
         return Promise.reject("Failed to fetch map visualization");
@@ -236,10 +224,16 @@ export const fetchMapVisualizations = async (): Promise<MapVisualizationByTabId>
                         accumulator[parseInt(key)] = jsonToMapVisualization(mapVisualizationJson);
                         return accumulator;
                     },
-                    {} as { [key in MapVisualizationId]: MapVisualization }
+                    {} as { [key in MapVisualizationId]: MapConfig }
                 );
             accumulator[parseInt(key)!] = mapVisualizations;
             return accumulator;
         }, {} as MapVisualizationByTabId);
     return mapVisualizationsByTab;
 };
+
+export const getMapConfigs = async () => {
+    const mapConfigsByTab = await fetchMapVisualizations();
+    return Object.values(mapConfigsByTab)
+        .reduce((allMapConfigs, mapConfigs) => ({ ...allMapConfigs, ...mapConfigs }));
+}
