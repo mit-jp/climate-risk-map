@@ -20,6 +20,11 @@
 </main>
 
 <style>
+    :global(body) {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+    }
     main {
         display: flex;
     }

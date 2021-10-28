@@ -1,5 +1,5 @@
 Arguments: 
-  /usr/local/Cellar/node/16.10.0/bin/node /usr/local/Cellar/yarn/1.22.10/libexec/bin/yarn.js add topojson-specification @types/topojson-specification
+  /usr/local/Cellar/node/16.10.0/bin/node /usr/local/Cellar/yarn/1.22.10/libexec/bin/yarn.js add @types/svelte-canvas
 
 PATH: 
   /Users/cypressf/.rbenv/shims:/Users/cypressf/Library/Python/3.9/bin:/Users/cypressf/Applications/Sublime Merge.app/Contents/SharedSupport/bin:/usr/local/bin:/usr/local/sbin:/Users/cypressf/Library/Android/sdk/platform-tools:/Users/cypressf/Library/Android/sdk/tools/bin:/Users/cypressf/.cargo/bin:/usr/bin:/bin:/usr/sbin:/sbin
@@ -14,7 +14,7 @@ Platform:
   darwin x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/topojson-specification: Not found
+  Error: https://registry.yarnpkg.com/@types%2fsvelte-canvas: Not found
       at Request.params.callback [as _callback] (/usr/local/Cellar/yarn/1.22.10/libexec/lib/cli.js:66988:18)
       at Request.self.callback (/usr/local/Cellar/yarn/1.22.10/libexec/lib/cli.js:140749:22)
       at Request.emit (node:events:390:28)
@@ -51,6 +51,9 @@ npm manifest:
       "@types/d3": "^7.1.0",
       "@types/topojson-client": "^3.1.0",
       "d3": "^7.1.1",
+      "immutable": "^4.0.0",
+      "luxon": "^2.0.2",
+      "svelte-canvas": "^0.7.0",
       "topojson-client": "^3.1.0"
     }
   }
@@ -920,6 +923,11 @@ Lockfile:
     dependencies:
       safer-buffer ">= 2.1.2 < 3.0.0"
   
+  immutable@^4.0.0:
+    version "4.0.0"
+    resolved "https://registry.yarnpkg.com/immutable/-/immutable-4.0.0.tgz#b86f78de6adef3608395efb269a91462797e2c23"
+    integrity sha512-zIE9hX70qew5qTUjSS7wi1iwj/l7+m54KWU247nhM3v806UdGj1yDndXj+IOYxxtW9zyLI+xqFNZjTuDaLUqFw==
+  
   import-fresh@^3.2.1:
     version "3.3.0"
     resolved "https://registry.yarnpkg.com/import-fresh/-/import-fresh-3.3.0.tgz#37162c25fcb9ebaa2e6e53d5b4d88ce17d9e0c2b"
@@ -981,6 +989,11 @@ Lockfile:
     version "4.1.4"
     resolved "https://registry.yarnpkg.com/kleur/-/kleur-4.1.4.tgz#8c202987d7e577766d039a8cd461934c01cda04d"
     integrity sha512-8QADVssbrFjivHWQU7KkMgptGTl6WAcSdlbBPY4uNF+mWr6DGcKrvY2w4FQJoXch7+fKMjj0dRrL75vk3k23OA==
+  
+  luxon@^2.0.2:
+    version "2.0.2"
+    resolved "https://registry.yarnpkg.com/luxon/-/luxon-2.0.2.tgz#11f2cd4a11655fdf92e076b5782d7ede5bcdd133"
+    integrity sha512-ZRioYLCgRHrtTORaZX1mx+jtxKtKuI5ZDvHNAmqpUzGqSrR+tL4FVLn/CUGMA3h0+AKD1MAxGI5GnCqR5txNqg==
   
   magic-string@^0.25.7:
     version "0.25.7"
@@ -1215,6 +1228,11 @@ Lockfile:
     integrity sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==
     dependencies:
       has-flag "^4.0.0"
+  
+  svelte-canvas@^0.7.0:
+    version "0.7.0"
+    resolved "https://registry.yarnpkg.com/svelte-canvas/-/svelte-canvas-0.7.0.tgz#cf818c96f21455e7c607964d4df6fece48d97230"
+    integrity sha512-wzGCin+FVUvSkSXpy1LIaNeuqO7bR85eFq6biznSsGmYgTfyOuSeVeJSdgBxAS0ETDOu8hRybge7w/zxmZtt6Q==
   
   svelte-check@^2.1.0:
     version "2.2.7"

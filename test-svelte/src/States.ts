@@ -60,7 +60,7 @@ export enum State {
     US_Virgin_Islands = "78",
 }
 
-const States = Map([
+export default Map([
     [State.Alabama, "Alabama"],
     [State.Alaska, "Alaska"],
     [State.Arizona, "Arizona"],
@@ -119,5 +119,3 @@ const States = Map([
     [State.US_Minor_Outlying_Islands, "U.S. Minor Outlying Islands"],
     [State.US_Virgin_Islands, "U.S. Virgin Islands"],
 ]);
-
-export default States;
