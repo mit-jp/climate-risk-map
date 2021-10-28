@@ -7,7 +7,9 @@
     const mapConfigs = getMapConfigs();
     let mapConfigId = 0;
 
+    export let scale: number = 0.5;
     export let mapConfig: MapConfig | undefined = undefined;
+
     $: (async () => (mapConfig = (await mapConfigs)[mapConfigId]))();
 </script>
 
@@ -16,9 +18,20 @@
         <p>Loading map configs...</p>
     {:then mapConfigs}
         <form>
+            <div>
+                {scale}<input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="any"
+                    default-value="0.5"
+                    bind:value={scale}
+                />
+            </div>
             {#each Object.values(mapConfigs) as mapConfig (mapConfig.id)}
                 <div class="map-config">
                     <input
+                        class="hide"
                         type="radio"
                         name="map-config"
                         bind:group={mapConfigId}
@@ -48,7 +61,7 @@
     form {
         margin: 0;
     }
-    input {
+    .hide {
         display: none;
     }
     input:checked + label,
@@ -64,5 +77,8 @@
         align-items: center;
         cursor: pointer;
         padding: 0.5em;
+    }
+    input[type="range"] {
+        width: 100%;
     }
 </style>

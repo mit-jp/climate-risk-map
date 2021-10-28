@@ -7,14 +7,21 @@
     import type { MapInfo } from "./MapInfo";
 
     let mapConfig: MapConfig | undefined;
+    let scale: number;
     let mapInfo: MapInfo | undefined;
 
     $: (async () => {
         if (mapConfig) {
             const queryParams = getDataQueryParams(mapConfig);
             const data = await getData(queryParams);
+            const scaledData = Object.fromEntries(
+                Object.entries(data).map(([key, value]) => [
+                    key,
+                    value ? value * scale : null,
+                ])
+            );
             mapInfo = {
-                data,
+                data: scaledData,
                 mapConfig,
             };
         }
@@ -22,7 +29,7 @@
 </script>
 
 <main>
-    <MapSelector bind:mapConfig />
+    <MapSelector bind:mapConfig bind:scale />
     <Map {mapInfo} />
 </main>
 
