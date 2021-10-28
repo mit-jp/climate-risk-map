@@ -8,7 +8,8 @@
     export let mapConfig: MapConfig;
     export let data: Data;
 
-    const countyData: County[] = countyPaths.map((county) => ({
+    let countyData: County[];
+    $: countyData = countyPaths.map((county) => ({
         ...county,
         value: data[county.id] as number,
     }));
@@ -19,7 +20,7 @@
     {#each countyData as county (county.id)}
         <path
             id={county.id}
-            fill={county.value ? getColor(county.value) : "#eee"}
+            fill={county.value ? getColor(county.value) : "#555"}
             d={county.path}
         />
     {/each}

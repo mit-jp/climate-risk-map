@@ -18,7 +18,7 @@
         z-index: 1000;
         border-radius: 4px;
         box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-        background-color: white;
+        background: #000;
         opacity: 0.95;
         padding: 0.5em 1em;
     }

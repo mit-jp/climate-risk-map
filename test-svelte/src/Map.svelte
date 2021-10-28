@@ -17,11 +17,8 @@
     import states, { State } from "./States";
     import Tooltip from "./Tooltip.svelte";
 
-    export let mapInfo:
-        | { data: Promise<Data>; mapConfig: MapConfig }
-        | undefined;
+    export let mapInfo: { data: Data; mapConfig: MapConfig } | undefined;
 
-    let data: Data | undefined;
     let countyName = "";
     let stateName = "";
     let position = { x: 0, y: 0 };
@@ -37,14 +34,12 @@
         id: feature.id as string,
         path: path(feature) as string,
     }));
-
-    $: (async () => mapInfo?.data.then((d) => (data = d)))();
     $: handleMouseMove = (e: MouseEvent) => {
         const id = (e.target as SVGGElement).id;
         countyName = counties.get(id) ?? "";
         stateName = states.get(id.slice(0, 2) as State) ?? "";
         position = { x: e.clientX, y: e.clientY };
-        value = data ? data[id]! : undefined;
+        value = mapInfo?.data[id]!;
     };
     const handleMouseOut = () => {
         countyName = "";
@@ -67,11 +62,11 @@
         on:blur={handleMouseOut}
     >
         {#if mapInfo}
-            {#await mapInfo.data}
-                <EmptyMap counties={countyPaths} />
-            {:then data}
-                <FullMap {data} mapConfig={mapInfo.mapConfig} {countyPaths} />
-            {/await}
+            <FullMap
+                data={mapInfo.data}
+                mapConfig={mapInfo.mapConfig}
+                {countyPaths}
+            />
         {:else}
             <EmptyMap counties={countyPaths} />
         {/if}
