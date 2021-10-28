@@ -6,7 +6,7 @@
 
 <g id="counties">
     {#each counties as county (county.id)}
-        <path fill={"#eee"} d={county.path} id={county.id} />
+        <path fill={"#333"} d={county.path} id={county.id} />
     {/each}
 </g>
 
