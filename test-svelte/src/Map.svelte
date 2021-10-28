@@ -21,6 +21,7 @@
         | { data: Promise<Data>; mapConfig: MapConfig }
         | undefined;
 
+    let data: Data | undefined;
     let countyName = "";
     let stateName = "";
     let position = { x: 0, y: 0 };
@@ -37,12 +38,13 @@
         path: path(feature) as string,
     }));
 
-    const handleMouseMove: svelte.JSX.MouseEventHandler<SVGGElement> = (e) => {
+    $: (async () => mapInfo?.data.then((d) => (data = d)))();
+    $: handleMouseMove = (e: MouseEvent) => {
         const id = (e.target as SVGGElement).id;
         countyName = counties.get(id) ?? "";
         stateName = states.get(id.slice(0, 2) as State) ?? "";
         position = { x: e.clientX, y: e.clientY };
-        value = 0;
+        value = data ? data[id]! : undefined;
     };
     const handleMouseOut = () => {
         countyName = "";
