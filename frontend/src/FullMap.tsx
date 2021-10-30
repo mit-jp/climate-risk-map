@@ -38,6 +38,7 @@ type Props = {
     data: Map<string, number>,
     detailedView: boolean,
     isNormalized: boolean,
+    transform?: string,
 }
 
 const FullMap = forwardRef(({
@@ -45,7 +46,8 @@ const FullMap = forwardRef(({
     selectedMapVisualizations,
     data,
     detailedView,
-    isNormalized
+    isNormalized,
+    transform,
 }: Props,
     ref: ForwardedRef<SVGGElement>
 ) => {
@@ -61,6 +63,7 @@ const FullMap = forwardRef(({
                 legendTitle={legendTitle}
                 isNormalized={isNormalized}
                 ref={ref}
+                transform={transform}
             />;
         case MapType.Bubble:
             return <BubbleMap

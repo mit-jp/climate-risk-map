@@ -3,7 +3,7 @@ import { RootState } from './store';
 import EmptyMap from './EmptyMap';
 import FullMap from './FullMap';
 import MapTitle, { EmptyMapTitle } from './MapTitle';
-import { selectDataQueryParams, selectIsNormalized, selectSelectedMapVisualizations } from './appSlice';
+import { selectDataQueryParams, selectIsNormalized, selectMapTransform, selectSelectedMapVisualizations } from './appSlice';
 import CountyTooltip from './CountyTooltip';
 import MapControls from './MapControls';
 import DataDescription from './DataDescription';
@@ -24,9 +24,9 @@ const MapWrapper = () => {
     const state = useSelector((state: RootState) => state.app.state);
     const dataWeights = useSelector((state: RootState) => state.app.dataWeights);
     const queryParams = useSelector(selectDataQueryParams);
+    const transform = useSelector(selectMapTransform);
     const { data } = useGetDataQuery(queryParams ?? skipToken);
-    const mapRef = useRef(null);
-
+    const mapRef = useRef<SVGGElement>(null);
     let processedData = useMemo(
         () => data
             ? DataProcessor(data, selectedMapVisualizations, dataWeights, state, isNormalized)
@@ -62,8 +62,9 @@ const MapWrapper = () => {
                             data={processedData}
                             detailedView={detailedView}
                             isNormalized={isNormalized}
+                            transform={transform}
                         />
-                        : <EmptyMap map={map} />}
+                        : <EmptyMap map={map} transform={transform} />}
                     <Overlays />
                 </svg>
                 {map && <MapControls processedData={processedData} />}

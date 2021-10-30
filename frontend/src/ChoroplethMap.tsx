@@ -9,12 +9,12 @@ import Color from "./Color";
 import StateMap from "./StateMap";
 import Legend from "./Legend";
 import ProbabilityDensity from "./ProbabilityDensity";
-import { selectMapTransform } from "./appSlice";
-import { useSelector } from "react-redux";
+import { clickCounty } from "./appSlice";
 import { ZOOM_TRANSITION } from "./MapWrapper";
 import { FormatterType, MapType, MapVisualization } from "./MapVisualization";
 import "./ChoroplethMap.css";
 import { ForwardedRef, forwardRef } from "react";
+import { useThunkDispatch } from "./Home";
 
 const MISSING_DATA_COLOR = "#ccc";
 
@@ -84,6 +84,7 @@ type Props = {
     detailedView: boolean,
     legendTitle: string,
     isNormalized: boolean,
+    transform?: string,
 }
 
 const ChoroplethMap = forwardRef((
@@ -93,12 +94,13 @@ const ChoroplethMap = forwardRef((
         data,
         detailedView,
         legendTitle,
-        isNormalized
+        isNormalized,
+        transform,
     }: Props,
     ref: ForwardedRef<SVGGElement>
 ) => {
-    const transform = useSelector(selectMapTransform);
-
+    const dispatch = useThunkDispatch();
+    const onCountyClicked = (event: any) => event.target?.id ? dispatch(clickCounty(event.target.id)) : null;
     const colorScheme = Color(isNormalized, detailedView, selectedMapVisualizations[0]);
     const color = (countyId: string) => {
         const value = data.get(countyId);
@@ -126,6 +128,7 @@ const ChoroplethMap = forwardRef((
                         id={county.id as string}
                         fill={color(county.id as string)}
                         d={path(county)!}
+                        onClick={onCountyClicked}
                     />
                 )}
             </g>
