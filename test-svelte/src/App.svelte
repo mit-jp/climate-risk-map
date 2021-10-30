@@ -8,24 +8,33 @@
 
     let mapConfig: MapConfig | undefined;
     let scale: number;
+    let rawMapInfo: MapInfo | undefined;
     let mapInfo: MapInfo | undefined;
 
     $: (async () => {
         if (mapConfig) {
             const queryParams = getDataQueryParams(mapConfig);
             const data = await getData(queryParams);
-            const scaledData = Object.fromEntries(
-                Object.entries(data).map(([key, value]) => [
-                    key,
-                    value ? value * scale : null,
-                ])
-            );
+            rawMapInfo = { data, mapConfig };
+        }
+    })();
+    $: (async () => {
+        if (rawMapInfo) {
             mapInfo = {
-                data: scaledData,
-                mapConfig,
+                ...rawMapInfo,
+                data: scaleData(rawMapInfo.data, scale),
             };
         }
     })();
+
+    function scaleData(data: Data, scale: number) {
+        return Object.fromEntries(
+            Object.entries(data).map(([key, value]) => [
+                key,
+                value ? value * scale : null,
+            ])
+        );
+    }
 </script>
 
 <main>
