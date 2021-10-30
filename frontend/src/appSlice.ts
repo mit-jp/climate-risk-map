@@ -15,10 +15,6 @@ import DataTab from './DataTab';
 export type TransmissionLineType = "Level 2 (230kV-344kV)" | "Level 3 (>= 345kV)" | "Level 2 & 3 (>= 230kV)";
 export type OverlayName = "Highways" | "Major railroads" | "Transmission lines" | "Marine highways" | "Critical water habitats";
 export type Overlay = { topoJson?: TopoJson, shouldShow: boolean };
-export type CountyHover = {
-    position: { x: number, y: number },
-    countyId: string,
-}
 export type TabAndMapVisualizations = {
     dataTab: DataTab,
     mapVisualizations: MapVisualization[],
@@ -40,8 +36,6 @@ interface AppState {
     readonly showDemographics: boolean,
     readonly waterwayValue: WaterwayValue,
     readonly transmissionLineType: TransmissionLineType,
-    readonly hoverCountyId?: string,
-    readonly hoverPosition?: { x: number, y: number },
 }
 
 const defaultSelections: { [key in DataTab]: MapSelection[] } = {
@@ -179,12 +173,6 @@ export const appSlice = createSlice({
         setTransmissionLineType(state, action: PayloadAction<TransmissionLineType>) {
             state.transmissionLineType = action.payload;
         },
-        hoverCounty: (state, { payload }: PayloadAction<string | undefined>) => {
-            state.hoverCountyId = payload;
-        },
-        hoverPosition: (state, { payload }: PayloadAction<{ x: number, y: number } | undefined>) => {
-            state.hoverPosition = payload;
-        },
         clickCounty: (state, { payload }: PayloadAction<string>) => {
             if (state.state) {
                 state.state = undefined;
@@ -203,7 +191,7 @@ export const {
     toggleDatasetDescription, changeWeight, changeDateRange, setDataTab,
     changeDataSource, changeMapSelection, setMapSelections, toggleDataDescription,
     setShowDemographics, setShowRiskMetrics, setWaterwayValue, setTransmissionLineType,
-    hoverCounty, hoverPosition, clickCounty, setMapVisualizations,
+    clickCounty, setMapVisualizations,
 } = appSlice.actions;
 
 // Convenience accessors
@@ -250,7 +238,7 @@ export const selectMapVisualizations = (state: RootState) => getMapVisualization
 export const selectSelectedMapVisualizations = createSelector(
     selectSelections,
     selectMapVisualizations,
-    (selections, mapVisualizations) => {
+    (selections, mapVisualizations): MapVisualization[] => {
         return Object.keys(mapVisualizations).length === 0 ?
             [] :
             selections.map(selection => mapVisualizations[selection.mapVisualization]);
@@ -258,7 +246,7 @@ export const selectSelectedMapVisualizations = createSelector(
 )
 export const selectMapTransform = createSelector(
     (state: RootState) => state.app.state,
-    state => state.app.map,
+    (state: RootState) => state.app.map,
     generateMapTransform
 );
 export const selectDataQueryParams = createSelector(

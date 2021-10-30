@@ -3,6 +3,7 @@ import ChoroplethMap from "./ChoroplethMap";
 import { Map } from "immutable";
 import { TopoJson } from "./TopoJson";
 import { MapType, MapVisualization } from "./MapVisualization";
+import { ForwardedRef, forwardRef } from "react";
 
 export const getUnitString = (units: string) => units ? ` ${units}` : "";
 
@@ -37,10 +38,17 @@ type Props = {
     data: Map<string, number>,
     detailedView: boolean,
     isNormalized: boolean,
-    showTooltip?: boolean,
 }
 
-const FullMap = ({ map, selectedMapVisualizations, data, detailedView, isNormalized, showTooltip = false }: Props) => {
+const FullMap = forwardRef(({
+    map,
+    selectedMapVisualizations,
+    data,
+    detailedView,
+    isNormalized
+}: Props,
+    ref: ForwardedRef<SVGGElement>
+) => {
     const mapType = selectedMapVisualizations[0]!.map_type;
     const legendTitle = getLegendTitle(selectedMapVisualizations, isNormalized);
     switch (mapType) {
@@ -52,7 +60,7 @@ const FullMap = ({ map, selectedMapVisualizations, data, detailedView, isNormali
                 detailedView={detailedView}
                 legendTitle={legendTitle}
                 isNormalized={isNormalized}
-                showTooltip={showTooltip}
+                ref={ref}
             />;
         case MapType.Bubble:
             return <BubbleMap
@@ -62,6 +70,6 @@ const FullMap = ({ map, selectedMapVisualizations, data, detailedView, isNormali
                 color={"rgb(34, 139, 69)"}
             />;
     }
-}
+});
 
 export default FullMap;

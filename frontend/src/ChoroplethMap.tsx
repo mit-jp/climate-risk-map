@@ -1,4 +1,3 @@
-import { useThunkDispatch } from "./Home";
 import { TopoJson } from "./TopoJson";
 import * as React from "react";
 import { Map } from "immutable";
@@ -10,11 +9,12 @@ import Color from "./Color";
 import StateMap from "./StateMap";
 import Legend from "./Legend";
 import ProbabilityDensity from "./ProbabilityDensity";
-import CountyPath from "./CountyPath";
-import { hoverCounty, hoverPosition, selectMapTransform } from "./appSlice";
+import { selectMapTransform } from "./appSlice";
 import { useSelector } from "react-redux";
 import { ZOOM_TRANSITION } from "./MapWrapper";
 import { FormatterType, MapType, MapVisualization } from "./MapVisualization";
+import "./ChoroplethMap.css";
+import { ForwardedRef, forwardRef } from "react";
 
 const MISSING_DATA_COLOR = "#ccc";
 
@@ -84,12 +84,21 @@ type Props = {
     detailedView: boolean,
     legendTitle: string,
     isNormalized: boolean,
-    showTooltip?: boolean,
 }
 
-const ChoroplethMap = ({ map, selectedMapVisualizations, data, detailedView, legendTitle, isNormalized, showTooltip = false }: Props) => {
-    const dispatch = useThunkDispatch();
+const ChoroplethMap = forwardRef((
+    {
+        map,
+        selectedMapVisualizations,
+        data,
+        detailedView,
+        legendTitle,
+        isNormalized
+    }: Props,
+    ref: ForwardedRef<SVGGElement>
+) => {
     const transform = useSelector(selectMapTransform);
+
     const colorScheme = Color(isNormalized, detailedView, selectedMapVisualizations[0]);
     const color = (countyId: string) => {
         const value = data.get(countyId);
@@ -102,32 +111,21 @@ const ChoroplethMap = ({ map, selectedMapVisualizations, data, detailedView, leg
         Array
             .from(data.valueSeq())
             .filter(value => value !== undefined) as number[];
-    const onMouseMove = (event: React.MouseEvent<SVGGElement, MouseEvent>) =>
-        onMove({ x: event.pageX + 10, y: event.pageY - 25 });
-    const onTouchMove = (event: React.TouchEvent<SVGGElement>) =>
-        onMove({ x: event.touches[0].pageX + 30, y: event.touches[0].pageY - 45 })
-    const onMove = (position: { x: number, y: number }) =>
-        dispatch(hoverPosition(position));
-    const onHoverEnd = () => dispatch(hoverCounty());
 
     return (
         <React.Fragment>
             <g
                 id="counties"
-                onMouseOut={showTooltip ? onHoverEnd : undefined}
-                onTouchEnd={showTooltip ? onHoverEnd : undefined}
-                onMouseMove={showTooltip ? onMouseMove : undefined}
-                onTouchMove={showTooltip ? onTouchMove : undefined}
                 transform={transform}
                 style={ZOOM_TRANSITION}
+                ref={ref}
             >
                 {countyFeatures.map(county =>
-                    <CountyPath
-                        showTooltip={showTooltip}
+                    <path
                         key={county.id}
-                        color={color(county.id as string)}
-                        d={path(county)!}
                         id={county.id as string}
+                        fill={color(county.id as string)}
+                        d={path(county)!}
                     />
                 )}
             </g>
@@ -152,6 +150,6 @@ const ChoroplethMap = ({ map, selectedMapVisualizations, data, detailedView, leg
             }
         </React.Fragment>
     )
-}
+});
 
 export default ChoroplethMap;

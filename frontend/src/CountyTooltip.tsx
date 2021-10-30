@@ -4,12 +4,13 @@ import { getUnitString } from "./FullMap";
 import { MapVisualization } from "./MapVisualization";
 import { Map } from "immutable";
 import { useSelector } from "react-redux";
-import { RootState } from "./store";
 import { selectIsNormalized, selectSelectedMapVisualizations } from "./appSlice";
 import { createFormatter, Formatter } from "./ChoroplethMap";
+import { useEffect, useState } from "react";
+import "./CountyTooltip.css";
 
-const getFormatter = (selectedMaps: MapVisualization[], isNormalized: boolean): Formatter =>
-    createFormatter(selectedMaps[0].formatter_type, selectedMaps[0].decimals, isNormalized);
+const getFormatter = (selectedMap: MapVisualization, isNormalized: boolean): Formatter =>
+    createFormatter(selectedMap.formatter_type, selectedMap.decimals, isNormalized);
 
 
 const getUnits = (dataDefinition: MapVisualization, isNormalized: boolean) =>
@@ -19,50 +20,84 @@ const getUnits = (dataDefinition: MapVisualization, isNormalized: boolean) =>
 
 const formatData = (
     value: number | undefined,
-    selectedMaps: MapVisualization[],
+    selectedMap: MapVisualization,
     isNormalized: boolean,
 ) => {
-    const formatter = getFormatter(selectedMaps, isNormalized);
+    const formatter = getFormatter(selectedMap, isNormalized);
     if (value === undefined) {
         return "No data";
     }
     if (isNormalized) {
         return formatter(value);
     } else {
-        let units = getUnits(selectedMaps[0], isNormalized);
+        let units = getUnits(selectedMap, isNormalized);
         return formatter(value) + getUnitString(units);
     }
 }
 
-const CountyTooltip = ({ data }: { data: Map<string, number> }) => {
-    const selectedMapVisualizations = useSelector(selectSelectedMapVisualizations);
-    const countyId = useSelector((state: RootState) => state.app.hoverCountyId);
-    const position = useSelector((state: RootState) => state.app.hoverPosition);
+type TooltipHover = { x: number, y: number, id: string };
+type Props = {
+    data: Map<string, number> | undefined,
+    mapRef: React.RefObject<SVGGElement>,
+    selectedMap: MapVisualization | undefined,
+};
+
+const CountyTooltip = ({ data, mapRef, selectedMap }: Props) => {
     const isNormalized = useSelector(selectIsNormalized);
-    const shouldShow = countyId !== undefined && position !== undefined;
+    const [hover, setHover] = useState<TooltipHover>();
+
+    useEffect(() => {
+        const element = mapRef.current;
+        if (!element) {
+            return;
+        }
+
+        const onTouchMove = (event: any) =>
+            setHover({
+                x: event.touches[0].pageX + 30,
+                y: event.touches[0].pageY - 45,
+                id: event.target.id
+            });
+        const onMouseMove = (event: any) =>
+            setHover({
+                x: event.pageX + 10,
+                y: event.pageY - 25,
+                id: event.target.id
+            });
+        const onHoverEnd = () => setHover(undefined);
+
+        element.addEventListener("mouseout", onHoverEnd);
+        element.addEventListener("touchend", onHoverEnd);
+        element.addEventListener("mousemove", onMouseMove);
+        element.addEventListener("touchmove", onTouchMove);
+        return () => {
+            element.removeEventListener("mouseout", onHoverEnd);
+            element.removeEventListener("touchend", onHoverEnd);
+            element.removeEventListener("mousemove", onMouseMove);
+            element.removeEventListener("touchmove", onTouchMove);
+        }
+    }, [mapRef, data]);
+
+    if (!hover || !data || !selectedMap) {
+        return null;
+    }
+
     let text = "";
-    if (countyId) {
-        const county = counties.get(countyId);
-        const state = states.get(countyId.slice(0, 2) as State);
+    if (hover?.id) {
+        const county = counties.get(hover.id);
+        const state = states.get(hover.id.slice(0, 2) as State);
         let name = "---";
         if (state && county) {
             name = county + ", " + state;
         }
-        const value = data.get(countyId);
-        text = `${name}: ${formatData(value, selectedMapVisualizations, isNormalized)}`;
+        const value = data?.get(hover.id);
+        text = `${name}: ${formatData(value, selectedMap, isNormalized)}`;
     }
 
     return (
-        <div style={{
-            opacity: shouldShow ? 0.95 : 0,
-            position: "absolute",
-            padding: "4px",
-            background: "white",
-            pointerEvents: "none",
-            left: position?.x,
-            top: position?.y,
-            zIndex: 100,
-        }}>
+        <div
+            id="tooltip"
+            style={{ left: hover?.x, top: hover?.y }}>
             {text}
         </div>
     );

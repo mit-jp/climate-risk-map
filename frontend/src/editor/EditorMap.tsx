@@ -1,5 +1,6 @@
 import { skipToken } from "@reduxjs/toolkit/dist/query";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import CountyTooltip from "../CountyTooltip";
 import DataProcessor from "../DataProcessor";
 import EmptyMap from "../EmptyMap";
 import FullMap from "../FullMap";
@@ -26,9 +27,13 @@ const EditorMap = ({
         [selection]
     );
     const { data } = useGetDataQuery(queryParams ?? skipToken);
-    const processedData = data && selection
-        ? DataProcessor(data, [selection], {}, undefined, false)
-        : undefined;
+    const processedData = useMemo(
+        () => data && selection
+            ? DataProcessor(data, [selection], {}, undefined, false)
+            : undefined,
+        [data, selection]
+    );
+    const mapRef = useRef(null);
 
     return (
         <div id="map">
@@ -46,9 +51,11 @@ const EditorMap = ({
                         data={processedData}
                         detailedView={detailedView}
                         isNormalized={false}
+                        ref={mapRef}
                     />
                     : <EmptyMap map={map} />}
             </svg>
+            <CountyTooltip data={processedData} mapRef={mapRef} selectedMap={selection} />
         </div>
     );
 }
