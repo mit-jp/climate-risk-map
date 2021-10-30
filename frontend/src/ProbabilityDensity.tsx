@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { scaleLinear, extent, bin, select, mean, max, axisBottom, axisLeft, line, curveBasis } from 'd3';
+import { scaleLinear, extent, bin, select, mean, max, axisBottom, axisLeft, line, curveBasis, Bin } from 'd3';
 import Color from './Color';
 import { MapVisualization } from "./MapVisualization";
 const margin = ({ top: 20, right: 30, bottom: 30, left: 40 });
@@ -74,6 +74,10 @@ const ProbabilityDensity = ({
             .curve(curveBasis)
             .x(d => x(d[0]))
             .y(d => yLine(d[1]))
+        function bin_width(bin: Bin<number, number>) {
+            const width = x(bin.x1!) - x(bin.x0!);
+            return width > 0 ? width - 1 : 0;
+        }
         svg.select("#histogram")
             .selectAll("rect")
             .data(bins)
@@ -81,7 +85,7 @@ const ProbabilityDensity = ({
             .attr("fill", d => color(mean([d.x1!, d.x0!]) as any))
             .attr("x", d => x(d.x0!) + 1)
             .attr("y", d => y(d.length / data.length))
-            .attr("width", d => x(d.x1!) - x(d.x0!) - 1)
+            .attr("width", d => bin_width(d))
             .attr("height", d => y(0) - y(d.length / data.length));
         svg.select("#kde")
             .datum(density)
