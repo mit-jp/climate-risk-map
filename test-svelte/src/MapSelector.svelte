@@ -5,12 +5,18 @@
     import { simpleColor } from "./Color";
 
     const mapConfigs = getMapConfigs();
-    let mapConfigId = 0;
+    let mapConfigId: number | undefined = undefined;
 
     export let scale: number = 0.5;
     export let mapConfig: MapConfig | undefined = undefined;
 
-    $: (async () => (mapConfig = (await mapConfigs)[mapConfigId]))();
+    $: (async () => {
+        const loadedMapConfigs = await mapConfigs;
+        if (mapConfigId === undefined) {
+            mapConfigId = parseInt(Object.keys(loadedMapConfigs)[0]);
+        }
+        mapConfig = loadedMapConfigs[mapConfigId];
+    })();
 </script>
 
 <div id="map-configs">
