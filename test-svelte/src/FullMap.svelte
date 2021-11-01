@@ -1,34 +1,19 @@
 <script lang="ts">
-    import type { MapConfig } from "./MapConfigApi";
-    import Color from "./Color";
+    import { MapConfig, MapType } from "./MapConfigApi";
     import type { Data } from "./DataApi";
-    import type { County } from "./Counties";
+    import ChoroplethMap from "./ChoroplethMap.svelte";
+    import BubbleMap from "./BubbleMap.svelte";
+    import type { TopoJson } from "./MapUtils";
 
-    export let countyPaths: County[];
+    export let topoJson: TopoJson;
     export let mapConfig: MapConfig;
     export let data: Data;
-
-    let countyData: County[];
-    $: countyData = countyPaths.map((county) => ({
-        ...county,
-        value: data[county.id] as number,
-    }));
-    $: getColor = Color(mapConfig);
 </script>
 
-<g id="counties">
-    {#each countyData as county (county.id)}
-        <path
-            id={county.id}
-            fill={county.value ? getColor(county.value) : "#555"}
-            d={county.path}
-        />
-    {/each}
-</g>
-
-<style>
-    path:hover {
-        fill-opacity: 0.3;
-        stroke: black;
-    }
-</style>
+{#if mapConfig.map_type === MapType.Choropleth}
+    <ChoroplethMap {topoJson} {mapConfig} {data} />
+{:else if mapConfig.map_type === MapType.Bubble}
+    <BubbleMap {topoJson} {data} />
+{:else}
+    <p>Map type not supported</p>
+{/if}
