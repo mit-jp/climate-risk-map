@@ -1,27 +1,17 @@
 <script lang="ts">
     import { geoPath } from "d3-geo";
-    import type { GeoFeature } from "./GeoFeature";
     import type { TopoJson } from "./MapUtils";
     import StateMap from "./StateMap.svelte";
-    import { feature } from "topojson-client";
-    import type { GeoJsonProperties } from "geojson";
-    import type { GeometryCollection } from "topojson-specification";
+    import type { County } from "./Counties";
 
     const path = geoPath();
 
     export let topoJson: TopoJson;
-
-    $: counties = feature(
-        topoJson,
-        topoJson.objects.counties as GeometryCollection<GeoJsonProperties>
-    ).features.map((feature) => ({
-        id: feature.id as string,
-        path: path(feature) as string,
-    }));
+    export let countyPaths: County[];
 </script>
 
 <g id="counties">
-    {#each counties as county (county.id)}
+    {#each countyPaths as county (county.id)}
         <path fill={"#333"} d={county.path} id={county.id} />
     {/each}
 </g>
