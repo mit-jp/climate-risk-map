@@ -5,10 +5,13 @@
     import type { MapConfig } from "./MapConfigApi";
     import usa from "./usa.json";
     import type { Objects, Topology } from "topojson-specification";
-    import type { GeoJsonProperties } from "geojson";
     import counties from "./Counties";
     import states, { State } from "./States";
     import Tooltip from "./Tooltip.svelte";
+    import { feature } from "topojson-client";
+    import type { GeoJsonProperties } from "geojson";
+    import type { GeometryCollection } from "topojson-specification";
+    import { geoPath } from "d3";
 
     export let mapInfo: { data: Data; mapConfig: MapConfig } | undefined;
 
@@ -17,7 +20,15 @@
     let position = { x: 0, y: 0 };
     let value: number | undefined;
 
+    const path = geoPath();
     const topoJson = usa as any as Topology<Objects<GeoJsonProperties>>;
+    const countyPaths = feature(
+        topoJson,
+        topoJson.objects.counties as GeometryCollection<GeoJsonProperties>
+    ).features.map((feature) => ({
+        id: feature.id! as string,
+        path: path(feature)!,
+    }));
 
     $: handleMouseMove = (e: MouseEvent) => {
         const id = (e.target as SVGGElement).id;
@@ -50,10 +61,11 @@
             <FullMap
                 data={mapInfo.data}
                 mapConfig={mapInfo.mapConfig}
+                {countyPaths}
                 {topoJson}
             />
         {:else}
-            <EmptyMap {topoJson} />
+            <EmptyMap {topoJson} {countyPaths} />
         {/if}
     </svg>
 </div>

@@ -4,14 +4,16 @@
     import ChoroplethMap from "./ChoroplethMap.svelte";
     import BubbleMap from "./BubbleMap.svelte";
     import type { TopoJson } from "./MapUtils";
+    import type { County } from "./Counties";
 
     export let topoJson: TopoJson;
+    export let countyPaths: County[];
     export let mapConfig: MapConfig;
     export let data: Data;
 </script>
 
 {#if mapConfig.map_type === MapType.Choropleth}
-    <ChoroplethMap {topoJson} {mapConfig} {data} />
+    <ChoroplethMap {topoJson} {countyPaths} {mapConfig} {data} />
 {:else if mapConfig.map_type === MapType.Bubble}
     <BubbleMap {topoJson} {data} />
 {:else}

@@ -4,25 +4,19 @@
     import type { Data } from "./DataApi";
     import { geoPath } from "d3-geo";
     import type { TopoJson } from "./MapUtils";
-    import { feature } from "topojson-client";
-
-    import type { GeoJsonProperties } from "geojson";
-    import type { GeometryCollection } from "topojson-specification";
     import StateMap from "./StateMap.svelte";
+    import type { County } from "./Counties";
 
     export let topoJson: TopoJson;
+    export let countyPaths: County[];
     export let mapConfig: MapConfig;
     export let data: Data;
 
     const path = geoPath();
 
-    $: countyData = feature(
-        topoJson,
-        topoJson.objects.counties as GeometryCollection<GeoJsonProperties>
-    ).features.map((feature) => ({
-        id: feature.id as string,
-        path: path(feature) as string,
-        value: data[feature.id as string] as number,
+    $: countyData = countyPaths.map((county) => ({
+        ...county,
+        value: data[county.id] as number,
     }));
     $: getColor = Color(mapConfig);
 </script>
