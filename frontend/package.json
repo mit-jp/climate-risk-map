@@ -57,13 +57,18 @@
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
     "@testing-library/dom": "^8.6.0",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.0",
     "@testing-library/user-event": "^13.2.1",
+    "@tsconfig/svelte": "^2.0.1",
     "@types/luxon": "^1.27.1",
     "@vitejs/plugin-react": "1.0.5",
     "eslint": "^7.32.0",
+    "svelte": "^3.44.1",
+    "svelte-check": "^2.2.8",
+    "svelte-preprocess": "^4.9.8",
     "vite": "2.3.7"
   }
 }

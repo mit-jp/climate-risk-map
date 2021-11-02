@@ -1,4 +1,5 @@
 {
+  "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
     "target": "es5",
     "downlevelIteration": true,
@@ -8,6 +9,7 @@
       "dom.iterable",
       "esnext"
     ],
+    "checkJs": true,
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -23,6 +25,9 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "./src"
+    "src/**/*.d.ts",
+    "src/**/*.ts",
+    "src/**/*.js",
+    "src/**/*.svelte"
   ]
 }
