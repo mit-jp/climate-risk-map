@@ -11,9 +11,11 @@
     import type { GeoJsonProperties } from "geojson";
     import type { GeometryCollection } from "topojson-specification";
     import StateMap from "./StateMap.svelte";
+    import BubbleLegend from "./BubbleLegend.svelte";
 
     export let topoJson: TopoJson;
     export let data: Data;
+    export let legendTitle: string;
 
     const path = geoPath();
 
@@ -35,6 +37,7 @@
         />
     {/each}
 </g>
+<BubbleLegend radius={valueToRadius} title={legendTitle} />
 
 <style>
     circle {

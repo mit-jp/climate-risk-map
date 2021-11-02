@@ -1,8 +1,6 @@
 <script type="ts">
     import { getMapConfigs } from "./MapConfigApi";
     import type { MapConfig } from "./MapConfigApi";
-    import ColorBar from "./ColorBar.svelte";
-    import { simpleColor } from "./Color";
 
     const mapConfigs = getMapConfigs();
     let mapConfigId: number | undefined = undefined;
@@ -46,7 +44,6 @@
                     />
                     <label for={mapConfig.id.toString()}>
                         <div class="config-name">{mapConfig.name}</div>
-                        <ColorBar colorScheme={simpleColor(mapConfig)} />
                     </label>
                 </div>
             {/each}
@@ -62,7 +59,7 @@
         height: 100vh;
         margin: 0;
         overflow-y: auto;
-        width: 500px;
+        width: 300px;
     }
     form {
         margin: 0;
@@ -73,6 +70,7 @@
     input:checked + label,
     label:hover {
         background: rgb(211, 211, 211);
+        color: #000;
     }
     .map-config {
         display: flex;

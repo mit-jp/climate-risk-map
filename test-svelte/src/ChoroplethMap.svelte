@@ -2,18 +2,20 @@
     import type { MapConfig } from "./MapConfigApi";
     import Color from "./Color";
     import type { Data } from "./DataApi";
-    import { geoPath } from "d3-geo";
     import type { TopoJson } from "./MapUtils";
     import StateMap from "./StateMap.svelte";
     import type { County } from "./Counties";
+    import Legend from "./Legend.svelte";
+    import { getLegendFormatter, getLegendTicks } from "./LegendUtils";
 
     export let topoJson: TopoJson;
     export let countyPaths: County[];
     export let mapConfig: MapConfig;
     export let data: Data;
+    export let legendTitle: string;
 
-    const path = geoPath();
-
+    $: legendFormatter = getLegendFormatter([mapConfig], false);
+    $: legendTicks = getLegendTicks(mapConfig, false);
     $: countyData = countyPaths.map((county) => ({
         ...county,
         value: data[county.id] as number,
@@ -31,6 +33,12 @@
     {/each}
 </g>
 <StateMap {topoJson} />
+<Legend
+    title={legendTitle}
+    color={getColor}
+    tickFormat={legendFormatter}
+    ticks={legendTicks}
+/>
 
 <style>
     path:hover {
