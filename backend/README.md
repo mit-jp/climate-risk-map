@@ -5,6 +5,7 @@
 Install Postgres and set up a user with privileges to create a database.
 
 ```
+psql postgres
 CREATE USER mit WITH CREATEDB PASSWORD 'password';
 ```
 
