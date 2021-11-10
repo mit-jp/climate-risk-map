@@ -4,7 +4,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  build-backend:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,3 +22,16 @@ jobs:
       - name: 🔨 Build
         run: cargo build --release --verbose
         working-directory: backend
+
+  build-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+          cache: "yarn"
+      - name: 🔨 Build
+        run: yarn build
+        working-directory: frontend
