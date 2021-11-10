@@ -1,0 +1,33 @@
+{
+  "db": "PostgreSQL",
+  "fcceab1d875330d48e881da3e0766ba26d6873f31b2a3ce12b1c26b25f40638b": {
+    "query": "UPDATE map_visualization\n            SET dataset = $1,\n                map_type = $2,\n                subcategory = $3,\n                name = $4,\n                legend_ticks = $5,\n                should_normalize = $6,\n                color_palette = $7,\n                reverse_scale = $8,\n                invert_normalized = $9,\n                scale_type = $10,\n                show_pdf = $11,\n                default_start_date = $12,\n                default_end_date = $13,\n                default_source = $14,\n                formatter_type = $15,\n                legend_formatter_type = $16,\n                decimals = $17,\n                legend_decimals = $18\n            WHERE id = $19",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4",
+          "Int4",
+          "Varchar",
+          "Int2",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Date",
+          "Date",
+          "Int4",
+          "Int4",
+          "Int4",
+          "Int2",
+          "Int2",
+          "Int4"
+        ]
+      },
+      "nullable": []
+    }
+  }
+}
