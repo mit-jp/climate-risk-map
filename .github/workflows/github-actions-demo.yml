@@ -1,28 +1,24 @@
 name: Rust
-
-uses: actions/cache@v2
-  with:
-    path: |
-      ~/.cargo/bin/
-      ~/.cargo/registry/index/
-      ~/.cargo/registry/cache/
-      ~/.cargo/git/db/
-      target/
-    key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-
 on: [push]
-
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Build
-      run: cargo build --verbose
-      working-directory: backend
+      - uses: actions/checkout@v2
+      - name: ⚡ Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: 🔨 Build
+        run: cargo build --verbose
+        working-directory: backend
