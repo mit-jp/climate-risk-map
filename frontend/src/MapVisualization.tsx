@@ -47,7 +47,6 @@ export interface MapVisualizationPatch {
     data_tab?: number | null;
     name?: string | null;
     legend_ticks?: number | null;
-    should_normalize?: boolean;
     color_palette?: ColorPalette;
     reverse_scale?: boolean;
     invert_normalized?: boolean;
@@ -75,7 +74,6 @@ export interface MapVisualization {
     name: string;
     description: string;
     legend_ticks?: number;
-    should_normalize: boolean;
     color_palette: ColorPalette;
     reverse_scale: boolean;
     invert_normalized: boolean;
@@ -105,7 +103,6 @@ export interface MapVisualizationJson {
     name: string;
     description: string;
     legend_ticks: number | null;
-    should_normalize: boolean;
     color_palette: ColorPalette;
     reverse_scale: boolean;
     invert_normalized: boolean;
@@ -163,7 +160,6 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
         name: json.name,
         description: json.description,
         legend_ticks: json.legend_ticks ?? undefined,
-        should_normalize: json.should_normalize,
         color_palette: json.color_palette,
         reverse_scale: json.reverse_scale,
         invert_normalized: json.invert_normalized,

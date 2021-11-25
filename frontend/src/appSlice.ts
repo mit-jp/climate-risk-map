@@ -40,9 +40,9 @@ interface AppState {
 
 const defaultSelections: { [key in DataTab]: MapSelection[] } = {
     [DataTab.RiskMetrics]: [{
-        mapVisualization: 1,
-        dateRange: Interval.fromISO("2010-01-01/2015-12-31"),
-        dataSource: 2,
+        mapVisualization: 71,
+        dateRange: Interval.fromISO("2015-01-01/2015-12-31"),
+        dataSource: 12,
     }],
     [DataTab.Water]: [{
         mapVisualization: 1,
