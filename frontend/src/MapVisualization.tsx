@@ -13,6 +13,7 @@ export const TabToId: { [key in DataTab]: number } = {
     [DataTab.Economy]: 4,
     [DataTab.Demographics]: 7,
     [DataTab.ClimateOpinions]: 6,
+    [DataTab.Health]: 9,
 };
 export type MapVisualizationId = number;
 export type ScaleType = { id: number, name: ScaleTypeName };

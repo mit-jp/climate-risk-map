@@ -7,5 +7,6 @@ export enum DataTab {
     Energy = "energy",
     ClimateOpinions = "climate opinions",
     Demographics = "demographics",
+    Health = "health",
 }
 export default DataTab

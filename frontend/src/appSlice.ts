@@ -79,6 +79,11 @@ const defaultSelections: { [key in DataTab]: MapSelection[] } = {
         dateRange: Interval.fromISO("2020-01-01/2020-12-31"),
         dataSource: 11,
     }],
+    [DataTab.Health]: [{
+        mapVisualization: 71,
+        dateRange: Interval.fromISO("2015-01-01/2015-12-31"),
+        dataSource: 12,
+    }],
 };
 
 const initialState: AppState = {

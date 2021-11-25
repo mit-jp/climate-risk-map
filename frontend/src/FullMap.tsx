@@ -2,7 +2,8 @@ import BubbleMap from "./BubbleMap";
 import ChoroplethMap from "./ChoroplethMap";
 import { Map } from "immutable";
 import { TopoJson } from "./TopoJson";
-import { MapType, MapVisualization } from "./MapVisualization";
+import { MapType, MapVisualization, TabToId } from "./MapVisualization";
+import { DataTab } from "./DataTab";
 import { ForwardedRef, forwardRef } from "react";
 
 export const getUnitString = (units: string) => units ? ` ${units}` : "";
@@ -51,7 +52,8 @@ const FullMap = forwardRef(({
 }: Props,
     ref: ForwardedRef<SVGGElement>
 ) => {
-    const mapType = selectedMapVisualizations[0]!.map_type;
+    const mapVisualization = selectedMapVisualizations[0]!;
+    const mapType = mapVisualization.map_type;
     const legendTitle = getLegendTitle(selectedMapVisualizations, isNormalized);
     switch (mapType) {
         case MapType.Choropleth:
@@ -70,7 +72,7 @@ const FullMap = forwardRef(({
                 map={map}
                 data={data}
                 legendTitle={legendTitle}
-                color={"rgb(34, 139, 69)"}
+                color={mapVisualization.data_tab === TabToId[DataTab.Health] ? "black" : "rgb(34, 139, 69)"}
             />;
     }
 });
