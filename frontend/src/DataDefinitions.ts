@@ -628,14 +628,10 @@ const dataDefinitions = OrderedMap<DataGroup, DataDefinition>([
         description: () => "Monthly runoff is calculated based on the monthly precipitation and potential evapotransipiration using the Turc-Pike model (Yates, Climate Research, Vol 9, 147-155, 1997)",
     })],
     [DataGroup.FloodRisk10Years, genericDefinition({
-        name: normalization => normalization === Normalization.Raw ? "10 Year Flood Risk" : "Flood risk",
+        name: normalization => normalization === Normalization.Raw ? "Aggregate Flood Risk" : "Flood risk",
         color: scaleSequential(scales.interpolateBlues).domain([4, 9]),
         type: DataType.Water,
-        description: () => `The risk metric is based on the First Street Foundation’s county-level
-        Flood Risk factor for a 10-year return period event (also displayed in the Water tab on this
-            platform).  The risk factor value gauges the expected depth of the flood event, with the
-            county-level aggregate value based on the averaged flood depth taken over all properties
-            within the county.`,
+        description: () => `The risk metric is from the First Street Foundation’s county-level flood risk factor. The county’s value is based on the average value across all land parcels that have a flood risk factor value between 2 and 10 (i.e. any value lower than 2 is not included). The flood risk factor value takes into account the expected depth of the flood event and the corresponding frequency of that event.`,
         dataset: Dataset.FirstStreet,
         normalizations: allNormalizations,
     })],
