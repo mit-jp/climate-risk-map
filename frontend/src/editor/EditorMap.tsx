@@ -8,6 +8,7 @@ import { useGetDataQuery } from "../MapApi";
 import MapTitle, { EmptyMapTitle } from "../MapTitle";
 import { getDataQueryParams, MapVisualization } from "../MapVisualization";
 import { TopoJson } from "../TopoJson";
+import EditorMapTitle from "./EditorMapTitle";
 
 type Props = {
     map: TopoJson;
@@ -38,8 +39,8 @@ const EditorMap = ({
     return (
         <div id="map">
             {selection
-                ? <MapTitle
-                    selectedMapVisualizations={[selection]}
+                ? <EditorMapTitle
+                    mapVisualization={selection}
                     isNormalized={false} />
                 : <EmptyMapTitle />
             }
