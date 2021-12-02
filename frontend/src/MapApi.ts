@@ -101,7 +101,7 @@ export const mapApi = createApi({
         }),
         updateMapVisualization: builder.mutation<MapVisualization, MapVisualizationPatch>({
             query: patch => ({
-                url: `editor/map-visualization/${patch.id}`,
+                url: `editor/map-visualization`,
                 method: "PATCH",
                 body: patch,
             }),

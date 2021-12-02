@@ -91,9 +91,8 @@ async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
     }
 }
 
-#[patch("/map-visualization/{id}")]
+#[patch("/map-visualization")]
 async fn patch(
-    id: web::Path<i32>,
     patch: web::Json<MapVisualizationPatch>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
