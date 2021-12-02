@@ -69,6 +69,7 @@ const MapOptions = ({ mapVisualization }: { mapVisualization: MapVisualization }
                 <FormControlLabel value={FormatterType.DEFAULT} control={<Radio />} label="Default" />
                 <FormControlLabel value={FormatterType.MONEY} control={<Radio />} label="Money" />
                 <FormControlLabel value={FormatterType.NEAREST_SI_UNIT} control={<Radio />} label="Nearest SI Unit" />
+                <FormControlLabel value={FormatterType.PERCENT} control={<Radio />} label="Percent" />
             </RadioGroup>
             <TextField
                 label="Decimal places"

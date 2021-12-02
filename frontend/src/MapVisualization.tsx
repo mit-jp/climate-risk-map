@@ -22,6 +22,7 @@ export enum FormatterType {
     MONEY = 1,
     NEAREST_SI_UNIT = 2,
     DEFAULT = 3,
+    PERCENT = 4,
 }
 export type DataSource = {
     name: string,

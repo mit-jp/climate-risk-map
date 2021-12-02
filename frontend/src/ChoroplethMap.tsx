@@ -37,6 +37,8 @@ export const createFormatter = (formatterType: FormatterType, decimals: number, 
                 return format("$,." + decimals + "s");
             case FormatterType.NEAREST_SI_UNIT:
                 return format("~s");
+            case FormatterType.PERCENT:
+                return (d: number | { valueOf(): number; }) => format("." + decimals + "%")(d).slice(0, -1);
             case FormatterType.DEFAULT:
             default:
                 return format(",." + decimals + "f");
