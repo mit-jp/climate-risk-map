@@ -5,9 +5,10 @@ import DataProcessor from "../DataProcessor";
 import EmptyMap from "../EmptyMap";
 import FullMap from "../FullMap";
 import { useGetDataQuery } from "../MapApi";
-import MapTitle, { EmptyMapTitle } from "../MapTitle";
+import { EmptyMapTitle } from "../MapTitle";
 import { getDataQueryParams, MapVisualization } from "../MapVisualization";
 import { TopoJson } from "../TopoJson";
+import EditorMapDescription from "./EditorMapDescription";
 import EditorMapTitle from "./EditorMapTitle";
 
 type Props = {
@@ -39,9 +40,7 @@ const EditorMap = ({
     return (
         <div id="map">
             {selection
-                ? <EditorMapTitle
-                    mapVisualization={selection}
-                    isNormalized={false} />
+                ? <EditorMapTitle mapVisualization={selection} key={selection.id} />
                 : <EmptyMapTitle />
             }
             <svg viewBox="0, 0, 1175, 610">
@@ -57,6 +56,7 @@ const EditorMap = ({
                     : <EmptyMap map={map} />}
             </svg>
             <CountyTooltip data={processedData} mapRef={mapRef} selectedMap={selection} />
+            {selection && <EditorMapDescription selectedMap={selection} />}
         </div>
     );
 }

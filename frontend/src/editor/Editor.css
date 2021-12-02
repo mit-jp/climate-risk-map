@@ -8,6 +8,15 @@
     flex-direction: row;
 }
 
+#map {
+    margin-right: 1em;
+}
+
+#title-form {
+    display: flex;
+    align-items: center;
+}
+
 #map-options {
     display: flex;
     flex-direction: column;
