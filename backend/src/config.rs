@@ -3,7 +3,8 @@ use std::env;
 
 struct AppConfig {
     url: String,
-    port: u16,
+    editor_port: u16,
+    read_only_port: u16,
 }
 struct DaoConfig {
     url: String,
@@ -18,8 +19,12 @@ impl Config {
         dotenv().ok();
         let app_config = AppConfig {
             url: env::var("APP_URL").expect("APP_URL is not set"),
-            port: env::var("APP_PORT")
+            read_only_port: env::var("APP_PORT")
                 .expect("APP_PORT is not set")
+                .parse::<u16>()
+                .unwrap(),
+            editor_port: env::var("EDITOR_PORT")
+                .expect("EDITOR_PORT is not set")
                 .parse::<u16>()
                 .unwrap(),
         };
@@ -33,7 +38,11 @@ impl Config {
     }
 
     pub fn app_url(&self) -> String {
-        format!("{0}:{1}", self.app.url, self.app.port)
+        format!("{0}:{1}", self.app.url, self.app.read_only_port)
+    }
+
+    pub fn editor_url(&self) -> String {
+        format!("{0}:{1}", self.app.url, self.app.editor_port)
     }
 
     pub fn database_url(&self) -> String {

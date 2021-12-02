@@ -7,7 +7,10 @@ use std::collections::HashMap;
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get);
     cfg.service(get_all);
-    // cfg.service(patch);
+}
+
+pub fn init_editor(cfg: &mut web::ServiceConfig) {
+    cfg.service(patch);
 }
 
 async fn get_map_visualization_model(
