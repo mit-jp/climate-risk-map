@@ -7,8 +7,6 @@ pub fn init(cfg: &mut web::ServiceConfig) {
 
 #[get("/scale-type")]
 async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
-    println!("GET: /scale-type");
-
     let scale_types = app_state.database.scale_type.all().await;
 
     match scale_types {

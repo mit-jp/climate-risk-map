@@ -37,8 +37,6 @@ async fn get(
     info: web::Query<Info>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
-    println!("GET: /data/{}", id);
-
     let data = app_state
         .database
         .data

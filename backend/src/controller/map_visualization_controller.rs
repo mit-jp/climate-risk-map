@@ -64,14 +64,9 @@ async fn get(app_state: web::Data<AppState<'_>>, id: web::Path<i32>) -> impl Res
 
 #[get("/map-visualization")]
 async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
-    println!("GET: /map-visualization/");
-
     let map_visualizations = app_state.database.map_visualization.all().await;
     match map_visualizations {
-        Err(e) => {
-            println!("Error: {}", e);
-            HttpResponse::NotFound().finish()
-        }
+        Err(_) => HttpResponse::NotFound().finish(),
         Ok(map_visualizations) => {
             let mut map_visualizations_by_category: HashMap<
                 i32,
@@ -102,19 +97,13 @@ async fn patch(
     patch: web::Json<MapVisualizationPatch>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
-    println!("PATCH: /map-visualization/{}", id);
-
     let result = app_state
         .database
         .map_visualization
         .update(&MapVisualizationDaoPatch::new(patch.into_inner()))
         .await;
-
     match result {
-        Err(e) => {
-            println!("{}", e);
-            HttpResponse::NotFound().finish()
-        }
+        Err(_) => HttpResponse::InternalServerError().finish(),
         Ok(_) => HttpResponse::Ok().finish(),
     }
 }

@@ -7,8 +7,6 @@ pub fn init(cfg: &mut web::ServiceConfig) {
 
 #[get("/color-palette")]
 async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
-    println!("GET: /color-palette");
-
     let color_palettes = app_state.database.color_palette.all().await;
 
     match color_palettes {
