@@ -11,7 +11,6 @@ import { MapSelection } from './DataSelector';
 import { Interval } from 'luxon';
 import { DataSource, defaultMapVisualizations, MapType, MapVisualization, MapVisualizationByTabId, MapVisualizationId, TabToId } from "./MapVisualization";
 import DataTab from './DataTab';
-import { current } from 'immer';
 
 export type TransmissionLineType = "Level 2 (230kV-344kV)" | "Level 3 (>= 345kV)" | "Level 2 & 3 (>= 230kV)";
 export type OverlayName = "Highways" | "Major railroads" | "Transmission lines" | "Marine highways" | "Critical water habitats";
