@@ -22,8 +22,8 @@ export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: b
     return isNormalized
         ? selectedMaps.some(value => value.subcategory === 1)
             ? selectedMaps.length > 1
-                ? "Combined Risk"
-                : "Risk"
+                ? "Combined Relative Risk"
+                : "Relative Risk"
             : "Scaled Value"
         : unitString;
 }
