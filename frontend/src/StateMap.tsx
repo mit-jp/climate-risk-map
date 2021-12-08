@@ -1,5 +1,4 @@
-import { TopoJson } from "./Home";
-import React from "react";
+import { TopoJson } from "./TopoJson";
 import { geoPath } from "d3";
 import { GeometryCollection } from 'topojson-specification';
 import { mesh } from "topojson-client";

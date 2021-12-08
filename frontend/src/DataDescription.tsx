@@ -1,21 +1,19 @@
-import React from 'react';
 import { useSelector } from 'react-redux';
-import { selectSelections, toggleDataDescription } from './appSlice';
-import dataDefinitions from './DataDefinitions';
+import { selectSelectedMapVisualizations, toggleDataDescription } from './appSlice';
 import { useThunkDispatch } from './Home';
 import { RootState } from './store';
 
 const DataDescription = () => {
     const dispatch = useThunkDispatch();
     const showDataDescription = useSelector((state: RootState) => state.app.showDataDescription);
-    const selections = useSelector(selectSelections);
+    const maps = useSelector(selectSelectedMapVisualizations);
 
-    if (selections.length !== 1) {
+    if (maps.length !== 1) {
         return null;
     }
-    const dataDefinition = dataDefinitions.get(selections[0].dataGroup);
-    const description = dataDefinition!.description(selections[0].normalization);
-    const name = dataDefinition!.name(selections[0].normalization);
+    const map = maps[0];
+    const description = map.description;
+    const name = map.name;
 
     if (!description) {
         return null;

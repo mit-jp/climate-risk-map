@@ -1,74 +1,103 @@
-import { makeStyles } from "@material-ui/core";
-import React from "react";
 import counties from "./Counties";
 import states, { State } from "./States";
-import { DataDefinition, DataIdParams, getUnits, Normalization, riskMetricFormatter } from "./DataDefinitions";
 import { getUnitString } from "./FullMap";
+import { MapVisualization } from "./MapVisualization";
 import { Map } from "immutable";
 import { useSelector } from "react-redux";
-import { RootState } from "./store";
-import { selectDataDefinitions, selectSelections } from "./appSlice";
+import { selectIsNormalized, selectSelectedMapVisualizations } from "./appSlice";
+import { createFormatter, Formatter } from "./ChoroplethMap";
+import { useEffect, useState } from "react";
+import "./CountyTooltip.css";
 
-type StyleProps = {
-    shouldShow: boolean,
-    position?: { x: number, y: number }
-};
+const getFormatter = (selectedMap: MapVisualization, isNormalized: boolean): Formatter =>
+    createFormatter(selectedMap.formatter_type, selectedMap.decimals, isNormalized);
 
-const useTooltipStyles = makeStyles({
-    root: ({ shouldShow, position }: StyleProps) => ({
-        opacity: shouldShow ? 0.95 : 0,
-        position: "absolute",
-        padding: "4px",
-        background: "white",
-        pointerEvents: "none",
-        left: position?.x,
-        top: position?.y,
-        zIndex: 100,
-    })
-});
 
-const getFormatter = (dataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
-    const normalization = selections[0].normalization;
-    switch (normalization) {
-        case Normalization.Raw: return dataDefinitions[0].formatter;
-        case Normalization.Percentile: return riskMetricFormatter;
-    }
-}
+const getUnits = (dataDefinition: MapVisualization, isNormalized: boolean) =>
+    isNormalized ?
+        "Normalized value" :
+        dataDefinition.units;
 
-const format = (value: number | undefined, dataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
-    const formatter = getFormatter(dataDefinitions, selections);
+const formatData = (
+    value: number | undefined,
+    selectedMap: MapVisualization,
+    isNormalized: boolean,
+) => {
+    const formatter = getFormatter(selectedMap, isNormalized);
     if (value === undefined) {
         return "No data";
     }
-    if (selections[0].normalization !== Normalization.Raw) {
+    if (isNormalized) {
         return formatter(value);
     } else {
-        let units = getUnits(dataDefinitions[0], selections[0].normalization);
+        let units = getUnits(selectedMap, isNormalized);
         return formatter(value) + getUnitString(units);
     }
 }
 
-const CountyTooltip = ({ data }: { data: Map<string, number> }) => {
-    const selections = useSelector(selectSelections);
-    const countyId = useSelector((state: RootState) => state.app.hoverCountyId);
-    const position = useSelector((state: RootState) => state.app.hoverPosition);
-    const dataDefinitions = useSelector(selectDataDefinitions);
-    const shouldShow = countyId !== undefined && position !== undefined;
-    const tooltipClasses = useTooltipStyles({ shouldShow, position });
+type TooltipHover = { x: number, y: number, id: string };
+type Props = {
+    data: Map<string, number> | undefined,
+    mapRef: React.RefObject<SVGGElement>,
+    selectedMap: MapVisualization | undefined,
+};
+
+const CountyTooltip = ({ data, mapRef, selectedMap }: Props) => {
+    const isNormalized = useSelector(selectIsNormalized);
+    const [hover, setHover] = useState<TooltipHover>();
+
+    useEffect(() => {
+        const element = mapRef.current;
+        if (!element) {
+            return;
+        }
+
+        const onTouchMove = (event: any) =>
+            setHover({
+                x: event.touches[0].pageX + 30,
+                y: event.touches[0].pageY - 45,
+                id: event.target.id
+            });
+        const onMouseMove = (event: any) =>
+            setHover({
+                x: event.pageX + 10,
+                y: event.pageY - 25,
+                id: event.target.id
+            });
+        const onHoverEnd = () => setHover(undefined);
+
+        element.addEventListener("mouseout", onHoverEnd);
+        element.addEventListener("touchend", onHoverEnd);
+        element.addEventListener("mousemove", onMouseMove);
+        element.addEventListener("touchmove", onTouchMove);
+        return () => {
+            element.removeEventListener("mouseout", onHoverEnd);
+            element.removeEventListener("touchend", onHoverEnd);
+            element.removeEventListener("mousemove", onMouseMove);
+            element.removeEventListener("touchmove", onTouchMove);
+        }
+    }, [mapRef, data]);
+
+    if (!hover || !data || !selectedMap) {
+        return null;
+    }
+
     let text = "";
-    if (countyId) {
-        const county = counties.get(countyId);
-        const state = states.get(countyId.slice(0, 2) as State);
+    if (hover?.id) {
+        const county = counties.get(hover.id);
+        const state = states.get(hover.id.slice(0, 2) as State);
         let name = "---";
         if (state && county) {
             name = county + ", " + state;
         }
-        const value = data.get(countyId);
-        text = `${name}: ${format(value, dataDefinitions, selections)}`;
+        const value = data?.get(hover.id);
+        text = `${name}: ${formatData(value, selectedMap, isNormalized)}`;
     }
 
     return (
-        <div className={tooltipClasses.root}>
+        <div
+            id="tooltip"
+            style={{ left: hover?.x, top: hover?.y }}>
             {text}
         </div>
     );

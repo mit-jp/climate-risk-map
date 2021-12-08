@@ -1,0 +1,28 @@
+#editor-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+#editor {
+    display: flex;
+    flex-direction: row;
+}
+
+#map {
+    margin-right: 1em;
+}
+
+#title-form {
+    display: flex;
+    align-items: center;
+}
+
+#map-options {
+    display: flex;
+    flex-direction: column;
+    padding-right: 0.5em;
+}
+
+.MuiAutocomplete-root, .MuiTextField-root {
+    margin: 0.5em 0;
+}

@@ -8,8 +8,6 @@ pub fn init(cfg: &mut web::ServiceConfig) {
 
 #[get("/county/{id}")]
 async fn get(id: web::Path<i16>, app_state: web::Data<AppState<'_>>) -> impl Responder {
-    println!("GET: /county/{}", id);
-
     let counties = app_state.database.county.by_id(id.into_inner()).await;
 
     match counties {
@@ -20,8 +18,6 @@ async fn get(id: web::Path<i16>, app_state: web::Data<AppState<'_>>) -> impl Res
 
 #[get("/county")]
 async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
-    println!("GET: /county");
-
     let counties = app_state.database.county.all().await;
 
     match counties {

@@ -1,67 +1,80 @@
-import React from "react";
 import BubbleMap from "./BubbleMap";
 import ChoroplethMap from "./ChoroplethMap";
-import dataDefinitions, { DataDefinition, DataIdParams, DataType, getUnits, isDemographics, MapType, Normalization, riskMetricFormatter } from "./DataDefinitions";
 import { Map } from "immutable";
-import { TopoJson } from "./Home";
-import { generateSelectedDataDefinitions } from "./appSlice";
+import { TopoJson } from "./TopoJson";
+import { MapType, MapVisualization, TabToId } from "./MapVisualization";
+import { DataTab } from "./DataTab";
+import { ForwardedRef, forwardRef } from "react";
 
 export const getUnitString = (units: string) => units ? ` ${units}` : "";
 
-export const getLegendTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
-    const dataDefinition = selectedDataDefinitions[0];
-    const units = getUnits(dataDefinition, selections[0].normalization);
-    const unitString = getUnitString(units);
-    const numSelectedRiskMetrics = selectedDataDefinitions.filter(d => !isDemographics(d.type)).length;
-
-    if (selectedDataDefinitions.length === 1 || numSelectedRiskMetrics === 0) {
-        return unitString;
-    } else {
-        return "Combined Risk";
-    }
+const getUnits = (dataDefinition: MapVisualization, isNormalized: boolean) => {
+    return isNormalized ?
+        "Normalized value" :
+        dataDefinition.units;
 }
 
-const getLegendFormatter = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
-    const normalization = selections[0].normalization;
-    switch (normalization) {
-        case Normalization.Raw: return selectedDataDefinitions[0].legendFormatter;
-        case Normalization.Percentile: return riskMetricFormatter;
-    }
+export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
+    const dataDefinition = selectedMaps[0];
+    const units = getUnits(dataDefinition, isNormalized);
+    const unitString = getUnitString(units);
+
+    return isNormalized
+        ? selectedMaps.some(value => value.subcategory === 1)
+            ? selectedMaps.length > 1
+                ? "Combined Relative Risk"
+                : "Relative Risk"
+            : "Scaled Value"
+        : unitString;
+}
+
+export enum Aggregation {
+    State = "state",
+    County = "county",
 }
 
 type Props = {
     map: TopoJson,
-    selections: DataIdParams[],
+    selectedMapVisualizations: MapVisualization[],
     data: Map<string, number>,
     detailedView: boolean,
+    isNormalized: boolean,
+    transform?: string,
 }
 
-const FullMap = ({ map, selections, data, detailedView }: Props) => {
-    const firstSelection = selections[0];
-    const isNormalized = firstSelection.normalization !== Normalization.Raw;
-    const selectedDataDefinitions = generateSelectedDataDefinitions(selections);
-    const mapType = dataDefinitions.get(firstSelection.dataGroup)!.mapType;
-    const title = getLegendTitle(selectedDataDefinitions, selections);
-    const legendFormatter = getLegendFormatter(selectedDataDefinitions, selections);
+const FullMap = forwardRef(({
+    map,
+    selectedMapVisualizations,
+    data,
+    detailedView,
+    isNormalized,
+    transform,
+}: Props,
+    ref: ForwardedRef<SVGGElement>
+) => {
+    const mapVisualization = selectedMapVisualizations[0]!;
+    const mapType = mapVisualization.map_type;
+    const legendTitle = getLegendTitle(selectedMapVisualizations, isNormalized);
     switch (mapType) {
         case MapType.Choropleth:
             return <ChoroplethMap
                 map={map}
-                selections={selections}
+                selectedMapVisualizations={selectedMapVisualizations}
                 data={data}
                 detailedView={detailedView}
-                title={title}
-                legendFormatter={legendFormatter}
+                legendTitle={legendTitle}
                 isNormalized={isNormalized}
+                ref={ref}
+                transform={transform}
             />;
         case MapType.Bubble:
             return <BubbleMap
                 map={map}
                 data={data}
-                title={title}
-                color={selectedDataDefinitions[0].type === DataType.Health ? "black" : "rgb(34, 139, 69)"}
+                legendTitle={legendTitle}
+                color={mapVisualization.data_tab === TabToId[DataTab.Health] ? "black" : "rgb(34, 139, 69)"}
             />;
     }
-}
+});
 
 export default FullMap;

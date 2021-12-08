@@ -1,4 +1,7 @@
-use super::{County, Data, DataCategory, Dataset, MapVisualization, SourceAndDate, State};
+use super::{
+    ColorPalette, County, Data, DataCategory, DataSource, Dataset, Domain, MapVisualization,
+    ScaleType, SourceAndDate, State,
+};
 use sqlx::postgres::PgRow;
 use sqlx::{FromRow, PgPool};
 use std::sync::Arc;
@@ -31,6 +34,10 @@ pub struct Database<'c> {
     pub map_visualization: Arc<Table<'c, MapVisualization>>,
     pub data_category: Arc<Table<'c, DataCategory>>,
     pub source_and_date: Arc<Table<'c, SourceAndDate>>,
+    pub data_source: Arc<Table<'c, DataSource>>,
+    pub domain: Arc<Table<'c, Domain>>,
+    pub color_palette: Arc<Table<'c, ColorPalette>>,
+    pub scale_type: Arc<Table<'c, ScaleType>>,
 }
 
 impl Database<'_> {
@@ -46,6 +53,10 @@ impl Database<'_> {
             map_visualization: Arc::from(Table::new(pool.clone())),
             data_category: Arc::from(Table::new(pool.clone())),
             source_and_date: Arc::from(Table::new(pool.clone())),
+            data_source: Arc::from(Table::new(pool.clone())),
+            domain: Arc::from(Table::new(pool.clone())),
+            color_palette: Arc::from(Table::new(pool.clone())),
+            scale_type: Arc::from(Table::new(pool.clone())),
         }
     }
 }

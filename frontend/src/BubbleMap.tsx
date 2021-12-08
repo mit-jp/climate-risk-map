@@ -1,5 +1,5 @@
-import { TopoJson } from "./Home";
-import React from "react";
+import { TopoJson } from "./TopoJson";
+import { Fragment } from "react";
 import { Map } from "immutable";
 import { geoPath, max, ScalePower, scaleSqrt } from 'd3';
 import { feature } from 'topojson-client';
@@ -14,11 +14,11 @@ const BUBBLE_TRANSITION = { transition: "r 0.3s ease-in-out" };
 type Props = {
     map: TopoJson,
     data: Map<string, number>,
-    title: string,
+    legendTitle: string,
     color: string,
 }
 
-const BubbleMap = ({ map, data, title, color }: Props) => {
+const BubbleMap = ({ map, data, legendTitle, color }: Props) => {
     const path = geoPath();
     const counties = feature(
         map,
@@ -28,7 +28,7 @@ const BubbleMap = ({ map, data, title, color }: Props) => {
     const countyToRadius = makeCountyToRadius(valueToRadius, data);
 
     return (
-        <React.Fragment>
+        <Fragment>
             <EmptyMap map={map} />
             <StateMap map={map} />
             <g id="bubbles">
@@ -45,9 +45,9 @@ const BubbleMap = ({ map, data, title, color }: Props) => {
                     />
                 )}
             </g>
-            <BubbleLegend radius={valueToRadius} title={title} />
-        </React.Fragment>
-    )
+            <BubbleLegend radius={valueToRadius} title={legendTitle} />
+        </Fragment>
+    );
 }
 
 function makeValueToRadius(

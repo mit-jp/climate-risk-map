@@ -33,3 +33,6 @@ yarn-error.log*
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# stats about the build size
+stats.html

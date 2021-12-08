@@ -1,52 +1,54 @@
-import { IconButton, makeStyles, Tooltip } from "@material-ui/core";
-import { Info } from "@material-ui/icons";
-import React from "react";
-import { generateSelectedDataDefinitions } from "./appSlice";
-import { DataDefinition, DataIdParams, Normalization } from "./DataDefinitions";
+import { IconButton, styled, Tooltip, TooltipProps, tooltipClasses } from "@mui/material";
+import { Info } from "@mui/icons-material";
+import { MapVisualization } from "./MapVisualization";
 
-const useTooltipStyles = makeStyles(theme => ({
-    arrow: {
+const getTitle = (selectedMaps: MapVisualization[]) => {
+    if (selectedMaps.length > 1) {
+        return "Combined data";
+    } else if (selectedMaps.length === 0) {
+        return ""
+    } else {
+        return selectedMaps[0].name;
+    }
+}
+
+type Props = {
+    selectedMapVisualizations: MapVisualization[],
+    isNormalized: boolean,
+};
+
+const BigTooltip = styled(({ className, ...props }: TooltipProps) =>
+    <Tooltip
+        {...props}
+        arrow
+        placement="top"
+        classes={{ popper: className }}
+    />
+)(({ theme }) => ({
+    [`& .${tooltipClasses.arrow}`]: {
         color: theme.palette.common.black,
     },
-    tooltip: {
+    [`& .${tooltipClasses.tooltip}`]: {
         backgroundColor: theme.palette.common.black,
         fontSize: theme.typography.fontSize,
     },
 }));
 
-const isNormalized = (selections: DataIdParams[]) => {
-    return selections[0].normalization === Normalization.Percentile;
-}
-
-const getTitle = (selectedDataDefinitions: DataDefinition[], selections: DataIdParams[]) => {
-    if (selectedDataDefinitions.length > 1) {
-        return "Combined data";
-    } else {
-        return selectedDataDefinitions[0].name(selections[0].normalization);
-    }
-}
-
-const MapTitle = ({ selections }: { selections: DataIdParams[] }) => {
-    const tooltipClasses = useTooltipStyles();
-    return (
-        <h3 id="map-title">
-            {getTitle(generateSelectedDataDefinitions(selections), selections)}
-            {
-                isNormalized(selections) &&
-                <Tooltip
-                    classes={tooltipClasses}
-                    arrow
-                    placement="top"
-                    title="The normalized value is the percentile
+const MapTitle = ({ selectedMapVisualizations, isNormalized }: Props) =>
+    <h3 id="map-title">
+        {getTitle(selectedMapVisualizations)}
+        {
+            isNormalized &&
+            <BigTooltip
+                title="The normalized value is the percentile
                 of the raw data. If you select multiple data,
                 we take the mean of the ranked values.">
-                    <IconButton aria-label="info">
-                        <Info />
-                    </IconButton>
-                </Tooltip>
-            }
-        </h3>
-    );
-}
+                <IconButton aria-label="info" size="large">
+                    <Info />
+                </IconButton>
+            </BigTooltip>
+        }
+    </h3>
 
+export const EmptyMapTitle = () => <div id="empty-title"></div>;
 export default MapTitle;

@@ -6,15 +6,22 @@ use sqlx::FromRow;
 pub struct Data {
     pub county_id: i16,
     pub state_id: i16,
-    pub source: i16,
+    pub source: i32,
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
     pub value: Option<f64>,
 }
 
 #[derive(FromRow, Deserialize, Serialize)]
+pub struct SimpleData {
+    pub county_id: i16,
+    pub state_id: i16,
+    pub value: Option<f64>,
+}
+
+#[derive(FromRow, Deserialize, Serialize)]
 pub struct SourceAndDate {
-    pub source: i16,
+    pub source: i32,
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
 }

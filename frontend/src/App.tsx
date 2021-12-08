@@ -1,15 +1,18 @@
-import React from 'react';
 import Home from './Home';
 import {
   BrowserRouter as Router,
   Switch,
   Route
 } from "react-router-dom";
+import Editor from './editor/Editor';
 
 const App = () => {
   return (
     <Router>
       <Switch>
+        <Route path="/editor">
+          <Editor />
+        </Route>
         <Route path="/">
           <Home />
         </Route>

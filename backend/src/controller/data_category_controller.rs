@@ -7,8 +7,6 @@ pub fn init(cfg: &mut web::ServiceConfig) {
 
 #[get("/data-category")]
 async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
-    println!("GET: /data-category");
-
     let data_categories = app_state.database.data_category.all().await;
 
     match data_categories {

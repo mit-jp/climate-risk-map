@@ -1,15 +1,26 @@
+mod color_palette;
 mod county;
 mod data;
 mod data_category;
+mod data_source;
 mod dataset;
+mod domain;
 mod map_visualization;
+mod scale_type;
 mod state;
 
+pub type DataSource = data_source::DataSource;
 pub type State = state::State;
 pub type County = county::County;
 pub type Data = data::Data;
+pub type SimpleData = data::SimpleData;
 pub type SourceAndDate = data::SourceAndDate;
 pub type Dataset = dataset::Dataset;
 pub type MapVisualization = map_visualization::MapVisualization;
+pub type MapVisualizationDaoPatch = map_visualization::MapVisualizationDaoPatch;
+pub type MapVisualizationPatch = map_visualization::MapVisualizationPatch;
 pub type MapVisualizationModel = map_visualization::MapVisualizationModel;
 pub type DataCategory = data_category::DataCategory;
+pub type Domain = domain::Domain;
+pub type ColorPalette = color_palette::ColorPalette;
+pub type ScaleType = scale_type::ScaleType;

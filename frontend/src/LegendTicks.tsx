@@ -1,4 +1,4 @@
-import React from "react";
+import { Fragment } from "react";
 
 type Props = {
     height: number;
@@ -44,7 +44,7 @@ const LegendTicks = ({
             textAnchor="middle">
             {
                 showHighLowLabels &&
-                <React.Fragment>
+                <Fragment>
                     <text
                         x={marginLeft}
                         y={y1 - 6}
@@ -72,13 +72,13 @@ const LegendTicks = ({
                         className="high-low-label">
                         High
                     </text>
-                </React.Fragment>
+                </Fragment>
             }
             <g className="ticks">
                 {ticks.map((tick, i) => {
                     const x = xScale(tick);
                     return (
-                        <React.Fragment key={i}>
+                        <Fragment key={i}>
                             <line x1={x} x2={x} y1={y1} y2={y2} stroke="black" />
                             <text
                                 x={x}
@@ -89,7 +89,7 @@ const LegendTicks = ({
                             >
                                 {tickFormat(tick)}
                             </text>
-                        </React.Fragment>
+                        </Fragment>
                     );
                 })}
             </g>

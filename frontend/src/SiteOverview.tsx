@@ -1,6 +1,5 @@
-import React from 'react';
 import { useSelector } from 'react-redux';
-import { DataTab } from './DataTab';
+import DataTab from './DataTab';
 import { RootState } from './store';
 
 const SiteOverview = () => {

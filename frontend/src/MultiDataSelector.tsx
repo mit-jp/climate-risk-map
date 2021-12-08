@@ -1,84 +1,56 @@
-import React, { ChangeEvent } from 'react';
-import dataDefinitions, { DataIdParams, DataGroup, Normalization, Year, Dataset, DataDefinition, DataType, isDemographics } from './DataDefinitions';
+import { ChangeEvent } from 'react';
 import { Map } from 'immutable';
-import Slider from '@material-ui/core/Slider';
-import { Accordion, AccordionDetails, AccordionSummary, Checkbox, FormControlLabel, makeStyles } from '@material-ui/core';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Slider from '@mui/material/Slider';
+import { Accordion, AccordionDetails, AccordionSummary, Checkbox, FormControlLabel } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useThunkDispatch } from './Home';
 import { useSelector } from 'react-redux';
-import { changeWeight, selectSelections, setSelections, setShowRiskMetrics, setShowDemographics } from './appSlice';
+import { changeWeight, selectSelections, setMapSelections, setShowRiskMetrics, setShowDemographics, selectMapVisualizations } from './appSlice';
 import { RootState, store } from './store';
+import { MapSelection } from './DataSelector';
+import { MapVisualization, MapVisualizationId } from "./MapVisualization";
 
-const getYears = (dataGroup: DataGroup) =>
-    dataDefinitions.get(dataGroup)!.years;
-
-const getDatasets = (dataGroup: DataGroup) =>
-    dataDefinitions.get(dataGroup)!.datasets;
-
-const getYear = (dataGroup: DataGroup) => {
-    const years = getYears(dataGroup);
-    if (years.includes(Year._2000_2019)) {
-        return Year._2000_2019;
-    } else if (years.includes(Year.Average)) {
-        return Year.Average;
-    } else {
-        return years[0];
-    }
+const multipleChecked = (selections: MapSelection[]) => {
+    return selections.length > 1;
 }
 
-const getDataset = (dataGroup: DataGroup) => {
-    const datasets = getDatasets(dataGroup);
-    if (datasets.includes(Dataset.ERA5)) {
-        return Dataset.ERA5;
-    } else {
-        return datasets[0];
-    }
-}
-
-const multipleChecked = (dataSelections: DataIdParams[]) => {
-    return dataSelections.length > 1;
-}
-
-const checkBox = (dataGroup: DataGroup,
-    shouldBeChecked: (dataGroup: DataGroup) => boolean,
+const checkBox = (
+    map: MapVisualization,
+    shouldBeChecked: (mapId: MapVisualizationId) => boolean,
     onSelectionToggled: (event: ChangeEvent<HTMLInputElement>) => void,
-    definition: DataDefinition,
-    dataSelections: DataIdParams[],
-    dataWeights: { [key in DataGroup]?: number },
-    dispatch: typeof store.dispatch) => {
-    return <div key={dataGroup} className={shouldBeChecked(dataGroup) ? "selected-group padded" : "padded"}>
+    selections: MapSelection[],
+    dataWeights: { [key in MapVisualizationId]?: number },
+    dispatch: typeof store.dispatch
+) => {
+    return <div key={map.id} className={shouldBeChecked(map.id) ? "selected-group padded" : "padded"}>
+
         <FormControlLabel
-            id={dataGroup}
+            id={map.id.toString()}
             control={<Checkbox
-                checked={shouldBeChecked(dataGroup)}
-                value={dataGroup}
+                checked={shouldBeChecked(map.id)}
+                value={map.id}
                 onChange={onSelectionToggled}
-                name="dataGroup"
+                name="mapId"
                 color="primary"
             />}
-            label={definition.name(Normalization.Percentile)}
+            label={map.name}
         />
-        {shouldBeChecked(dataGroup) && multipleChecked(dataSelections) &&
+        {shouldBeChecked(map.id) && multipleChecked(selections) &&
             <div className="weight">
                 <div className="weight-label">Weight</div>
                 <Slider
+                    size="small"
                     className="weight-slider"
                     min={0.1}
                     max={1}
                     step={0.1}
                     marks={marks}
                     valueLabelDisplay="auto"
-                    onChange={(_, weight) => dispatch(changeWeight({ dataGroup, weight: weight as number }))}
-                    value={dataWeights[dataGroup] ?? 1} />
+                    onChange={(_, weight) => dispatch(changeWeight({ mapVisualizationId: map.id, weight: weight as number }))}
+                    value={dataWeights[map.id] ?? 1} />
             </div>}
     </div>;
 }
-
-const useAccordionStyles = makeStyles({
-    root: {
-        padding: 0,
-    }
-});
 
 const marks = [{ value: 0.1, label: "min" }, { value: 1, label: "max" }]
 
@@ -87,23 +59,27 @@ const MultiDataSelector = () => {
     const dataWeights = useSelector((state: RootState) => state.app.dataWeights);
     const showRiskMetrics = useSelector((state: RootState) => state.app.showRiskMetrics);
     const showDemographics = useSelector((state: RootState) => state.app.showDemographics);
+    const maps = useSelector(selectMapVisualizations);
     const selections = useSelector(selectSelections);
-    const accordionClasses = useAccordionStyles();
-    const selectionMap = Map(selections.map(selection => [selection.dataGroup, selection]));
+
+    const selectionMap = Map(selections.map(selection => [selection.mapVisualization, selection]));
 
     const onSelectionToggled = (event: ChangeEvent<HTMLInputElement>) => {
-        const dataGroup = event.target.value as DataGroup;
+        const map = maps[parseInt(event.target.value)];
         const checked = event.target.checked;
-        const changedSelections = checked ?
-            selectionMap.set(dataGroup, {
-                dataGroup,
-                year: getYear(dataGroup),
-                dataset: getDataset(dataGroup),
-                normalization: Normalization.Percentile,
-            }) :
-            selectionMap.delete(dataGroup);
-
-        dispatch(setSelections(Array.from(changedSelections.values())));
+        var changedSelections;
+        if (checked) {
+            const source = map.default_source ?? map.sources[parseInt(Object.keys(map.sources)[0])].id;
+            const dateRange = map.default_date_range ?? map.date_ranges_by_source[source][0];
+            changedSelections = selectionMap.set(map.id, {
+                mapVisualization: map.id,
+                dataSource: source,
+                dateRange,
+            });
+        } else {
+            changedSelections = selectionMap.delete(map.id);
+        }
+        dispatch(setMapSelections(Array.from(changedSelections.values())));
     }
 
     const onRiskMetricsToggled = (_: ChangeEvent<{}>, expanded: boolean) => {
@@ -114,21 +90,19 @@ const MultiDataSelector = () => {
         dispatch(setShowDemographics(expanded));
     }
 
-    const shouldBeChecked = (dataGroup: DataGroup) => {
-        return selectionMap.has(dataGroup);
+    const shouldBeChecked = (mapId: MapVisualizationId) => {
+        return selectionMap.has(mapId);
     }
 
-    const getDataList = (dataFilter: (dataType: DataType) => boolean) =>
-        Array.from(dataDefinitions.entries())
-            .filter(([_, definition]) =>
-                definition.normalizations.contains(Normalization.Percentile) &&
-                dataFilter(definition.type))
-            .map(([dataGroup, definition]) =>
+    const getDataList = (dataFilter: (map: MapVisualization) => boolean) =>
+        Object.values(maps)
+            .sort((a, b) => a.order - b.order)
+            .filter(map => dataFilter(map))
+            .map(map =>
                 checkBox(
-                    dataGroup,
+                    map,
                     shouldBeChecked,
                     onSelectionToggled,
-                    definition,
                     selections,
                     dataWeights,
                     dispatch
@@ -145,8 +119,8 @@ const MultiDataSelector = () => {
                 >
                     Risk Metrics
                 </AccordionSummary>
-                <AccordionDetails classes={accordionClasses}>
-                    {getDataList(dataType => !isDemographics(dataType))}
+                <AccordionDetails style={{ padding: 0 }}>
+                    {getDataList(map => map.subcategory === 1)}
                 </AccordionDetails>
             </Accordion>
             <Accordion expanded={showDemographics} onChange={onDemographicsToggled}>
@@ -157,12 +131,12 @@ const MultiDataSelector = () => {
                 >
                     Environmental Equity
                 </AccordionSummary>
-                <AccordionDetails classes={accordionClasses}>
-                    {getDataList(isDemographics)}
+                <AccordionDetails style={{ padding: 0 }}>
+                    {getDataList(map => map.subcategory === 2)}
                 </AccordionDetails>
             </Accordion>
         </form>
-    )
+    );
 }
 
 export default MultiDataSelector;
