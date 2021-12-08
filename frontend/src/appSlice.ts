@@ -11,6 +11,7 @@ import { MapSelection } from './DataSelector';
 import { Interval } from 'luxon';
 import { DataSource, defaultMapVisualizations, MapType, MapVisualization, MapVisualizationByTabId, MapVisualizationId, TabToId } from "./MapVisualization";
 import DataTab from './DataTab';
+import { current } from 'immer';
 
 export type TransmissionLineType = "Level 2 (230kV-344kV)" | "Level 3 (>= 345kV)" | "Level 2 & 3 (>= 230kV)";
 export type OverlayName = "Highways" | "Major railroads" | "Transmission lines" | "Marine highways" | "Critical water habitats";
@@ -159,9 +160,13 @@ export const appSlice = createSlice({
             }
             const possibleDates = getPossibleDates(state, selection);
             if (selection.dateRange && !possibleDates.includes(selection.dateRange)) {
-                possibleDates.length > 1 ?
-                    selection.dateRange = possibleDates[1] :
-                    selection.dateRange = possibleDates[0];
+                if (mapVisualization.default_date_range) {
+                    selection.dateRange = mapVisualization.default_date_range;
+                } else {
+                    possibleDates.length > 1 ?
+                        selection.dateRange = possibleDates[1] :
+                        selection.dateRange = possibleDates[0];
+                }
             }
 
             if (mapVisualization?.map_type === MapType.Bubble) {
