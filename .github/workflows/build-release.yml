@@ -1,5 +1,9 @@
 name: Rust
-on: [push, pull_request]
+on:
+  push:
+    branches: [$default-branch]
+  pull_request:
+    branches: [$default-branch]
 env:
   CARGO_TERM_COLOR: always
 
@@ -35,6 +39,8 @@ jobs:
           cache-dependency-path: "frontend/yarn.lock"
       - name: 🔨 Build
         run: |
-          yarn install
+          yarn install --frozen-lockfile
+          yarn tsc
           yarn build
+          yarn test
         working-directory: frontend
