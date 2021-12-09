@@ -1,7 +1,8 @@
-import { render } from '@testing-library/react';
+import { render } from './test-utils';
 import Footer from './Footer';
+import { screen } from '@testing-library/react';
 
-test('Renders main page correctly', () => {
+test('Renders footer correctly', () => {
   render(<Footer />);
-  expect(true).toBeTruthy();
+  expect(screen.getByText('Accessibility')).toBeInTheDocument();
 });
