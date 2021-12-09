@@ -4,7 +4,7 @@ export default {
         "^.+\\.tsx?$": "ts-jest"
     },
     moduleNameMapper: {
-        '\\.(gif|ttf|eot|svg|png)$': '<rootDir>/mocks/fileMock.js',
+        '\\.(gif|ttf|eot|svg|png|jpg)$': '<rootDir>/mocks/fileMock.ts',
         '\\.(css|less|sass|scss)$': 'identity-obj-proxy',
     },
     setupFilesAfterEnv: ['<rootDir>/setupTests.ts'],
