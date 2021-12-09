@@ -16,6 +16,8 @@
         "Symlog",
         "topojson",
         "vite",
-        "vitejs"
+        "vitejs",
+        "webm",
+        "webp"
     ]
 }

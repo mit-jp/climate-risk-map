@@ -11,6 +11,6 @@ csv = "1.1"
 dotenv = "0.14"
 futures = "0.3.17"
 serde = "1.0.126"
-sqlx = {version = "0.5", features = ["postgres", "runtime-async-std-native-tls", "chrono"]}
+sqlx = {version = "0.5", features = ["postgres", "runtime-async-std-native-tls", "chrono", "offline"]}
 log = "0.4"
 env_logger = "0.9"
