@@ -19,7 +19,7 @@ test("It shows header and loads data selector", async () => {
     render(<Home />);
     expect(screen.getByText(/environmental systems risk triage/i)).toBeInTheDocument();
     // map title, data selector, and description expander all have the same text
-    expect(await screen.findAllByText(/Exposure to airborne particulate matter/i, undefined, { timeout: 4000 })).toHaveLength(3);
+    expect(await screen.findAllByText(/Exposure to airborne particulate matter/i, undefined, { timeout: 20_000 })).toHaveLength(3);
 })
 
 const MAP_VISUALIZATIONS = {
