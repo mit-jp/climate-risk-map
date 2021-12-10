@@ -42,5 +42,7 @@ jobs:
           yarn install --frozen-lockfile
           yarn tsc
           yarn build
-          yarn test
+        working-directory: frontend
+      - name: 🧪 Test
+        run: yarn test
         working-directory: frontend
