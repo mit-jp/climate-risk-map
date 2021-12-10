@@ -16,12 +16,11 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 test("It shows header and loads data selector", async () => {
-    jest.setTimeout(20_000);
     render(<Home />);
     expect(screen.getByText(/environmental systems risk triage/i)).toBeInTheDocument();
     // map title, data selector, and description expander all have the same text
     expect(await screen.findAllByText(/Exposure to airborne particulate matter/i, undefined, { timeout: 20_000 })).toHaveLength(3);
-})
+}, 20_000);
 
 const MAP_VISUALIZATIONS = {
     "8": {
