@@ -2599,6 +2599,7 @@ __metadata:
     identity-obj-proxy: ^3.0.0
     immutable: ^4.0.0-rc.12
     jest: ^27.4.3
+    jest-canvas-mock: ^2.3.1
     luxon: ^2.0.1
     msw: ^0.36.3
     react: ^17.0.2
@@ -2613,6 +2614,7 @@ __metadata:
     tslib: ^2.3.1
     typescript: ~4.3
     vite: 2.3.7
+    whatwg-fetch: ^3.6.2
   languageName: unknown
   linkType: soft
 
@@ -2680,7 +2682,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color-name@npm:~1.1.4":
+"color-name@npm:^1.1.4, color-name@npm:~1.1.4":
   version: 1.1.4
   resolution: "color-name@npm:1.1.4"
   checksum: b0445859521eb4021cd0fb0cc1a75cecf67fceecae89b63f62b201cca8d345baf8b952c966862a9d9a2632987d4f6581f0ec8d957dfacece86f0a7919316f610
@@ -2795,6 +2797,13 @@ __metadata:
     source-map: ^0.6.1
     source-map-resolve: ^0.6.0
   checksum: 4273ac816ddf99b99acb9c1d1a27d86d266a533cc01118369d941d8e8a78277a83cad3315e267a398c509d930fbb86504e193ea1ebc620a4a4212e06fe76e8be
+  languageName: node
+  linkType: hard
+
+"cssfontparser@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "cssfontparser@npm:1.2.1"
+  checksum: 952d487cddab591fb944f2a4c326a7736bc963784a6d92b6ad4051f3bf5ee49a732eff62e29a52ff085197cb07f5bd66525a2245ded7fd356113ac81be9238b9
   languageName: node
   linkType: hard
 
@@ -4247,6 +4256,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jest-canvas-mock@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "jest-canvas-mock@npm:2.3.1"
+  dependencies:
+    cssfontparser: ^1.2.1
+    moo-color: ^1.0.2
+  checksum: 82606d348cf4f671af098dcebac19c98643fc5896c6e1af24b572b8e477e7bee18e4c65e0aee8d72d3af88511eba265e12001c6fb72c319d7efe15a6ba23b58b
+  languageName: node
+  linkType: hard
+
 "jest-changed-files@npm:^27.4.2":
   version: 27.4.2
   resolution: "jest-changed-files@npm:27.4.2"
@@ -5148,6 +5167,15 @@ __metadata:
   bin:
     mkdirp: bin/cmd.js
   checksum: a96865108c6c3b1b8e1d5e9f11843de1e077e57737602de1b82030815f311be11f96f09cce59bd5b903d0b29834733e5313f9301e3ed6d6f6fba2eae0df4298f
+  languageName: node
+  linkType: hard
+
+"moo-color@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "moo-color@npm:1.0.2"
+  dependencies:
+    color-name: ^1.1.4
+  checksum: 9425438cf14314ff8847fa911b3c6936cbe8550644c380733c4803719c3980a0de9324c70c3bc21c36b4aab3c181745774cc0efc4d3f5bfce009382eeeb89572
   languageName: node
   linkType: hard
 
@@ -6743,6 +6771,13 @@ __metadata:
   dependencies:
     iconv-lite: 0.4.24
   checksum: 5be4efe111dce29ddee3448d3915477fcc3b28f991d9cf1300b4e50d6d189010d47bca2f51140a844cf9b726e8f066f4aee72a04d687bfe4f2ee2767b2f5b1e6
+  languageName: node
+  linkType: hard
+
+"whatwg-fetch@npm:^3.6.2":
+  version: 3.6.2
+  resolution: "whatwg-fetch@npm:3.6.2"
+  checksum: ee976b7249e7791edb0d0a62cd806b29006ad7ec3a3d89145921ad8c00a3a67e4be8f3fb3ec6bc7b58498724fd568d11aeeeea1f7827e7e1e5eae6c8a275afed
   languageName: node
   linkType: hard
 
