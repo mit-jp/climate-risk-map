@@ -211,7 +211,7 @@ impl MapVisualizationModel {
     }
 }
 
-#[derive(FromRow, Deserialize, Serialize)]
+#[derive(FromRow, Deserialize, Serialize, PartialEq, Debug)]
 pub struct DateRange {
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
@@ -223,5 +223,66 @@ impl DateRange {
             start_date: source_and_date.start_date,
             end_date: source_and_date.end_date,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_converts_dates_to_range() {
+        let map_visualization: MapVisualization = MapVisualization {
+            id: 1,
+            units: "".to_string(),
+            short_name: "".to_string(),
+            name: "".to_string(),
+            description: "".to_string(),
+            subcategory: None,
+            data_tab: 1,
+            dataset: 1,
+            map_type: 1,
+            legend_ticks: None,
+            color_palette_name: "".to_string(),
+            color_palette_id: 1,
+            reverse_scale: false,
+            invert_normalized: false,
+            scale_type_id: 1,
+            scale_type_name: "".to_string(),
+            formatter_type: 1,
+            decimals: 1,
+            legend_formatter_type: None,
+            legend_decimals: None,
+            show_pdf: false,
+            default_start_date: None,
+            default_end_date: None,
+            default_source: None,
+            order: 1,
+        };
+        let source_id = 1;
+        let source: DataSource = DataSource {
+            id: source_id,
+            name: "".to_string(),
+            description: "".to_string(),
+            link: "".to_string(),
+        };
+        let source_and_date: SourceAndDate = SourceAndDate {
+            source: source.id,
+            start_date: NaiveDate::from_ymd(2019, 1, 1),
+            end_date: NaiveDate::from_ymd(2020, 1, 1),
+        };
+        let expected_date_range = DateRange::from(&source_and_date);
+        let map_visualization_model = MapVisualizationModel::new(
+            map_visualization,
+            vec![source_and_date],
+            vec![source],
+            vec![],
+            vec![],
+        );
+
+        assert_eq!(
+            map_visualization_model.date_ranges_by_source[&source_id][0],
+            expected_date_range
+        );
     }
 }
