@@ -1,7 +1,7 @@
 import { feature } from 'topojson-client'
 import { geoPath } from 'd3'
-import { GeoJsonProperties } from 'geojson'
-import { GeometryCollection } from 'topojson-specification'
+import type { GeoJsonProperties } from 'geojson'
+import type { GeometryCollection } from 'topojson-specification'
 import { TopoJson } from './TopoJson'
 import { ZOOM_TRANSITION } from './MapWrapper'
 

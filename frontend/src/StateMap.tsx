@@ -1,5 +1,5 @@
 import { geoPath } from 'd3'
-import { GeometryCollection } from 'topojson-specification'
+import type { GeometryCollection } from 'topojson-specification'
 import { mesh } from 'topojson-client'
 import { TopoJson } from './TopoJson'
 import { ZOOM_TRANSITION } from './MapWrapper'

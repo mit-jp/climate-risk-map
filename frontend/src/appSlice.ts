@@ -1,6 +1,6 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { GeoJsonProperties, Feature, Geometry } from 'geojson'
-import { GeometryCollection } from 'topojson-specification'
+import type { GeoJsonProperties, Feature, Geometry } from 'geojson'
+import type { GeometryCollection } from 'topojson-specification'
 import { geoPath } from 'd3'
 import { feature } from 'topojson-client'
 import { Interval } from 'luxon'
