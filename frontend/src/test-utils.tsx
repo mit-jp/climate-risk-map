@@ -12,20 +12,17 @@ const theme = createTheme({
         secondary: {
             main: '#A5C2A6',
         },
-    }
-});
+    },
+})
 
-const AllTheProviders: FC = ({ children }) =>
+const AllTheProviders: FC = ({ children }) => (
     <ThemeProvider theme={theme}>
-        <Provider store={store}>
-            {children}
-        </Provider>
+        <Provider store={store}>{children}</Provider>
     </ThemeProvider>
+)
 
-const customRender = (
-    ui: ReactElement,
-    options?: Omit<RenderOptions, 'wrapper'>,
-) => render(ui, { wrapper: AllTheProviders, ...options })
+const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) =>
+    render(ui, { wrapper: AllTheProviders, ...options })
 
 export * from '@testing-library/react'
 export { customRender as render }

@@ -1,0 +1,36 @@
+nav {
+    margin-bottom: 1em;
+}
+
+nav ul {
+    display: flex;
+}
+
+nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+nav button {
+    cursor: pointer;
+    display: block;
+    color: #000;
+    text-decoration: none;
+    padding: 1em;
+    text-transform: capitalize;
+    margin: 0;
+    border: none;
+    font-size: inherit;
+    background: none;
+}
+
+nav button:hover {
+    background: #e3eaf1;
+    color: #435e7c;
+}
+
+nav button.selected {
+    background: #435e7c;
+    color: #fff;
+}

@@ -1,16 +1,16 @@
-import { Fragment, ChangeEvent } from 'react';
-import { DataSource } from './MapVisualization';
+import { Fragment, ChangeEvent } from 'react'
+import { DataSource } from './MapVisualization'
 
 type Props = {
-    id: string,
-    dataSources: DataSource[],
-    selectedDataSource: number,
+    id: string
+    dataSources: DataSource[]
+    selectedDataSource: number
     onSelectionChange: (event: ChangeEvent<HTMLInputElement>) => void
-};
+}
 
-const DataSourceSelector = ({ id, dataSources, selectedDataSource, onSelectionChange }: Props) => {
+function DataSourceSelector({ id, dataSources, selectedDataSource, onSelectionChange }: Props) {
     const getDataSources = () => {
-        return dataSources.map(dataSource =>
+        return dataSources.map((dataSource) => (
             <Fragment key={dataSource.id}>
                 <input
                     type="radio"
@@ -21,14 +21,14 @@ const DataSourceSelector = ({ id, dataSources, selectedDataSource, onSelectionCh
                 />
                 <label htmlFor={id + dataSource.id}>{dataSource.name}</label>
             </Fragment>
-        );
+        ))
     }
     return (
         <div className="sub-selector">
             <p>Source:</p>
             {getDataSources()}
         </div>
-    );
-};
+    )
+}
 
-export default DataSourceSelector;
+export default DataSourceSelector

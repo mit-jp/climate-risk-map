@@ -1,22 +1,22 @@
-import { Fragment } from "react";
+import { Fragment } from 'react'
 
 type Props = {
-    height: number;
-    width: number;
-    marginBottom: number;
-    marginLeft: number;
-    marginRight: number;
-    marginTop: number;
-    title: string;
-    xScale: any;
-    numTicks: number;
-    tickFormat: (n: number | { valueOf(): number }) => string;
-    tickSize: number;
-    tickValues?: number[];
-    showHighLowLabels: boolean;
-};
+    height: number
+    width: number
+    marginBottom: number
+    marginLeft: number
+    marginRight: number
+    marginTop: number
+    title: string
+    xScale: any
+    numTicks: number
+    tickFormat: (n: number | { valueOf(): number }) => string
+    tickSize: number
+    tickValues?: number[]
+    showHighLowLabels: boolean
+}
 
-const LegendTicks = ({
+function LegendTicks({
     height,
     width,
     marginBottom,
@@ -30,10 +30,10 @@ const LegendTicks = ({
     tickSize,
     tickValues,
     showHighLowLabels,
-}: Props) => {
-    const y1 = marginTop + marginBottom - height;
-    const y2 = y1 + height - marginTop - marginBottom + tickSize;
-    const ticks = tickValues || xScale.ticks(numTicks) as number[];
+}: Props) {
+    const y1 = marginTop + marginBottom - height
+    const y2 = y1 + height - marginTop - marginBottom + tickSize
+    const ticks = tickValues || (xScale.ticks(numTicks) as number[])
 
     return (
         <g
@@ -41,17 +41,18 @@ const LegendTicks = ({
             fill="none"
             fontSize="10"
             fontFamily="sans-serif"
-            textAnchor="middle">
-            {
-                showHighLowLabels &&
-                <Fragment>
+            textAnchor="middle"
+        >
+            {showHighLowLabels && (
+                <>
                     <text
                         x={marginLeft}
                         y={y1 - 6}
                         fontSize={14}
                         fill="currentColor"
                         textAnchor="start"
-                        className="high-low-label">
+                        className="high-low-label"
+                    >
                         Low
                     </text>
                     <text
@@ -60,7 +61,8 @@ const LegendTicks = ({
                         fontSize={14}
                         fill="currentColor"
                         textAnchor="middle"
-                        className="high-low-label">
+                        className="high-low-label"
+                    >
                         Medium
                     </text>
                     <text
@@ -69,14 +71,15 @@ const LegendTicks = ({
                         fontSize={14}
                         fill="currentColor"
                         textAnchor="end"
-                        className="high-low-label">
+                        className="high-low-label"
+                    >
                         High
                     </text>
-                </Fragment>
-            }
+                </>
+            )}
             <g className="ticks">
                 {ticks.map((tick, i) => {
-                    const x = xScale(tick);
+                    const x = xScale(tick)
                     return (
                         <Fragment key={i}>
                             <line x1={x} x2={x} y1={y1} y2={y2} stroke="black" />
@@ -90,7 +93,7 @@ const LegendTicks = ({
                                 {tickFormat(tick)}
                             </text>
                         </Fragment>
-                    );
+                    )
                 })}
             </g>
             <text
@@ -99,11 +102,12 @@ const LegendTicks = ({
                 fontSize={14}
                 fill="currentColor"
                 textAnchor="start"
-                className="title">
+                className="title"
+            >
                 {title}
             </text>
-        </g >
-    );
-};
+        </g>
+    )
+}
 
-export default LegendTicks;
+export default LegendTicks
