@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux'
 import { feature } from 'topojson-client'
-import { GeometryCollection } from 'topojson-specification'
-import { GeoJsonProperties, Feature, Geometry } from 'geojson'
+import type { GeometryCollection } from 'topojson-specification'
+import type { GeoJsonProperties, Feature, Geometry } from 'geojson'
 import { geoPath } from 'd3'
 import { RootState } from './store'
 import { TopoJson } from './TopoJson'
@@ -42,6 +42,7 @@ function Overlays() {
                     case 'Level 3 (>= 345kV)':
                         features = features.filter((d) => d.properties!.V >= 345)
                         break
+                    default:
                 }
                 break
             case 'Major railroads':
@@ -52,14 +53,15 @@ function Overlays() {
                 strokeWidth = () => 1
                 color = () => '#0099ff'
                 break
+            default:
         }
-        return features.map((feature, index) => (
+        return features.map((f, index) => (
             <path
-                key={feature.id ?? index}
-                stroke={color(feature)}
-                strokeWidth={strokeWidth(feature)}
+                key={f.id ?? index}
+                stroke={color(f)}
+                strokeWidth={strokeWidth(f)}
                 fill="none"
-                d={path(feature) ?? undefined}
+                d={path(f) ?? undefined}
                 style={{ transition: 'stroke-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
             />
         ))
