@@ -1,6 +1,6 @@
 import { Map } from 'immutable'
 import { useSelector } from 'react-redux'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, RefObject } from 'react'
 import counties from './Counties'
 import states, { State } from './States'
 import { getUnitString } from './FullMap'
@@ -34,7 +34,7 @@ const formatData = (
 type TooltipHover = { x: number; y: number; id: string }
 type Props = {
     data: Map<string, number> | undefined
-    mapRef: React.RefObject<SVGGElement>
+    mapRef: RefObject<SVGGElement>
     selectedMap: MapVisualization | undefined
 }
 
@@ -45,7 +45,7 @@ function CountyTooltip({ data, mapRef, selectedMap }: Props) {
     useEffect(() => {
         const element = mapRef.current
         if (!element) {
-            return
+            return () => {}
         }
 
         const onTouchMove = (event: any) =>

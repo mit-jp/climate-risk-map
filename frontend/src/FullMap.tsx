@@ -17,13 +17,13 @@ export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: b
     const units = getUnits(dataDefinition, isNormalized)
     const unitString = getUnitString(units)
 
-    return isNormalized
-        ? selectedMaps.some((value) => value.subcategory === 1)
-            ? selectedMaps.length > 1
-                ? 'Combined Relative Risk'
-                : 'Relative Risk'
-            : 'Scaled Value'
-        : unitString
+    if (isNormalized) {
+        if (selectedMaps.some((value) => value.subcategory === 1)) {
+            return selectedMaps.length > 1 ? 'Combined Relative Risk' : 'Relative Risk'
+        }
+        return 'Scaled Value'
+    }
+    return unitString
 }
 
 export enum Aggregation {
@@ -40,43 +40,45 @@ type Props = {
     transform?: string
 }
 
-const FullMap = forwardRef(
-    (
-        { map, selectedMapVisualizations, data, detailedView, isNormalized, transform }: Props,
-        ref: ForwardedRef<SVGGElement>
-    ) => {
-        const mapVisualization = selectedMapVisualizations[0]!
-        const mapType = mapVisualization.map_type
-        const legendTitle = getLegendTitle(selectedMapVisualizations, isNormalized)
-        switch (mapType) {
-            case MapType.Choropleth:
-                return (
-                    <ChoroplethMap
-                        map={map}
-                        selectedMapVisualizations={selectedMapVisualizations}
-                        data={data}
-                        detailedView={detailedView}
-                        legendTitle={legendTitle}
-                        isNormalized={isNormalized}
-                        ref={ref}
-                        transform={transform}
-                    />
-                )
-            case MapType.Bubble:
-                return (
-                    <BubbleMap
-                        map={map}
-                        data={data}
-                        legendTitle={legendTitle}
-                        color={
-                            mapVisualization.data_tab === TabToId[DataTab.Health]
-                                ? 'black'
-                                : 'rgb(34, 139, 69)'
-                        }
-                    />
-                )
-        }
+function FullMap(
+    { map, selectedMapVisualizations, data, detailedView, isNormalized, transform }: Props,
+    ref: ForwardedRef<SVGGElement>
+) {
+    const mapVisualization = selectedMapVisualizations[0]!
+    const mapType = mapVisualization.map_type
+    const legendTitle = getLegendTitle(selectedMapVisualizations, isNormalized)
+    switch (mapType) {
+        case MapType.Choropleth:
+            return (
+                <ChoroplethMap
+                    map={map}
+                    selectedMapVisualizations={selectedMapVisualizations}
+                    data={data}
+                    detailedView={detailedView}
+                    legendTitle={legendTitle}
+                    isNormalized={isNormalized}
+                    ref={ref}
+                    transform={transform}
+                />
+            )
+        case MapType.Bubble:
+            return (
+                <BubbleMap
+                    map={map}
+                    data={data}
+                    legendTitle={legendTitle}
+                    color={
+                        mapVisualization.data_tab === TabToId[DataTab.Health]
+                            ? 'black'
+                            : 'rgb(34, 139, 69)'
+                    }
+                />
+            )
+        default:
+            return null
     }
-)
+}
 
-export default FullMap
+const FullMapForwardRef = forwardRef(FullMap)
+
+export default FullMapForwardRef

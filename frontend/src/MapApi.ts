@@ -33,7 +33,7 @@ type CsvRow = {
 const mergeFIPSCodes = (row: CsvRow): [CountyId, number | null] => {
     let stateId = row.state_id.toString()
     let countyId = row.county_id.toString()
-    const value = row.value
+    const { value } = row
 
     stateId = '0'.repeat(2 - stateId.length) + stateId
     countyId = '0'.repeat(3 - countyId.length) + countyId
@@ -44,14 +44,14 @@ const transformData = (
     loadedCsvs: [dataset: number, csv: DSVParsedArray<CsvRow>][]
 ): DataByDataset => {
     const allData: DataByDataset = {}
-    for (const [dataset, csv] of loadedCsvs) {
+    loadedCsvs.forEach(([dataset, csv]) => {
         const dataByCountyId = csv.reduce((accumulator, row) => {
             const [fips, value] = mergeFIPSCodes(row)
             accumulator[fips] = value
             return accumulator
         }, {} as Data)
         allData[dataset] = dataByCountyId
-    }
+    })
     return allData
 }
 
@@ -66,14 +66,7 @@ export const mapApi = createApi({
                 const loadingCsvs = queryParams.map(
                     async ({ dataset, source, startDate, endDate }) => {
                         const csvRow = await csv<CsvRow>(
-                            'api/data/' +
-                                dataset +
-                                '?source=' +
-                                source +
-                                '&start_date=' +
-                                startDate +
-                                '&end_date=' +
-                                endDate,
+                            `api/data/${dataset}?source=${source}&start_date=${startDate}&end_date=${endDate}`,
                             autoType
                         )
                         return [dataset, csvRow] as [number, DSVParsedArray<CsvRow>]

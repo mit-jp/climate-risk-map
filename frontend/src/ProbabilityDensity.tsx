@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import {
     scaleLinear,
     extent,
-    bin,
+    bin as createBins,
     select,
     mean,
     max,
@@ -63,7 +63,7 @@ function ProbabilityDensity({
             .nice()
             .range([margin.left, width - margin.right])
         const thresholds = x.ticks(40)
-        const bins = bin()
+        const bins = createBins()
             .domain(x.domain() as [number, number])
             .thresholds(thresholds)(data)
         const bandwidth = (domain[1] - domain[0]) / 40
@@ -92,7 +92,7 @@ function ProbabilityDensity({
             .curve(curveBasis)
             .x((d) => x(d[0]))
             .y((d) => yLine(d[1]))
-        function bin_width(bin: Bin<number, number>) {
+        function binWidth(bin: Bin<number, number>) {
             const width = x(bin.x1!) - x(bin.x0!)
             return width > 0 ? width - 1 : 0
         }
@@ -104,7 +104,7 @@ function ProbabilityDensity({
             .attr('fill', (d) => color(mean([d.x1!, d.x0!]) as any))
             .attr('x', (d) => x(d.x0!) + 1)
             .attr('y', (d) => y(d.length / data.length))
-            .attr('width', (d) => bin_width(d))
+            .attr('width', (d) => binWidth(d))
             .attr('height', (d) => y(0) - y(d.length / data.length))
         svg.select('#kde')
             .datum(density)

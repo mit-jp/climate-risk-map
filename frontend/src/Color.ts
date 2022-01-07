@@ -28,9 +28,9 @@ const colorScheme = (map: MapVisualization): ColorScheme => {
     const domain = map.scale_domain
     const colorPalette = map.color_palette.name
     const interpolator: (x: number) => string = map.reverse_scale
-        ? (x) => (scales as any)['interpolate' + colorPalette](1 - x)
-        : (scales as any)['interpolate' + colorPalette]
-    const scale: ReadonlyArray<string> = (scales as any)['scheme' + colorPalette][domain.length]
+        ? (x) => (scales as any)[`interpolate${colorPalette}`](1 - x)
+        : (scales as any)[`interpolate${colorPalette}`]
+    const scale: ReadonlyArray<string> = (scales as any)[`scheme${colorPalette}`][domain.length]
     const type = map.scale_type.name
 
     switch (type) {
@@ -54,7 +54,10 @@ const Color = (
     continuous: boolean,
     map: MapVisualization
 ): ColorScheme => {
-    return shouldNormalize ? (continuous ? redBlueContinuous : redBlue) : colorScheme(map)
+    if (shouldNormalize) {
+        return continuous ? redBlueContinuous : redBlue
+    }
+    return colorScheme(map)
 }
 
 export default Color

@@ -128,7 +128,7 @@ function ChoroplethMap(
             <StateMap map={map} transform={transform} />
             <Legend
                 title={legendTitle}
-                color={colorScheme}
+                colorScheme={colorScheme}
                 tickFormat={legendFormatter}
                 ticks={legendTicks}
                 showHighLowLabels={isNormalized}

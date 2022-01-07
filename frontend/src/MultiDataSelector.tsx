@@ -27,6 +27,11 @@ const multipleChecked = (selections: MapSelection[]) => {
     return selections.length > 1
 }
 
+const marks = [
+    { value: 0.1, label: 'min' },
+    { value: 1, label: 'max' },
+]
+
 const checkBox = (
     map: MapVisualization,
     shouldBeChecked: (mapId: MapVisualizationId) => boolean,
@@ -77,11 +82,6 @@ const checkBox = (
     )
 }
 
-const marks = [
-    { value: 0.1, label: 'min' },
-    { value: 1, label: 'max' },
-]
-
 function MultiDataSelector() {
     const dispatch = useThunkDispatch()
     const dataWeights = useSelector((state: RootState) => state.app.dataWeights)
@@ -93,12 +93,12 @@ function MultiDataSelector() {
     const selectionMap = Map(selections.map((selection) => [selection.mapVisualization, selection]))
 
     const onSelectionToggled = (event: ChangeEvent<HTMLInputElement>) => {
-        const map = maps[parseInt(event.target.value)]
+        const map = maps[parseInt(event.target.value, 10)]
         const { checked } = event.target
         let changedSelections
         if (checked) {
             const source =
-                map.default_source ?? map.sources[parseInt(Object.keys(map.sources)[0])].id
+                map.default_source ?? map.sources[parseInt(Object.keys(map.sources)[0], 10)].id
             const dateRange = map.default_date_range ?? map.date_ranges_by_source[source][0]
             changedSelections = selectionMap.set(map.id, {
                 mapVisualization: map.id,

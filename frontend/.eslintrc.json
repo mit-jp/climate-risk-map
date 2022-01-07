@@ -53,11 +53,14 @@
         "react/jsx-props-no-spreading": [
             "error",
             {
-                "exceptions": ["TextField"]
+                "exceptions": ["TextField", "Tooltip"]
             }
         ],
         "@typescript-eslint/no-unused-vars": "error",
-        "no-unused-vars": "off"
+        "no-unused-vars": "off",
+        // https://stackoverflow.com/a/63961972/382892
+        "no-shadow": "off",
+        "@typescript-eslint/no-shadow": ["error"]
     },
     "settings": {
         // https://stackoverflow.com/a/55280867/382892
@@ -66,5 +69,8 @@
                 "extensions": [".js", ".jsx", ".ts", ".tsx"]
             }
         }
+    },
+    "env": {
+        "browser": true
     }
 }

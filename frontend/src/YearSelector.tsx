@@ -1,10 +1,10 @@
-import { Fragment } from 'react'
+import { ChangeEvent, Fragment } from 'react'
 import { Interval } from 'luxon'
 
 type Props = {
     years: Interval[]
     selectedYear: Interval
-    onSelectionChange: () => void
+    onSelectionChange: (event: ChangeEvent<HTMLInputElement>) => void
     id: string
 }
 
