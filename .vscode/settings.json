@@ -1,23 +1,40 @@
 {
-    "cSpell.words": [
-        "actix",
-        "browserslist",
-        "chrono",
-        "COUNTYFP",
-        "Csvs",
-        "immer",
-        "Jsons",
-        "luxon",
-        "predeploy",
-        "reduxjs",
-        "Socio",
-        "sqlx",
-        "STATEFP",
-        "Symlog",
-        "topojson",
-        "vite",
-        "vitejs",
-        "webm",
-        "webp"
-    ]
+  "cSpell.words": [
+    "actix",
+    "browserslist",
+    "chrono",
+    "COUNTYFP",
+    "Csvs",
+    "immer",
+    "Jsons",
+    "luxon",
+    "predeploy",
+    "reduxjs",
+    "scalerank",
+    "Socio",
+    "sqlx",
+    "STATEFP",
+    "Symlog",
+    "topojson",
+    "vite",
+    "vitejs",
+    "webm",
+    "webp"
+  ],
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
 }

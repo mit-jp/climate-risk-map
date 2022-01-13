@@ -1,80 +1,84 @@
-import BubbleMap from "./BubbleMap";
-import ChoroplethMap from "./ChoroplethMap";
-import { Map } from "immutable";
-import { TopoJson } from "./TopoJson";
-import { MapType, MapVisualization, TabToId } from "./MapVisualization";
-import { DataTab } from "./DataTab";
-import { ForwardedRef, forwardRef } from "react";
+import { Map } from 'immutable'
+import { ForwardedRef, forwardRef } from 'react'
+import BubbleMap from './BubbleMap'
+import ChoroplethMap from './ChoroplethMap'
+import { TopoJson } from './TopoJson'
+import { MapType, MapVisualization, TabToId } from './MapVisualization'
+import { DataTab } from './DataTab'
 
-export const getUnitString = (units: string) => units ? ` ${units}` : "";
+export const getUnitString = (units: string) => (units ? ` ${units}` : '')
 
 const getUnits = (dataDefinition: MapVisualization, isNormalized: boolean) => {
-    return isNormalized ?
-        "Normalized value" :
-        dataDefinition.units;
+    return isNormalized ? 'Normalized value' : dataDefinition.units
 }
 
 export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
-    const dataDefinition = selectedMaps[0];
-    const units = getUnits(dataDefinition, isNormalized);
-    const unitString = getUnitString(units);
+    const dataDefinition = selectedMaps[0]
+    const units = getUnits(dataDefinition, isNormalized)
+    const unitString = getUnitString(units)
 
-    return isNormalized
-        ? selectedMaps.some(value => value.subcategory === 1)
-            ? selectedMaps.length > 1
-                ? "Combined Relative Risk"
-                : "Relative Risk"
-            : "Scaled Value"
-        : unitString;
+    if (isNormalized) {
+        if (selectedMaps.some((value) => value.subcategory === 1)) {
+            return selectedMaps.length > 1 ? 'Combined Relative Risk' : 'Relative Risk'
+        }
+        return 'Scaled Value'
+    }
+    return unitString
 }
 
 export enum Aggregation {
-    State = "state",
-    County = "county",
+    State = 'state',
+    County = 'county',
 }
 
 type Props = {
-    map: TopoJson,
-    selectedMapVisualizations: MapVisualization[],
-    data: Map<string, number>,
-    detailedView: boolean,
-    isNormalized: boolean,
-    transform?: string,
+    map: TopoJson
+    selectedMapVisualizations: MapVisualization[]
+    data: Map<string, number>
+    detailedView: boolean
+    isNormalized: boolean
+    transform?: string
 }
 
-const FullMap = forwardRef(({
-    map,
-    selectedMapVisualizations,
-    data,
-    detailedView,
-    isNormalized,
-    transform,
-}: Props,
+function FullMap(
+    { map, selectedMapVisualizations, data, detailedView, isNormalized, transform }: Props,
     ref: ForwardedRef<SVGGElement>
-) => {
-    const mapVisualization = selectedMapVisualizations[0]!;
-    const mapType = mapVisualization.map_type;
-    const legendTitle = getLegendTitle(selectedMapVisualizations, isNormalized);
+) {
+    const mapVisualization = selectedMapVisualizations[0]!
+    const mapType = mapVisualization.map_type
+    const legendTitle = getLegendTitle(selectedMapVisualizations, isNormalized)
     switch (mapType) {
         case MapType.Choropleth:
-            return <ChoroplethMap
-                map={map}
-                selectedMapVisualizations={selectedMapVisualizations}
-                data={data}
-                detailedView={detailedView}
-                legendTitle={legendTitle}
-                isNormalized={isNormalized}
-                ref={ref}
-                transform={transform}
-            />;
+            return (
+                <ChoroplethMap
+                    map={map}
+                    selectedMapVisualizations={selectedMapVisualizations}
+                    data={data}
+                    detailedView={detailedView}
+                    legendTitle={legendTitle}
+                    isNormalized={isNormalized}
+                    ref={ref}
+                    transform={transform}
+                />
+            )
         case MapType.Bubble:
-            return <BubbleMap
-                map={map}
-                data={data}
-                legendTitle={legendTitle}
-                color={mapVisualization.data_tab === TabToId[DataTab.Health] ? "black" : "rgb(34, 139, 69)"}
-            />;
+            return (
+                <BubbleMap
+                    map={map}
+                    data={data}
+                    legendTitle={legendTitle}
+                    color={
+                        mapVisualization.data_tab === TabToId[DataTab.Health]
+                            ? 'black'
+                            : 'rgb(34, 139, 69)'
+                    }
+                />
+            )
+        default:
+            return null
     }
-});
+}
 
-export default FullMap;
+const FullMapForwardRef = forwardRef(FullMap)
+
+export default FullMapForwardRef

@@ -1,28 +1,28 @@
-import { TopoJson } from "./TopoJson";
-import { feature } from "topojson-client";
-import { geoPath } from "d3";
-import { GeoJsonProperties } from 'geojson';
-import { GeometryCollection } from 'topojson-specification';
-import { ZOOM_TRANSITION } from "./MapWrapper";
+import { feature } from 'topojson-client'
+import { geoPath } from 'd3'
+import type { GeoJsonProperties } from 'geojson'
+import type { GeometryCollection } from 'topojson-specification'
+import { TopoJson } from './TopoJson'
+import { ZOOM_TRANSITION } from './MapWrapper'
 
-const EmptyMap = ({ map, transform }: { map: TopoJson, transform?: string }) => {
+function EmptyMap({ map, transform }: { map: TopoJson; transform?: string }) {
     const nation = feature(
         map,
         map.objects.nation as GeometryCollection<GeoJsonProperties>
-    ).features;
+    ).features
     return (
         <g id="nation" transform={transform} style={ZOOM_TRANSITION}>
-            {nation.map(n =>
+            {nation.map((n) => (
                 <path
-                    key={"nation"}
+                    key="nation"
                     d={geoPath()(n)!}
                     stroke="white"
                     fill="#eee"
                     strokeLinejoin="round"
                 />
-            )}
+            ))}
         </g>
-    );
+    )
 }
 
-export default EmptyMap;
+export default EmptyMap

@@ -1,45 +1,49 @@
-import { ChangeEvent } from 'react';
-import YearSelector from './YearSelector';
-import DataSourceSelector from './DatasetSelector';
-import { useSelector } from 'react-redux';
-import { changeMapSelection, changeDataSource, changeDateRange, selectSelections, selectMapVisualizations } from './appSlice';
-import { RootState } from './store';
-import { useThunkDispatch } from './Home';
-import { Interval } from 'luxon';
-import { MapVisualization } from "./MapVisualization";
+import { ChangeEvent } from 'react'
+import { useSelector } from 'react-redux'
+import { Interval } from 'luxon'
+import YearSelector from './YearSelector'
+import DataSourceSelector from './DatasetSelector'
+import {
+    changeMapSelection,
+    changeDataSource,
+    changeDateRange,
+    selectSelections,
+    selectMapVisualizations,
+} from './appSlice'
+import { RootState } from './store'
+import { useThunkDispatch } from './Home'
+import { MapVisualization } from './MapVisualization'
 
-const SingleDataSelector = () => {
-    const selection = useSelector((state: RootState) => selectSelections(state)[0]);
-    const mapVisualizations = useSelector(selectMapVisualizations);
+function SingleDataSelector() {
+    const selection = useSelector((state: RootState) => selectSelections(state)[0])
+    const mapVisualizations = useSelector(selectMapVisualizations)
 
-    const dispatch = useThunkDispatch();
+    const dispatch = useThunkDispatch()
 
     const onDateRangeChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const dateRange = Interval.fromISO(event.target.value);
-        dispatch(changeDateRange(dateRange));
-    };
+        const dateRange = Interval.fromISO(event.target.value)
+        dispatch(changeDateRange(dateRange))
+    }
     const onDataSourceChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const dataset = parseInt(event.target.value);
-        dispatch(changeDataSource(dataset));
-    };
+        const dataset = parseInt(event.target.value, 10)
+        dispatch(changeDataSource(dataset))
+    }
     const onMapSelectionChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const mapVisualizationId = parseInt(event.target.value);
-        dispatch(changeMapSelection(mapVisualizationId));
+        const mapVisualizationId = parseInt(event.target.value, 10)
+        dispatch(changeMapSelection(mapVisualizationId))
     }
 
     const shouldShowYears = (map: MapVisualization) =>
         selection.mapVisualization === map.id &&
-        map.date_ranges_by_source[selection.dataSource].length > 1;
+        map.date_ranges_by_source[selection.dataSource].length > 1
 
     const shouldShowDatasets = (map: MapVisualization) =>
-        selection.mapVisualization === map.id &&
-        Object.keys(map.sources).length > 1;
+        selection.mapVisualization === map.id && Object.keys(map.sources).length > 1
 
     const mapList = () =>
-        Object
-            .values(mapVisualizations)
+        Object.values(mapVisualizations)
             .sort((a, b) => a.order - b.order)
-            .map(map =>
+            .map((map) => (
                 <div key={map.id}>
                     <input
                         className="data-group"
@@ -48,34 +52,31 @@ const SingleDataSelector = () => {
                         type="radio"
                         value={map.id}
                         onChange={onMapSelectionChange}
-                        name="dataGroup" />
+                        name="dataGroup"
+                    />
                     <label className="data-group" htmlFor={map.id.toString()}>
                         {map.name}
                     </label>
-                    {shouldShowYears(map) &&
+                    {shouldShowYears(map) && (
                         <YearSelector
                             id={map.id.toString()}
                             years={map.date_ranges_by_source[selection.dataSource]}
                             selectedYear={selection.dateRange}
                             onSelectionChange={onDateRangeChange}
                         />
-                    }
-                    {shouldShowDatasets(map) &&
+                    )}
+                    {shouldShowDatasets(map) && (
                         <DataSourceSelector
                             id={map.id.toString()}
                             dataSources={Object.values(map.sources)}
                             selectedDataSource={selection.dataSource}
                             onSelectionChange={onDataSourceChange}
                         />
-                    }
+                    )}
                 </div>
-            )
+            ))
 
-    return (
-        <form id="data-selector">
-            {mapList()}
-        </form>
-    )
+    return <form id="data-selector">{mapList()}</form>
 }
 
-export default SingleDataSelector;
+export default SingleDataSelector

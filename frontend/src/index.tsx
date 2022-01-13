@@ -1,29 +1,29 @@
-import { StrictMode } from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import { Provider } from 'react-redux';
-import { store } from './store';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { StrictMode } from 'react'
+import ReactDOM from 'react-dom'
+import './index.css'
+import { Provider } from 'react-redux'
+import { createTheme, ThemeProvider } from '@mui/material/styles'
+import App from './App'
+import { store } from './store'
 
 const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#435e7c',
+    palette: {
+        primary: {
+            main: '#435e7c',
+        },
+        secondary: {
+            main: '#A5C2A6',
+        },
     },
-    secondary: {
-      main: '#A5C2A6',
-    },
-  }
-});
+})
 
 ReactDOM.render(
-  <StrictMode>
-    <ThemeProvider theme={theme}>
-      <Provider store={store}>
-        <App />
-      </Provider>
-    </ThemeProvider>
-  </StrictMode>,
-  document.getElementById('root')
-);
+    <StrictMode>
+        <ThemeProvider theme={theme}>
+            <Provider store={store}>
+                <App />
+            </Provider>
+        </ThemeProvider>
+    </StrictMode>,
+    document.getElementById('root')
+)

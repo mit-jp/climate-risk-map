@@ -1,65 +1,69 @@
-import { Fragment, useEffect } from 'react';
-import Footer from './Footer';
-import Header from './Header';
-import Navigation from './Navigation';
-import DataSelector from './DataSelector';
-import './App.css';
-import { json } from 'd3-fetch';
-import { fetchMapVisualizations } from './MapVisualization';
-import { useDispatch } from 'react-redux';
-import { store } from './store';
-import MapWrapper from './MapWrapper';
-import { OverlayName, setDataTab, setMap, setMapVisualizations, setOverlay } from './appSlice';
-import SiteOverview from './SiteOverview';
-import { TopoJson } from './TopoJson';
+import { useEffect } from 'react'
+import { json } from 'd3'
+import { useDispatch } from 'react-redux'
+import Footer from './Footer'
+import Header from './Header'
+import Navigation from './Navigation'
+import DataSelector from './DataSelector'
+import './App.css'
+import { fetchMapVisualizations } from './MapVisualization'
+import { store } from './store'
+import MapWrapper from './MapWrapper'
+import { OverlayName, setMap, setMapVisualizations, setOverlay } from './appSlice'
+import SiteOverview from './SiteOverview'
+import { TopoJson } from './TopoJson'
 
-type TopoJsonFile = "usa.json" |
-  "roads-topo.json" |
-  "railroads-topo.json" |
-  "waterways-topo.json" |
-  "transmission-lines-topo.json" |
-  "critical-habitats-topo.json";
-const overlayToFile: { [key in OverlayName]: TopoJsonFile } = {
-  "Highways": "roads-topo.json",
-  "Major railroads": "railroads-topo.json",
-  "Transmission lines": "transmission-lines-topo.json",
-  "Marine highways": "waterways-topo.json",
-  "Critical water habitats": "critical-habitats-topo.json",
+type TopoJsonFile =
+    | 'usa.json'
+    | 'roads-topo.json'
+    | 'railroads-topo.json'
+    | 'waterways-topo.json'
+    | 'transmission-lines-topo.json'
+    | 'critical-habitats-topo.json'
+
+type OverlayMap = Record<OverlayName, TopoJsonFile>
+
+const overlayToFile: OverlayMap = {
+    Highways: 'roads-topo.json',
+    'Major railroads': 'railroads-topo.json',
+    'Transmission lines': 'transmission-lines-topo.json',
+    'Marine highways': 'waterways-topo.json',
+    'Critical water habitats': 'critical-habitats-topo.json',
 }
-const mapFile: TopoJsonFile = "usa.json";
+const mapFile: TopoJsonFile = 'usa.json'
 
-export const useThunkDispatch = () => useDispatch<typeof store.dispatch>();
+export const useThunkDispatch = () => useDispatch<typeof store.dispatch>()
 
-const Home = () => {
-  const dispatch = useThunkDispatch();
+function Home() {
+    const dispatch = useThunkDispatch()
 
-  useEffect(() => {
-    json<TopoJson>(mapFile).then(topoJson => {
-      dispatch(setMap(topoJson));
-    });
+    useEffect(() => {
+        json<TopoJson>(mapFile).then((topoJson) => {
+            dispatch(setMap(topoJson))
+        })
 
-    for (const [name, file] of Object.entries(overlayToFile) as [OverlayName, TopoJsonFile][]) {
-      json<TopoJson>(file).then(topoJson =>
-        dispatch(setOverlay({ name, topoJson }))
-      );
-    }
-    fetchMapVisualizations().then(mapVisualizations => {
-      dispatch(setMapVisualizations(mapVisualizations));
-    }).catch(console.error);
-  }, [dispatch]);
+        Object.entries(overlayToFile).forEach(([name, file]) => {
+            json<TopoJson>(file).then((topoJson) =>
+                dispatch(setOverlay({ name: name as OverlayName, topoJson }))
+            )
+        })
+        fetchMapVisualizations().then((mapVisualizations) => {
+            dispatch(setMapVisualizations(mapVisualizations))
+        })
+    }, [dispatch])
 
-  return (
-    <Fragment>
-      <Header />
-      <Navigation />
-      <SiteOverview />
-      <div id="content">
-        <DataSelector />
-        <MapWrapper />
-      </div>
-      <Footer />
-    </Fragment>
-  );
-};
+    return (
+        <>
+            <Header />
+            <Navigation />
+            <SiteOverview />
+            <div id="content">
+                <DataSelector />
+                <MapWrapper />
+            </div>
+            <Footer />
+        </>
+    )
+}
 
-export default Home;
+export default Home

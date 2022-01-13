@@ -1,14 +1,17 @@
-import { MapVisualization } from "../MapVisualization";
+import { MapVisualization } from '../MapVisualization'
 
-const MapVisualizationList = ({ mapVisualizations, selectedId, onClick }:
-    {
-        mapVisualizations: MapVisualization[],
-        selectedId?: number,
-        onClick: (mapVisualization: MapVisualization) => void,
-    }) => {
+function MapVisualizationList({
+    mapVisualizations,
+    selectedId,
+    onClick,
+}: {
+    mapVisualizations: MapVisualization[]
+    selectedId?: number
+    onClick: (mapVisualization: MapVisualization) => void
+}) {
     return (
         <form id="data-selector">
-            {mapVisualizations.map(map =>
+            {mapVisualizations.map((map) => (
                 <div key={map.id}>
                     <input
                         className="data-group"
@@ -17,15 +20,18 @@ const MapVisualizationList = ({ mapVisualizations, selectedId, onClick }:
                         type="radio"
                         value={map.id}
                         onChange={() => onClick(map)}
-                        name="dataGroup" />
+                        name="dataGroup"
+                    />
                     <label className="data-group" htmlFor={map.id.toString()}>
                         {map.name}
                     </label>
                 </div>
-            )}
+            ))}
         </form>
-    );
+    )
 }
 
-export const EmptyMapVisualizationList = () => <ol></ol>;
-export default MapVisualizationList;
+export function EmptyMapVisualizationList() {
+    return <ol />
+}
+export default MapVisualizationList
