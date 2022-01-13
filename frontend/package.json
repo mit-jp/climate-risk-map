@@ -73,7 +73,8 @@
     "build": "tsc && vite build",
     "tsc": "tsc",
     "tsc-watch": "tsc --watch",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint --ext .js,.tsx,.ts,.jsx --ignore-path .gitignore ."
   },
   "browserslist": {
     "production": [

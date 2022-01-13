@@ -79,7 +79,8 @@
             "files": [
                 "**/__tests__/**/*.[jt]s?(x)",
                 "**/?(*.)+(spec|test).[jt]s?(x)",
-                "**/test-utils.tsx"
+                "**/test-utils.tsx",
+                "**/setupTests.ts"
             ],
             "extends": ["plugin:testing-library/react"],
             "rules": {
