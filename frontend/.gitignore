@@ -36,3 +36,6 @@ yarn-error.log*
 
 # stats about the build size
 stats.html
+
+# eslint https://stackoverflow.com/a/65079719/382892
+.eslintcache
