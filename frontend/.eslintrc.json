@@ -88,6 +88,12 @@
             "env": {
                 "jest": true
             }
+        },
+        {
+            "files": ["vite.config.ts"],
+            "rules": {
+                "import/no-extraneous-dependencies": ["error", { "devDependencies": true }]
+            }
         }
     ]
 }
