@@ -70,7 +70,7 @@ function Overlays() {
     return (
         <>
             {Object.entries(overlays)
-                .filter(([_, overlay]) => overlay.shouldShow && overlay.topoJson)
+                .filter(([, overlay]) => overlay.shouldShow && overlay.topoJson)
                 .map(([name, overlay]) => [name, overlay.topoJson] as [OverlayName, TopoJson])
                 .map(([name, topoJson]) => (
                     <g

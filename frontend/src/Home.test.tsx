@@ -1,30 +1,9 @@
-import { render } from './test-utils'
 import { screen, waitFor } from '@testing-library/react'
-import Home from './Home'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
+import Home from './Home'
+import { render } from './test-utils'
 import jsonFile from '../public/usa.json'
-
-const server = setupServer(
-    rest.get('/api/map-visualization', (_, res, ctx) => res(ctx.json(MAP_VISUALIZATIONS))),
-    rest.get('*.json', (_, res, ctx) => res(ctx.json(jsonFile))),
-    rest.get('/api/data/:id', (_, res, ctx) => res(ctx.text('state_id,county_id,value')))
-)
-
-beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
-
-test('It shows header and loads data selector', async () => {
-    render(<Home />)
-    expect(screen.getByText(/environmental systems risk triage/i)).toBeInTheDocument()
-    // map title, data selector, and description expander all have the same text
-    expect(
-        await screen.findAllByText(/Exposure to airborne particulate matter/i, undefined, {
-            timeout: 20_000,
-        })
-    ).toHaveLength(3)
-}, 20_000)
 
 const MAP_VISUALIZATIONS = {
     '8': {
@@ -80,3 +59,24 @@ const MAP_VISUALIZATIONS = {
         },
     },
 }
+
+const server = setupServer(
+    rest.get('/api/map-visualization', (_, res, ctx) => res(ctx.json(MAP_VISUALIZATIONS))),
+    rest.get('*.json', (_, res, ctx) => res(ctx.json(jsonFile))),
+    rest.get('/api/data/:id', (_, res, ctx) => res(ctx.text('state_id,county_id,value')))
+)
+
+beforeAll(() => server.listen())
+afterEach(() => server.resetHandlers())
+afterAll(() => server.close())
+
+test('It shows header and loads data selector', async () => {
+    render(<Home />)
+    expect(screen.getByText(/environmental systems risk triage/i)).toBeInTheDocument()
+    // map title, data selector, and description expander all have the same text
+    expect(
+        await screen.findAllByText(/Exposure to airborne particulate matter/i, undefined, {
+            timeout: 20_000,
+        })
+    ).toHaveLength(3)
+}, 20_000)

@@ -131,6 +131,7 @@ export interface MapVisualizationJson {
 export const applyPatch = (draft: MapVisualization, patch: MapVisualizationPatch) => {
     Object.assign(draft, patch)
     if (patch.default_end_date && patch.default_start_date) {
+        // eslint-disable-next-line no-param-reassign
         draft.default_date_range = Interval.fromDateTimes(
             patch.default_start_date,
             patch.default_end_date
@@ -221,7 +222,7 @@ export const getDataQueryParams = (mapVisualization: MapVisualization): DataQuer
 export const fetchMapVisualization = async (id: number): Promise<MapVisualization> => {
     const rawJson = await loadJson<MapVisualizationJson>(`api/map-visualization/${id}`)
     if (rawJson === undefined) {
-        return Promise.reject('Failed to fetch map visualization')
+        return Promise.reject(new Error('Failed to fetch map visualization'))
     }
     return jsonToMapVisualization(rawJson)
 }
@@ -231,18 +232,19 @@ export const fetchMapVisualizations = async (): Promise<MapVisualizationByTabId>
         'api/map-visualization'
     )
     if (rawJson === undefined) {
-        return Promise.reject('Failed to fetch map visualizations')
+        return Promise.reject(new Error('Failed to fetch map visualizations'))
     }
     const mapVisualizationsByTab = Object.entries(rawJson).reduce(
-        (accumulator, [key, mapVisualizationJsons]) => {
+        (accumulator, [tabId, mapVisualizationJsons]) => {
             const mapVisualizations = Object.entries(mapVisualizationJsons).reduce(
-                (accumulator, [key, mapVisualizationJson]) => {
-                    accumulator[parseInt(key, 10)] = jsonToMapVisualization(mapVisualizationJson)
+                // eslint-disable-next-line @typescript-eslint/no-shadow
+                (accumulator, [id, mapVisualizationJson]) => {
+                    accumulator[parseInt(id, 10)] = jsonToMapVisualization(mapVisualizationJson)
                     return accumulator
                 },
                 {} as { [key in MapVisualizationId]: MapVisualization }
             )
-            accumulator[parseInt(key, 10)!] = mapVisualizations
+            accumulator[parseInt(tabId, 10)!] = mapVisualizations
             return accumulator
         },
         {} as MapVisualizationByTabId

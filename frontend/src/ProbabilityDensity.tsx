@@ -28,7 +28,13 @@ type Props = {
 }
 
 function epanechnikov(bandwidth: number) {
-    return (x: number) => (Math.abs((x /= bandwidth)) <= 1 ? (0.75 * (1 - x * x)) / bandwidth : 0)
+    return (x: number) => {
+        const y = x / bandwidth
+        if (Math.abs(y) <= 1) {
+            return (0.75 * (1 - y * y)) / bandwidth
+        }
+        return 0
+    }
 }
 
 function kde(
@@ -80,12 +86,12 @@ function ProbabilityDensity({
             g
                 .attr('transform', `translate(0,${height - margin.bottom})`)
                 .call(axisBottom(x).tickFormat(formatter).ticks(6))
-                .call((g: any) => g.select('.domain').remove())
+                .call((item: any) => item.select('.domain').remove())
         const yAxis = (g: any) =>
             g
                 .attr('transform', `translate(${margin.left},0)`)
                 .call(axisLeft(y).ticks(null))
-                .call((g: any) => g.select('.domain').remove())
+                .call((item: any) => item.select('.domain').remove())
         const svg = select(svgRef.current)
         const color = Color(shouldNormalize, continuous, map)
         const kdeLine: any = line()
@@ -93,8 +99,8 @@ function ProbabilityDensity({
             .x((d) => x(d[0]))
             .y((d) => yLine(d[1]))
         function binWidth(bin: Bin<number, number>) {
-            const width = x(bin.x1!) - x(bin.x0!)
-            return width > 0 ? width - 1 : 0
+            const binnedWidth = x(bin.x1!) - x(bin.x0!)
+            return binnedWidth > 0 ? binnedWidth - 1 : 0
         }
 
         svg.select('#histogram')

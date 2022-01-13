@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { autoType, csv, DSVParsedArray } from 'd3'
+import { autoType, csv as loadCsv, DSVParsedArray } from 'd3'
 import {
     applyPatch,
     ColorPalette,
@@ -65,7 +65,7 @@ export const mapApi = createApi({
             queryFn: (queryParams) => {
                 const loadingCsvs = queryParams.map(
                     async ({ dataset, source, startDate, endDate }) => {
-                        const csvRow = await csv<CsvRow>(
+                        const csvRow = await loadCsv<CsvRow>(
                             `api/data/${dataset}?source=${source}&start_date=${startDate}&end_date=${endDate}`,
                             autoType
                         )
