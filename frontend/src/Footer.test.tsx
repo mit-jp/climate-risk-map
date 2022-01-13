@@ -1,6 +1,6 @@
+import { screen } from '@testing-library/react'
 import { render } from './test-utils'
 import Footer from './Footer'
-import { screen } from '@testing-library/react'
 
 test('It has an accessibility link', () => {
     render(<Footer />)

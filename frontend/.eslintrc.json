@@ -75,14 +75,14 @@
     },
     "overrides": [
         {
-            // 3) Now we enable eslint-plugin-testing-library rules or preset only for matching files!
+            // We enable eslint-plugin-testing-library rules or preset only for matching files!
             "files": ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[jt]s?(x)"],
             "extends": ["plugin:testing-library/react"],
             "rules": {
                 "import/no-extraneous-dependencies": ["error", { "devDependencies": true }]
             },
             "env": {
-                "jest/globals": true
+                "jest": true
             }
         }
     ]
