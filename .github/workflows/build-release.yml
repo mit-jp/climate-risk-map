@@ -29,6 +29,12 @@ jobs:
       - name: 🧪 Test
         run: cargo test
         working-directory: backend
+      - uses: actions/upload-artifact@v2
+        with:
+          name: backend
+          path: |
+            backend/target/release/climate_risk_map
+            backend/migrations
 
   build-frontend:
     runs-on: ubuntu-latest
@@ -49,3 +55,7 @@ jobs:
       - name: 🧪 Test
         run: yarn test
         working-directory: frontend
+      - uses: actions/upload-artifact@v2
+        with:
+          name: frontend
+          path: frontend/build
