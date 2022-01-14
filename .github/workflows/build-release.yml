@@ -59,3 +59,21 @@ jobs:
         with:
           name: frontend
           path: frontend/build
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: |
+            backend
+            frontend
+      - uses: a-was/scp-files-action@v1
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          user: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+        
