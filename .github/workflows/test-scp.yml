@@ -1,0 +1,13 @@
+name: Test SCP
+on: workflow_dispatch
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "hey it worked" > temp.txt
+      - uses: actions/download-artifact@v2
+      - uses: a-was/scp-files-action@v1
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          user: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
