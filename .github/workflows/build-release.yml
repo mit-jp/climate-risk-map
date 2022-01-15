@@ -66,10 +66,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
-        with:
-          name: |
-            backend
-            frontend
       - uses: a-was/scp-files-action@v1
         with:
           host: ${{ secrets.REMOTE_HOST }}
