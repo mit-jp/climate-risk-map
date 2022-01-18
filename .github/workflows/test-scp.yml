@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "hey it worked" > temp.txt
-      - uses: actions/download-artifact@v2
+      - run: echo ${{ secrets.REMOTE_HOST }}
       - uses: a-was/scp-files-action@v1
         with:
           host: ${{ secrets.REMOTE_HOST }}
