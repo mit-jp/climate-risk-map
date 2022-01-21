@@ -4,6 +4,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 env:
   CARGO_TERM_COLOR: always
 
@@ -60,16 +61,44 @@ jobs:
           name: frontend
           path: frontend/build
 
-  deploy:
-    if: github.event_name == 'push'
+  deploy-development:
+    if: github.event_name != 'push'
+    environment:
+      name: development
+      url: https://svante3.mit.edu
     needs: [build-backend, build-frontend]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
-      - uses: a-was/scp-files-action@v1
+        with:
+          path: test-folder
+      - name: deploy to server
+        uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.REMOTE_HOST }}
-          user: ${{ secrets.REMOTE_USER }}
+          username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PRIVATE_KEY_PASSPHRASE }}
+          source: "test-folder"
+          target: "~/builds/"
 
-        
+  deploy-production:
+    if: github.event_name == 'push'
+    environment:
+      name: production
+      url: https://est.mit.edu
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          path: test-folder
+      - name: deploy to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PRIVATE_KEY_PASSPHRASE }}
+          source: "test-folder"
+          target: "~/builds/"
