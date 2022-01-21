@@ -30,6 +30,7 @@ export type OverlayName =
     | 'Transmission lines'
     | 'Marine highways'
     | 'Critical water habitats'
+    | 'Endangered species'
 export type Overlay = { topoJson?: TopoJson; shouldShow: boolean }
 export type TabAndMapVisualizations = {
     dataTab: DataTab
@@ -127,6 +128,7 @@ const initialState: AppState = {
         'Transmission lines': { shouldShow: false },
         'Marine highways': { shouldShow: false },
         'Critical water habitats': { shouldShow: false },
+        'Endangered species': { shouldShow: false },
     },
     mapSelections: defaultSelections,
     mapVisualizations: defaultMapVisualizations,
