@@ -5,10 +5,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "hey it worked" > temp.txt
-      - run: echo ${{ secrets.REMOTE_HOST }}
-      - uses: a-was/scp-files-action@v1
+      - name: copy file via ssh key
+        uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.REMOTE_HOST }}
-          user: ${{ secrets.REMOTE_USER }}
+          username: ${{ secrets.REMOTE_USER }}
+          port: 22
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          destination: "~/"
+          passphrase: ${{ secrets.SSH_PRIVATE_KEY_PASSPHRASE }}
+          source: "temp.txt"
