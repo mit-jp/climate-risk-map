@@ -20,6 +20,7 @@ type TopoJsonFile =
     | 'waterways-topo.json'
     | 'transmission-lines-topo.json'
     | 'critical-habitats-topo.json'
+    | 'endangered-species-topo.json'
 
 type OverlayMap = Record<OverlayName, TopoJsonFile>
 
@@ -29,6 +30,7 @@ const overlayToFile: OverlayMap = {
     'Transmission lines': 'transmission-lines-topo.json',
     'Marine highways': 'waterways-topo.json',
     'Critical water habitats': 'critical-habitats-topo.json',
+    'Endangered species': 'endangered-species-topo.json',
 }
 const mapFile: TopoJsonFile = 'usa.json'
 

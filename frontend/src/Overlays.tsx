@@ -8,7 +8,8 @@ import { TopoJson } from './TopoJson'
 import { OverlayName, selectMapTransform } from './appSlice'
 import { ZOOM_TRANSITION } from './MapWrapper'
 
-const path = geoPath()
+const linePath = geoPath()
+const pointPath = geoPath().pointRadius(1)
 
 function Overlays() {
     const overlays = useSelector((state: RootState) => state.app.overlays)
@@ -23,6 +24,8 @@ function Overlays() {
         )
         let strokeWidth: (d: Feature<Geometry, GeoJsonProperties>) => number
         let color: (d: Feature<Geometry, GeoJsonProperties>) => string
+        let fill: (d: Feature<Geometry, GeoJsonProperties>) => string = () => 'none'
+        let path = linePath
         switch (name) {
             case 'Highways':
                 strokeWidth = (d) => (1 / d.properties!.scalerank) * 5
@@ -53,6 +56,12 @@ function Overlays() {
                 strokeWidth = () => 1
                 color = () => '#0099ff'
                 break
+            case 'Endangered species':
+                color = () => 'none'
+                fill = () => 'rgba(235, 33, 100, 0.2)'
+                strokeWidth = () => 0
+                path = pointPath
+                break
             default:
         }
         return features.map((f, index) => (
@@ -60,7 +69,7 @@ function Overlays() {
                 key={f.id ?? index}
                 stroke={color(f)}
                 strokeWidth={strokeWidth(f)}
-                fill="none"
+                fill={fill(f)}
                 d={path(f) ?? undefined}
                 style={{ transition: 'stroke-width 0.3s cubic-bezier(0.4, 0, 0.2, 1)' }}
             />
