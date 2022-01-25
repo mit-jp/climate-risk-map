@@ -30,11 +30,14 @@ jobs:
         run: cargo test
         working-directory: backend
       - name: tar files to keep permissions
-        run: tar -cvf backend.tar backend/target/release/climate_risk_map backend/migrations
+        run: |
+          mv target/release/climate_risk_map ./
+          tar -cvf backend.tar climate_risk_map migrations
+        working-directory: backend
       - uses: actions/upload-artifact@v2
         with:
           name: backend
-          path: backend.tar
+          path: backend/backend.tar
 
   build-frontend:
     runs-on: ubuntu-latest
