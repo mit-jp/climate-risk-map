@@ -4,7 +4,6 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
-  workflow_dispatch:
 env:
   CARGO_TERM_COLOR: always
 
@@ -62,7 +61,7 @@ jobs:
           path: frontend/build
 
   deploy-development:
-    if: github.event_name != 'push'
+    if: github.event_name == 'pull_request'
     environment:
       name: development
       url: https://svante3.mit.edu
@@ -71,7 +70,12 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          path: test-folder
+          path: ${{ github.event.pull_request.head.sha }}
+      - name: extract backend
+        run: |
+          tar -xvf backend.tar
+          rm backend.tar
+        working-directory: ${{ github.event.pull_request.head.sha }}/backend
       - name: deploy to server
         uses: appleboy/scp-action@master
         with:
@@ -79,8 +83,8 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PRIVATE_KEY_PASSPHRASE }}
-          source: "test-folder"
-          target: "~/builds/"
+          source: ${{ github.event.pull_request.head.sha }}
+          target: ~/builds/
 
   deploy-production:
     if: github.event_name == 'push'
@@ -92,7 +96,12 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          path: test-folder
+          path: ${{ github.sha }}
+      - name: extract backend
+        run: |
+          tar -xvf backend.tar
+          rm backend.tar
+        working-directory: ${{ github.sha }}/backend
       - name: deploy to server
         uses: appleboy/scp-action@master
         with:
@@ -100,5 +109,5 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PRIVATE_KEY_PASSPHRASE }}
-          source: "test-folder"
-          target: "~/builds/"
+          source: ${{ github.sha }}
+          target: ~/builds/
