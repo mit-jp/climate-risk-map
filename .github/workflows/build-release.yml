@@ -21,7 +21,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            target/
+            backend/target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: 🔨 Build
         run: cargo build --release --verbose
@@ -29,12 +29,15 @@ jobs:
       - name: 🧪 Test
         run: cargo test
         working-directory: backend
+      - name: tar files to keep permissions
+        run: |
+          mv target/release/climate_risk_map ./
+          tar -cvf backend.tar climate_risk_map migrations
+        working-directory: backend
       - uses: actions/upload-artifact@v2
         with:
           name: backend
-          path: |
-            backend/target/release/climate_risk_map
-            backend/migrations
+          path: backend/backend.tar
 
   build-frontend:
     runs-on: ubuntu-latest
@@ -60,16 +63,54 @@ jobs:
           name: frontend
           path: frontend/build
 
-  deploy:
-    if: github.event_name == 'push'
+  deploy-development:
+    if: github.event_name == 'pull_request'
+    environment:
+      name: development
+      url: https://svante3.mit.edu
     needs: [build-backend, build-frontend]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
-      - uses: a-was/scp-files-action@v1
+        with:
+          path: ${{ github.event.pull_request.head.sha }}
+      - name: extract backend
+        run: |
+          tar -xvf backend.tar
+          rm backend.tar
+        working-directory: ${{ github.event.pull_request.head.sha }}/backend
+      - name: deploy to server
+        uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.REMOTE_HOST }}
-          user: ${{ secrets.REMOTE_USER }}
+          username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PRIVATE_KEY_PASSPHRASE }}
+          source: ${{ github.event.pull_request.head.sha }}
+          target: ~/builds/
 
-        
+  deploy-production:
+    if: github.event_name == 'push'
+    environment:
+      name: production
+      url: https://est.mit.edu
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          path: ${{ github.sha }}
+      - name: extract backend
+        run: |
+          tar -xvf backend.tar
+          rm backend.tar
+        working-directory: ${{ github.sha }}/backend
+      - name: deploy to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PRIVATE_KEY_PASSPHRASE }}
+          source: ${{ github.sha }}
+          target: ~/builds/
