@@ -31,7 +31,7 @@ jobs:
         run: cargo test
         working-directory: backend
       - name: tar files to keep permissions
-        run: tar -cvf backend.tar backend
+        run: tar -cvf backend.tar backend/target/release/climate_risk_map backend/migrations
       - uses: actions/upload-artifact@v2
         with:
           name: backend
