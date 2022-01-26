@@ -24,7 +24,10 @@ jobs:
             backend/target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: 🔨 Build
-        run: cargo build --release --verbose
+        run: |
+          cargo install sqlx-cli --version ^0.5.10 --no-default-features --features native-tls,postgres
+          cargo sqlx prepare --check -- --lib
+          cargo build --release --verbose
         working-directory: backend
       - name: 🧪 Test
         run: cargo test
