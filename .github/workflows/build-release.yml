@@ -11,32 +11,76 @@ jobs:
   build-backend:
     runs-on: ubuntu-latest
 
+    env:
+      SQLX_VERSION: ^0.5.10
+      SQLX_FEATURES: native-tls postgres
+      APP_URL: 127.0.0.1
+      APP_PORT: 8080
+      EDITOR_PORT: 4040
+      DATABASE_USER: username
+      DATABASE_PASSWORD: password
+      DATABASE_NAME: database
+      DATABASE_PORT: 5432
+      DATABASE_HOST: localhost
+      DATABASE_URL: postgres://username:password@localhost/database
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: username
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: database
+        ports:
+          - 5432:5432
+
     steps:
       - uses: actions/checkout@v2
-      - name: ⚡ Cache
+      - name: ⚡ Cache dependencies
         uses: actions/cache@v2
         with:
           path: |
-            ~/.cargo/bin/
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             backend/target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: 🔨 Build
-        run: |
-          cargo install sqlx-cli --version ^0.5.10 --no-default-features --features native-tls,postgres
-          cargo sqlx prepare --check -- --lib
-          cargo build --release --verbose
+
+      - name: ⚡ Cache sqlx-cli
+        uses: actions/cache@v2
+        id: cache-sqlx
+        with:
+          path: |
+            ~/.cargo/bin/sqlx
+            ~/.cargo/bin/cargo-sqlx
+          key: ${{ runner.os }}-cargo-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
+
+      - name: Install sqlx-cli
+        if: steps.cache-sqlx.outputs.cache-hit == false
+        run: cargo install sqlx-cli --force --version ${{ env.SQLX_VERSION }} --no-default-features --features "${{ env.SQLX_FEATURES }}"
+
+      - name: Migrate database
+        run: SKIP_DOCKER=true ./init_db.sh
         working-directory: backend
+
+      - name: Check sqlx-data.json is up-to-date
+        run: cargo sqlx prepare --check -- --lib
+        working-directory: backend
+
+      - name: 🔨 Build
+        run: cargo build --release --verbose
+        working-directory: backend
+
       - name: 🧪 Test
         run: cargo test
         working-directory: backend
+
       - name: tar files to keep permissions
         run: |
           mv target/release/climate_risk_map ./
           tar -cvf backend.tar climate_risk_map migrations
         working-directory: backend
+
       - uses: actions/upload-artifact@v2
         with:
           name: backend
@@ -47,20 +91,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - uses: actions/setup-node@v2
         with:
           node-version: "16"
           cache: "yarn"
           cache-dependency-path: "frontend/yarn.lock"
+
       - name: 🔨 Build
         run: |
           yarn install --frozen-lockfile
           yarn lint
           yarn build
         working-directory: frontend
+
       - name: 🧪 Test
         run: yarn test
         working-directory: frontend
+
       - uses: actions/upload-artifact@v2
         with:
           name: frontend
@@ -77,11 +125,13 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           path: ${{ github.event.pull_request.head.sha }}
+
       - name: extract backend
         run: |
           tar -xvf backend.tar
           rm backend.tar
         working-directory: ${{ github.event.pull_request.head.sha }}/backend
+
       - name: deploy to server
         uses: appleboy/scp-action@master
         with:
@@ -103,11 +153,13 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           path: ${{ github.sha }}
+
       - name: extract backend
         run: |
           tar -xvf backend.tar
           rm backend.tar
         working-directory: ${{ github.sha }}/backend
+
       - name: deploy to server
         uses: appleboy/scp-action@master
         with:
