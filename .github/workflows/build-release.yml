@@ -153,6 +153,14 @@ jobs:
           source: ${{ github.event.pull_request.head.sha }}
           target: ~/builds/
 
+      - name: run on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: ln -f -s ~/builds/${{ github.event.pull_request.head.sha }} ~/climate-risk-map && podman restart crm_backend
+
   deploy-production:
     if: github.event_name == 'push'
     environment:
@@ -179,3 +187,11 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: ${{ github.sha }}
           target: ~/builds/
+
+      - name: run on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: ln -f -s ~/builds/${{ github.sha }} ~/climate-risk-map && podman restart crm_backend
