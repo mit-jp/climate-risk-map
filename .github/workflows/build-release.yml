@@ -159,7 +159,7 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: ln -f -s ~/builds/${{ github.event.pull_request.head.sha }} ~/climate-risk-map && podman restart crm_backend
+          script: ln -snf ~/builds/${{ github.event.pull_request.head.sha }} ~/climate-risk-map && podman restart crm_backend
 
   deploy-production:
     if: github.event_name == 'push'
@@ -194,4 +194,4 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: ln -f -s ~/builds/${{ github.sha }} ~/climate-risk-map && podman restart crm_backend
+          script: ln -snf ~/builds/${{ github.sha }} ~/climate-risk-map && podman restart crm_backend
