@@ -6,6 +6,7 @@
     "chrono",
     "COUNTYFP",
     "Csvs",
+    "dotenv",
     "immer",
     "Jsons",
     "luxon",
