@@ -44,7 +44,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             backend/target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-dependencies-${{ hashFiles('**/Cargo.lock') }}
 
       - name: ⚡ Cache sqlx-cli
         uses: actions/cache@v2
@@ -53,7 +53,7 @@ jobs:
           path: |
             ~/.cargo/bin/sqlx
             ~/.cargo/bin/cargo-sqlx
-          key: ${{ runner.os }}-cargo-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
+          key: ${{ runner.os }}-cargo-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
 
       - name: Install sqlx-cli
         if: steps.cache-sqlx.outputs.cache-hit == false
@@ -153,6 +153,14 @@ jobs:
           source: ${{ github.event.pull_request.head.sha }}
           target: ~/builds/
 
+      - name: run on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: ln -snf ~/builds/${{ github.event.pull_request.head.sha }} ~/climate-risk-map && podman restart crm_backend
+
   deploy-production:
     if: github.event_name == 'push'
     environment:
@@ -179,3 +187,11 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: ${{ github.sha }}
           target: ~/builds/
+
+      - name: run on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: ln -snf ~/builds/${{ github.sha }} ~/climate-risk-map && podman restart crm_backend
