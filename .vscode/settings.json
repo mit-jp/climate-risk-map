@@ -4,14 +4,18 @@
     "appleboy",
     "browserslist",
     "chrono",
+    "consts",
     "COUNTYFP",
     "Csvs",
     "immer",
     "Jsons",
     "luxon",
+    "podman",
     "predeploy",
     "reduxjs",
     "scalerank",
+    "SIGHUP",
+    "SIGINT",
     "Socio",
     "sqlx",
     "STATEFP",
@@ -20,7 +24,8 @@
     "vite",
     "vitejs",
     "webm",
-    "webp"
+    "webp",
+    "yarnrc"
   ],
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
