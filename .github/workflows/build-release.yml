@@ -194,4 +194,4 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: ln -snf ~/builds/${{ github.sha }} ~/climate-risk-map && podman restart crm_backend
+          script: podman stop crm_backend && ln -snf ~/builds/${{ github.sha }} ~/climate-risk-map && podman start crm_backend
