@@ -1,6 +1,7 @@
 use super::DataSource;
 use super::SourceAndDate;
 use crate::model::ColorPalette;
+use crate::model::ScaleType;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
@@ -78,12 +79,6 @@ pub struct MapVisualizationPatch {
     pub legend_formatter_type: Option<i32>,
     pub decimals: i16,
     pub legend_decimals: Option<i16>,
-}
-
-#[derive(FromRow, Deserialize, Serialize)]
-pub struct ScaleType {
-    pub id: i32,
-    pub name: String,
 }
 
 #[derive(FromRow, Deserialize, Serialize)]

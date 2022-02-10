@@ -162,7 +162,7 @@ jobs:
           script: >
             podman stop crm_backend &&
             ln -snf ~/builds/${{ github.event.pull_request.head.sha }} ~/climate-risk-map &&
-            podman run --rm -v ~/climate-risk-map/backend:/opt/climate-risk-map/backend:Z --tz=America/New_York --env-file=$HOME/.env --pod=crm_pod sqlx migrate run &&
+            podman run --rm -v ~/climate-risk-map/backend:/opt/climate-risk-map/backend:Z --tz=America/New_York --env-file=$HOME/.env --pod=crm_pod sqlx database reset -y &&
             podman start crm_backend
 
   deploy-production:

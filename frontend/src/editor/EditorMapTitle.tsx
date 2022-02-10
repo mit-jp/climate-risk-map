@@ -11,7 +11,7 @@ function EditorMapTitle({ mapVisualization }: Props) {
     const [updateMap, { isLoading }] = useUpdateMapVisualizationMutation()
 
     return (
-        <form id="title-form">
+        <div id="title-field">
             <TextField
                 label="title"
                 value={title}
@@ -32,7 +32,7 @@ function EditorMapTitle({ mapVisualization }: Props) {
             >
                 Reset
             </LoadingButton>
-        </form>
+        </div>
     )
 }
 
