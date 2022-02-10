@@ -27,19 +27,17 @@ const redBlue = scaleThreshold<number, string, never>(
 const colorScheme = (map: MapVisualization): ColorScheme => {
     const domain = map.scale_domain
     const colorPalette = map.color_palette.name
+    const type = map.scale_type.name
+
     const interpolator: (x: number) => string = map.reverse_scale
         ? (x) => (scales as any)[`interpolate${colorPalette}`](1 - x)
         : (scales as any)[`interpolate${colorPalette}`]
-    const scale: ReadonlyArray<string> = (scales as any)[`scheme${colorPalette}`][domain.length]
-    const type = map.scale_type.name
 
     switch (type) {
         case 'Diverging':
             return scaleDiverging(domain, interpolator)
         case 'Sequential':
             return scaleSequential(domain, interpolator)
-        case 'Threshold':
-            return scaleThreshold(domain, scale)
         case 'DivergingSymLog':
             return scaleDivergingSymlog(domain, interpolator)
         case 'SequentialSqrt':
