@@ -22,6 +22,7 @@ import {
 import { RootState, store } from './store'
 import { MapSelection } from './DataSelector'
 import { MapVisualization, MapVisualizationId } from './MapVisualization'
+import css from './DataSelector.module.css'
 
 const multipleChecked = (selections: MapSelection[]) => {
     return selections.length > 1
@@ -41,7 +42,10 @@ const checkBox = (
     dispatch: typeof store.dispatch
 ) => {
     return (
-        <div key={map.id} className={shouldBeChecked(map.id) ? 'selected-group padded' : 'padded'}>
+        <div
+            key={map.id}
+            className={shouldBeChecked(map.id) ? `${css.selectedGroup} ${css.padded}` : css.padded}
+        >
             <FormControlLabel
                 id={map.id.toString()}
                 control={
@@ -56,11 +60,11 @@ const checkBox = (
                 label={map.name}
             />
             {shouldBeChecked(map.id) && multipleChecked(selections) && (
-                <div className="weight">
-                    <div className="weight-label">Weight</div>
+                <div className={css.weight}>
+                    <div className={css.weightLabel}>Weight</div>
                     <Slider
                         size="small"
-                        className="weight-slider"
+                        className={css.weightSlider}
                         min={0.1}
                         max={1}
                         step={0.1}
@@ -139,7 +143,7 @@ function MultiDataSelector() {
             )
 
     return (
-        <form id="data-selector">
+        <form id={css.dataSelector}>
             <Accordion expanded={showRiskMetrics} onChange={onRiskMetricsToggled}>
                 <AccordionSummary
                     aria-controls="panel1a-content"

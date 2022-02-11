@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux'
 import { selectSelectedMapVisualizations, toggleDataDescription } from './appSlice'
 import { useThunkDispatch } from './Home'
 import { RootState } from './store'
+import css from './DataDescription.module.css'
 
 function DataDescription() {
     const dispatch = useThunkDispatch()
@@ -20,11 +21,11 @@ function DataDescription() {
     }
 
     return (
-        <div id="description">
+        <div className={css.dataDescription}>
             <button
                 type="button"
                 onClick={() => dispatch(toggleDataDescription())}
-                className={showDataDescription ? 'shown' : undefined}
+                className={showDataDescription ? css.shown : undefined}
             >
                 About the {name} data
             </button>

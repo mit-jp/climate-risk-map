@@ -1,6 +1,7 @@
 import { IconButton, styled, Tooltip, TooltipProps, tooltipClasses } from '@mui/material'
 import { Info } from '@mui/icons-material'
 import { MapVisualization } from './MapVisualization'
+import css from './MapTitle.module.css'
 
 const getTitle = (selectedMaps: MapVisualization[]) => {
     if (selectedMaps.length > 1) {
@@ -31,7 +32,7 @@ const BigTooltip = styled(({ className, ...props }: TooltipProps) => (
 
 function MapTitle({ selectedMapVisualizations, isNormalized }: Props) {
     return (
-        <h3 id="map-title">
+        <h3 id={css.mapTitle}>
             {getTitle(selectedMapVisualizations)}
             {isNormalized && (
                 <BigTooltip
@@ -49,6 +50,6 @@ function MapTitle({ selectedMapVisualizations, isNormalized }: Props) {
 }
 
 export function EmptyMapTitle() {
-    return <div id="empty-title" />
+    return <div id={css.emptyTitle} />
 }
 export default MapTitle

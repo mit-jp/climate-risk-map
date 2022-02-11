@@ -31,6 +31,7 @@ import states, { State } from './States'
 import waterwayTypes, { WaterwayValue } from './WaterwayType'
 import { getLegendTitle } from './FullMap'
 import { MapVisualization } from './MapVisualization'
+import css from './MapControls.module.css'
 
 const getFilename = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
     const unitString = getLegendTitle(selectedMaps, isNormalized)
@@ -160,7 +161,7 @@ function MapControls({ processedData }: Props) {
     }
 
     return (
-        <div id="map-controls">
+        <div id={css.mapControls}>
             {mapToggleUI()}
             {isNormalized && processedData && (
                 <FormControlLabel

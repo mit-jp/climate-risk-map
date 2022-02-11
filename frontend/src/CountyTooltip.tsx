@@ -7,7 +7,7 @@ import { getUnitString } from './FullMap'
 import { MapVisualization } from './MapVisualization'
 import { selectIsNormalized } from './appSlice'
 import { createFormatter, Formatter } from './ChoroplethMap'
-import './CountyTooltip.css'
+import css from './CountyTooltip.module.css'
 
 const getFormatter = (selectedMap: MapVisualization, isNormalized: boolean): Formatter =>
     createFormatter(selectedMap.formatter_type, selectedMap.decimals, isNormalized)
@@ -91,7 +91,7 @@ function CountyTooltip({ data, mapRef, selectedMap }: Props) {
     }
 
     return (
-        <div id="tooltip" style={{ left: hover?.x, top: hover?.y }}>
+        <div id={css.tooltip} style={{ left: hover?.x, top: hover?.y }}>
             {text}
         </div>
     )

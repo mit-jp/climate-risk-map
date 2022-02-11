@@ -5,7 +5,7 @@ import Footer from './Footer'
 import Header from './Header'
 import Navigation from './Navigation'
 import DataSelector from './DataSelector'
-import './App.css'
+import css from './Home.module.css'
 import { fetchMapVisualizations } from './MapVisualization'
 import { store } from './store'
 import MapWrapper from './MapWrapper'
@@ -55,16 +55,18 @@ function Home() {
     }, [dispatch])
 
     return (
-        <>
-            <Header />
-            <Navigation />
-            <SiteOverview />
-            <div id="content">
-                <DataSelector />
-                <MapWrapper />
+        <div id={css.root}>
+            <div id={css.viewer}>
+                <Header />
+                <Navigation />
+                <SiteOverview />
+                <div id={css.content}>
+                    <DataSelector />
+                    <MapWrapper />
+                </div>
+                <Footer />
             </div>
-            <Footer />
-        </>
+        </div>
     )
 }
 

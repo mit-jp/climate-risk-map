@@ -3,6 +3,7 @@ import { LoadingButton } from '@mui/lab'
 import { useState } from 'react'
 import { useUpdateMapVisualizationMutation } from '../MapApi'
 import { MapVisualization } from '../MapVisualization'
+import css from './Editor.module.css'
 
 type Props = { mapVisualization: MapVisualization }
 
@@ -11,7 +12,7 @@ function EditorMapTitle({ mapVisualization }: Props) {
     const [updateMap, { isLoading }] = useUpdateMapVisualizationMutation()
 
     return (
-        <div id="title-field">
+        <div id={css.titleField}>
             <TextField
                 label="title"
                 value={title}

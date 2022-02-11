@@ -3,7 +3,7 @@ import { useThunkDispatch } from './Home'
 import { RootState } from './store'
 import DataTab from './DataTab'
 import { setDataTab } from './appSlice'
-import './Navigation.css'
+import css from './Navigation.module.css'
 
 const dataTabs = Object.values(DataTab)
 
@@ -12,13 +12,13 @@ function Navigation() {
     const selectedDataTab = useSelector((state: RootState) => state.app.dataTab)
 
     return (
-        <nav>
+        <nav id={css.nav}>
             <ul>
                 {dataTabs.map((dataTab) => (
                     <li key={dataTab}>
                         <button
                             type="button"
-                            className={selectedDataTab === dataTab ? 'selected' : undefined}
+                            className={selectedDataTab === dataTab ? css.selected : undefined}
                             onClick={(event) =>
                                 dispatch(setDataTab(event.currentTarget.textContent as DataTab))
                             }

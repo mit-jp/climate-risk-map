@@ -1,14 +1,15 @@
 import { Facebook, GitHub, Mail, RssFeed, Twitter } from '@mui/icons-material'
 import { IconButton, Link } from '@mui/material'
+import css from './Footer.module.css'
 
 function Footer() {
     return (
-        <footer>
-            <div id="address">
+        <footer id={css.footer}>
+            <div id={css.address}>
                 <p>MIT Joint Program on the Science and Policy of Global Change</p>
                 <p>Massachusetts Institute of Technology • Cambridge, MA 02139</p>
             </div>
-            <ul id="social">
+            <ul id={css.social}>
                 <li>
                     <IconButton
                         aria-label="facebook"
@@ -70,7 +71,7 @@ function Footer() {
                     </IconButton>
                 </li>
             </ul>
-            <ul id="navigation">
+            <ul id={css.navigation}>
                 <li>
                     <a href="https://globalchange.mit.edu/about-us/our-purpose/contact-us">
                         Contact Us
