@@ -3,11 +3,14 @@
     padding: 1em;
 }
 
-#dropzone {
-    padding: 1em;
-    background-color: pink;
-}
-
 #csv-preview {
     background-color: #eee;
+}
+
+.county-column {
+    background-color: yellow;
+}
+
+.state-column {
+    background-color: pink;
 }
