@@ -1,5 +1,6 @@
 import { ChangeEvent, Fragment } from 'react'
 import { Interval } from 'luxon'
+import css from './SubSelector.module.css'
 
 type Props = {
     years: Interval[]
@@ -31,7 +32,7 @@ function YearSelector({ years, selectedYear, onSelectionChange, id }: Props) {
         ))
     }
     return (
-        <div className="sub-selector">
+        <div className={css.subSelector}>
             <p>Year:</p>
             {getYears()}
         </div>

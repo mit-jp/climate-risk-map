@@ -1,0 +1,16 @@
+#uploader {
+    background: white;
+    padding: 1em;
+}
+
+#csv-preview {
+    background-color: #eee;
+}
+
+.county-column {
+    background-color: yellow;
+}
+
+.state-column {
+    background-color: pink;
+}

@@ -1,4 +1,5 @@
 import { MapVisualization } from '../MapVisualization'
+import css from '../DataSelector.module.css'
 
 function MapVisualizationList({
     mapVisualizations,
@@ -10,11 +11,11 @@ function MapVisualizationList({
     onClick: (mapVisualization: MapVisualization) => void
 }) {
     return (
-        <form id="data-selector">
+        <form id={css.dataSelector}>
             {mapVisualizations.map((map) => (
                 <div key={map.id}>
                     <input
-                        className="data-group"
+                        className={css.dataGroup}
                         id={map.id.toString()}
                         checked={selectedId === map.id}
                         type="radio"
@@ -22,7 +23,7 @@ function MapVisualizationList({
                         onChange={() => onClick(map)}
                         name="dataGroup"
                     />
-                    <label className="data-group" htmlFor={map.id.toString()}>
+                    <label className={css.dataGroup} htmlFor={map.id.toString()}>
                         {map.name}
                     </label>
                 </div>

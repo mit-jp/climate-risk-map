@@ -1,6 +1,7 @@
 #editor-wrapper {
     display: flex;
     flex-direction: column;
+    background-color: white;
 }
 
 #editor {
@@ -9,7 +10,9 @@
 }
 
 #map {
-    margin-right: 1em;
+    margin: 1em;
+    min-width: 500px;
+    width: 100%;
 }
 
 #title-field {
@@ -20,10 +23,5 @@
 #map-options {
     display: flex;
     flex-direction: column;
-    padding-right: 0.5em;
-}
-
-.MuiAutocomplete-root,
-.MuiTextField-root {
-    margin: 0.5em 0;
+    padding: 1em;
 }

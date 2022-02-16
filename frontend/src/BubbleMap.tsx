@@ -54,7 +54,7 @@ function BubbleMap({ map, data, legendTitle, color }: Props) {
         <>
             <EmptyMap map={map} />
             <StateMap map={map} />
-            <g id="bubbles">
+            <g>
                 {counties.map((county) => (
                     <circle
                         style={BUBBLE_TRANSITION}

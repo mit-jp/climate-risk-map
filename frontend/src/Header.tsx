@@ -1,13 +1,14 @@
 import mstLogo from './MST-logo.jpg'
 import mitLogo from './MIT-logo.svg'
 import jointProgramLogo from './joint-program-logo.jpg'
+import css from './Header.module.css'
 
 function Header() {
     return (
-        <header>
-            <div id="mst-title">
-                <img src={mstLogo} alt="Socio-Environmental Systems Risk Triage" id="mst-logo" />
-                <div id="title-and-subtitle">
+        <header id={css.header}>
+            <div id={css.mstTitle}>
+                <img src={mstLogo} alt="Socio-Environmental Systems Risk Triage" id={css.mstLogo} />
+                <div id={css.titleAndSubtitle}>
                     <h1>Socio-Environmental Systems Risk Triage</h1>
                     <p>
                         An open-science visualization platform to combine, overlay, and diagnose
@@ -18,12 +19,12 @@ function Header() {
             <a href="https://globalchange.mit.edu/">
                 <img
                     src={jointProgramLogo}
-                    id="joint-program-logo"
+                    id={css.jointProgramLogo}
                     alt="MIT Joint Program on The Science and Policy of Global Change"
                 />
             </a>
             <a href="https://mit.edu/">
-                <img src={mitLogo} alt="MIT" id="mit-logo" />
+                <img src={mitLogo} alt="MIT" id={css.mitLogo} />
             </a>
         </header>
     )

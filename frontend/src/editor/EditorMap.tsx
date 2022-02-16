@@ -10,6 +10,7 @@ import { getDataQueryParams, MapVisualization } from '../MapVisualization'
 import { TopoJson } from '../TopoJson'
 import EditorMapDescription from './EditorMapDescription'
 import EditorMapTitle from './EditorMapTitle'
+import css from './Editor.module.css'
 
 type Props = {
     map: TopoJson
@@ -31,7 +32,7 @@ function EditorMap({ map, selection, detailedView }: Props) {
     const mapRef = useRef(null)
 
     return (
-        <div id="map">
+        <div id={css.map}>
             {selection ? (
                 <EditorMapTitle mapVisualization={selection} key={selection.id} />
             ) : (

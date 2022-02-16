@@ -46,7 +46,7 @@ function BubbleLegend({ radius, title }: Props) {
         drawBubbleLegend(g, radius, title)
     }, [radius, title])
 
-    return <g id="bubble-legend" ref={gRef} />
+    return <g ref={gRef} />
 }
 
 export default BubbleLegend

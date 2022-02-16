@@ -1,0 +1,21 @@
+.sub-selector {
+    display: flex;
+    background: #eee;
+    padding: 0 0 0 1em;
+}
+
+.sub-selector input {
+    display: none;
+}
+
+.sub-selector label {
+    display: block;
+    border: 1px;
+    padding: 1em 0.5em 1em 0.5em;
+    cursor: pointer;
+}
+
+.sub-selector label:hover,
+.sub-selector input:checked + label {
+    text-decoration: underline;
+}

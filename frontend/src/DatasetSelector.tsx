@@ -1,5 +1,6 @@
 import { Fragment, ChangeEvent } from 'react'
 import { DataSource } from './MapVisualization'
+import css from './SubSelector.module.css'
 
 type Props = {
     id: string
@@ -24,7 +25,7 @@ function DataSourceSelector({ id, dataSources, selectedDataSource, onSelectionCh
         ))
     }
     return (
-        <div className="sub-selector">
+        <div className={css.subSelector}>
             <p>Source:</p>
             {getDataSources()}
         </div>

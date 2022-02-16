@@ -1,0 +1,41 @@
+#footer {
+    padding: 1em;
+    background: #435e7c;
+    color: #fff;
+}
+
+#footer a {
+    color: #fff;
+}
+
+#footer ul {
+    padding: 0;
+    margin: 0;
+}
+
+#footer #address {
+    float: left;
+    margin-bottom: 1em;
+}
+
+#footer #address p {
+    padding: 0;
+    margin: 0;
+}
+
+#footer li {
+    display: inline-block;
+    margin-right: 1em;
+}
+
+#footer ul#social {
+    float: right;
+}
+
+#footer #navigation {
+    clear: both;
+}
+
+#footer #navigation li {
+    margin-right: 2em;
+}

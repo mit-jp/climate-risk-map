@@ -45,7 +45,7 @@ function MapWrapper() {
     }
     return (
         <>
-            <div id="map">
+            <div>
                 {selectedMapVisualizations.length > 0 ? (
                     <MapTitle
                         selectedMapVisualizations={selectedMapVisualizations}

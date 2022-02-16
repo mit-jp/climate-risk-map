@@ -1,5 +1,5 @@
 #counties path:hover {
     opacity: 0.5;
-    stroke: "black";
+    stroke: black;
     stroke-width: 0.5;
 }

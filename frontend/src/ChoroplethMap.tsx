@@ -12,7 +12,7 @@ import ProbabilityDensity from './ProbabilityDensity'
 import { clickCounty } from './appSlice'
 import { ZOOM_TRANSITION } from './MapWrapper'
 import { FormatterType, MapType, MapVisualization } from './MapVisualization'
-import './ChoroplethMap.css'
+import css from './ChoroplethMap.module.css'
 import { useThunkDispatch } from './Home'
 
 const MISSING_DATA_COLOR = '#ccc'
@@ -114,7 +114,7 @@ function ChoroplethMap(
 
     return (
         <>
-            <g id="counties" transform={transform} style={ZOOM_TRANSITION} ref={ref}>
+            <g id={css.counties} transform={transform} style={ZOOM_TRANSITION} ref={ref}>
                 {countyFeatures.map((county) => (
                     <path
                         key={county.id}

@@ -1,0 +1,30 @@
+#root {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-repeat: repeat;
+    background-attachment: scroll;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    padding: 0;
+    margin: 0;
+}
+
+#viewer {
+    width: 100%;
+    max-width: 1800px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+#content {
+    margin: 0;
+    display: flex;
+}
+
+#site-overview {
+    background: #eee;
+    padding: 0.25em 1em;
+    margin-bottom: 1em;
+}

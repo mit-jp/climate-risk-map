@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { TopoJson } from '../TopoJson'
 import { RootState, store } from '../store'
-import './Editor.css'
+import editorCss from './Editor.module.css'
+import navCss from '../Navigation.module.css'
 import {
     clickMapVisualization,
     clickTab,
@@ -29,13 +30,13 @@ function EmptyNavigation() {
 function Navigation({ tabs, selectedTabId }: { tabs: Tab[]; selectedTabId?: number }) {
     const dispatch = useThunkDispatch()
     return (
-        <nav>
+        <nav id={navCss.nav}>
             <ul>
                 {tabs.map((tab) => (
                     <li key={tab.id}>
                         <button
                             type="button"
-                            className={selectedTabId === tab.id ? 'selected' : undefined}
+                            className={selectedTabId === tab.id ? navCss.selected : undefined}
                             onClick={() => dispatch(clickTab(tab))}
                         >
                             {tab.name}
@@ -72,9 +73,9 @@ function Editor() {
     }, [dispatch])
 
     return (
-        <div id="editor-wrapper">
+        <div id={editorCss.editorWrapper}>
             {tabs ? <Navigation tabs={tabs} selectedTabId={selectedTabId} /> : <EmptyNavigation />}
-            <div id="editor">
+            <div id={editorCss.editor}>
                 {mapVisualizationsForTab ? (
                     <MapVisualizationList
                         mapVisualizations={mapVisualizationsForTab}

@@ -115,7 +115,6 @@ function Legend({
 
     return (
         <svg
-            id="legend"
             x="550"
             y="20"
             width={width}

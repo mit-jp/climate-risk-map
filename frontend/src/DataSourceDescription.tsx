@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux'
 import { selectSelectedDataSource, toggleDatasetDescription } from './appSlice'
 import { useThunkDispatch } from './Home'
 import { RootState } from './store'
+import css from './DataDescription.module.css'
 
 function DataSourceDescription() {
     const dispatch = useThunkDispatch()
@@ -13,11 +14,11 @@ function DataSourceDescription() {
     }
 
     return (
-        <div id="dataset-description">
+        <div className={css.dataDescription}>
             <button
                 type="button"
                 onClick={() => dispatch(toggleDatasetDescription())}
-                className={shouldShow ? 'shown' : undefined}
+                className={shouldShow ? css.shown : undefined}
             >
                 About the {dataSource.name} dataset
             </button>

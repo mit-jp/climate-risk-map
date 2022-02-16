@@ -15,6 +15,7 @@ import {
     useUpdateMapVisualizationMutation,
 } from '../MapApi'
 import { FormatterType, MapType, MapVisualization } from '../MapVisualization'
+import css from './Editor.module.css'
 
 function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }) {
     const { data: colorPalettes } = useGetColorPalettesQuery(undefined)
@@ -23,7 +24,7 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
     const [customLegendFormat, setCustomLegendFormat] = useState<boolean>(false)
 
     return (
-        <form id="map-options">
+        <form id={css.mapOptions}>
             <FormControl component="fieldset">
                 <FormLabel component="legend">Map Type</FormLabel>
                 <RadioGroup
@@ -244,6 +245,6 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
 }
 
 export function EmptyMapOptions() {
-    return <form id="map-options" />
+    return <form id={css.mapOptions} />
 }
 export default MapOptions

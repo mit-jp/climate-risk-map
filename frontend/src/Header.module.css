@@ -1,0 +1,36 @@
+#header {
+    margin-bottom: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#header h1 {
+    font-weight: 500;
+    color: #11598d;
+    font-family: 'Merriweather', serif;
+}
+
+#mst-title {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+}
+
+#mst-logo {
+    height: 120px;
+    margin-left: 1em;
+}
+
+#title-and-subtitle {
+    margin-left: 40px;
+}
+
+#joint-program-logo {
+    height: 100px;
+    margin: 0 1em;
+}
+
+#mit-logo {
+    margin: 0 1em;
+}

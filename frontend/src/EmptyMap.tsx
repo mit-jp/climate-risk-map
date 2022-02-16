@@ -11,7 +11,7 @@ function EmptyMap({ map, transform }: { map: TopoJson; transform?: string }) {
         map.objects.nation as GeometryCollection<GeoJsonProperties>
     ).features
     return (
-        <g id="nation" transform={transform} style={ZOOM_TRANSITION}>
+        <g transform={transform} style={ZOOM_TRANSITION}>
             {nation.map((n) => (
                 <path
                     key="nation"

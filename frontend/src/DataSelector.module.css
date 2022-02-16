@@ -1,0 +1,53 @@
+#data-selector {
+    overflow: auto;
+    max-height: 900px;
+    min-width: 410px;
+}
+
+.selected-group {
+    background: #eee;
+}
+
+.padded {
+    padding: 0em 12px 0em 12px;
+}
+
+label.data-group {
+    display: block;
+    padding: 1em 1em;
+    margin: 0;
+    cursor: pointer;
+}
+
+label.data-group:hover {
+    text-decoration: underline;
+}
+
+input.data-group {
+    display: none;
+}
+
+input.data-group:checked + label {
+    text-decoration: underline;
+    background: #eee;
+}
+
+.weight-slider {
+    margin: 0 1em !important;
+    padding-bottom: 2em !important;
+    display: block !important;
+    width: auto !important;
+    color: #435e7c !important;
+    flex-grow: 1;
+}
+
+.weight {
+    display: flex;
+    margin: 0 0 0 30px;
+    padding-bottom: 12px;
+}
+
+.weight-label {
+    align-self: center;
+    font-size: 0.875rem;
+}
