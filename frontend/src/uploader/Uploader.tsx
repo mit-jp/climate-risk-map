@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
+import Papa from 'papaparse'
 import FileInfo from './FileInfo'
 import css from './Uploader.module.css'
+import CsvPreview from './CsvPreview'
 
 function stopPropagation(e: React.DragEvent) {
     e.stopPropagation()
@@ -9,9 +11,18 @@ function stopPropagation(e: React.DragEvent) {
 
 function Uploader() {
     const [file, setFile] = useState<File>()
+    const [csv, setCsv] = useState<Papa.ParseResult<any> | undefined>()
 
     const handleFiles = (files: FileList) => {
-        setFile(files[0])
+        const loadedFile = files[0]
+        setFile(loadedFile)
+        Papa.parse(loadedFile, {
+            header: true,
+            preview: 10,
+            complete(data) {
+                setCsv(data)
+            },
+        })
     }
 
     const onDrop = (e: React.DragEvent) => {
@@ -23,27 +34,27 @@ function Uploader() {
     }
 
     return (
-        <div id={css.uploader}>
-            <h1>Upload more data</h1>
-            <form
-                id={css.dropzone}
-                onDragEnter={stopPropagation}
-                onDragOver={stopPropagation}
-                onDrop={onDrop}
-            >
-                Drop files to upload or
-                <input
-                    type="file"
-                    accept="text/csv"
-                    onChange={(event) => {
-                        const { files } = event.target
-                        if (files) {
-                            handleFiles(files)
-                        }
-                    }}
-                />
-            </form>
+        <div
+            id={css.uploader}
+            onDragEnter={stopPropagation}
+            onDragOver={stopPropagation}
+            onDrop={onDrop}
+        >
+            <h1>Drag and drop a csv file</h1>
+            Or click to
+            <input
+                type="file"
+                accept="text/csv"
+                onChange={(event) => {
+                    const { files } = event.target
+                    if (files) {
+                        handleFiles(files)
+                    }
+                }}
+            />
             {file && <FileInfo file={file} />}
+            {csv && <CsvPreview csv={csv} />}
+            {file && !csv && <p>loading...</p>}
         </div>
     )
 }
