@@ -11,6 +11,7 @@
     "immer",
     "Jsons",
     "luxon",
+    "papaparse",
     "podman",
     "predeploy",
     "reduxjs",

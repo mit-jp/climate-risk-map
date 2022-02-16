@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import FileInfo from './FileInfo'
 import css from './Uploader.module.css'
 
 function stopPropagation(e: React.DragEvent) {
@@ -42,13 +43,7 @@ function Uploader() {
                     }}
                 />
             </form>
-            {file && (
-                <div>
-                    <p>{file.name}</p>
-                    <p>size: {file.size}</p>
-                    <p>type: {file.type}</p>
-                </div>
-            )}
+            {file && <FileInfo file={file} />}
         </div>
     )
 }
