@@ -1,3 +1,8 @@
+#uploader {
+    background: white;
+    padding: 1em;
+}
+
 #dropzone {
     padding: 1em;
     background-color: pink;

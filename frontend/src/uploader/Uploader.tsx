@@ -22,7 +22,7 @@ function Uploader() {
     }
 
     return (
-        <>
+        <div id={css.uploader}>
             <h1>Upload more data</h1>
             <form
                 id={css.dropzone}
@@ -49,7 +49,7 @@ function Uploader() {
                     <p>type: {file.type}</p>
                 </div>
             )}
-        </>
+        </div>
     )
 }
 export default Uploader
