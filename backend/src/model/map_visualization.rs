@@ -295,16 +295,18 @@ mod tests {
                 .iter()
                 .map(|&source| SourceAndDate {
                     source,
-                    start_date: NaiveDate::from_ymd(
+                    start_date: NaiveDate::from_ymd_opt(
                         2019,
                         source.try_into().unwrap(),
                         source.try_into().unwrap(),
-                    ),
-                    end_date: NaiveDate::from_ymd(
+                    )
+                    .unwrap(),
+                    end_date: NaiveDate::from_ymd_opt(
                         2020,
                         source.try_into().unwrap(),
                         source.try_into().unwrap(),
-                    ),
+                    )
+                    .unwrap(),
                 })
                 .collect(),
             source_ids
@@ -346,8 +348,8 @@ mod tests {
         let (map_visualization, source_and_dates, data_sources) = get_models(vec![1, 2, 3]);
         let map_visualization = MapVisualization {
             default_source: Some(4),
-            default_end_date: Some(NaiveDate::from_ymd(2020, 4, 4)),
-            default_start_date: Some(NaiveDate::from_ymd(2019, 4, 4)),
+            default_end_date: NaiveDate::from_ymd_opt(2020, 4, 4),
+            default_start_date: NaiveDate::from_ymd_opt(2019, 4, 4),
             ..map_visualization
         };
         let result = MapVisualizationModel::new(map_visualization, source_and_dates, data_sources);
@@ -356,8 +358,8 @@ mod tests {
         assert_eq!(
             result.default_date_range,
             Some(DateRange {
-                start_date: NaiveDate::from_ymd(2019, 4, 4),
-                end_date: NaiveDate::from_ymd(2020, 4, 4),
+                start_date: NaiveDate::from_ymd_opt(2019, 4, 4).unwrap(),
+                end_date: NaiveDate::from_ymd_opt(2020, 4, 4).unwrap(),
             })
         )
     }

@@ -1,4 +1,5 @@
 use chrono::NaiveDate;
+use derivative::Derivative;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
@@ -22,6 +23,19 @@ pub struct Data {
     pub source: i32,
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
+    pub value: Option<f64>,
+}
+
+#[derive(Derivative)]
+#[derivative(Eq, PartialEq, Hash, Debug)]
+pub struct NewData {
+    pub county_id: i16,
+    pub state_id: i16,
+    pub source: i32,
+    pub dataset: i32,
+    pub start_date: NaiveDate,
+    pub end_date: NaiveDate,
+    #[derivative(Hash = "ignore", PartialEq = "ignore")]
     pub value: Option<f64>,
 }
 

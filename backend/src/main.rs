@@ -44,6 +44,7 @@ async fn main() -> std::io::Result<()> {
             .configure(controller::data_category_controller::init_editor)
             .configure(controller::dataset_controller::init_editor)
             .configure(controller::data_source_controller::init_editor)
+            .configure(controller::uploader_controller::init)
             .wrap(Logger::default())
     })
     .bind(config.editor_url())?;

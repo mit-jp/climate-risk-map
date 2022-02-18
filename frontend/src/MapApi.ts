@@ -13,6 +13,7 @@ import {
     fetchMapVisualizations,
 } from './MapVisualization'
 import { GeoId } from './appSlice'
+import UploadData from './uploader/UploadData'
 
 export type DatasetId = number
 export type TabId = number
@@ -314,6 +315,21 @@ export const mapApi = createApi({
                 queryFulfilled.catch(() => patchResult.undo())
             },
         }),
+        upload: builder.mutation<undefined, UploadData>({
+            queryFn: ({ file, ...metadata }) => {
+                const formData = new FormData()
+                formData.append('file', file)
+                formData.append('metadata', JSON.stringify(metadata))
+                return fetch('api/editor/upload', {
+                    method: 'POST',
+                    body: formData,
+                }).then(
+                    () => ({ data: undefined }),
+                    (error) => ({ error })
+                )
+            },
+            invalidatesTags: ['Dataset'],
+        }),
     }),
 })
 
@@ -328,7 +344,6 @@ export const {
     useUpdateMapVisualizationMutation,
     useCreateMapVisualizationMutation,
     useGetDatasetsQuery,
-    useGetDataSourcesQuery,
     useGetCountiesQuery,
     useGetStatesQuery,
     useGetPercentilesQuery,
@@ -340,4 +355,6 @@ export const {
     useDeleteTabMutation,
     useUpdateDatasetMutation,
     useUpdateDataSourceMutation,
+    useUploadMutation,
+    useGetDataSourcesQuery,
 } = mapApi

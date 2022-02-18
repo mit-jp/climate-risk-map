@@ -1,5 +1,11 @@
+use std::collections::HashSet;
+
+use chrono::NaiveDate;
+use sqlx::postgres::PgQueryResult;
+
 use crate::controller::data_controller::PercentileInfo;
 use crate::model::Data;
+use crate::model::NewData;
 use crate::model::PercentileData;
 use crate::model::SimpleData;
 
@@ -171,6 +177,63 @@ impl<'c> Table<'c, Data> {
             info.geography_type
         )
         .fetch_all(&*self.pool)
+        .await
+    }
+    pub async fn insert(&self, data: &HashSet<NewData>) -> Result<PgQueryResult, sqlx::Error> {
+        let mut county_ids: Vec<i16> = Vec::with_capacity(data.len());
+        let mut state_ids: Vec<i16> = Vec::with_capacity(data.len());
+        let mut sources: Vec<i32> = Vec::with_capacity(data.len());
+        let mut datasets: Vec<i32> = Vec::with_capacity(data.len());
+        let mut start_dates: Vec<NaiveDate> = Vec::with_capacity(data.len());
+        let mut end_dates: Vec<NaiveDate> = Vec::with_capacity(data.len());
+        let mut values: Vec<Option<f64>> = Vec::with_capacity(data.len());
+
+        data.iter().for_each(|row| {
+            county_ids.push(row.county_id);
+            state_ids.push(row.state_id);
+            sources.push(row.source);
+            datasets.push(row.dataset);
+            start_dates.push(row.start_date);
+            end_dates.push(row.end_date);
+            values.push(row.value);
+        });
+
+        sqlx::query(
+            "
+            INSERT INTO
+            county_data (
+                state_id,
+                county_id,
+                source,
+                dataset,
+                start_date,
+                end_date,
+                value
+            )
+            SELECT
+                new.*
+            FROM
+                UNNEST ($1, $2, $3, $4, $5, $6, $7) AS new (
+                    state_id,
+                    county_id,
+                    source,
+                    dataset,
+                    start_date,
+                    end_date,
+                    value
+                )
+                JOIN county ON new.state_id = county.state
+                AND new.county_id = county.id
+            ",
+        )
+        .bind(county_ids)
+        .bind(state_ids)
+        .bind(sources)
+        .bind(datasets)
+        .bind(start_dates)
+        .bind(end_dates)
+        .bind(values)
+        .execute(&*self.pool)
         .await
     }
 }

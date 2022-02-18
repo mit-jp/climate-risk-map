@@ -4,6 +4,7 @@ use crate::model::DatasetDiff;
 
 use super::Dataset;
 use super::Table;
+use crate::model::NewDataset;
 
 impl<'c> Table<'c, Dataset> {
     pub async fn update(&self, dataset: &DatasetDiff) -> Result<PgQueryResult, sqlx::Error> {
@@ -47,5 +48,22 @@ impl<'c> Table<'c, Dataset> {
         )
         .fetch_all(&*self.pool)
         .await
+    }
+
+    pub async fn create(&self, dataset: &NewDataset) -> Result<i32, sqlx::Error> {
+        sqlx::query!(
+            r#"
+            INSERT INTO "dataset" (short_name, name, description, units)
+            VALUES ($1, $2, $3, $4)
+            RETURNING id
+            "#,
+            dataset.short_name,
+            dataset.name,
+            dataset.description,
+            dataset.units,
+        )
+        .fetch_one(&*self.pool)
+        .await
+        .map(|row| row.id)
     }
 }

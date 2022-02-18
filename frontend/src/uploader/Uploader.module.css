@@ -1,5 +1,15 @@
 #csv-preview {
     background-color: #eee;
+    overflow-x: auto;
+    margin-top: 1em;
+}
+
+#csv-preview table {
+    border-collapse: collapse;
+}
+
+#csv-preview table th {
+    padding: 0.5em 1em 0 0;
 }
 
 .county-column {
@@ -8,4 +18,52 @@
 
 .state-column {
     background-color: pink;
+}
+
+.data-column {
+    background-color: #ccc;
+}
+
+.dataset-editor {
+    margin-bottom: 1em;
+}
+
+.dataset-editor label {
+    display: block;
+}
+
+.dataset-editor label.column-label {
+    display: inline;
+}
+
+.delete-button {
+    float: right;
+}
+
+#uploader {
+    padding: 1em;
+    min-height: 50vh;
+}
+
+#uploader form {
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+.column-editor {
+    margin: 0.5em 0;
+    display: flex;
+}
+
+.column-editor > * {
+    margin-right: 0.5em;
+}
+
+.column-editor > .column-select {
+    flex-grow: 2;
+}
+
+#submit {
+    margin-top: 1em;
 }
