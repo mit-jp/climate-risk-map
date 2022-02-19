@@ -71,7 +71,7 @@
   "scripts": {
     "predeploy": "yarn run build",
     "deploy": "gh-pages -b deploy -d build",
-    "start": "vite --open",
+    "start": "vite",
     "build": "tsc && vite build",
     "tsc": "tsc",
     "tsc-watch": "tsc --watch",
