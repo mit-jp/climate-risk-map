@@ -8,6 +8,7 @@ import {
     TextField,
     Checkbox,
 } from '@mui/material'
+import { ascending } from 'd3'
 import { useState } from 'react'
 import {
     useGetColorPalettesQuery,
@@ -86,7 +87,15 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                             value={mapVisualization.color_domain.map((d) => d.toString())}
                             options={[]}
                             renderInput={(params) => <TextField {...params} label="Domain" />}
-                            disabled
+                            onChange={(_, colorDomain) => {
+                                updateMap({
+                                    ...mapVisualization,
+                                    color_domain: colorDomain
+                                        .map(Number)
+                                        .filter(Number.isFinite)
+                                        .sort(ascending),
+                                })
+                            }}
                         />
 
                         <FormControlLabel
@@ -116,16 +125,6 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                         }
                         label="Show Probability Density"
                     />
-                    {mapVisualization.show_pdf && (
-                        <Autocomplete
-                            multiple
-                            freeSolo
-                            value={mapVisualization.pdf_domain.map((d) => d.toString())}
-                            options={[]}
-                            renderInput={(params) => <TextField {...params} label="PDF Domain" />}
-                            disabled
-                        />
-                    )}
                 </>
             )}
 
