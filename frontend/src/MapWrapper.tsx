@@ -1,6 +1,7 @@
 import { useSelector } from 'react-redux'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { useMemo, useRef } from 'react'
+import css from './MapWrapper.module.css'
 import { RootState } from './store'
 import EmptyMap from './EmptyMap'
 import FullMap from './FullMap'
@@ -45,7 +46,7 @@ function MapWrapper() {
     }
     return (
         <>
-            <div>
+            <div className={css.map}>
                 {selectedMapVisualizations.length > 0 ? (
                     <MapTitle
                         selectedMapVisualizations={selectedMapVisualizations}
