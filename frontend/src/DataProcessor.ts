@@ -127,9 +127,15 @@ const DataProcessor = (
     return processData(selectedMaps, data, dataWeights, state, shouldNormalize)
 }
 
-export const getDomain = (data: Map<string, number>): { min: number; max: number } => {
-    const values = data.valueSeq()
-    return { min: values.min() ?? 0, max: values.max() ?? 1 }
+export const getDomain = (
+    data: Map<string, number>
+): { min: number; median: number; max: number } => {
+    const values = data.valueSeq().sort()
+    return {
+        min: values.first() ?? 0,
+        median: values.get(Math.floor(values.count() / 2)) ?? 0.5,
+        max: values.last() ?? 1,
+    }
 }
 
 export default DataProcessor

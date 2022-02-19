@@ -24,10 +24,21 @@ const redBlue = scaleThreshold<number, string, never>(
     [...schemeRdYlBu[5]].reverse()
 )
 
-const colorScheme = (map: MapVisualization): ColorScheme => {
-    const domain = map.color_domain
+const colorScheme = (
+    map: MapVisualization,
+    trueDomain: { min: number; median: number; max: number }
+): ColorScheme => {
     const colorPalette = map.color_palette.name
     const type = map.scale_type.name
+    let domain: number[]
+    if (type === 'Diverging' || type === 'DivergingSymLog') {
+        domain =
+            map.color_domain.length >= 3
+                ? map.color_domain
+                : [trueDomain.min, trueDomain.median, trueDomain.max]
+    } else {
+        domain = map.color_domain.length >= 2 ? map.color_domain : [trueDomain.min, trueDomain.max]
+    }
 
     const interpolator: (x: number) => string = map.reverse_scale
         ? (x) => (scales as any)[`interpolate${colorPalette}`](1 - x)
@@ -50,12 +61,13 @@ const colorScheme = (map: MapVisualization): ColorScheme => {
 const Color = (
     shouldNormalize: boolean,
     continuous: boolean,
-    map: MapVisualization
+    map: MapVisualization,
+    trueDomain: { min: number; median: number; max: number }
 ): ColorScheme => {
     if (shouldNormalize) {
         return continuous ? redBlueContinuous : redBlue
     }
-    return colorScheme(map)
+    return colorScheme(map, trueDomain)
 }
 
 export default Color
