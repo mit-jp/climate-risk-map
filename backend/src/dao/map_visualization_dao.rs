@@ -28,7 +28,9 @@ SELECT
     map_visualization.default_start_date,
     map_visualization.default_end_date,
     map_visualization.default_source,
-    map_visualization_collection.order
+    map_visualization_collection.order,
+    map_visualization.color_domain,
+    map_visualization.pdf_domain
 "#;
 
 const FROM: &str = r#"
@@ -81,8 +83,10 @@ impl<'c> Table<'c, MapVisualization> {
                 formatter_type = $14,
                 legend_formatter_type = $15,
                 decimals = $16,
-                legend_decimals = $17
-            WHERE id = $18",
+                legend_decimals = $17,
+                color_domain = $18,
+                pdf_domain = $19
+            WHERE id = $20",
             patch.dataset,
             patch.map_type,
             patch.subcategory,
@@ -100,7 +104,77 @@ impl<'c> Table<'c, MapVisualization> {
             patch.legend_formatter_type,
             patch.decimals,
             patch.legend_decimals,
+            &patch.color_domain,
+            &patch.pdf_domain,
             patch.id,
+        )
+        .execute(&*self.pool)
+        .await
+    }
+    pub async fn create(
+        &self,
+        map: &MapVisualizationDaoPatch,
+    ) -> Result<PgQueryResult, sqlx::Error> {
+        sqlx::query!(
+            "INSERT INTO map_visualization (
+                dataset,
+                map_type,
+                subcategory,
+                name,
+                legend_ticks,
+                color_palette,
+                reverse_scale,
+                invert_normalized,
+                scale_type,
+                show_pdf,
+                default_start_date,
+                default_end_date,
+                default_source,
+                formatter_type,
+                legend_formatter_type,
+                decimals,
+                legend_decimals,
+                color_domain,
+                pdf_domain)
+            VALUES (
+                $1,
+                $2,
+                $3,
+                $4,
+                $5,
+                $6,
+                $7,
+                $8,
+                $9,
+                $10,
+                $11,
+                $12,
+                $13,
+                $14,
+                $15,
+                $16,
+                $17,
+                $18,
+                $19)",
+            map.dataset,
+            map.map_type,
+            map.subcategory,
+            map.name,
+            map.legend_ticks,
+            map.color_palette_id,
+            map.reverse_scale,
+            map.invert_normalized,
+            map.scale_type,
+            map.show_pdf,
+            map.default_start_date,
+            map.default_end_date,
+            map.default_source,
+            map.formatter_type,
+            map.legend_formatter_type,
+            map.decimals,
+            map.legend_decimals,
+            &map.color_domain,
+            &map.pdf_domain,
         )
         .execute(&*self.pool)
         .await

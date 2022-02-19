@@ -4,8 +4,9 @@ import { setupServer } from 'msw/node'
 import Home from './Home'
 import { render } from './test-utils'
 import jsonFile from '../public/usa.json'
+import { MapVisualizationJson } from './MapVisualization'
 
-const MAP_VISUALIZATIONS = {
+const MAP_VISUALIZATIONS: { [key: string]: { [key: string]: MapVisualizationJson } } = {
     '8': {
         '71': {
             id: 71,
@@ -29,7 +30,7 @@ const MAP_VISUALIZATIONS = {
                 id: 5,
                 name: 'SequentialSqrt',
             },
-            scale_domain: [4.0, 10.0],
+            color_domain: [4.0, 10.0],
             date_ranges_by_source: {
                 '12': [
                     {

@@ -1,5 +1,5 @@
 use super::model::{
-    ColorPalette, County, Data, DataCategory, DataSource, Dataset, Domain, MapVisualization,
+    ColorPalette, County, Data, DataCategory, DataSource, Dataset, MapVisualization,
     MapVisualizationDaoPatch, ScaleType, SimpleData, SourceAndDate, State,
 };
 
@@ -10,7 +10,6 @@ mod data_dao;
 mod data_source_dao;
 pub mod database;
 mod dataset_dao;
-mod domain_dao;
 mod map_visualization_dao;
 mod scale_type_dao;
 mod source_and_date_dao;

@@ -25,7 +25,7 @@ const redBlue = scaleThreshold<number, string, never>(
 )
 
 const colorScheme = (map: MapVisualization): ColorScheme => {
-    const domain = map.scale_domain
+    const domain = map.color_domain
     const colorPalette = map.color_palette.name
     const type = map.scale_type.name
 

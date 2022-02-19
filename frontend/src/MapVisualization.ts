@@ -55,9 +55,9 @@ export interface MapVisualizationPatch {
     reverse_scale?: boolean
     invert_normalized?: boolean
     scale_type?: ScaleType
-    scale_domain?: number[] | null
+    color_domain?: number[]
     show_pdf?: boolean
-    pdf_domain?: [number, number] | null
+    pdf_domain?: [number, number] | []
     default_start_date?: DateTime | null
     default_end_date?: DateTime | null
     default_source?: number | null
@@ -82,11 +82,11 @@ export interface MapVisualization {
     reverse_scale: boolean
     invert_normalized: boolean
     scale_type: ScaleType
-    scale_domain: number[]
+    color_domain: number[]
     date_ranges_by_source: { [key: number]: Interval[] }
     sources: { [key: number]: DataSource }
     show_pdf: boolean
-    pdf_domain?: [number, number]
+    pdf_domain: [number, number] | []
     default_date_range?: Interval
     default_source?: number
     formatter_type: FormatterType
@@ -114,11 +114,11 @@ export interface MapVisualizationJson {
     reverse_scale: boolean
     invert_normalized: boolean
     scale_type: ScaleType
-    scale_domain: number[]
+    color_domain: number[]
     date_ranges_by_source: { [key: number]: { start_date: string; end_date: string }[] }
     sources: { [key: number]: DataSource }
     show_pdf: boolean
-    pdf_domain: [number, number]
+    pdf_domain: [number, number] | []
     default_date_range: { start_date: string; end_date: string } | null
     default_source: number | null
     formatter_type: FormatterType
@@ -172,7 +172,7 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
         reverse_scale: json.reverse_scale,
         invert_normalized: json.invert_normalized,
         scale_type: json.scale_type,
-        scale_domain: json.scale_domain,
+        color_domain: json.color_domain,
         date_ranges_by_source: dateRangesBySource,
         sources: json.sources,
         show_pdf: json.show_pdf,
