@@ -1,7 +1,7 @@
 {
   "db": "PostgreSQL",
-  "4c6b90db9f61050a29790ae7fb39ef99d0d444eecb444c9a039b17b1b6ce7324": {
-    "query": "UPDATE map_visualization\n            SET dataset = $1,\n                map_type = $2,\n                subcategory = $3,\n                name = $4,\n                legend_ticks = $5,\n                color_palette = $6,\n                reverse_scale = $7,\n                invert_normalized = $8,\n                scale_type = $9,\n                show_pdf = $10,\n                default_start_date = $11,\n                default_end_date = $12,\n                default_source = $13,\n                formatter_type = $14,\n                legend_formatter_type = $15,\n                decimals = $16,\n                legend_decimals = $17\n            WHERE id = $18",
+  "931b1b6b998305b63f9aa3ca1d391d19678e31f28b42f6ebb08496f16d09083b": {
+    "query": "INSERT INTO map_visualization (\n                dataset,\n                map_type,\n                subcategory,\n                name,\n                legend_ticks,\n                color_palette,\n                reverse_scale,\n                invert_normalized,\n                scale_type,\n                show_pdf,\n                default_start_date,\n                default_end_date,\n                default_source,\n                formatter_type,\n                legend_formatter_type,\n                decimals,\n                legend_decimals,\n                color_domain,\n                pdf_domain)\n            VALUES (\n                $1,\n                $2,\n                $3,\n                $4,\n                $5,\n                $6,\n                $7,\n                $8,\n                $9,\n                $10,\n                $11,\n                $12,\n                $13,\n                $14,\n                $15,\n                $16,\n                $17,\n                $18,\n                $19)",
     "describe": {
       "columns": [],
       "parameters": {
@@ -23,6 +23,38 @@
           "Int4",
           "Int2",
           "Int2",
+          "Float8Array",
+          "Float8Array"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "c55cb8c4cc212811ca366692b0ac7f8ab2463bc9ffb4a34042e11a12c269c6e1": {
+    "query": "UPDATE map_visualization\n            SET dataset = $1,\n                map_type = $2,\n                subcategory = $3,\n                name = $4,\n                legend_ticks = $5,\n                color_palette = $6,\n                reverse_scale = $7,\n                invert_normalized = $8,\n                scale_type = $9,\n                show_pdf = $10,\n                default_start_date = $11,\n                default_end_date = $12,\n                default_source = $13,\n                formatter_type = $14,\n                legend_formatter_type = $15,\n                decimals = $16,\n                legend_decimals = $17,\n                color_domain = $18,\n                pdf_domain = $19\n            WHERE id = $20",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int4",
+          "Int4",
+          "Varchar",
+          "Int2",
+          "Int4",
+          "Bool",
+          "Bool",
+          "Int4",
+          "Bool",
+          "Date",
+          "Date",
+          "Int4",
+          "Int4",
+          "Int4",
+          "Int2",
+          "Int2",
+          "Float8Array",
+          "Float8Array",
           "Int4"
         ]
       },

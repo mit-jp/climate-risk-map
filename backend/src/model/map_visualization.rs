@@ -28,6 +28,8 @@ pub struct MapVisualizationDaoPatch {
     pub legend_formatter_type: Option<i32>,
     pub decimals: i16,
     pub legend_decimals: Option<i16>,
+    pub color_domain: Vec<f64>,
+    pub pdf_domain: Vec<f64>,
 }
 
 impl MapVisualizationDaoPatch {
@@ -52,6 +54,8 @@ impl MapVisualizationDaoPatch {
             legend_formatter_type: patch.legend_formatter_type,
             decimals: patch.decimals,
             legend_decimals: patch.legend_decimals,
+            color_domain: patch.color_domain,
+            pdf_domain: patch.pdf_domain,
         }
     }
 }
@@ -69,9 +73,9 @@ pub struct MapVisualizationPatch {
     pub reverse_scale: bool,
     pub invert_normalized: bool,
     pub scale_type: ScaleType,
-    pub scale_domain: Option<Vec<f64>>,
+    pub color_domain: Vec<f64>,
     pub show_pdf: bool,
-    pub pdf_domain: Option<Vec<f64>>,
+    pub pdf_domain: Vec<f64>,
     pub default_start_date: Option<NaiveDate>,
     pub default_end_date: Option<NaiveDate>,
     pub default_source: Option<i32>,
@@ -108,6 +112,8 @@ pub struct MapVisualization {
     pub default_end_date: Option<NaiveDate>,
     pub default_source: Option<i32>,
     pub order: i16,
+    pub color_domain: Vec<f64>,
+    pub pdf_domain: Vec<f64>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -126,7 +132,7 @@ pub struct MapVisualizationModel {
     pub reverse_scale: bool,
     pub invert_normalized: bool,
     pub scale_type: ScaleType,
-    pub scale_domain: Vec<f64>,
+    pub color_domain: Vec<f64>,
     pub date_ranges_by_source: HashMap<i32, Vec<DateRange>>,
     pub sources: HashMap<i32, DataSource>,
     pub show_pdf: bool,
@@ -145,8 +151,6 @@ impl MapVisualizationModel {
         map_visualization: MapVisualization,
         source_and_dates: Vec<SourceAndDate>,
         data_sources: Vec<DataSource>,
-        pdf_domain: Vec<f64>,
-        scale_domain: Vec<f64>,
     ) -> MapVisualizationModel {
         let mut date_ranges_by_source = HashMap::new();
         for source_and_date in source_and_dates {
@@ -187,14 +191,14 @@ impl MapVisualizationModel {
                 id: map_visualization.scale_type_id,
                 name: map_visualization.scale_type_name,
             },
-            scale_domain,
+            color_domain: map_visualization.color_domain,
             date_ranges_by_source,
             sources: data_sources
                 .into_iter()
                 .map(|data_source| (data_source.id, data_source))
                 .collect::<HashMap<i32, DataSource>>(),
             show_pdf: map_visualization.show_pdf,
-            pdf_domain,
+            pdf_domain: map_visualization.pdf_domain,
             default_date_range,
             default_source: map_visualization.default_source,
             formatter_type: map_visualization.formatter_type,
@@ -253,6 +257,8 @@ mod tests {
             default_end_date: None,
             default_source: None,
             order: 1,
+            color_domain: vec![],
+            pdf_domain: vec![],
         };
         let source_id = 1;
         let source: DataSource = DataSource {
@@ -267,13 +273,8 @@ mod tests {
             end_date: NaiveDate::from_ymd(2020, 1, 1),
         };
         let expected_date_range = DateRange::from(&source_and_date);
-        let map_visualization_model = MapVisualizationModel::new(
-            map_visualization,
-            vec![source_and_date],
-            vec![source],
-            vec![],
-            vec![],
-        );
+        let map_visualization_model =
+            MapVisualizationModel::new(map_visualization, vec![source_and_date], vec![source]);
 
         assert_eq!(
             map_visualization_model.date_ranges_by_source[&source_id][0],

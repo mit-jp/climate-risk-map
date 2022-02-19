@@ -1,7 +1,7 @@
 use super::{AppState, MapVisualizationModel};
 use crate::model::{MapVisualization, MapVisualizationDaoPatch, MapVisualizationPatch};
-use actix_web::{get, patch, web, HttpResponse, Responder};
-use futures::future::try_join4;
+use actix_web::{get, patch, post, web, HttpResponse, Responder};
+use futures::future::try_join;
 use std::collections::HashMap;
 
 pub fn init(cfg: &mut web::ServiceConfig) {
@@ -11,6 +11,7 @@ pub fn init(cfg: &mut web::ServiceConfig) {
 
 pub fn init_editor(cfg: &mut web::ServiceConfig) {
     cfg.service(patch);
+    cfg.service(create);
 }
 
 async fn get_map_visualization_model(
@@ -25,20 +26,14 @@ async fn get_map_visualization_model(
         .database
         .data_source
         .by_dataset(map_visualization.dataset);
-    let pdf_domain = app_state.database.domain.pdf(map_visualization.id);
-    let scale_domain = app_state.database.domain.scale(map_visualization.id);
-    let result = try_join4(sources_and_dates, data_sources, pdf_domain, scale_domain).await;
+    let result = try_join(sources_and_dates, data_sources).await;
     match result {
         Err(e) => Err(e),
-        Ok((sources_and_dates, data_sources, pdf_domain, scale_domain)) => {
-            Ok(MapVisualizationModel::new(
-                map_visualization,
-                sources_and_dates,
-                data_sources,
-                pdf_domain.into_iter().map(|x| x.value).collect(),
-                scale_domain.into_iter().map(|x| x.value).collect(),
-            ))
-        }
+        Ok((sources_and_dates, data_sources)) => Ok(MapVisualizationModel::new(
+            map_visualization,
+            sources_and_dates,
+            data_sources,
+        )),
     }
 }
 
@@ -101,6 +96,19 @@ async fn patch(
         .map_visualization
         .update(&MapVisualizationDaoPatch::new(patch.into_inner()))
         .await;
+    match result {
+        Err(_) => HttpResponse::InternalServerError().finish(),
+        Ok(_) => HttpResponse::Ok().finish(),
+    }
+}
+
+#[post("/map-visualization")]
+async fn create(
+    map_model: web::Json<MapVisualizationPatch>,
+    app_state: web::Data<AppState<'_>>,
+) -> impl Responder {
+    let map = MapVisualizationDaoPatch::new(map_model.into_inner());
+    let result = app_state.database.map_visualization.create(&map).await;
     match result {
         Err(_) => HttpResponse::InternalServerError().finish(),
         Ok(_) => HttpResponse::Ok().finish(),
