@@ -11,6 +11,7 @@ import {
     line,
     curveBasis,
     Bin,
+    median,
 } from 'd3'
 import Color from './Color'
 import { MapVisualization } from './MapVisualization'
@@ -93,7 +94,11 @@ function ProbabilityDensity({
                 .call(axisLeft(y).ticks(null))
                 .call((item: any) => item.select('.domain').remove())
         const svg = select(svgRef.current)
-        const color = Color(shouldNormalize, continuous, map)
+        const color = Color(shouldNormalize, continuous, map, {
+            min: domain[0],
+            median: median(data) as number,
+            max: domain[1],
+        })
         const kdeLine: any = line()
             .curve(curveBasis)
             .x((d) => x(d[0]))

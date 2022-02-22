@@ -73,7 +73,7 @@ const processData = (
     dataWeights: { [key in MapVisualizationId]?: number },
     state: State | undefined,
     shouldNormalize: boolean
-) => {
+): Map<string, number> => {
     const mapIdToDataId = getDatasetIdsForMaps(selectedMaps)
 
     let totalWeight = 0
@@ -120,11 +120,22 @@ const DataProcessor = (
     dataWeights: { [key in MapVisualizationId]?: number },
     state: State | undefined,
     shouldNormalize: boolean
-) => {
+): Map<string, number> | undefined => {
     if (selectedMaps.length === 0 || !dataIsLoaded(data, selectedMaps)) {
         return undefined
     }
     return processData(selectedMaps, data, dataWeights, state, shouldNormalize)
+}
+
+export const getDomain = (
+    data: Map<string, number>
+): { min: number; median: number; max: number } => {
+    const values = data.valueSeq().sort()
+    return {
+        min: values.first() ?? 0,
+        median: values.get(Math.floor(values.count() / 2)) ?? 0.5,
+        max: values.last() ?? 1,
+    }
 }
 
 export default DataProcessor

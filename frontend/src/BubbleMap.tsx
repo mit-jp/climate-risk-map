@@ -1,5 +1,5 @@
 import { Map } from 'immutable'
-import { geoPath, max, ScalePower, scaleSqrt } from 'd3'
+import { geoPath, ScalePower, scaleSqrt } from 'd3'
 import { feature } from 'topojson-client'
 import type { GeometryCollection } from 'topojson-specification'
 import type { GeoJsonProperties, Geometry, Feature } from 'geojson'
@@ -7,6 +7,7 @@ import { TopoJson } from './TopoJson'
 import StateMap from './StateMap'
 import EmptyMap from './EmptyMap'
 import BubbleLegend from './BubbleLegend'
+import { getDomain } from './DataProcessor'
 
 const BUBBLE_TRANSITION = { transition: 'r 0.3s ease-in-out' }
 
@@ -16,26 +17,8 @@ type Props = {
     legendTitle: string
     color: string
 }
-
-function makeValueToRadius(
-    counties: Feature<Geometry, GeoJsonProperties>[],
-    data: Map<string, number | undefined>
-): ScalePower<number, number, never> {
-    let radius: ScalePower<number, number, never>
-    if (data !== undefined) {
-        const values = counties
-            .map((d) => data.get(d.id as string))
-            .filter((d) => d !== undefined)
-            .map((d) => d as number)
-        radius = scaleSqrt([0, max(values) ?? 0], [0, 40])
-    } else {
-        radius = scaleSqrt([0, 0], [0, 40])
-    }
-    return radius
-}
-
 const makeCountyToRadius =
-    (valueToRadius: ScalePower<number, number, never>, data: Map<string, number | undefined>) =>
+    (valueToRadius: ScalePower<number, number, never>, data: Map<string, number>) =>
     (county: Feature<Geometry, GeoJsonProperties>) => {
         const value = data.get(county.id as string) ?? 0
         return valueToRadius(value)
@@ -47,7 +30,8 @@ function BubbleMap({ map, data, legendTitle, color }: Props) {
         map,
         map.objects.counties as GeometryCollection<GeoJsonProperties>
     ).features
-    const valueToRadius = makeValueToRadius(counties, data)
+    const { max } = getDomain(data)
+    const valueToRadius = scaleSqrt([0, max], [0, 40])
     const countyToRadius = makeCountyToRadius(valueToRadius, data)
 
     return (

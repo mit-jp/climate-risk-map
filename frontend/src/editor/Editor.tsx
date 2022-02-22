@@ -21,6 +21,8 @@ import {
 import EditorMap from './EditorMap'
 import MapVisualizationList, { EmptyMapVisualizationList } from './MapVisualizationList'
 import MapOptions, { EmptyMapOptions } from './MapOptions'
+import DataTab from '../DataTab'
+import { TabToId } from '../MapVisualization'
 
 export const useThunkDispatch = () => useDispatch<typeof store.dispatch>()
 
@@ -72,6 +74,8 @@ function Editor() {
         })
     }, [dispatch])
 
+    const isNormalized = selectedTabId === TabToId[DataTab.RiskMetrics] ?? false
+
     return (
         <div id={editorCss.editorWrapper}>
             {tabs ? <Navigation tabs={tabs} selectedTabId={selectedTabId} /> : <EmptyNavigation />}
@@ -85,8 +89,15 @@ function Editor() {
                 ) : (
                     <EmptyMapVisualizationList />
                 )}
-                {map && <EditorMap map={map} selection={selectedMapVisualization} detailedView />}
-                {selectedMapVisualization ? (
+                {map && (
+                    <EditorMap
+                        map={map}
+                        selection={selectedMapVisualization}
+                        detailedView
+                        isNormalized={isNormalized}
+                    />
+                )}
+                {selectedMapVisualization && !isNormalized ? (
                     <MapOptions mapVisualization={selectedMapVisualization} />
                 ) : (
                     <EmptyMapOptions />

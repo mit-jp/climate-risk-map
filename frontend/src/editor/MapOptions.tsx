@@ -8,6 +8,7 @@ import {
     TextField,
     Checkbox,
 } from '@mui/material'
+import { ascending } from 'd3'
 import { useState } from 'react'
 import {
     useGetColorPalettesQuery,
@@ -43,60 +44,89 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                     <FormControlLabel value={MapType.Bubble} control={<Radio />} label="Bubble" />
                 </RadioGroup>
             </FormControl>
-            <FormControl component="fieldset">
-                <FormLabel component="legend">Color Scheme</FormLabel>
-                {scales && (
-                    <Autocomplete
-                        disablePortal
-                        value={mapVisualization.scale_type}
-                        options={scales}
-                        getOptionLabel={(option) => option.name}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                        sx={{ width: 300 }}
-                        renderInput={(params) => <TextField {...params} label="Scale" />}
-                        onChange={(_, scaleType) =>
-                            scaleType && updateMap({ ...mapVisualization, scale_type: scaleType })
-                        }
-                    />
-                )}
-                {colorPalettes && (
-                    <Autocomplete
-                        disablePortal
-                        value={mapVisualization.color_palette}
-                        options={colorPalettes}
-                        onChange={(_, colorPalette) =>
-                            colorPalette &&
-                            updateMap({ ...mapVisualization, color_palette: colorPalette })
-                        }
-                        getOptionLabel={(option) => option.name}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                        sx={{ width: 300 }}
-                        renderInput={(params) => <TextField {...params} label="Color Palette" />}
-                    />
-                )}
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={mapVisualization.reverse_scale}
-                            onChange={(_, reverseScale) =>
-                                updateMap({ ...mapVisualization, reverse_scale: reverseScale })
-                            }
+            {mapVisualization.map_type === MapType.Choropleth && (
+                <>
+                    <FormControl component="fieldset">
+                        <FormLabel component="legend">Color Scheme</FormLabel>
+                        {scales && (
+                            <Autocomplete
+                                disablePortal
+                                value={mapVisualization.scale_type}
+                                options={scales}
+                                getOptionLabel={(option) => option.name}
+                                isOptionEqualToValue={(option, value) => option.id === value.id}
+                                sx={{ width: 300 }}
+                                renderInput={(params) => <TextField {...params} label="Scale" />}
+                                onChange={(_, scaleType) =>
+                                    scaleType &&
+                                    updateMap({ ...mapVisualization, scale_type: scaleType })
+                                }
+                            />
+                        )}
+                        {colorPalettes && (
+                            <Autocomplete
+                                disablePortal
+                                value={mapVisualization.color_palette}
+                                options={colorPalettes}
+                                onChange={(_, colorPalette) =>
+                                    colorPalette &&
+                                    updateMap({ ...mapVisualization, color_palette: colorPalette })
+                                }
+                                getOptionLabel={(option) => option.name}
+                                isOptionEqualToValue={(option, value) => option.id === value.id}
+                                sx={{ width: 300 }}
+                                renderInput={(params) => (
+                                    <TextField {...params} label="Color Palette" />
+                                )}
+                            />
+                        )}
+
+                        <Autocomplete
+                            multiple
+                            freeSolo
+                            value={mapVisualization.color_domain.map((d) => d.toString())}
+                            options={[]}
+                            renderInput={(params) => <TextField {...params} label="Domain" />}
+                            onChange={(_, colorDomain) => {
+                                updateMap({
+                                    ...mapVisualization,
+                                    color_domain: colorDomain
+                                        .map(Number)
+                                        .filter(Number.isFinite)
+                                        .sort(ascending),
+                                })
+                            }}
                         />
-                    }
-                    label="Invert"
-                />
-            </FormControl>
-            <FormControlLabel
-                control={
-                    <Checkbox
-                        checked={mapVisualization.show_pdf}
-                        onChange={(_, showPdf) =>
-                            updateMap({ ...mapVisualization, show_pdf: showPdf })
+
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={mapVisualization.reverse_scale}
+                                    onChange={(_, reverseScale) =>
+                                        updateMap({
+                                            ...mapVisualization,
+                                            reverse_scale: reverseScale,
+                                        })
+                                    }
+                                />
+                            }
+                            label="Invert"
+                        />
+                    </FormControl>
+
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={mapVisualization.show_pdf}
+                                onChange={(_, showPdf) =>
+                                    updateMap({ ...mapVisualization, show_pdf: showPdf })
+                                }
+                            />
                         }
+                        label="Show Probability Density"
                     />
-                }
-                label="Show Probability Density"
-            />
+                </>
+            )}
 
             <FormControl component="fieldset">
                 <FormLabel component="legend">Formatter</FormLabel>

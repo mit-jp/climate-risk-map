@@ -14,6 +14,7 @@ import { ZOOM_TRANSITION } from './MapWrapper'
 import { FormatterType, MapType, MapVisualization } from './MapVisualization'
 import css from './ChoroplethMap.module.css'
 import { useThunkDispatch } from './Home'
+import { getDomain } from './DataProcessor'
 
 const MISSING_DATA_COLOR = '#ccc'
 
@@ -101,7 +102,8 @@ function ChoroplethMap(
     const dispatch = useThunkDispatch()
     const onCountyClicked = (event: any) =>
         event.target?.id ? dispatch(clickCounty(event.target.id)) : null
-    const colorScheme = Color(isNormalized, detailedView, selectedMapVisualizations[0])
+    const domain = getDomain(data)
+    const colorScheme = Color(isNormalized, detailedView, selectedMapVisualizations[0], domain)
     const color = (countyId: string) => {
         const value = data.get(countyId)
         return colorScheme(value as any) ?? MISSING_DATA_COLOR

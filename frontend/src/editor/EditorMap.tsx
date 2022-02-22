@@ -16,9 +16,10 @@ type Props = {
     map: TopoJson
     selection: MapVisualization | undefined
     detailedView: boolean
+    isNormalized: boolean
 }
 
-function EditorMap({ map, selection, detailedView }: Props) {
+function EditorMap({ map, selection, detailedView, isNormalized }: Props) {
     const queryParams = useMemo(
         () => (selection ? getDataQueryParams(selection) : undefined),
         [selection]
@@ -26,8 +27,10 @@ function EditorMap({ map, selection, detailedView }: Props) {
     const { data } = useGetDataQuery(queryParams ?? skipToken)
     const processedData = useMemo(
         () =>
-            data && selection ? DataProcessor(data, [selection], {}, undefined, false) : undefined,
-        [data, selection]
+            data && selection
+                ? DataProcessor(data, [selection], {}, undefined, isNormalized)
+                : undefined,
+        [data, selection, isNormalized]
     )
     const mapRef = useRef(null)
 
@@ -45,7 +48,7 @@ function EditorMap({ map, selection, detailedView }: Props) {
                         selectedMapVisualizations={[selection]}
                         data={processedData}
                         detailedView={detailedView}
-                        isNormalized={false}
+                        isNormalized={isNormalized}
                         ref={mapRef}
                     />
                 ) : (
