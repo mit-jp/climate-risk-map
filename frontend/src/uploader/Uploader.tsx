@@ -34,12 +34,7 @@ function Uploader() {
     }
 
     return (
-        <div
-            id={css.uploader}
-            onDragEnter={stopPropagation}
-            onDragOver={stopPropagation}
-            onDrop={onDrop}
-        >
+        <div onDragEnter={stopPropagation} onDragOver={stopPropagation} onDrop={onDrop}>
             <h1>Drag and drop a csv file</h1>
             Or click to
             <input

@@ -55,18 +55,16 @@ function Home() {
     }, [dispatch])
 
     return (
-        <div id={css.root}>
-            <div id={css.viewer}>
-                <Header />
-                <Navigation />
-                <SiteOverview />
-                <div id={css.content}>
-                    <DataSelector />
-                    <MapWrapper />
-                </div>
-                <Footer />
+        <>
+            <Header />
+            <Navigation />
+            <SiteOverview />
+            <div id={css.content}>
+                <DataSelector />
+                <MapWrapper />
             </div>
-        </div>
+            <Footer />
+        </>
     )
 }
 
