@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { json } from 'd3'
 import { useDispatch } from 'react-redux'
-import Footer from './Footer'
 import Header from './Header'
 import Navigation from './Navigation'
 import DataSelector from './DataSelector'
@@ -63,7 +62,6 @@ function Home() {
                 <DataSelector />
                 <MapWrapper />
             </div>
-            <Footer />
         </>
     )
 }
