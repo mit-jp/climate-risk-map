@@ -1,28 +1,39 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import DataTab from '../DataTab'
 import { Tab } from '../MapApi'
 import { MapVisualization, MapVisualizationId } from '../MapVisualization'
 import { RootState } from '../store'
 import { TopoJson } from '../TopoJson'
 
 interface EditorState {
-    readonly selectedTabId?: number
+    readonly selectedTabId?: DataTab
     readonly tabs: Tab[]
-    readonly selectedMapVisualizationByTab: { [key: number]: MapVisualizationId }
+    readonly selectedMapVisualizationByTab: { [key in DataTab]: MapVisualizationId }
     readonly map?: TopoJson
 }
 
 const initialState: EditorState = {
     tabs: [],
-    selectedTabId: 8,
-    selectedMapVisualizationByTab: { 8: 2 },
+    selectedTabId: DataTab.RiskMetrics,
+    selectedMapVisualizationByTab: {
+        [DataTab.RiskMetrics]: 71,
+        [DataTab.Water]: 1,
+        [DataTab.Land]: 15,
+        [DataTab.Climate]: 22,
+        [DataTab.Economy]: 12,
+        [DataTab.Demographics]: 28,
+        [DataTab.ClimateOpinions]: 35,
+        [DataTab.Energy]: 64,
+        [DataTab.Health]: 71,
+    },
 }
 
 export const editorSlice = createSlice({
     name: 'editor',
     initialState,
     reducers: {
-        clickTab(state, { payload }: PayloadAction<Tab>) {
-            state.selectedTabId = payload.id
+        setTab(state, { payload }: PayloadAction<DataTab>) {
+            state.selectedTabId = payload
         },
         setMap(state, { payload }: PayloadAction<TopoJson>) {
             state.map = payload
@@ -35,7 +46,7 @@ export const editorSlice = createSlice({
     },
 })
 
-export const { clickTab, setMap, clickMapVisualization } = editorSlice.actions
+export const { setTab, setMap, clickMapVisualization } = editorSlice.actions
 
 export const selectSelectedTabAndMapVisualization = (state: RootState) => {
     const { selectedTabId } = state.editor

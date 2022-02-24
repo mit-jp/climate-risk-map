@@ -2,13 +2,14 @@ import { json } from 'd3'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
+import { Link, useParams } from 'react-router-dom'
 import { TopoJson } from '../TopoJson'
 import { RootState, store } from '../store'
 import editorCss from './Editor.module.css'
 import navCss from '../Navigation.module.css'
 import {
     clickMapVisualization,
-    clickTab,
+    setTab,
     selectSelectedTabAndMapVisualization,
     setMap,
 } from './editorSlice'
@@ -22,30 +23,35 @@ import EditorMap from './EditorMap'
 import MapVisualizationList, { EmptyMapVisualizationList } from './MapVisualizationList'
 import MapOptions, { EmptyMapOptions } from './MapOptions'
 import DataTab from '../DataTab'
-import { TabToId } from '../MapVisualization'
+import { TabIdToTab, TabToId } from '../MapVisualization'
 
 export const useThunkDispatch = () => useDispatch<typeof store.dispatch>()
 
 function EmptyNavigation() {
     return <nav />
 }
-function Navigation({ tabs, selectedTabId }: { tabs: Tab[]; selectedTabId?: number }) {
+function Navigation({ tabs, selectedTabId }: { tabs: Tab[]; selectedTabId?: DataTab }) {
     const dispatch = useThunkDispatch()
+    const params = useParams()
+    const { tabId } = params
+    useEffect(() => {
+        const tab = TabIdToTab[Number(tabId)]
+        if (tab) {
+            dispatch(setTab(tab))
+        }
+    }, [tabId, dispatch])
+
     return (
         <nav id={navCss.nav}>
-            <ul>
-                {tabs.map((tab) => (
-                    <li key={tab.id}>
-                        <button
-                            type="button"
-                            className={selectedTabId === tab.id ? navCss.selected : undefined}
-                            onClick={() => dispatch(clickTab(tab))}
-                        >
-                            {tab.name}
-                        </button>
-                    </li>
-                ))}
-            </ul>
+            {tabs.map((tab) => (
+                <Link
+                    key={tab.id}
+                    className={selectedTabId === TabIdToTab[tab.id] ? navCss.selected : undefined}
+                    to={`/editor/${tab.id}`}
+                >
+                    {tab.name}
+                </Link>
+            ))}
         </nav>
     )
 }
@@ -62,19 +68,21 @@ function Editor() {
     )
     const mapVisualizationsForTab =
         allMapVisualizations && selectedTabId !== undefined
-            ? Object.values(allMapVisualizations[selectedTabId]).sort((a, b) => a.order - b.order)
+            ? Object.values(allMapVisualizations[TabToId[selectedTabId]]).sort(
+                  (a, b) => a.order - b.order
+              )
             : undefined
     const map = useSelector((state: RootState) => state.editor.map)
 
     useEffect(() => {
-        json<TopoJson>('usa.json').then((topoJson) => {
+        json<TopoJson>('/usa.json').then((topoJson) => {
             if (topoJson) {
                 dispatch(setMap(topoJson))
             }
         })
     }, [dispatch])
 
-    const isNormalized = selectedTabId === TabToId[DataTab.RiskMetrics] ?? false
+    const isNormalized = selectedTabId === DataTab.RiskMetrics ?? false
 
     return (
         <>

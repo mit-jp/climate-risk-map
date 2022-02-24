@@ -4,7 +4,7 @@ import BubbleMap from './BubbleMap'
 import ChoroplethMap from './ChoroplethMap'
 import { TopoJson } from './TopoJson'
 import { MapType, MapVisualization, TabToId } from './MapVisualization'
-import { DataTab } from './DataTab'
+import DataTab from './DataTab'
 
 export const getUnitString = (units: string) => (units ? ` ${units}` : '')
 
