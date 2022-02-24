@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import Papa from 'papaparse'
 import FileInfo from './FileInfo'
-import css from './Uploader.module.css'
 import CsvPreview from './CsvPreview'
 
 function stopPropagation(e: React.DragEvent) {
