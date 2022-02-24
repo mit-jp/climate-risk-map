@@ -1,18 +1,9 @@
 #nav {
     margin-bottom: 1em;
-}
-
-#nav ul {
     display: flex;
 }
 
-#nav ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-#nav button {
+#nav a {
     cursor: pointer;
     display: block;
     color: #000;
@@ -25,12 +16,12 @@
     background: none;
 }
 
-#nav button:hover {
+#nav a:hover {
     background: #e3eaf1;
     color: #435e7c;
 }
 
-#nav button.selected {
+#nav a.selected {
     background: #435e7c;
     color: #fff;
 }

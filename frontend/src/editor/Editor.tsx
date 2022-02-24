@@ -77,7 +77,7 @@ function Editor() {
     const isNormalized = selectedTabId === TabToId[DataTab.RiskMetrics] ?? false
 
     return (
-        <div id={editorCss.editorWrapper}>
+        <>
             {tabs ? <Navigation tabs={tabs} selectedTabId={selectedTabId} /> : <EmptyNavigation />}
             <div id={editorCss.editor}>
                 {mapVisualizationsForTab ? (
@@ -103,7 +103,7 @@ function Editor() {
                     <EmptyMapOptions />
                 )}
             </div>
-        </div>
+        </>
     )
 }
 

@@ -3,6 +3,17 @@ import { json as loadJson } from 'd3'
 import DataTab from './DataTab'
 import { DataQueryParams } from './MapApi'
 
+export const TabIdToTab: { [key: number]: DataTab } = {
+    8: DataTab.RiskMetrics,
+    3: DataTab.Climate,
+    1: DataTab.Water,
+    2: DataTab.Land,
+    5: DataTab.Energy,
+    4: DataTab.Economy,
+    7: DataTab.Demographics,
+    6: DataTab.ClimateOpinions,
+    9: DataTab.Health,
+}
 export const TabToId: { [key in DataTab]: number } = {
     [DataTab.RiskMetrics]: 8,
     [DataTab.Climate]: 3,

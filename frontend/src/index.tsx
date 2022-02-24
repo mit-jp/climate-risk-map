@@ -1,10 +1,11 @@
 import { StrictMode } from 'react'
-import ReactDOM from 'react-dom'
+import { render } from 'react-dom'
 import './index.css'
 import { Provider } from 'react-redux'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import App from './App'
 import { store } from './store'
+import Footer from './Footer'
 
 const theme = createTheme({
     palette: {
@@ -17,11 +18,12 @@ const theme = createTheme({
     },
 })
 
-ReactDOM.render(
+render(
     <StrictMode>
         <ThemeProvider theme={theme}>
             <Provider store={store}>
                 <App />
+                <Footer />
             </Provider>
         </ThemeProvider>
     </StrictMode>,

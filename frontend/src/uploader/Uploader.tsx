@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import Papa from 'papaparse'
 import FileInfo from './FileInfo'
-import css from './Uploader.module.css'
 import CsvPreview from './CsvPreview'
 
 function stopPropagation(e: React.DragEvent) {
@@ -34,12 +33,7 @@ function Uploader() {
     }
 
     return (
-        <div
-            id={css.uploader}
-            onDragEnter={stopPropagation}
-            onDragOver={stopPropagation}
-            onDrop={onDrop}
-        >
+        <div onDragEnter={stopPropagation} onDragOver={stopPropagation} onDrop={onDrop}>
             <h1>Drag and drop a csv file</h1>
             Or click to
             <input

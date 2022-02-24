@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { json } from 'd3'
 import { useDispatch } from 'react-redux'
-import Footer from './Footer'
 import Header from './Header'
 import Navigation from './Navigation'
 import DataSelector from './DataSelector'
@@ -55,18 +54,15 @@ function Home() {
     }, [dispatch])
 
     return (
-        <div id={css.root}>
-            <div id={css.viewer}>
-                <Header />
-                <Navigation />
-                <SiteOverview />
-                <div id={css.content}>
-                    <DataSelector />
-                    <MapWrapper />
-                </div>
-                <Footer />
+        <>
+            <Header />
+            <Navigation />
+            <SiteOverview />
+            <div id={css.content}>
+                <DataSelector />
+                <MapWrapper />
             </div>
-        </div>
+        </>
     )
 }
 
