@@ -1,4 +1,4 @@
-export enum DataTab {
+enum DataTab {
     RiskMetrics = 'combined data',
     Water = 'water',
     Land = 'land',

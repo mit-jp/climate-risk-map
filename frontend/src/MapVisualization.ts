@@ -231,7 +231,7 @@ export const getDataQueryParams = (mapVisualization: MapVisualization): DataQuer
 }
 
 export const fetchMapVisualization = async (id: number): Promise<MapVisualization> => {
-    const rawJson = await loadJson<MapVisualizationJson>(`api/map-visualization/${id}`)
+    const rawJson = await loadJson<MapVisualizationJson>(`/api/map-visualization/${id}`)
     if (rawJson === undefined) {
         return Promise.reject(new Error('Failed to fetch map visualization'))
     }
@@ -240,7 +240,7 @@ export const fetchMapVisualization = async (id: number): Promise<MapVisualizatio
 
 export const fetchMapVisualizations = async (): Promise<MapVisualizationByTabId> => {
     const rawJson = await loadJson<{ [key: number]: { [key: number]: MapVisualizationJson } }>(
-        'api/map-visualization'
+        '/api/map-visualization'
     )
     if (rawJson === undefined) {
         return Promise.reject(new Error('Failed to fetch map visualizations'))
