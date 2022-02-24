@@ -9,8 +9,7 @@ function App() {
             <Routes>
                 <Route path="/uploader" element={<Uploader />} />
                 <Route path="/editor" element={<Editor />} />
-                <Route path="/" element={<Home />} />
-                <Route path="/:tabId" element={<Home />} />
+                <Route path="/:tabId/*" element={<Home />} />
                 <Route
                     path="*"
                     element={

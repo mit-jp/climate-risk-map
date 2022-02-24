@@ -12,14 +12,18 @@
     padding: 0em 12px 0em 12px;
 }
 
-label.data-group {
+label.data-group,
+a.data-group {
     display: block;
     padding: 1em 1em;
     margin: 0;
     cursor: pointer;
+    text-decoration: none;
+    color: black;
 }
 
-label.data-group:hover {
+label.data-group:hover,
+a.data-group:hover {
     text-decoration: underline;
 }
 
@@ -27,7 +31,8 @@ input.data-group {
     display: none;
 }
 
-input.data-group:checked + label {
+input.data-group:checked + label,
+a.data-group.selected {
     text-decoration: underline;
     background: #eee;
 }

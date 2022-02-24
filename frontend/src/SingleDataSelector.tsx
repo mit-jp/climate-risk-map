@@ -1,6 +1,7 @@
-import { ChangeEvent } from 'react'
+import { ChangeEvent, useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { Interval } from 'luxon'
+import { Link, useParams } from 'react-router-dom'
 import YearSelector from './YearSelector'
 import DataSourceSelector from './DatasetSelector'
 import {
@@ -18,8 +19,14 @@ import css from './DataSelector.module.css'
 function SingleDataSelector() {
     const selection = useSelector((state: RootState) => selectSelections(state)[0])
     const mapVisualizations = useSelector(selectMapVisualizations)
-
+    const { mapId } = useParams()
     const dispatch = useThunkDispatch()
+    useEffect(() => {
+        const mapIdNumber = Number(mapId)
+        if (mapIdNumber) {
+            dispatch(changeMapSelection(mapIdNumber))
+        }
+    }, [mapId, dispatch])
 
     const onDateRangeChange = (event: ChangeEvent<HTMLInputElement>) => {
         const dateRange = Interval.fromISO(event.target.value)
@@ -28,10 +35,6 @@ function SingleDataSelector() {
     const onDataSourceChange = (event: ChangeEvent<HTMLInputElement>) => {
         const dataset = parseInt(event.target.value, 10)
         dispatch(changeDataSource(dataset))
-    }
-    const onMapSelectionChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const mapVisualizationId = parseInt(event.target.value, 10)
-        dispatch(changeMapSelection(mapVisualizationId))
     }
 
     const shouldShowYears = (map: MapVisualization) =>
@@ -47,18 +50,15 @@ function SingleDataSelector() {
                 .sort((a, b) => a.order - b.order)
                 .map((map) => (
                     <div key={map.id}>
-                        <input
-                            className={css.dataGroup}
-                            id={map.id.toString()}
-                            checked={selection.mapVisualization === map.id}
-                            type="radio"
-                            value={map.id}
-                            onChange={onMapSelectionChange}
-                            name="dataGroup"
-                        />
-                        <label className={css.dataGroup} htmlFor={map.id.toString()}>
+                        <Link
+                            to={`./${map.id}`}
+                            className={
+                                css.dataGroup +
+                                (selection.mapVisualization === map.id ? ` ${css.selected}` : '')
+                            }
+                        >
                             {map.name}
-                        </label>
+                        </Link>
                         {shouldShowYears(map) && (
                             <YearSelector
                                 id={map.id.toString()}

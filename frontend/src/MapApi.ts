@@ -66,7 +66,7 @@ export const mapApi = createApi({
                 const loadingCsvs = queryParams.map(
                     async ({ dataset, source, startDate, endDate }) => {
                         const csvRow = await loadCsv<CsvRow>(
-                            `api/data/${dataset}?source=${source}&start_date=${startDate}&end_date=${endDate}`,
+                            `/api/data/${dataset}?source=${source}&start_date=${startDate}&end_date=${endDate}`,
                             autoType
                         )
                         return [dataset, csvRow] as [number, DSVParsedArray<CsvRow>]
