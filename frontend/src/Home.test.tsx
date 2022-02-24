@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
+import { Route, MemoryRouter, Routes } from 'react-router-dom'
 import Home from './Home'
 import { render } from './test-utils'
 import jsonFile from '../public/usa.json'
@@ -72,7 +73,13 @@ afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
 test('It shows header and loads data selector', async () => {
-    render(<Home />)
+    render(
+        <MemoryRouter>
+            <Routes>
+                <Route path="/" element={<Home />} />
+            </Routes>
+        </MemoryRouter>
+    )
     expect(screen.getByText(/environmental systems risk triage/i)).toBeInTheDocument()
     // map title, data selector, and description expander all have the same text
     expect(
