@@ -116,7 +116,7 @@ export const mapApi = createApi({
         }),
         updateMapVisualization: builder.mutation<MapVisualization, MapVisualizationPatch>({
             query: (patch) => ({
-                url: `editor/map-visualization`,
+                url: 'editor/map-visualization',
                 method: 'PATCH',
                 body: patch,
             }),
@@ -130,6 +130,14 @@ export const mapApi = createApi({
                 queryFulfilled.catch(() => patchResult.undo())
             },
         }),
+        createMapVisualization: builder.mutation<MapVisualization, MapVisualizationPatch>({
+            query: (map) => ({
+                url: 'editor/map-visualization',
+                method: 'POST',
+                body: map,
+            }),
+            invalidatesTags: [{ type: 'MapVisualization', id: 'ALL' }],
+        }),
     }),
 })
 
@@ -142,4 +150,5 @@ export const {
     useGetScaleTypesQuery,
     useGetMapVisualizationQuery,
     useUpdateMapVisualizationMutation,
+    useCreateMapVisualizationMutation,
 } = mapApi

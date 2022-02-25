@@ -4,9 +4,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { Link, useParams } from 'react-router-dom'
 import classNames from 'classnames'
+import { Button } from '@mui/material'
 import { TopoJson } from '../TopoJson'
 import { RootState, store } from '../store'
 import editorCss from './Editor.module.css'
+import { MapVisualizationPatch } from '../MapVisualization'
 import navCss from '../Navigation.module.css'
 import {
     clickMapVisualization,
@@ -16,6 +18,7 @@ import {
 } from './editorSlice'
 import {
     Tab,
+    useCreateMapVisualizationMutation,
     useGetMapVisualizationQuery,
     useGetMapVisualizationsQuery,
     useGetTabsQuery,
@@ -23,6 +26,21 @@ import {
 import EditorMap from './EditorMap'
 import MapVisualizationList, { EmptyMapVisualizationList } from './MapVisualizationList'
 import MapOptions, { EmptyMapOptions } from './MapOptions'
+
+const NEW_MAP: MapVisualizationPatch = {
+    id: -1,
+    dataset: 1,
+    map_type: 1,
+    color_palette: { id: 1, name: 'Blues' },
+    reverse_scale: false,
+    invert_normalized: false,
+    scale_type: { id: 2, name: 'Sequential' },
+    color_domain: [],
+    show_pdf: true,
+    pdf_domain: [],
+    formatter_type: 3,
+    decimals: 1,
+}
 
 export const useThunkDispatch = () => useDispatch<typeof store.dispatch>()
 
@@ -62,6 +80,7 @@ function Editor() {
     const dispatch = useThunkDispatch()
     const { data: allMapVisualizations } = useGetMapVisualizationsQuery(true)
     const { data: tabs } = useGetTabsQuery(true)
+    const [createMap] = useCreateMapVisualizationMutation()
 
     const { selectedTabId, selectedMapVisualizationId } = useSelector(
         selectSelectedTabAndMapVisualization
@@ -90,15 +109,18 @@ function Editor() {
         <>
             {tabs ? <Navigation tabs={tabs} selectedTabId={selectedTabId} /> : <EmptyNavigation />}
             <div id={editorCss.editor}>
-                {mapVisualizationsForTab ? (
-                    <MapVisualizationList
-                        mapVisualizations={mapVisualizationsForTab}
-                        selectedId={selectedMapVisualizationId}
-                        onClick={(clickedMap) => dispatch(clickMapVisualization(clickedMap))}
-                    />
-                ) : (
-                    <EmptyMapVisualizationList />
-                )}
+                <div>
+                    {mapVisualizationsForTab ? (
+                        <MapVisualizationList
+                            mapVisualizations={mapVisualizationsForTab}
+                            selectedId={selectedMapVisualizationId}
+                            onClick={(clickedMap) => dispatch(clickMapVisualization(clickedMap))}
+                        />
+                    ) : (
+                        <EmptyMapVisualizationList />
+                    )}
+                    <Button onClick={() => createMap(NEW_MAP)}>Create new map</Button>
+                </div>
                 {map && (
                     <EditorMap
                         map={map}

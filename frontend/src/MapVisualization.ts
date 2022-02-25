@@ -56,26 +56,26 @@ export enum MapType {
 
 export interface MapVisualizationPatch {
     id: MapVisualizationId
-    dataset?: number
-    map_type?: MapType
-    subcategory?: number | null
-    data_tab?: number | null
-    name?: string | null
-    legend_ticks?: number | null
-    color_palette?: ColorPalette
-    reverse_scale?: boolean
-    invert_normalized?: boolean
-    scale_type?: ScaleType
-    color_domain?: number[]
-    show_pdf?: boolean
-    pdf_domain?: [number, number] | []
-    default_start_date?: DateTime | null
-    default_end_date?: DateTime | null
-    default_source?: number | null
-    formatter_type?: FormatterType
-    legend_formatter_type?: FormatterType | null
-    decimals?: number
-    legend_decimals?: number | null
+    dataset: number
+    map_type: MapType
+    subcategory?: number
+    data_tab?: number
+    name?: string
+    legend_ticks?: number
+    color_palette: ColorPalette
+    reverse_scale: boolean
+    invert_normalized: boolean
+    scale_type: ScaleType
+    color_domain: number[]
+    show_pdf: boolean
+    pdf_domain: [number, number] | []
+    default_start_date?: DateTime
+    default_end_date?: DateTime
+    default_source?: number
+    formatter_type: FormatterType
+    legend_formatter_type?: FormatterType
+    decimals: number
+    legend_decimals?: number
 }
 
 export interface MapVisualization {
