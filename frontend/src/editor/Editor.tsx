@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { Link, useParams } from 'react-router-dom'
+import classNames from 'classnames'
 import { TopoJson } from '../TopoJson'
 import { RootState, store } from '../store'
 import editorCss from './Editor.module.css'
@@ -22,20 +23,18 @@ import {
 import EditorMap from './EditorMap'
 import MapVisualizationList, { EmptyMapVisualizationList } from './MapVisualizationList'
 import MapOptions, { EmptyMapOptions } from './MapOptions'
-import DataTab from '../DataTab'
-import { TabIdToTab, TabToId } from '../MapVisualization'
 
 export const useThunkDispatch = () => useDispatch<typeof store.dispatch>()
 
 function EmptyNavigation() {
     return <nav />
 }
-function Navigation({ tabs, selectedTabId }: { tabs: Tab[]; selectedTabId?: DataTab }) {
+function Navigation({ tabs, selectedTabId }: { tabs: Tab[]; selectedTabId?: number }) {
     const dispatch = useThunkDispatch()
     const params = useParams()
     const { tabId } = params
     useEffect(() => {
-        const tab = TabIdToTab[Number(tabId)]
+        const tab = Number(tabId)
         if (tab) {
             dispatch(setTab(tab))
         }
@@ -46,7 +45,10 @@ function Navigation({ tabs, selectedTabId }: { tabs: Tab[]; selectedTabId?: Data
             {tabs.map((tab) => (
                 <Link
                     key={tab.id}
-                    className={selectedTabId === TabIdToTab[tab.id] ? navCss.selected : undefined}
+                    className={classNames({
+                        [navCss.selected]: selectedTabId === tab.id,
+                        [navCss.uncategorized]: tab.id === -1,
+                    })}
                     to={`/editor/${tab.id}`}
                 >
                     {tab.name}
@@ -58,8 +60,9 @@ function Navigation({ tabs, selectedTabId }: { tabs: Tab[]; selectedTabId?: Data
 
 function Editor() {
     const dispatch = useThunkDispatch()
-    const { data: allMapVisualizations } = useGetMapVisualizationsQuery(undefined)
-    const { data: tabs } = useGetTabsQuery(undefined)
+    const { data: allMapVisualizations } = useGetMapVisualizationsQuery(true)
+    const { data: tabs } = useGetTabsQuery(true)
+
     const { selectedTabId, selectedMapVisualizationId } = useSelector(
         selectSelectedTabAndMapVisualization
     )
@@ -68,9 +71,7 @@ function Editor() {
     )
     const mapVisualizationsForTab =
         allMapVisualizations && selectedTabId !== undefined
-            ? Object.values(allMapVisualizations[TabToId[selectedTabId]]).sort(
-                  (a, b) => a.order - b.order
-              )
+            ? Object.values(allMapVisualizations[selectedTabId]).sort((a, b) => a.order - b.order)
             : undefined
     const map = useSelector((state: RootState) => state.editor.map)
 
@@ -82,7 +83,8 @@ function Editor() {
         })
     }, [dispatch])
 
-    const isNormalized = selectedTabId === DataTab.RiskMetrics ?? false
+    // if we're viewing risk metrics, normalize to 0-1
+    const isNormalized = selectedTabId === 8 ?? false
 
     return (
         <>

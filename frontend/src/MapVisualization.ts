@@ -238,9 +238,11 @@ export const fetchMapVisualization = async (id: number): Promise<MapVisualizatio
     return jsonToMapVisualization(rawJson)
 }
 
-export const fetchMapVisualizations = async (): Promise<MapVisualizationByTabId> => {
+export const fetchMapVisualizations = async (
+    includeDrafts?: boolean
+): Promise<MapVisualizationByTabId> => {
     const rawJson = await loadJson<{ [key: number]: { [key: number]: MapVisualizationJson } }>(
-        '/api/map-visualization'
+        `/api/map-visualization?include_drafts=${includeDrafts ?? false}`
     )
     if (rawJson === undefined) {
         return Promise.reject(new Error('Failed to fetch map visualizations'))

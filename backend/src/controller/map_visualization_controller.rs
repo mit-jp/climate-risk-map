@@ -2,6 +2,8 @@ use super::{AppState, MapVisualizationModel};
 use crate::model::{MapVisualization, MapVisualizationDaoPatch, MapVisualizationPatch};
 use actix_web::{get, patch, post, web, HttpResponse, Responder};
 use futures::future::try_join;
+use log::error;
+use serde::Deserialize;
 use std::collections::HashMap;
 
 pub fn init(cfg: &mut web::ServiceConfig) {
@@ -12,6 +14,11 @@ pub fn init(cfg: &mut web::ServiceConfig) {
 pub fn init_editor(cfg: &mut web::ServiceConfig) {
     cfg.service(patch);
     cfg.service(create);
+}
+
+#[derive(Deserialize, Debug)]
+pub struct IncludeDrafts {
+    pub include_drafts: Option<bool>,
 }
 
 async fn get_map_visualization_model(
@@ -45,12 +52,18 @@ async fn get(app_state: web::Data<AppState<'_>>, id: web::Path<i32>) -> impl Res
         .get(id.into_inner())
         .await;
     match map_visualization {
-        Err(_) => HttpResponse::InternalServerError().finish(),
+        Err(e) => {
+            error!("map vis: {}", e);
+            HttpResponse::InternalServerError().finish()
+        }
         Ok(map_visualization) => {
             let map_visualization_model =
                 get_map_visualization_model(map_visualization, &app_state).await;
             match map_visualization_model {
-                Err(_) => HttpResponse::InternalServerError().finish(),
+                Err(e) => {
+                    error!("map vis model: {}", e);
+                    HttpResponse::InternalServerError().finish()
+                }
                 Ok(map_visualization_model) => HttpResponse::Ok().json(map_visualization_model),
             }
         }
@@ -58,10 +71,20 @@ async fn get(app_state: web::Data<AppState<'_>>, id: web::Path<i32>) -> impl Res
 }
 
 #[get("/map-visualization")]
-async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
-    let map_visualizations = app_state.database.map_visualization.all().await;
+async fn get_all(
+    app_state: web::Data<AppState<'_>>,
+    info: web::Query<IncludeDrafts>,
+) -> impl Responder {
+    let map_visualizations = app_state
+        .database
+        .map_visualization
+        .all(info.include_drafts.unwrap_or(false))
+        .await;
     match map_visualizations {
-        Err(_) => HttpResponse::NotFound().finish(),
+        Err(e) => {
+            error!("{}", e);
+            HttpResponse::NotFound().finish()
+        }
         Ok(map_visualizations) => {
             let mut map_visualizations_by_category: HashMap<
                 i32,
@@ -76,7 +99,7 @@ async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
                 }
                 let map_visualization_model = map_visualization_model.unwrap();
                 let map_visualizations_for_category = map_visualizations_by_category
-                    .entry(data_tab)
+                    .entry(data_tab.unwrap_or(-1)) // store uncategorized map visualizations in category -1
                     .or_insert_with(HashMap::new);
                 map_visualizations_for_category
                     .insert(map_visualization_model.id, map_visualization_model);

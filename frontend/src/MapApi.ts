@@ -88,9 +88,9 @@ export const mapApi = createApi({
                 ),
             providesTags: (_result, _error, id) => [{ type: 'MapVisualization', id }],
         }),
-        getMapVisualizations: builder.query<MapVisualizationByTabId, undefined>({
-            queryFn: () =>
-                fetchMapVisualizations().then(
+        getMapVisualizations: builder.query<MapVisualizationByTabId, boolean>({
+            queryFn: (includeDrafts) =>
+                fetchMapVisualizations(includeDrafts).then(
                     (data) => ({ data }),
                     (error) => ({ error })
                 ),
@@ -105,8 +105,8 @@ export const mapApi = createApi({
                       ]
                     : [{ type: 'MapVisualization', id: 'ALL' }],
         }),
-        getTabs: builder.query<Tab[], undefined>({
-            query: () => 'data-category',
+        getTabs: builder.query<Tab[], boolean>({
+            query: (includeDrafts) => `data-category?include_drafts=${includeDrafts}`,
         }),
         getColorPalettes: builder.query<ColorPalette[], undefined>({
             query: () => 'color-palette',
