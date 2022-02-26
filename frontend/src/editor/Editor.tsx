@@ -90,7 +90,9 @@ function Editor() {
     )
     const mapVisualizationsForTab =
         allMapVisualizations && selectedTabId !== undefined
-            ? Object.values(allMapVisualizations[selectedTabId]).sort((a, b) => a.order - b.order)
+            ? Object.values(allMapVisualizations[selectedTabId] ?? []).sort(
+                  (a, b) => a.order - b.order
+              )
             : undefined
     const map = useSelector((state: RootState) => state.editor.map)
 
