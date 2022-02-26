@@ -18,6 +18,8 @@ import {
 import { FormatterType, MapType, MapVisualization } from '../MapVisualization'
 import css from './Editor.module.css'
 
+const INPUT_MARGIN = { margin: '0.5em 0' }
+
 function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }) {
     const { data: colorPalettes } = useGetColorPalettesQuery(undefined)
     const { data: scales } = useGetScaleTypesQuery(undefined)
@@ -55,7 +57,7 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                                 options={scales}
                                 getOptionLabel={(option) => option.name}
                                 isOptionEqualToValue={(option, value) => option.id === value.id}
-                                sx={{ width: 300 }}
+                                sx={INPUT_MARGIN}
                                 renderInput={(params) => <TextField {...params} label="Scale" />}
                                 onChange={(_, scaleType) =>
                                     scaleType &&
@@ -74,7 +76,7 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                                 }
                                 getOptionLabel={(option) => option.name}
                                 isOptionEqualToValue={(option, value) => option.id === value.id}
-                                sx={{ width: 300 }}
+                                sx={INPUT_MARGIN}
                                 renderInput={(params) => (
                                     <TextField {...params} label="Color Palette" />
                                 )}
@@ -84,6 +86,7 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                         <Autocomplete
                             multiple
                             freeSolo
+                            sx={INPUT_MARGIN}
                             value={mapVisualization.color_domain.map((d) => d.toString())}
                             options={[]}
                             renderInput={(params) => <TextField {...params} label="Domain" />}
@@ -181,7 +184,7 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
             <FormControl component="fieldset">
                 <FormLabel component="legend">Legend</FormLabel>
                 <TextField
-                    sx={{ margin: '0.5em 0' }}
+                    sx={INPUT_MARGIN}
                     label="Custom Legend Tick Count"
                     type="number"
                     InputLabelProps={{
@@ -197,7 +200,7 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                     }}
                 />
                 <TextField
-                    sx={{ margin: '0.5em 0' }}
+                    sx={INPUT_MARGIN}
                     label="Decimal places"
                     type="number"
                     InputLabelProps={{
@@ -205,17 +208,7 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                     }}
                     value={mapVisualization.decimals}
                 />
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={mapVisualization.reverse_scale}
-                            onChange={(_, reverseScale) =>
-                                updateMap({ ...mapVisualization, reverse_scale: reverseScale })
-                            }
-                        />
-                    }
-                    label="Invert"
-                />
+
                 <FormControlLabel
                     control={
                         <Checkbox
