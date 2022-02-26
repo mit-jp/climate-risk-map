@@ -4,13 +4,15 @@ import CountyTooltip from '../CountyTooltip'
 import DataProcessor from '../DataProcessor'
 import EmptyMap from '../EmptyMap'
 import FullMap from '../FullMap'
-import { useGetDataQuery } from '../MapApi'
+import { useGetDataQuery, useGetDatasetsQuery } from '../MapApi'
 import { EmptyMapTitle } from '../MapTitle'
 import { getDataQueryParams, MapVisualization } from '../MapVisualization'
 import { TopoJson } from '../TopoJson'
 import EditorMapDescription from './EditorMapDescription'
 import EditorMapTitle from './EditorMapTitle'
 import css from './Editor.module.css'
+import DatasetSelector from './DatasetSelector'
+import EmptyDatasetSelector from './EmptyDatasetSelector'
 
 type Props = {
     map: TopoJson
@@ -24,6 +26,7 @@ function EditorMap({ map, selection, detailedView, isNormalized }: Props) {
         () => (selection ? getDataQueryParams(selection) : undefined),
         [selection]
     )
+    const { data: datasets } = useGetDatasetsQuery(undefined)
     const { data } = useGetDataQuery(queryParams ?? skipToken)
     const processedData = useMemo(
         () =>
@@ -36,6 +39,11 @@ function EditorMap({ map, selection, detailedView, isNormalized }: Props) {
 
     return (
         <div id={css.map}>
+            {selection && datasets ? (
+                <DatasetSelector mapVisualization={selection} datasets={datasets} />
+            ) : (
+                <EmptyDatasetSelector />
+            )}
             {selection ? (
                 <EditorMapTitle mapVisualization={selection} key={selection.id} />
             ) : (

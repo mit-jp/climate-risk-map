@@ -10,7 +10,7 @@ const getTitle = (selectedMaps: MapVisualization[]) => {
     if (selectedMaps.length === 0) {
         return ''
     }
-    return selectedMaps[0].name
+    return selectedMaps[0].displayName
 }
 
 type Props = {

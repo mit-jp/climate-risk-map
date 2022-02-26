@@ -21,9 +21,9 @@ SELECT
     map.default_source,
     map.color_domain,
     map.pdf_domain,
-
-    COALESCE(map."name", dataset."name") as name,
+    map."name",
     
+    dataset."name" as dataset_name,
     dataset.units,
     dataset.short_name,
     dataset.description,

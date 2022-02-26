@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { autoType, csv as loadCsv, DSVParsedArray } from 'd3'
+import { Dataset } from './Dataset'
 import {
     applyPatch,
     ColorPalette,
@@ -59,7 +60,7 @@ export const mapApi = createApi({
     reducerPath: 'mapApi',
     keepUnusedDataFor: 5 * 60, // 5 minutes
     baseQuery: fetchBaseQuery({ baseUrl: '/api/' }),
-    tagTypes: ['MapVisualization'],
+    tagTypes: ['MapVisualization', 'Dataset'],
     endpoints: (builder) => ({
         getData: builder.query<DataByDataset, DataQueryParams[]>({
             queryFn: (queryParams) => {
@@ -138,6 +139,10 @@ export const mapApi = createApi({
             }),
             invalidatesTags: [{ type: 'MapVisualization', id: 'ALL' }],
         }),
+        getDatasets: builder.query<Dataset[], undefined>({
+            query: () => 'dataset',
+            providesTags: ['Dataset'],
+        }),
     }),
 })
 
@@ -151,4 +156,5 @@ export const {
     useGetMapVisualizationQuery,
     useUpdateMapVisualizationMutation,
     useCreateMapVisualizationMutation,
+    useGetDatasetsQuery,
 } = mapApi

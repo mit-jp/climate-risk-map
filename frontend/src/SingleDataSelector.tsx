@@ -57,7 +57,7 @@ function SingleDataSelector() {
                             name="dataGroup"
                         />
                         <label className={css.dataGroup} htmlFor={map.id.toString()}>
-                            {map.name}
+                            {map.displayName}
                         </label>
                         {shouldShowYears(map) && (
                             <YearSelector

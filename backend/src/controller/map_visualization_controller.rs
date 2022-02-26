@@ -1,7 +1,7 @@
 use super::{AppState, MapVisualizationModel};
 use crate::model::{MapVisualization, MapVisualizationDaoPatch, MapVisualizationPatch};
 use actix_web::{get, patch, post, web, HttpResponse, Responder};
-use futures::future::try_join;
+use futures::future::try_join3;
 use log::error;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -25,6 +25,7 @@ async fn get_map_visualization_model(
     map_visualization: MapVisualization,
     app_state: &web::Data<AppState<'_>>,
 ) -> Result<MapVisualizationModel, sqlx::Error> {
+    let dataset = app_state.database.dataset.by_id(map_visualization.dataset);
     let sources_and_dates = app_state
         .database
         .source_and_date
@@ -33,11 +34,12 @@ async fn get_map_visualization_model(
         .database
         .data_source
         .by_dataset(map_visualization.dataset);
-    let result = try_join(sources_and_dates, data_sources).await;
+    let result = try_join3(dataset, sources_and_dates, data_sources).await;
     match result {
         Err(e) => Err(e),
-        Ok((sources_and_dates, data_sources)) => Ok(MapVisualizationModel::new(
+        Ok((dataset, sources_and_dates, data_sources)) => Ok(MapVisualizationModel::new(
             map_visualization,
+            dataset,
             sources_and_dates,
             data_sources,
         )),

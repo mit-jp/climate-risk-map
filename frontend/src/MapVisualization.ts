@@ -86,7 +86,9 @@ export interface MapVisualization {
     data_tab: number
     units: string
     short_name: string
-    name: string
+    dataset_name: string
+    name?: string
+    displayName: string
     description: string
     legend_ticks?: number
     color_palette: ColorPalette
@@ -118,7 +120,8 @@ export interface MapVisualizationJson {
     data_tab: number
     units: string
     short_name: string
-    name: string
+    dataset_name: string
+    name: string | null
     description: string
     legend_ticks: number | null
     color_palette: ColorPalette
@@ -176,7 +179,8 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
         data_tab: json.data_tab,
         units: json.units,
         short_name: json.short_name,
-        name: json.name,
+        dataset_name: json.dataset_name,
+        name: json.name ?? undefined,
         description: json.description,
         legend_ticks: json.legend_ticks ?? undefined,
         color_palette: json.color_palette,
@@ -195,6 +199,7 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
         decimals: json.decimals,
         legend_decimals: json.legend_decimals ?? undefined,
         order: json.order,
+        displayName: json.name ?? json.dataset_name,
     }
 }
 

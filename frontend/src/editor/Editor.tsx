@@ -109,17 +109,29 @@ function Editor() {
         <>
             {tabs ? <Navigation tabs={tabs} selectedTabId={selectedTabId} /> : <EmptyNavigation />}
             <div id={editorCss.editor}>
-                <div>
+                <div id={editorCss.mapVisualizationList}>
                     {mapVisualizationsForTab ? (
-                        <MapVisualizationList
-                            mapVisualizations={mapVisualizationsForTab}
-                            selectedId={selectedMapVisualizationId}
-                            onClick={(clickedMap) => dispatch(clickMapVisualization(clickedMap))}
-                        />
+                        <>
+                            <MapVisualizationList
+                                mapVisualizations={mapVisualizationsForTab}
+                                selectedId={selectedMapVisualizationId}
+                                onClick={(clickedMap) =>
+                                    dispatch(clickMapVisualization(clickedMap))
+                                }
+                            />
+                            {selectedTabId === -1 && (
+                                <Button
+                                    id={editorCss.createMap}
+                                    onClick={() => createMap(NEW_MAP)}
+                                    variant="contained"
+                                >
+                                    Create new map
+                                </Button>
+                            )}
+                        </>
                     ) : (
                         <EmptyMapVisualizationList />
                     )}
-                    <Button onClick={() => createMap(NEW_MAP)}>Create new map</Button>
                 </div>
                 {map && (
                     <EditorMap

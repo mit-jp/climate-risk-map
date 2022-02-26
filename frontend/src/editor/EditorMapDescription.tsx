@@ -15,8 +15,9 @@ function EditorMapDescription({ selectedMap }: { selectedMap: MapVisualization }
                 multiline
                 fullWidth
                 onChange={(e) => setDescription(e.target.value)}
+                disabled
             />
-            <LoadingButton loading={isLoading} variant="contained">
+            <LoadingButton loading={isLoading} variant="contained" disabled>
                 save
             </LoadingButton>
         </form>

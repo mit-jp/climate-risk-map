@@ -38,7 +38,7 @@ const getFilename = (selectedMaps: MapVisualization[], isNormalized: boolean) =>
     if (unitString === 'Mean of selected data') {
         return unitString
     }
-    return selectedMaps[0].name + unitString
+    return selectedMaps[0].displayName + unitString
 }
 
 type Props = {
