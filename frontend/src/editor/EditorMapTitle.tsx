@@ -1,6 +1,6 @@
 import { TextField } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useUpdateMapVisualizationMutation } from '../MapApi'
 import { MapVisualization } from '../MapVisualization'
 import css from './Editor.module.css'
@@ -8,21 +8,27 @@ import css from './Editor.module.css'
 type Props = { mapVisualization: MapVisualization }
 
 function EditorMapTitle({ mapVisualization }: Props) {
-    const [title, setTitle] = useState(mapVisualization.name)
+    const [title, setTitle] = useState(mapVisualization.name ?? '')
     const [updateMap, { isLoading }] = useUpdateMapVisualizationMutation()
+    const currentTitle = mapVisualization.name ?? ''
+    useEffect(() => {
+        setTitle(currentTitle)
+    }, [currentTitle])
 
     return (
         <div id={css.titleField}>
             <TextField
-                label="title"
+                label="Custom Title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 disabled={isLoading}
                 fullWidth
+                inputProps={{ maxLength: 100 }}
             />
             <LoadingButton
-                onClick={() => updateMap({ ...mapVisualization, name: title })}
+                onClick={() => updateMap({ ...mapVisualization, name: title || undefined })} // set to undefined if empty string
                 variant="contained"
+                disabled={currentTitle === title}
                 loading={isLoading}
             >
                 Save
@@ -30,8 +36,9 @@ function EditorMapTitle({ mapVisualization }: Props) {
             <LoadingButton
                 onClick={() => updateMap({ ...mapVisualization, name: undefined })}
                 loading={isLoading}
+                disabled={currentTitle === ''}
             >
-                Reset
+                Clear
             </LoadingButton>
         </div>
     )

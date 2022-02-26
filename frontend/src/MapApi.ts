@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { autoType, csv as loadCsv, DSVParsedArray } from 'd3'
+import { Dataset } from './Dataset'
 import {
     applyPatch,
     ColorPalette,
@@ -59,7 +60,7 @@ export const mapApi = createApi({
     reducerPath: 'mapApi',
     keepUnusedDataFor: 5 * 60, // 5 minutes
     baseQuery: fetchBaseQuery({ baseUrl: '/api/' }),
-    tagTypes: ['MapVisualization'],
+    tagTypes: ['MapVisualization', 'Dataset'],
     endpoints: (builder) => ({
         getData: builder.query<DataByDataset, DataQueryParams[]>({
             queryFn: (queryParams) => {
@@ -88,9 +89,9 @@ export const mapApi = createApi({
                 ),
             providesTags: (_result, _error, id) => [{ type: 'MapVisualization', id }],
         }),
-        getMapVisualizations: builder.query<MapVisualizationByTabId, undefined>({
-            queryFn: () =>
-                fetchMapVisualizations().then(
+        getMapVisualizations: builder.query<MapVisualizationByTabId, boolean>({
+            queryFn: (includeDrafts) =>
+                fetchMapVisualizations(includeDrafts).then(
                     (data) => ({ data }),
                     (error) => ({ error })
                 ),
@@ -105,8 +106,8 @@ export const mapApi = createApi({
                       ]
                     : [{ type: 'MapVisualization', id: 'ALL' }],
         }),
-        getTabs: builder.query<Tab[], undefined>({
-            query: () => 'data-category',
+        getTabs: builder.query<Tab[], boolean>({
+            query: (includeDrafts) => `data-category?include_drafts=${includeDrafts}`,
         }),
         getColorPalettes: builder.query<ColorPalette[], undefined>({
             query: () => 'color-palette',
@@ -116,7 +117,7 @@ export const mapApi = createApi({
         }),
         updateMapVisualization: builder.mutation<MapVisualization, MapVisualizationPatch>({
             query: (patch) => ({
-                url: `editor/map-visualization`,
+                url: 'editor/map-visualization',
                 method: 'PATCH',
                 body: patch,
             }),
@@ -130,6 +131,18 @@ export const mapApi = createApi({
                 queryFulfilled.catch(() => patchResult.undo())
             },
         }),
+        createMapVisualization: builder.mutation<MapVisualization, MapVisualizationPatch>({
+            query: (map) => ({
+                url: 'editor/map-visualization',
+                method: 'POST',
+                body: map,
+            }),
+            invalidatesTags: [{ type: 'MapVisualization', id: 'ALL' }],
+        }),
+        getDatasets: builder.query<Dataset[], undefined>({
+            query: () => 'dataset',
+            providesTags: ['Dataset'],
+        }),
     }),
 })
 
@@ -142,4 +155,6 @@ export const {
     useGetScaleTypesQuery,
     useGetMapVisualizationQuery,
     useUpdateMapVisualizationMutation,
+    useCreateMapVisualizationMutation,
+    useGetDatasetsQuery,
 } = mapApi

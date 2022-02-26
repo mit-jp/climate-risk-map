@@ -25,3 +25,17 @@
     background: #435e7c;
     color: #fff;
 }
+
+#nav a.uncategorized {
+    background: #fff6d0;
+}
+
+#nav a.uncategorized:hover {
+    background: #fce995;
+    color: #2c2506;
+}
+
+#nav a.uncategorized.selected {
+    background: #ffda37;
+    color: #000;
+}

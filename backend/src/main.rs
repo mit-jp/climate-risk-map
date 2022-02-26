@@ -19,10 +19,7 @@ async fn main() -> std::io::Result<()> {
         connections: Mutex::new(0),
         database: Arc::new(editor_database),
     });
-    env_logger::Builder::from_env(
-        Env::default().default_filter_or("actix_web=info,actix_server=info"),
-    )
-    .init();
+    env_logger::Builder::from_env(Env::default().default_filter_or("info,sqlx=error")).init();
     let read_only_app = HttpServer::new(move || {
         App::new()
             .app_data(app_state.clone())

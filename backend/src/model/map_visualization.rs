@@ -1,6 +1,7 @@
 use super::DataSource;
 use super::SourceAndDate;
 use crate::model::ColorPalette;
+use crate::model::Dataset;
 use crate::model::ScaleType;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
@@ -90,10 +91,11 @@ pub struct MapVisualization {
     pub id: i32,
     pub units: String,
     pub short_name: String,
-    pub name: String,
+    pub dataset_name: String,
+    pub name: Option<String>,
     pub description: String,
     pub subcategory: Option<i32>,
-    pub data_tab: i32,
+    pub data_tab: Option<i32>,
     pub dataset: i32,
     pub map_type: i32,
     pub legend_ticks: Option<i16>,
@@ -122,10 +124,11 @@ pub struct MapVisualizationModel {
     pub dataset: i32,
     pub map_type: i32,
     pub subcategory: Option<i32>,
-    pub data_tab: i32,
+    pub data_tab: Option<i32>,
     pub units: String,
     pub short_name: String,
-    pub name: String,
+    pub name: Option<String>,
+    pub dataset_name: String,
     pub description: String,
     pub legend_ticks: Option<i16>,
     pub color_palette: ColorPalette,
@@ -149,6 +152,7 @@ pub struct MapVisualizationModel {
 impl MapVisualizationModel {
     pub fn new(
         map_visualization: MapVisualization,
+        dataset: Dataset,
         source_and_dates: Vec<SourceAndDate>,
         data_sources: Vec<DataSource>,
     ) -> MapVisualizationModel {
@@ -178,6 +182,7 @@ impl MapVisualizationModel {
             data_tab: map_visualization.data_tab,
             units: map_visualization.units,
             short_name: map_visualization.short_name,
+            dataset_name: map_visualization.dataset_name,
             name: map_visualization.name,
             description: map_visualization.description,
             legend_ticks: map_visualization.legend_ticks,
@@ -235,10 +240,11 @@ mod tests {
             id: 1,
             units: "".to_string(),
             short_name: "".to_string(),
-            name: "".to_string(),
+            dataset_name: "".to_string(),
+            name: None,
             description: "".to_string(),
             subcategory: None,
-            data_tab: 1,
+            data_tab: Some(1),
             dataset: 1,
             map_type: 1,
             legend_ticks: None,
@@ -261,6 +267,13 @@ mod tests {
             pdf_domain: vec![],
         };
         let source_id = 1;
+        let dataset = Dataset {
+            id: 1,
+            name: "".to_string(),
+            description: "".to_string(),
+            short_name: "".to_string(),
+            units: "".to_string(),
+        };
         let source: DataSource = DataSource {
             id: source_id,
             name: "".to_string(),
@@ -273,8 +286,12 @@ mod tests {
             end_date: NaiveDate::from_ymd(2020, 1, 1),
         };
         let expected_date_range = DateRange::from(&source_and_date);
-        let map_visualization_model =
-            MapVisualizationModel::new(map_visualization, vec![source_and_date], vec![source]);
+        let map_visualization_model = MapVisualizationModel::new(
+            map_visualization,
+            dataset,
+            vec![source_and_date],
+            vec![source],
+        );
 
         assert_eq!(
             map_visualization_model.date_ranges_by_source[&source_id][0],

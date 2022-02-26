@@ -189,9 +189,9 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                     }}
                     value={mapVisualization.legend_ticks ?? ''}
                     onChange={(e) => {
-                        let legendTicks: number | null = parseInt(e.target.value, 10)
+                        let legendTicks: number | undefined = parseInt(e.target.value, 10)
                         if (Number.isNaN(legendTicks)) {
-                            legendTicks = null
+                            legendTicks = undefined
                         }
                         updateMap({ ...mapVisualization, legend_ticks: legendTicks })
                     }}
@@ -233,7 +233,7 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                                       })
                                     : updateMap({
                                           ...mapVisualization,
-                                          legend_formatter_type: null,
+                                          legend_formatter_type: undefined,
                                       })
                             }}
                         />

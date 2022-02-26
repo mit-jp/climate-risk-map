@@ -18,6 +18,7 @@
     "@types/react-dom": "^17.0.9",
     "@types/react-redux": "^7.1.18",
     "@types/topojson-client": "^3.0.0",
+    "classnames": "^2.3.1",
     "d3": "^6.2.0",
     "d3-dsv": "^2.0.0",
     "d3-scale-chromatic": "^2.0.0",

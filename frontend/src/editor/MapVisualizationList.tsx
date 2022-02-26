@@ -24,7 +24,7 @@ function MapVisualizationList({
                         name="dataGroup"
                     />
                     <label className={css.dataGroup} htmlFor={map.id.toString()}>
-                        {map.name}
+                        {map.displayName}
                     </label>
                 </div>
             ))}
@@ -33,6 +33,6 @@ function MapVisualizationList({
 }
 
 export function EmptyMapVisualizationList() {
-    return <ol />
+    return <div id={css.dataSelector} />
 }
 export default MapVisualizationList

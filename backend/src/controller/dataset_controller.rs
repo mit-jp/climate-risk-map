@@ -8,20 +8,20 @@ pub fn init(cfg: &mut web::ServiceConfig) {
 
 #[get("/dataset/{id}")]
 async fn get(id: web::Path<i32>, app_state: web::Data<AppState<'_>>) -> impl Responder {
-    let counties = app_state.database.dataset.by_id(id.into_inner()).await;
+    let datasets = app_state.database.dataset.by_id(id.into_inner()).await;
 
-    match counties {
+    match datasets {
         Err(_) => HttpResponse::NotFound().finish(),
-        Ok(counties) => HttpResponse::Ok().json(counties),
+        Ok(datasets) => HttpResponse::Ok().json(datasets),
     }
 }
 
 #[get("/dataset")]
 async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
-    let counties = app_state.database.dataset.all().await;
+    let datasets = app_state.database.dataset.all().await;
 
-    match counties {
+    match datasets {
         Err(_) => HttpResponse::NotFound().finish(),
-        Ok(counties) => HttpResponse::Ok().json(counties),
+        Ok(datasets) => HttpResponse::Ok().json(datasets),
     }
 }

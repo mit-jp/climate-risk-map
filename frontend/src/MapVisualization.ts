@@ -56,26 +56,26 @@ export enum MapType {
 
 export interface MapVisualizationPatch {
     id: MapVisualizationId
-    dataset?: number
-    map_type?: MapType
-    subcategory?: number | null
-    data_tab?: number | null
-    name?: string | null
-    legend_ticks?: number | null
-    color_palette?: ColorPalette
-    reverse_scale?: boolean
-    invert_normalized?: boolean
-    scale_type?: ScaleType
-    color_domain?: number[]
-    show_pdf?: boolean
-    pdf_domain?: [number, number] | []
-    default_start_date?: DateTime | null
-    default_end_date?: DateTime | null
-    default_source?: number | null
-    formatter_type?: FormatterType
-    legend_formatter_type?: FormatterType | null
-    decimals?: number
-    legend_decimals?: number | null
+    dataset: number
+    map_type: MapType
+    subcategory?: number
+    data_tab?: number
+    name?: string
+    legend_ticks?: number
+    color_palette: ColorPalette
+    reverse_scale: boolean
+    invert_normalized: boolean
+    scale_type: ScaleType
+    color_domain: number[]
+    show_pdf: boolean
+    pdf_domain: [number, number] | []
+    default_start_date?: DateTime
+    default_end_date?: DateTime
+    default_source?: number
+    formatter_type: FormatterType
+    legend_formatter_type?: FormatterType
+    decimals: number
+    legend_decimals?: number
 }
 
 export interface MapVisualization {
@@ -86,7 +86,9 @@ export interface MapVisualization {
     data_tab: number
     units: string
     short_name: string
-    name: string
+    dataset_name: string
+    name?: string
+    displayName: string
     description: string
     legend_ticks?: number
     color_palette: ColorPalette
@@ -118,7 +120,8 @@ export interface MapVisualizationJson {
     data_tab: number
     units: string
     short_name: string
-    name: string
+    dataset_name: string
+    name: string | null
     description: string
     legend_ticks: number | null
     color_palette: ColorPalette
@@ -176,7 +179,8 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
         data_tab: json.data_tab,
         units: json.units,
         short_name: json.short_name,
-        name: json.name,
+        dataset_name: json.dataset_name,
+        name: json.name ?? undefined,
         description: json.description,
         legend_ticks: json.legend_ticks ?? undefined,
         color_palette: json.color_palette,
@@ -195,6 +199,7 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
         decimals: json.decimals,
         legend_decimals: json.legend_decimals ?? undefined,
         order: json.order,
+        displayName: json.name ?? json.dataset_name,
     }
 }
 
@@ -238,9 +243,11 @@ export const fetchMapVisualization = async (id: number): Promise<MapVisualizatio
     return jsonToMapVisualization(rawJson)
 }
 
-export const fetchMapVisualizations = async (): Promise<MapVisualizationByTabId> => {
+export const fetchMapVisualizations = async (
+    includeDrafts?: boolean
+): Promise<MapVisualizationByTabId> => {
     const rawJson = await loadJson<{ [key: number]: { [key: number]: MapVisualizationJson } }>(
-        '/api/map-visualization'
+        `/api/map-visualization?include_drafts=${includeDrafts ?? false}`
     )
     if (rawJson === undefined) {
         return Promise.reject(new Error('Failed to fetch map visualizations'))

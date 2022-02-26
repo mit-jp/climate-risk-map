@@ -57,7 +57,7 @@ const checkBox = (
                         color="primary"
                     />
                 }
-                label={map.name}
+                label={map.displayName}
             />
             {shouldBeChecked(map.id) && multipleChecked(selections) && (
                 <div className={css.weight}>

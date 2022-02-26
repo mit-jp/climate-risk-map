@@ -14,7 +14,7 @@ function DataDescription() {
     }
     const map = maps[0]
     const { description } = map
-    const { name } = map
+    const { displayName } = map
 
     if (!description) {
         return null
@@ -27,7 +27,7 @@ function DataDescription() {
                 onClick={() => dispatch(toggleDataDescription())}
                 className={showDataDescription ? css.shown : undefined}
             >
-                About the {name} data
+                About the {displayName} data
             </button>
             {showDataDescription && <p>{description}</p>}
         </div>
