@@ -82,11 +82,8 @@ function Editor() {
     const { data: tabs } = useGetTabsQuery(true)
     const [createMap] = useCreateMapVisualizationMutation()
 
-    const { selectedTabId, selectedMapVisualizationId } = useSelector(
+    const { selectedTabId, selectedMapVisualizationId: maybeSelectedMap } = useSelector(
         selectSelectedTabAndMapVisualization
-    )
-    const { data: selectedMapVisualization } = useGetMapVisualizationQuery(
-        selectedMapVisualizationId ?? skipToken
     )
     const mapVisualizationsForTab =
         allMapVisualizations && selectedTabId !== undefined
@@ -94,6 +91,12 @@ function Editor() {
                   (a, b) => a.order - b.order
               )
             : undefined
+    const selectedMap = mapVisualizationsForTab?.find((m) => m.id === maybeSelectedMap)
+        ? maybeSelectedMap
+        : undefined
+    const { data: selectedMapVisualization, isUninitialized } = useGetMapVisualizationQuery(
+        selectedMap ?? skipToken
+    )
     const map = useSelector((state: RootState) => state.editor.map)
 
     useEffect(() => {
@@ -116,7 +119,7 @@ function Editor() {
                         <>
                             <MapVisualizationList
                                 mapVisualizations={mapVisualizationsForTab}
-                                selectedId={selectedMapVisualizationId}
+                                selectedId={selectedMap}
                                 onClick={(clickedMap) =>
                                     dispatch(clickMapVisualization(clickedMap))
                                 }
@@ -138,12 +141,12 @@ function Editor() {
                 {map && (
                     <EditorMap
                         map={map}
-                        selection={selectedMapVisualization}
+                        selection={isUninitialized ? undefined : selectedMapVisualization}
                         detailedView
                         isNormalized={isNormalized}
                     />
                 )}
-                {selectedMapVisualization && !isNormalized ? (
+                {!isUninitialized && selectedMapVisualization && !isNormalized ? (
                     <MapOptions mapVisualization={selectedMapVisualization} />
                 ) : (
                     <EmptyMapOptions />
