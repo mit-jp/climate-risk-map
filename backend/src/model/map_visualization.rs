@@ -1,7 +1,6 @@
 use super::DataSource;
 use super::SourceAndDate;
 use crate::model::ColorPalette;
-use crate::model::Dataset;
 use crate::model::ScaleType;
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
@@ -152,7 +151,6 @@ pub struct MapVisualizationModel {
 impl MapVisualizationModel {
     pub fn new(
         map_visualization: MapVisualization,
-        dataset: Dataset,
         source_and_dates: Vec<SourceAndDate>,
         data_sources: Vec<DataSource>,
     ) -> MapVisualizationModel {
@@ -267,13 +265,6 @@ mod tests {
             pdf_domain: vec![],
         };
         let source_id = 1;
-        let dataset = Dataset {
-            id: 1,
-            name: "".to_string(),
-            description: "".to_string(),
-            short_name: "".to_string(),
-            units: "".to_string(),
-        };
         let source: DataSource = DataSource {
             id: source_id,
             name: "".to_string(),
@@ -286,12 +277,8 @@ mod tests {
             end_date: NaiveDate::from_ymd(2020, 1, 1),
         };
         let expected_date_range = DateRange::from(&source_and_date);
-        let map_visualization_model = MapVisualizationModel::new(
-            map_visualization,
-            dataset,
-            vec![source_and_date],
-            vec![source],
-        );
+        let map_visualization_model =
+            MapVisualizationModel::new(map_visualization, vec![source_and_date], vec![source]);
 
         assert_eq!(
             map_visualization_model.date_ranges_by_source[&source_id][0],
