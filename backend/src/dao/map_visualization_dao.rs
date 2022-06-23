@@ -20,7 +20,7 @@ SELECT
     map.default_end_date,
     map.default_source,
     map.color_domain,
-    map.pdf_domain,
+    array_sort(map.pdf_domain) as pdf_domain,
     map."name",
     
     dataset."name" as dataset_name,
