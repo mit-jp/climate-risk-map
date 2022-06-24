@@ -1,4 +1,4 @@
-import mstLogo from './MST-logo.jpg'
+import climateRiskLogo from './climate-risk-logo.jpg'
 import mitLogo from './MIT-logo.svg'
 import jointProgramLogo from './joint-program-logo.jpg'
 import css from './Header.module.css'
@@ -6,8 +6,12 @@ import css from './Header.module.css'
 function Header() {
     return (
         <header id={css.header}>
-            <div id={css.mstTitle}>
-                <img src={mstLogo} alt="Socio-Environmental Systems Risk Triage" id={css.mstLogo} />
+            <div id={css.title}>
+                <img
+                    src={climateRiskLogo}
+                    alt="Socio-Environmental Systems Risk Triage"
+                    id={css.climateRiskLogo}
+                />
                 <div id={css.titleAndSubtitle}>
                     <h1>Socio-Environmental Systems Risk Triage</h1>
                     <p>

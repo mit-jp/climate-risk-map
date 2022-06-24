@@ -11,13 +11,13 @@
     font-family: 'Merriweather', serif;
 }
 
-#mst-title {
+#title {
     display: flex;
     align-items: center;
     flex-grow: 1;
 }
 
-#mst-logo {
+#climate-risk-logo {
     height: 120px;
     margin-left: 1em;
 }
