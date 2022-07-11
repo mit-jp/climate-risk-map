@@ -6,7 +6,8 @@
         "plugin:react/recommended",
         "plugin:react-hooks/recommended",
         "plugin:jsx-a11y/recommended",
-        "plugin:react/jsx-runtime"
+        "plugin:react/jsx-runtime",
+        "plugin:storybook/recommended"
     ],
     "plugins": ["prettier", "react", "@typescript-eslint", "testing-library"],
     "parserOptions": {
@@ -60,7 +61,14 @@
         "no-unused-vars": "off",
         // https://stackoverflow.com/a/63961972/382892
         "no-shadow": "off",
-        "@typescript-eslint/no-shadow": ["error"]
+        "@typescript-eslint/no-shadow": ["error"],
+        "import/no-extraneous-dependencies": [
+            "error",
+            {
+                "devDependencies": ["**/*.stories.*", "**/.storybook/**/*.*"],
+                "peerDependencies": true
+            }
+        ]
     },
     "settings": {
         // https://stackoverflow.com/a/55280867/382892
@@ -94,6 +102,18 @@
             "files": ["vite.config.ts"],
             "rules": {
                 "import/no-extraneous-dependencies": ["error", { "devDependencies": true }]
+            }
+        },
+        {
+            "files": ["**/*.stories.tsx"],
+            "rules": {
+                "react/function-component-definition": [
+                    "error",
+                    {
+                        "namedComponents": "arrow-function"
+                    }
+                ],
+                "react/jsx-props-no-spreading": "off"
             }
         }
     ]
