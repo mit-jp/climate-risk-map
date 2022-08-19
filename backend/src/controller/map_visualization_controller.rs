@@ -36,9 +36,9 @@ async fn get_map_visualization_model(
     let result = try_join(sources_and_dates, data_sources).await;
     match result {
         Err(e) => Err(e),
-        Ok((sources_and_dates, data_sources)) => Ok(MapVisualizationModel::new(
+        Ok((source_and_dates, data_sources)) => Ok(MapVisualizationModel::new(
             map_visualization,
-            sources_and_dates,
+            source_and_dates,
             data_sources,
         )),
     }
@@ -94,7 +94,8 @@ async fn get_all(
                 let data_tab = map_visualization.data_tab;
                 let map_visualization_model =
                     get_map_visualization_model(map_visualization, &app_state).await;
-                if map_visualization_model.is_err() {
+                if let Err(e) = map_visualization_model {
+                    error!("{}", e);
                     return HttpResponse::InternalServerError().finish();
                 }
                 let map_visualization_model = map_visualization_model.unwrap();

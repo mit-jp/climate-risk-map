@@ -11,6 +11,7 @@ import MapWrapper from './MapWrapper'
 import { OverlayName, setMap, setMapVisualizations, setOverlay } from './appSlice'
 import SiteOverview from './SiteOverview'
 import { TopoJson } from './TopoJson'
+import CountryNavigation from './CountryNavigation'
 
 type TopoJsonFile =
     | 'usa.json'
@@ -56,6 +57,7 @@ function Home() {
     return (
         <>
             <Header />
+            <CountryNavigation />
             <Navigation />
             <SiteOverview />
             <div id={css.content}>

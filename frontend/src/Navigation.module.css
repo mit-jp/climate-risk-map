@@ -1,9 +1,9 @@
-#nav {
+.nav {
     margin-bottom: 1em;
     display: flex;
 }
 
-#nav a {
+.nav a {
     cursor: pointer;
     display: block;
     color: #000;
@@ -16,26 +16,26 @@
     background: none;
 }
 
-#nav a:hover {
+.nav a:hover {
     background: #e3eaf1;
     color: #435e7c;
 }
 
-#nav a.selected {
+.nav a.selected {
     background: #435e7c;
     color: #fff;
 }
 
-#nav a.uncategorized {
+.nav a.uncategorized {
     background: #fff6d0;
 }
 
-#nav a.uncategorized:hover {
+.nav a.uncategorized:hover {
     background: #fce995;
     color: #2c2506;
 }
 
-#nav a.uncategorized.selected {
+.nav a.uncategorized.selected {
     background: #ffda37;
     color: #000;
 }

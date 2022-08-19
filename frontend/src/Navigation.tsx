@@ -25,7 +25,7 @@ function Navigation() {
     }, [tabId, dispatch])
 
     return (
-        <nav id={css.nav}>
+        <nav className={css.nav}>
             {dataTabs.map((dataTab) => (
                 <Link
                     key={dataTab}

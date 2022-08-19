@@ -36,8 +36,9 @@ export type TabAndMapVisualizations = {
     dataTab: DataTab
     mapVisualizations: MapVisualization[]
 }
-
+type Region = 'USA' | 'World'
 interface AppState {
+    readonly selectedRegion: Region
     readonly map?: TopoJson
     readonly mapTransform?: string
     readonly overlays: Record<OverlayName, Overlay>
@@ -123,6 +124,7 @@ const defaultSelections: Record<DataTab, MapSelection[]> = {
 }
 
 const initialState: AppState = {
+    selectedRegion: 'USA',
     overlays: {
         Highways: { shouldShow: false },
         'Major railroads': { shouldShow: false },
@@ -253,6 +255,9 @@ export const appSlice = createSlice({
         setMapVisualizations: (state, { payload }: PayloadAction<MapVisualizationByTabId>) => {
             state.mapVisualizations = payload
         },
+        selectRegion: (state, { payload }: PayloadAction<Region>) => {
+            state.selectedRegion = payload
+        },
     },
 })
 
@@ -275,6 +280,7 @@ export const {
     setTransmissionLineType,
     clickCounty,
     setMapVisualizations,
+    selectRegion,
 } = appSlice.actions
 
 // Accessors that return a new object every time, or run for a long time.

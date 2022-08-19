@@ -1,6 +1,6 @@
 use super::{
-    ColorPalette, County, Data, DataCategory, DataSource, Dataset, MapVisualization, ScaleType,
-    SourceAndDate, State,
+    ColorPalette, CountryData, County, DataCategory, DataSource, Dataset, MapVisualization,
+    ScaleType, SourceAndDate, State, USACountyData,
 };
 use sqlx::postgres::PgRow;
 use sqlx::{FromRow, PgPool};
@@ -29,7 +29,8 @@ where
 pub struct Database<'c> {
     pub state: Arc<Table<'c, State>>,
     pub county: Arc<Table<'c, County>>,
-    pub data: Arc<Table<'c, Data>>,
+    pub usa_county_data: Arc<Table<'c, USACountyData>>,
+    pub country_data: Arc<Table<'c, CountryData>>,
     pub dataset: Arc<Table<'c, Dataset>>,
     pub map_visualization: Arc<Table<'c, MapVisualization>>,
     pub data_category: Arc<Table<'c, DataCategory>>,
@@ -47,7 +48,8 @@ impl Database<'_> {
         Database {
             state: Arc::from(Table::new(pool.clone())),
             county: Arc::from(Table::new(pool.clone())),
-            data: Arc::from(Table::new(pool.clone())),
+            usa_county_data: Arc::from(Table::new(pool.clone())),
+            country_data: Arc::from(Table::new(pool.clone())),
             dataset: Arc::from(Table::new(pool.clone())),
             map_visualization: Arc::from(Table::new(pool.clone())),
             data_category: Arc::from(Table::new(pool.clone())),

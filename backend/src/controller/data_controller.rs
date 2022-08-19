@@ -6,7 +6,8 @@ use serde::{Deserialize, Serialize};
 use std::error::Error;
 
 pub fn init(cfg: &mut web::ServiceConfig) {
-    cfg.service(get);
+    cfg.service(get_by_country);
+    cfg.service(get_by_usa_county);
     cfg.service(get_county_percentiles);
 }
 
@@ -33,15 +34,15 @@ pub struct DataQuery {
     pub county_id: i16,
 }
 
-#[get("/data/{id}")]
-async fn get(
+#[get("/usa-county-data/{id}")]
+async fn get_by_usa_county(
     id: web::Path<i32>,
     info: web::Query<Info>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
     let data = app_state
         .database
-        .data
+        .usa_county_data
         .by_id_source_date(
             id.into_inner(),
             SourceAndDate {
@@ -64,15 +65,43 @@ async fn get(
     }
 }
 
-#[get("/data")]
+#[get("/usa-county-data")]
 async fn get_county_percentiles(
     info: web::Query<DataQuery>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
     let data = app_state
         .database
-        .data
+        .usa_county_data
         .by_category_state_county(info.into_inner())
+        .await;
+
+    match data {
+        Ok(data) => match data_to_csv(data) {
+            Ok(csv) => HttpResponse::Ok().content_type("text/csv").body(csv),
+            Err(_) => HttpResponse::NotFound().finish(),
+        },
+        Err(_) => HttpResponse::NotFound().finish(),
+    }
+}
+
+#[get("/country-data/{id}")]
+async fn get_by_country(
+    id: web::Path<i32>,
+    info: web::Query<Info>,
+    app_state: web::Data<AppState<'_>>,
+) -> impl Responder {
+    let data = app_state
+        .database
+        .country_data
+        .by_id_source_date(
+            id.into_inner(),
+            SourceAndDate {
+                source: info.source,
+                start_date: info.start_date,
+                end_date: info.end_date,
+            },
+        )
         .await;
 
     match data {
@@ -87,27 +116,39 @@ async fn get_county_percentiles(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::model::SimpleData;
+    use crate::model::{CountrySimpleData, USACountySimpleData};
+
     #[test]
-    fn test_data_to_csv() {
+    fn it_converts_usa_county_data_to_csv() {
         let data = vec![
-            SimpleData {
-                value: Some(1.1),
+            USACountySimpleData {
                 county_id: 1,
-                state_id: 10,
+                state_id: 2,
+                value: Some(3.0),
             },
-            SimpleData {
-                county_id: 3,
-                state_id: 20,
-                value: None,
-            },
-            SimpleData {
-                county_id: 2,
-                state_id: 20,
-                value: Some(2.2),
+            USACountySimpleData {
+                county_id: 4,
+                state_id: 5,
+                value: Some(6.0),
             },
         ];
         let csv = data_to_csv(data).unwrap();
-        assert_eq!(csv, "county_id,state_id,value\n1,10,1.1\n3,20,\n2,20,2.2\n");
+        assert_eq!(csv, "county_id,state_id,value\n1,2,3.0\n4,5,6.0\n");
+    }
+
+    #[test]
+    fn it_converts_country_data_to_csv() {
+        let data = vec![
+            CountrySimpleData {
+                country_id: 1,
+                value: Some(3.0),
+            },
+            CountrySimpleData {
+                country_id: 3,
+                value: Some(6.0),
+            },
+        ];
+        let csv = data_to_csv(data).unwrap();
+        assert_eq!(csv, "country_id,value\n1,3.0\n3,6.0\n");
     }
 }

@@ -2,76 +2,78 @@ use super::Table;
 use super::{MapVisualization, MapVisualizationDaoPatch};
 use sqlx::postgres::PgQueryResult;
 
-const SELECT: &str = r#"
-SELECT
-    map.id,
-    map.reverse_scale,
-    map.invert_normalized,
-    map.subcategory,
-    map.dataset,
-    map.map_type,
-    map.legend_ticks,
-    map.formatter_type,
-    map.decimals,
-    map.legend_formatter_type,
-    map.legend_decimals,
-    map.show_pdf,
-    map.default_start_date,
-    map.default_end_date,
-    map.default_source,
-    map.color_domain,
-    array_sort(map.pdf_domain) as pdf_domain,
-    map."name",
-    
-    dataset."name" as dataset_name,
-    dataset.units,
-    dataset.short_name,
-    dataset.description,
-    
-    color_palette."name" as color_palette_name,
-    color_palette.id as color_palette_id,
+macro_rules! select {
+    () => {
+        select!("LEFT JOIN")
+    };
+    (include_drafts) => {
+        select!("JOIN")
+    };
+    ($id:ident) => {
+        select!("LEFT JOIN", $id)
+    };
+    ($join_type:expr) => {
+        select!($join_type,)
+    };
+    ($join_type:expr, $($id:expr)?) => {
+        sqlx::query_as!(
+            MapVisualization,
+            r#"
+            SELECT
+                map.id as "id!",
+                map.reverse_scale as "reverse_scale!",
+                map.invert_normalized as "invert_normalized!",
+                map.subcategory,
+                map.dataset as "dataset!",
+                map.map_type as "map_type!",
+                map.legend_ticks,
+                map.formatter_type as "formatter_type!",
+                map.decimals as "decimals!",
+                map.legend_formatter_type,
+                map.legend_decimals,
+                map.show_pdf as "show_pdf!",
+                map.default_start_date,
+                map.default_end_date,
+                map.default_source,
+                map.color_domain as "color_domain!",
+                array_sort(map.pdf_domain) as "pdf_domain!",
+                map."name",
+                
+                dataset."name" as "dataset_name!",
+                dataset.units as "units!",
+                dataset.short_name as "short_name!",
+                dataset.description as "description!",
+                
+                color_palette."name" as "color_palette_name!",
+                color_palette.id as "color_palette_id!",
 
-    scale_type.name as scale_type_name,
-    scale_type.id as scale_type_id,
-    
-    map_visualization_collection.category as data_tab,
-    COALESCE(map_visualization_collection.order, int2(0)) as order
-"#;
-
-const FROM_CATEGORIZED: &str = r#"
-FROM map_visualization AS map
-JOIN dataset ON map.dataset = dataset.id
-JOIN color_palette ON map.color_palette = color_palette.id
-JOIN scale_type ON map.scale_type = scale_type.id
-JOIN map_visualization_collection ON map.id = map_visualization_collection.map_visualization
-"#;
-
-const FROM_ALL: &str = r#"
-FROM map_visualization AS map
-JOIN dataset ON map.dataset = dataset.id
-JOIN color_palette ON map.color_palette = color_palette.id
-JOIN scale_type ON map.scale_type = scale_type.id
-LEFT JOIN map_visualization_collection ON map.id = map_visualization_collection.map_visualization
-"#;
+                scale_type.name as "scale_type_name!",
+                scale_type.id as "scale_type_id!",
+                
+                map_visualization_collection.category as "data_tab?",
+                COALESCE(map_visualization_collection.order, int2(0)) as "order!"
+                FROM map_visualization AS map
+                INNER JOIN dataset ON map.dataset = dataset.id
+                INNER JOIN color_palette ON map.color_palette = color_palette.id
+                INNER JOIN scale_type ON map.scale_type = scale_type.id
+            "#
+            + $join_type
+            + " map_visualization_collection ON map.id = map_visualization_collection.map_visualization"
+            $( + " WHERE map.id = $1", $id)?
+        )
+    };
+}
 
 impl<'c> Table<'c, MapVisualization> {
     pub async fn all(&self, include_drafts: bool) -> Result<Vec<MapVisualization>, sqlx::Error> {
-        sqlx::query_as(&format!(
-            "{} {}",
-            SELECT,
-            match include_drafts {
-                true => FROM_ALL,
-                false => FROM_CATEGORIZED,
-            }
-        ))
-        .fetch_all(&*self.pool)
-        .await
+        if include_drafts {
+            select!(include_drafts).fetch_all(&*self.pool).await
+        } else {
+            select!().fetch_all(&*self.pool).await
+        }
     }
     pub async fn get(&self, id: i32) -> Result<MapVisualization, sqlx::Error> {
-        sqlx::query_as(&format!("{} {} WHERE map.id = $1", SELECT, FROM_ALL))
-            .bind(id)
-            .fetch_one(&*self.pool)
-            .await
+        select!(id).fetch_one(&*self.pool).await
     }
     pub async fn update(
         &self,

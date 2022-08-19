@@ -125,7 +125,7 @@ export const mapApi = createApi({
         getCountySummary: builder.query<CountySummary, CountySummaryQueryParams>({
             queryFn: ({ stateId, countyId, category }) => {
                 const loadingCsv = loadCsv<CountyCsvRow>(
-                    `/api/data?state_id=${stateId}&county_id=${countyId}&category=${category}`,
+                    `/api/usa-county-data?state_id=${stateId}&county_id=${countyId}&category=${category}`,
                     autoType
                 )
                 return loadingCsv.then(transformCountySummary).then(
@@ -139,7 +139,7 @@ export const mapApi = createApi({
                 const loadingCsvs = queryParams.map(
                     async ({ dataset, source, startDate, endDate }) => {
                         const csvRow = await loadCsv<CsvRow>(
-                            `/api/data/${dataset}?source=${source}&start_date=${startDate}&end_date=${endDate}`,
+                            `/api/usa-county-data/${dataset}?source=${source}&start_date=${startDate}&end_date=${endDate}`,
                             autoType
                         )
                         return [dataset, csvRow] as [number, DSVParsedArray<CsvRow>]
