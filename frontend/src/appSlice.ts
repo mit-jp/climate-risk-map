@@ -36,7 +36,7 @@ export type TabAndMapVisualizations = {
     dataTab: DataTab
     mapVisualizations: MapVisualization[]
 }
-type Region = 'USA' | 'World'
+export type Region = 'USA' | 'World'
 interface AppState {
     readonly selectedRegion: Region
     readonly map?: TopoJson

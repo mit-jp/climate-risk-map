@@ -1,21 +1,40 @@
+import { ChangeEvent } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Link, useParams } from 'react-router-dom'
+import { Region, selectRegion } from './appSlice'
 import css from './Navigation.module.css'
 import { RootState } from './store'
 
 export default function CountryNavigation() {
-    const dispatch = useDispatch()
     const selectedRegion = useSelector((state: RootState) => state.app.selectedRegion)
-    const urlParams = useParams()
+    const dispatch = useDispatch()
+    const onChange = (event: ChangeEvent<HTMLInputElement>) => {
+        dispatch(selectRegion(event.target.value as Region))
+    }
 
     return (
         <nav className={css.nav}>
-            <Link to="/usa" className={selectedRegion === 'USA' ? css.selected : undefined}>
+            <label htmlFor="usa">
+                <input
+                    type="radio"
+                    name="geography-type"
+                    id="USA"
+                    value="USA"
+                    checked={selectedRegion === 'USA'}
+                    onChange={onChange}
+                />
                 USA
-            </Link>
-            <Link to="/world" className={selectedRegion === 'World' ? css.selected : undefined}>
+            </label>
+            <label htmlFor="world">
+                <input
+                    type="radio"
+                    name="geography-type"
+                    id="World"
+                    value="World"
+                    checked={selectedRegion === 'World'}
+                    onChange={onChange}
+                />
                 World
-            </Link>
+            </label>
         </nav>
     )
 }

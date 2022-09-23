@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
 import { json } from 'd3'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Header from './Header'
 import Navigation from './Navigation'
 import DataSelector from './DataSelector'
 import css from './Home.module.css'
 import { fetchMapVisualizations } from './MapVisualization'
-import { store } from './store'
+import { RootState, store } from './store'
 import MapWrapper from './MapWrapper'
 import { OverlayName, setMap, setMapVisualizations, setOverlay } from './appSlice'
 import SiteOverview from './SiteOverview'
@@ -38,6 +38,7 @@ export const useThunkDispatch = () => useDispatch<typeof store.dispatch>()
 
 function Home() {
     const dispatch = useThunkDispatch()
+    const region = useSelector((state: RootState) => state.app.selectedRegion)
 
     useEffect(() => {
         json<TopoJson>(mapFile).then((topoJson) => {
@@ -58,6 +59,7 @@ function Home() {
         <>
             <Header />
             <CountryNavigation />
+            <p>{region}</p>
             <Navigation />
             <SiteOverview />
             <div id={css.content}>
