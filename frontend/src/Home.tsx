@@ -6,7 +6,7 @@ import Navigation from './Navigation'
 import DataSelector from './DataSelector'
 import css from './Home.module.css'
 import { fetchMapVisualizations } from './MapVisualization'
-import { RootState, store } from './store'
+import { RootState } from './store'
 import MapWrapper from './MapWrapper'
 import { OverlayName, setMap, setMapVisualizations, setOverlay } from './appSlice'
 import SiteOverview from './SiteOverview'
@@ -34,10 +34,8 @@ const overlayToFile: OverlayMap = {
 }
 const mapFile: TopoJsonFile = 'usa.json'
 
-export const useThunkDispatch = () => useDispatch<typeof store.dispatch>()
-
 function Home() {
-    const dispatch = useThunkDispatch()
+    const dispatch = useDispatch()
     const region = useSelector((state: RootState) => state.app.selectedRegion)
 
     useEffect(() => {

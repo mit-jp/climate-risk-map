@@ -9,8 +9,7 @@ import {
     FormControlLabel,
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { useSelector } from 'react-redux'
-import { useThunkDispatch } from './Home'
+import { useDispatch, useSelector } from 'react-redux'
 import {
     changeWeight,
     selectSelections,
@@ -87,7 +86,7 @@ const checkBox = (
 }
 
 function MultiDataSelector() {
-    const dispatch = useThunkDispatch()
+    const dispatch = useDispatch()
     const dataWeights = useSelector((state: RootState) => state.app.dataWeights)
     const showRiskMetrics = useSelector((state: RootState) => state.app.showRiskMetrics)
     const showDemographics = useSelector((state: RootState) => state.app.showDemographics)

@@ -4,6 +4,7 @@ import { feature } from 'topojson-client'
 import type { GeometryCollection } from 'topojson-specification'
 import type { GeoJsonProperties } from 'geojson'
 import { ForwardedRef, forwardRef } from 'react'
+import { useDispatch } from 'react-redux'
 import { TopoJson } from './TopoJson'
 import Color from './Color'
 import StateMap from './StateMap'
@@ -13,7 +14,6 @@ import { clickCounty } from './appSlice'
 import { ZOOM_TRANSITION } from './MapWrapper'
 import { MapType, MapVisualization } from './MapVisualization'
 import css from './ChoroplethMap.module.css'
-import { useThunkDispatch } from './Home'
 import { getDomain } from './DataProcessor'
 import { getLegendFormatter } from './Formatter'
 
@@ -68,7 +68,7 @@ function ChoroplethMap(
     }: Props,
     ref: ForwardedRef<SVGGElement>
 ) {
-    const dispatch = useThunkDispatch()
+    const dispatch = useDispatch()
     const onCountyClicked = (event: any) =>
         event.target?.id ? dispatch(clickCounty(event.target.id)) : null
     const domain = getDomain(data)

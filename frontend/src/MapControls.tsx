@@ -9,7 +9,7 @@ import {
     Switch,
 } from '@mui/material'
 import { Fragment } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Map } from 'immutable'
 import { csvFormat } from 'd3'
 import { saveAs } from 'file-saver'
@@ -25,7 +25,6 @@ import {
     setWaterwayValue,
     TransmissionLineType,
 } from './appSlice'
-import { useThunkDispatch } from './Home'
 import { RootState } from './store'
 import counties from './Counties'
 import states, { State } from './States'
@@ -47,7 +46,7 @@ type Props = {
 }
 
 function MapControls({ processedData }: Props) {
-    const dispatch = useThunkDispatch()
+    const dispatch = useDispatch()
     const isNormalized = useSelector(selectIsNormalized)
     const selectedMapVisualizations = useSelector(selectSelectedMapVisualizations)
     const overlays = useSelector((state: RootState) => state.app.overlays)

@@ -1,5 +1,5 @@
 import { ChangeEvent } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { Interval } from 'luxon'
 import YearSelector from './YearSelector'
 import DataSourceSelector from './DatasetSelector'
@@ -11,7 +11,6 @@ import {
     selectMapVisualizations,
 } from './appSlice'
 import { RootState } from './store'
-import { useThunkDispatch } from './Home'
 import { MapVisualization } from './MapVisualization'
 import css from './DataSelector.module.css'
 
@@ -19,7 +18,7 @@ function SingleDataSelector() {
     const selection = useSelector((state: RootState) => selectSelections(state)[0])
     const mapVisualizations = useSelector(selectMapVisualizations)
 
-    const dispatch = useThunkDispatch()
+    const dispatch = useDispatch()
 
     const onDateRangeChange = (event: ChangeEvent<HTMLInputElement>) => {
         const dateRange = Interval.fromISO(event.target.value)

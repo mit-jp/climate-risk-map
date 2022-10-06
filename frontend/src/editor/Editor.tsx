@@ -6,7 +6,7 @@ import { Link, useParams } from 'react-router-dom'
 import classNames from 'classnames'
 import { Button } from '@mui/material'
 import { TopoJson } from '../TopoJson'
-import { RootState, store } from '../store'
+import { RootState } from '../store'
 import editorCss from './Editor.module.css'
 import { MapVisualizationPatch } from '../MapVisualization'
 import navCss from '../Navigation.module.css'
@@ -42,13 +42,11 @@ const NEW_MAP: MapVisualizationPatch = {
     decimals: 1,
 }
 
-export const useThunkDispatch = () => useDispatch<typeof store.dispatch>()
-
 function EmptyNavigation() {
     return <nav />
 }
 function Navigation({ tabs, selectedTabId }: { tabs: Tab[]; selectedTabId?: number }) {
-    const dispatch = useThunkDispatch()
+    const dispatch = useDispatch()
     const params = useParams()
     const { tabId } = params
     useEffect(() => {
@@ -77,7 +75,7 @@ function Navigation({ tabs, selectedTabId }: { tabs: Tab[]; selectedTabId?: numb
 }
 
 function Editor() {
-    const dispatch = useThunkDispatch()
+    const dispatch = useDispatch()
     const { data: allMapVisualizations } = useGetMapVisualizationsQuery({ includeDrafts: true })
     const { data: tabs } = useGetTabsQuery(true)
     const [createMap] = useCreateMapVisualizationMutation()

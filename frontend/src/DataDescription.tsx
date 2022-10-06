@@ -1,11 +1,10 @@
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { selectSelectedMapVisualizations, toggleDataDescription } from './appSlice'
-import { useThunkDispatch } from './Home'
 import { RootState } from './store'
 import css from './DataDescription.module.css'
 
 function DataDescription() {
-    const dispatch = useThunkDispatch()
+    const dispatch = useDispatch()
     const showDataDescription = useSelector((state: RootState) => state.app.showDataDescription)
     const maps = useSelector(selectSelectedMapVisualizations)
 

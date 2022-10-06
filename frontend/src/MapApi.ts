@@ -167,7 +167,7 @@ export const mapApi = createApi({
         }),
         getMapVisualizations: builder.query<MapVisualizationByTabId, MapVisualizationQueryParams>({
             queryFn: (params) =>
-                fetchMapVisualizations(params.includeDrafts, params.geographyType).then(
+                fetchMapVisualizations(params).then(
                     (data) => ({ data }),
                     (error) => ({ error })
                 ),

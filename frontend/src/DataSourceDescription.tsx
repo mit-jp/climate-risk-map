@@ -1,11 +1,10 @@
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { selectSelectedDataSource, toggleDatasetDescription } from './appSlice'
-import { useThunkDispatch } from './Home'
 import { RootState } from './store'
 import css from './DataDescription.module.css'
 
 function DataSourceDescription() {
-    const dispatch = useThunkDispatch()
+    const dispatch = useDispatch()
     const shouldShow = useSelector((state: RootState) => state.app.showDatasetDescription)
     const dataSource = useSelector(selectSelectedDataSource)
 

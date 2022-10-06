@@ -1,7 +1,6 @@
 import { Link, useParams } from 'react-router-dom'
 import { useEffect } from 'react'
-import { useSelector } from 'react-redux'
-import { useThunkDispatch } from './Home'
+import { useDispatch, useSelector } from 'react-redux'
 import DataTab from './DataTab'
 import { setDataTab } from './appSlice'
 import css from './Navigation.module.css'
@@ -12,7 +11,7 @@ import { RootState } from './store'
 const dataTabs = Object.values(DataTab)
 
 function Navigation() {
-    const dispatch = useThunkDispatch()
+    const dispatch = useDispatch()
     const selectedDataTab = useSelector((state: RootState) => state.app.dataTab)
     const params = useParams()
     const { tabId } = params
