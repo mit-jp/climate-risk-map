@@ -59,7 +59,6 @@ function Home() {
         <>
             <Header />
             <CountryNavigation />
-            <p>{region}</p>
             <Navigation />
             <SiteOverview />
             <div id={css.content}>
