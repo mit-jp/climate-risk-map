@@ -17,8 +17,9 @@ pub fn init_editor(cfg: &mut web::ServiceConfig) {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct IncludeDrafts {
+pub struct MapVisualizationOptions {
     pub include_drafts: Option<bool>,
+    pub geography_type: Option<i32>,
 }
 
 async fn get_map_visualization_model(
@@ -73,12 +74,12 @@ async fn get(app_state: web::Data<AppState<'_>>, id: web::Path<i32>) -> impl Res
 #[get("/map-visualization")]
 async fn get_all(
     app_state: web::Data<AppState<'_>>,
-    info: web::Query<IncludeDrafts>,
+    info: web::Query<MapVisualizationOptions>,
 ) -> impl Responder {
     let map_visualizations = app_state
         .database
         .map_visualization
-        .all(info.include_drafts.unwrap_or(false))
+        .all(info.include_drafts.unwrap_or(false), info.geography_type)
         .await;
     match map_visualizations {
         Err(e) => {

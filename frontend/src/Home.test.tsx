@@ -59,6 +59,7 @@ const MAP_VISUALIZATIONS: { [key: string]: { [key: string]: MapVisualizationJson
             decimals: 0,
             legend_decimals: null,
             order: 1,
+            geography_type: 1,
         },
     },
 }

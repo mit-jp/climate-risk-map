@@ -23,6 +23,10 @@ export type DataQueryParams = {
     startDate: string
     endDate: string
 }
+export type MapVisualizationQueryParams = {
+    includeDrafts?: boolean
+    geographyType?: number
+}
 export type Tab = { id: number; name: string }
 export type County = { id: number; name: string; state: number }
 export type State = { id: number; name: string }
@@ -161,9 +165,9 @@ export const mapApi = createApi({
                 ),
             providesTags: (_result, _error, id) => [{ type: 'MapVisualization', id }],
         }),
-        getMapVisualizations: builder.query<MapVisualizationByTabId, boolean>({
-            queryFn: (includeDrafts) =>
-                fetchMapVisualizations(includeDrafts).then(
+        getMapVisualizations: builder.query<MapVisualizationByTabId, MapVisualizationQueryParams>({
+            queryFn: (params) =>
+                fetchMapVisualizations(params.includeDrafts, params.geographyType).then(
                     (data) => ({ data }),
                     (error) => ({ error })
                 ),

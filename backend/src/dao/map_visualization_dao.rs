@@ -4,18 +4,21 @@ use sqlx::postgres::PgQueryResult;
 
 macro_rules! select {
     () => {
-        select!("LEFT JOIN")
+        select!("LEFT JOIN", ,)
     };
     (include_drafts) => {
-        select!("JOIN")
+        select!("JOIN", ,)
+    };
+    (geography_type=$geography_type:expr) => {
+        select!("LEFT JOIN", geography_type=$geography_type,)
+    };
+    (geography_type=$geography_type:expr, include_drafts) => {
+        select!("JOIN", geography_type=$geography_type,)
     };
     ($id:ident) => {
-        select!("LEFT JOIN", $id)
+        select!("LEFT JOIN", ,$id)
     };
-    ($join_type:expr) => {
-        select!($join_type,)
-    };
-    ($join_type:expr, $($id:expr)?) => {
+    ($join_type:expr, $(geography_type=$geography_type:expr)?, $($id:expr)?) => {
         sqlx::query_as!(
             MapVisualization,
             r#"
@@ -38,6 +41,7 @@ macro_rules! select {
                 map.color_domain as "color_domain!",
                 array_sort(map.pdf_domain) as "pdf_domain!",
                 map."name",
+                map.geography_type as "geography_type!",
                 
                 dataset."name" as "dataset_name!",
                 dataset.units as "units!",
@@ -59,17 +63,30 @@ macro_rules! select {
             "#
             + $join_type
             + " map_visualization_collection ON map.id = map_visualization_collection.map_visualization"
+            $( + " WHERE map.geography_type = $1", $geography_type)?
             $( + " WHERE map.id = $1", $id)?
         )
     };
 }
 
 impl<'c> Table<'c, MapVisualization> {
-    pub async fn all(&self, include_drafts: bool) -> Result<Vec<MapVisualization>, sqlx::Error> {
-        if include_drafts {
+    pub async fn all(
+        &self,
+        include_drafts: bool,
+        geography_type: Option<i32>,
+    ) -> Result<Vec<MapVisualization>, sqlx::Error> {
+        if geography_type.is_none() && include_drafts {
             select!(include_drafts).fetch_all(&*self.pool).await
-        } else {
+        } else if geography_type.is_none() {
             select!().fetch_all(&*self.pool).await
+        } else if include_drafts {
+            select!(geography_type = geography_type, include_drafts)
+                .fetch_all(&*self.pool)
+                .await
+        } else {
+            select!(geography_type = geography_type)
+                .fetch_all(&*self.pool)
+                .await
         }
     }
     pub async fn get(&self, id: i32) -> Result<MapVisualization, sqlx::Error> {
@@ -99,8 +116,9 @@ impl<'c> Table<'c, MapVisualization> {
                 decimals = $16,
                 legend_decimals = $17,
                 color_domain = $18,
-                pdf_domain = $19
-            WHERE id = $20",
+                pdf_domain = $19,
+                geography_type = $20
+            WHERE id = $21",
             patch.dataset,
             patch.map_type,
             patch.subcategory,
@@ -120,6 +138,7 @@ impl<'c> Table<'c, MapVisualization> {
             patch.legend_decimals,
             &patch.color_domain,
             &patch.pdf_domain,
+            patch.geography_type,
             patch.id,
         )
         .execute(&*self.pool)
@@ -150,7 +169,9 @@ impl<'c> Table<'c, MapVisualization> {
                 decimals,
                 legend_decimals,
                 color_domain,
-                pdf_domain)
+                pdf_domain,
+                geography_type
+            )
             VALUES (
                 $1,
                 $2,
@@ -170,7 +191,8 @@ impl<'c> Table<'c, MapVisualization> {
                 $16,
                 $17,
                 $18,
-                $19)",
+                $19,
+                $20)",
             map.dataset,
             map.map_type,
             map.subcategory,
@@ -190,6 +212,7 @@ impl<'c> Table<'c, MapVisualization> {
             map.legend_decimals,
             &map.color_domain,
             &map.pdf_domain,
+            map.geography_type,
         )
         .execute(&*self.pool)
         .await

@@ -107,6 +107,7 @@ export interface MapVisualization {
     decimals: number
     legend_decimals?: number
     order: number
+    geography_type: number
 }
 export type MapVisualizationByTabId = {
     [key: number]: { [key in MapVisualizationId]: MapVisualization }
@@ -140,6 +141,7 @@ export interface MapVisualizationJson {
     decimals: number
     legend_decimals: number | null
     order: number
+    geography_type: number
 }
 
 export const applyPatch = (draft: MapVisualization, patch: MapVisualizationPatch) => {
@@ -200,6 +202,7 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
         legend_decimals: json.legend_decimals ?? undefined,
         order: json.order,
         displayName: json.name ?? json.dataset_name,
+        geography_type: json.geography_type,
     }
 }
 
@@ -244,10 +247,13 @@ export const fetchMapVisualization = async (id: number): Promise<MapVisualizatio
 }
 
 export const fetchMapVisualizations = async (
-    includeDrafts?: boolean
+    includeDrafts?: boolean,
+    geographyType?: number
 ): Promise<MapVisualizationByTabId> => {
     const rawJson = await loadJson<{ [key: number]: { [key: number]: MapVisualizationJson } }>(
-        `/api/map-visualization?include_drafts=${includeDrafts ?? false}`
+        `/api/map-visualization?include_drafts=${includeDrafts ?? false}${
+            geographyType !== undefined ? `&geography_type=${geographyType}` : ''
+        }`
     )
     if (rawJson === undefined) {
         return Promise.reject(new Error('Failed to fetch map visualizations'))

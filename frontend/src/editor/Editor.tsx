@@ -78,7 +78,7 @@ function Navigation({ tabs, selectedTabId }: { tabs: Tab[]; selectedTabId?: numb
 
 function Editor() {
     const dispatch = useThunkDispatch()
-    const { data: allMapVisualizations } = useGetMapVisualizationsQuery(true)
+    const { data: allMapVisualizations } = useGetMapVisualizationsQuery({ includeDrafts: true })
     const { data: tabs } = useGetTabsQuery(true)
     const [createMap] = useCreateMapVisualizationMutation()
 
