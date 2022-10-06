@@ -149,7 +149,8 @@ const initialState: AppState = {
 }
 
 // Convenience accessors
-const getMapVisualizations = (state: AppState) => state.mapVisualizations[TabToId[state.dataTab]]
+const getMapVisualizations = (state: AppState) =>
+    state.mapVisualizations[TabToId[state.dataTab]] ?? []
 const getPossibleDataSources = (state: AppState, selection: MapSelection): number[] => {
     const mapVisualization = getMapVisualizations(state)[selection.mapVisualization]
     return Object.keys(mapVisualization!.date_ranges_by_source).map((key) => parseInt(key, 10))

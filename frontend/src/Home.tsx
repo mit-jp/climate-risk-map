@@ -50,10 +50,12 @@ function Home() {
                 dispatch(setOverlay({ name: name as OverlayName, topoJson }))
             )
         })
-        fetchMapVisualizations().then((mapVisualizations) => {
-            dispatch(setMapVisualizations(mapVisualizations))
-        })
-    }, [dispatch])
+        fetchMapVisualizations({ geographyType: region === 'USA' ? 1 : 2 }).then(
+            (mapVisualizations) => {
+                dispatch(setMapVisualizations(mapVisualizations))
+            }
+        )
+    }, [dispatch, region])
 
     return (
         <>

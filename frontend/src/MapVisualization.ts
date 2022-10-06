@@ -246,13 +246,13 @@ export const fetchMapVisualization = async (id: number): Promise<MapVisualizatio
     return jsonToMapVisualization(rawJson)
 }
 
-export const fetchMapVisualizations = async (
-    includeDrafts?: boolean,
+export const fetchMapVisualizations = async (props: {
+    includeDrafts?: boolean
     geographyType?: number
-): Promise<MapVisualizationByTabId> => {
+}): Promise<MapVisualizationByTabId> => {
     const rawJson = await loadJson<{ [key: number]: { [key: number]: MapVisualizationJson } }>(
-        `/api/map-visualization?include_drafts=${includeDrafts ?? false}${
-            geographyType !== undefined ? `&geography_type=${geographyType}` : ''
+        `/api/map-visualization?include_drafts=${props.includeDrafts ?? false}${
+            props.geographyType !== undefined ? `&geography_type=${props.geographyType}` : ''
         }`
     )
     if (rawJson === undefined) {
