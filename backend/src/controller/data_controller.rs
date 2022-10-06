@@ -140,11 +140,11 @@ mod tests {
     fn it_converts_country_data_to_csv() {
         let data = vec![
             CountrySimpleData {
-                country_id: 1,
+                country_id: 123,
                 value: Some(3.0),
             },
             CountrySimpleData {
-                country_id: 3,
+                country_id: 456,
                 value: Some(6.0),
             },
         ];
