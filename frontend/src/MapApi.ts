@@ -24,6 +24,8 @@ export type DataQueryParams = {
     endDate: string
 }
 export type Tab = { id: number; name: string }
+export type County = { id: number; name: string; state: number }
+export type State = { id: number; name: string }
 
 type CsvRow = {
     state_id: number
@@ -62,6 +64,12 @@ export const mapApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: '/api/' }),
     tagTypes: ['MapVisualization', 'Dataset'],
     endpoints: (builder) => ({
+        getCounties: builder.query<Record<string, County>, undefined>({
+            query: () => 'county',
+        }),
+        getStates: builder.query<State[], undefined>({
+            query: () => 'state',
+        }),
         getData: builder.query<DataByDataset, DataQueryParams[]>({
             queryFn: (queryParams) => {
                 const loadingCsvs = queryParams.map(
@@ -157,4 +165,6 @@ export const {
     useUpdateMapVisualizationMutation,
     useCreateMapVisualizationMutation,
     useGetDatasetsQuery,
+    useGetCountiesQuery,
+    useGetStatesQuery,
 } = mapApi
