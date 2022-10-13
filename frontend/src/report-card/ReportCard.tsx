@@ -1,6 +1,6 @@
 import { Autocomplete, TextField } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
-import { County, useGetCountiesQuery } from '../MapApi'
+import { County, useGetCountiesQuery, useGetStatesQuery } from '../MapApi'
 
 function CountyReport({ county }: { county: County }) {
     return <h2>County Report for: {county.name}</h2>
@@ -12,6 +12,8 @@ const fipsCode = (county: County) =>
 export default function ReportCard() {
     const params = useParams()
     const { data: counties } = useGetCountiesQuery(undefined)
+    const { data: states } = useGetStatesQuery(undefined)
+
     const countyList = counties ? Object.values(counties) : []
     const countyId = Number(params.countyId)
     const selectedCounty = counties ? counties[countyId] : undefined
@@ -21,9 +23,11 @@ export default function ReportCard() {
         <>
             <h1>County Report Card</h1>
             <Autocomplete
-                loading={countyList.length === 0}
+                loading={countyList.length === 0 && !states}
                 options={countyList}
-                getOptionLabel={(county) => `${county.name}, ${county.state}`}
+                getOptionLabel={(county) =>
+                    `${county.name}, ${states ? states[county.state].name : ''}`
+                }
                 renderInput={(p) => <TextField {...p} label="County" />}
                 onChange={(_, county) => {
                     if (county) {

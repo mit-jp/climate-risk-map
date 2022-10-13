@@ -67,7 +67,7 @@ export const mapApi = createApi({
         getCounties: builder.query<Record<string, County>, undefined>({
             query: () => 'county',
         }),
-        getStates: builder.query<State[], undefined>({
+        getStates: builder.query<Record<number, State>, undefined>({
             query: () => 'state',
         }),
         getData: builder.query<DataByDataset, DataQueryParams[]>({
