@@ -1,15 +1,15 @@
 use super::AppState;
-use super::{SimpleData, SourceAndDate};
+use super::SourceAndDate;
 use actix_web::{get, web, HttpResponse, Responder};
 use chrono::NaiveDate;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::io::{Error, ErrorKind};
 
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get);
 }
 
-fn data_to_body(data: Result<Vec<SimpleData>, sqlx::Error>) -> Result<String, Error> {
+pub fn data_to_body<S: Serialize>(data: Result<Vec<S>, sqlx::Error>) -> Result<String, Error> {
     let mut writer = csv::Writer::from_writer(vec![]);
     data.ok()
         .and_then(|data| {

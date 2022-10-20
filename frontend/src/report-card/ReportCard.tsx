@@ -1,9 +1,13 @@
 import { Autocomplete, TextField } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
-import { County, useGetCountiesQuery, useGetStatesQuery } from '../MapApi'
+import { County, State, useGetCountiesQuery, useGetStatesQuery } from '../MapApi'
 
-function CountyReport({ county }: { county: County }) {
-    return <h2>County Report for: {county.name}</h2>
+function CountyReport({ county, state }: { county: County; state: State }) {
+    return (
+        <h2>
+            County Report for: {county.name}, {state.name}
+        </h2>
+    )
 }
 
 const fipsCode = (county: County) =>
@@ -35,7 +39,9 @@ export default function ReportCard() {
                     }
                 }}
             />
-            {selectedCounty && <CountyReport county={selectedCounty} />}
+            {selectedCounty && states && (
+                <CountyReport county={selectedCounty} state={states[selectedCounty.state]} />
+            )}
         </>
     )
 }

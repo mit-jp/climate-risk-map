@@ -13,6 +13,7 @@ pub type State = state::State;
 pub type County = county::County;
 pub type Data = data::Data;
 pub type SimpleData = data::SimpleData;
+pub type DataWithDataset = data::DataWithDataset;
 pub type SourceAndDate = data::SourceAndDate;
 pub type Dataset = dataset::Dataset;
 pub type MapVisualization = map_visualization::MapVisualization;

@@ -1,3 +1,5 @@
+use crate::model::DataWithDataset;
+
 use super::Data;
 use super::SimpleData;
 use super::SourceAndDate;
@@ -9,6 +11,30 @@ impl<'c> Table<'c, Data> {
             .bind(id)
             .fetch_all(&*self.pool)
             .await
+    }
+    pub async fn by_data_category(
+        &self,
+        data_category: i32,
+    ) -> Result<Vec<DataWithDataset>, sqlx::Error> {
+        sqlx::query_as!(
+            DataWithDataset,
+            "SELECT
+                state_id,
+                county_id,
+                source,
+                start_date,
+                end_date,
+                value,
+                county_data.dataset
+            FROM county_data, map_visualization, map_visualization_collection
+            WHERE
+                county_data.dataset = map_visualization.dataset
+                AND map_visualization.id = map_visualization_collection.map_visualization
+                AND map_visualization_collection.category = $1",
+            data_category
+        )
+        .fetch_all(&*self.pool)
+        .await
     }
     pub async fn by_id_source_date(
         &self,
