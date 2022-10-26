@@ -3,14 +3,14 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
 #[derive(Debug, FromRow, Serialize)]
-pub struct DataWithDataset {
-    pub county_id: i16,
-    pub state_id: i16,
+pub struct CountyPercentileData {
+    pub dataset: i32,
+    pub dataset_name: String,
     pub source: i32,
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
+    pub percent_rank: Option<f64>,
     pub value: Option<f64>,
-    pub dataset: i32,
 }
 
 #[derive(FromRow, Deserialize, Serialize)]

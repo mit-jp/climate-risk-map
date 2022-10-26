@@ -1,4 +1,5 @@
-use crate::model::DataWithDataset;
+use crate::controller::data_controller::DataQuery;
+use crate::model::CountyPercentileData;
 
 use super::Data;
 use super::SimpleData;
@@ -12,26 +13,96 @@ impl<'c> Table<'c, Data> {
             .fetch_all(&*self.pool)
             .await
     }
-    pub async fn by_data_category(
+    pub async fn by_category_state_county(
         &self,
-        data_category: i32,
-    ) -> Result<Vec<DataWithDataset>, sqlx::Error> {
+        info: DataQuery,
+    ) -> Result<Vec<CountyPercentileData>, sqlx::Error> {
         sqlx::query_as!(
-            DataWithDataset,
-            "SELECT
-                state_id,
-                county_id,
-                source,
-                start_date,
-                end_date,
-                value,
-                county_data.dataset
-            FROM county_data, map_visualization, map_visualization_collection
-            WHERE
-                county_data.dataset = map_visualization.dataset
-                AND map_visualization.id = map_visualization_collection.map_visualization
-                AND map_visualization_collection.category = $1",
-            data_category
+            CountyPercentileData,
+            r#"
+        SELECT
+            entry.dataset as "dataset!",
+            entry.dataset_name as "dataset_name!",
+            entry.source as "source!",
+            entry.start_date as "start_date!",
+            entry.end_date as "end_date!",
+            (
+                SELECT
+                    "value"
+                FROM
+                    county_data
+                WHERE
+                    state_id = $1
+                    AND county_id = $2
+                    AND dataset = entry.dataset
+                    AND source = entry.source
+                    AND start_date = entry.start_date
+                    AND end_date = entry.end_date
+            ),
+            percent_rank(
+                (
+                    SELECT
+                        "value"
+                    FROM
+                        county_data
+                    WHERE
+                        state_id = $1
+                        AND county_id = $2
+                        AND dataset = entry.dataset
+                        AND source = entry.source
+                        AND start_date = entry.start_date
+                        AND end_date = entry.end_date
+                )
+            ) within GROUP (
+                ORDER BY
+                    "value"
+            )
+        FROM
+            county_data,
+            (
+                SELECT
+                    map_visualization.dataset,
+                    dataset.name as dataset_name,
+                    COALESCE(default_source, source) AS source,
+                    COALESCE(default_start_date, start_date) AS start_date,
+                    COALESCE(default_end_date, end_date) AS end_date,
+                    invert_normalized
+                FROM
+                    map_visualization,
+                    map_visualization_collection,
+                    dataset,
+                    (
+                        SELECT
+                            dataset,
+                            MAX(end_date) AS end_date,
+                            MAX(start_date) AS start_date,
+                            MAX("source") AS source
+                        FROM
+                            county_data
+                        GROUP BY
+                            dataset
+                    ) AS cd
+                WHERE
+                    map_visualization_collection.category = $3
+                    AND map_visualization.dataset = dataset.id
+                    AND cd.dataset = map_visualization.dataset
+                    AND map_visualization_collection.map_visualization = map_visualization.id
+            ) AS entry
+        WHERE
+            county_data.dataset = entry.dataset
+            AND county_data.source = entry.source
+            AND county_data.start_date = entry.start_date
+            AND county_data.end_date = entry.end_date
+        GROUP BY
+            entry.dataset,
+            entry.dataset_name,
+            entry.source,
+            entry.start_date,
+            entry.end_date;
+        "#,
+            info.state_id,
+            info.county_id,
+            info.category
         )
         .fetch_all(&*self.pool)
         .await

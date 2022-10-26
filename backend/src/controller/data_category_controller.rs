@@ -1,14 +1,10 @@
 use super::AppState;
-use crate::controller::{
-    data_controller::data_to_body, map_visualization_controller::IncludeDrafts,
-};
+use crate::controller::map_visualization_controller::IncludeDrafts;
 use crate::model::DataCategory;
 use actix_web::{get, web, HttpResponse, Responder};
-use log::error;
 
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get_all);
-    cfg.service(get_data);
 }
 
 #[get("/data-category")]
@@ -28,23 +24,6 @@ async fn get_all(
                 });
             }
             HttpResponse::Ok().json(data_categories)
-        }
-    }
-}
-
-#[get("/data-category/{id}/data")]
-async fn get_data(app_state: web::Data<AppState<'_>>, id: web::Path<i32>) -> impl Responder {
-    let data = app_state
-        .database
-        .data
-        .by_data_category(id.into_inner())
-        .await;
-
-    match data_to_body(data) {
-        Ok(body) => HttpResponse::Ok().content_type("text/csv").body(body),
-        Err(e) => {
-            error!("{}", e);
-            HttpResponse::NotFound().finish()
         }
     }
 }

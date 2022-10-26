@@ -1,12 +1,31 @@
 import { Autocomplete, TextField } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
-import { County, State, useGetCountiesQuery, useGetStatesQuery } from '../MapApi'
+import {
+    County,
+    State,
+    useGetCountiesQuery,
+    useGetCountySummaryQuery,
+    useGetStatesQuery,
+} from '../MapApi'
 
 function CountyReport({ county, state }: { county: County; state: State }) {
+    const { data: countySummary } = useGetCountySummaryQuery({
+        stateId: state.id,
+        countyId: county.id,
+        category: 8, // TODO: don't hardcode the category
+    })
     return (
-        <h2>
-            County Report for: {county.name}, {state.name}
-        </h2>
+        <>
+            <h2>
+                County Report for: {county.name}, {state.name}
+            </h2>
+            {countySummary &&
+                Object.entries(countySummary).map(([datasetId, data]) => (
+                    <p key={datasetId}>
+                        {data.name}: {data.percentRank}, {data.value}
+                    </p>
+                ))}
+        </>
     )
 }
 

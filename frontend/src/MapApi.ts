@@ -26,6 +26,32 @@ export type DataQueryParams = {
 export type Tab = { id: number; name: string }
 export type County = { id: number; name: string; state: number }
 export type State = { id: number; name: string }
+export type CountySummaryQueryParams = {
+    stateId: number
+    countyId: number
+    category: number
+}
+
+type CountySummary = {
+    [key in DatasetId]: {
+        name: string
+        source: number
+        startDate: string
+        endDate: string
+        percentRank: number
+        value: number
+    }
+}
+
+type CountyCsvRow = {
+    dataset: number
+    dataset_name: string
+    source: number
+    start_date: string
+    end_date: string
+    percent_rank: number
+    value: number
+}
 
 type CsvRow = {
     state_id: number
@@ -41,6 +67,21 @@ const mergeFIPSCodes = (row: CsvRow): [CountyId, number | null] => {
     stateId = '0'.repeat(2 - stateId.length) + stateId
     countyId = '0'.repeat(3 - countyId.length) + countyId
     return [stateId + countyId, value]
+}
+
+const transformCountySummary = (csv: DSVParsedArray<CountyCsvRow>): CountySummary => {
+    const countySummary: CountySummary = {}
+    csv.forEach((row) => {
+        countySummary[row.dataset] = {
+            name: row.dataset_name,
+            source: row.source,
+            startDate: row.start_date,
+            endDate: row.end_date,
+            percentRank: row.percent_rank,
+            value: row.value,
+        }
+    })
+    return countySummary
 }
 
 const transformData = (
@@ -69,6 +110,18 @@ export const mapApi = createApi({
         }),
         getStates: builder.query<Record<number, State>, undefined>({
             query: () => 'state',
+        }),
+        getCountySummary: builder.query<CountySummary, CountySummaryQueryParams>({
+            queryFn: ({ stateId, countyId, category }) => {
+                const loadingCsv = loadCsv<CountyCsvRow>(
+                    `/api/data?state_id=${stateId}&county_id=${countyId}&category=${category}`,
+                    autoType
+                )
+                return loadingCsv.then(transformCountySummary).then(
+                    (data) => ({ data }),
+                    (failure) => ({ error: failure })
+                )
+            },
         }),
         getData: builder.query<DataByDataset, DataQueryParams[]>({
             queryFn: (queryParams) => {
@@ -167,4 +220,5 @@ export const {
     useGetDatasetsQuery,
     useGetCountiesQuery,
     useGetStatesQuery,
+    useGetCountySummaryQuery,
 } = mapApi
