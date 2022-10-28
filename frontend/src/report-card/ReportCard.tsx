@@ -1,4 +1,5 @@
 import { Autocomplete, TextField } from '@mui/material'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
     County,
@@ -67,11 +68,13 @@ export default function ReportCard() {
     const { data: counties } = useGetCountiesQuery(undefined)
     const { data: states } = useGetStatesQuery(undefined)
     const { data: categories } = useGetTabsQuery(false)
-
+    const [selectedCounty, setSelectedCounty] = useState<County | null>(null)
     const countyList = counties ? Object.values(counties) : []
-    const selectedCounty = counties && params.countyId ? counties[params.countyId] : undefined
     const category = Number(params.category)
     const navigate = useNavigate()
+    useEffect(() => {
+        setSelectedCounty(counties && params.countyId ? counties[params.countyId] : null)
+    }, [params, counties])
 
     return (
         <div className={css.reportCard}>
@@ -93,6 +96,7 @@ export default function ReportCard() {
                         navigate(`/report-card/${category}/${fipsCode(county)}`, { replace: true })
                     }
                 }}
+                value={selectedCounty}
             />
             {selectedCounty && states && category !== undefined && (
                 <CountyReport
