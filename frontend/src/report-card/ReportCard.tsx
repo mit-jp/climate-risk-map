@@ -74,7 +74,7 @@ export default function ReportCard() {
     const navigate = useNavigate()
 
     return (
-        <>
+        <div className={css.reportCard}>
             <h1>
                 County Report Card
                 {categories &&
@@ -101,6 +101,6 @@ export default function ReportCard() {
                     category={category}
                 />
             )}
-        </>
+        </div>
     )
 }

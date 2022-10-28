@@ -14,3 +14,9 @@ h1 {
 .county-metric:nth-child(2n) {
     background-color: #f2f2f2;
 }
+
+.report-card {
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+}
