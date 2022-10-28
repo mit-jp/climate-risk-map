@@ -32,15 +32,17 @@ export type CountySummaryQueryParams = {
     category: number
 }
 
+export type CountyData = {
+    name: string
+    source: number
+    startDate: string
+    endDate: string
+    percentRank: number
+    value: number
+}
+
 type CountySummary = {
-    [key in DatasetId]: {
-        name: string
-        source: number
-        startDate: string
-        endDate: string
-        percentRank: number
-        value: number
-    }
+    [key in DatasetId]: CountyData
 }
 
 type CountyCsvRow = {

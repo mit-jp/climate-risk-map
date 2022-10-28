@@ -2,11 +2,28 @@ import { Autocomplete, TextField } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
     County,
+    CountyData,
     State,
     useGetCountiesQuery,
     useGetCountySummaryQuery,
     useGetStatesQuery,
 } from '../MapApi'
+import css from './ReportCard.module.css'
+
+function SingleMetric({ data }: { data: CountyData }) {
+    return (
+        <tr className={css.countyMetric}>
+            <td>{data.name}</td>
+            <td>
+                {Number(data.percentRank).toLocaleString(undefined, {
+                    style: 'percent',
+                    minimumFractionDigits: 0,
+                })}
+            </td>
+            <td>{data.value}</td>
+        </tr>
+    )
+}
 
 function CountyReport({ county, state }: { county: County; state: State }) {
     const { data: countySummary } = useGetCountySummaryQuery({
@@ -19,12 +36,21 @@ function CountyReport({ county, state }: { county: County; state: State }) {
             <h2>
                 County Report for: {county.name}, {state.name}
             </h2>
-            {countySummary &&
-                Object.entries(countySummary).map(([datasetId, data]) => (
-                    <p key={datasetId}>
-                        {data.name}: {data.percentRank}, {data.value}
-                    </p>
-                ))}
+            <table className={css.countyMetrics}>
+                <thead>
+                    <tr>
+                        <td>Metric</td>
+                        <td>National Percentile</td>
+                        <td>Value</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    {countySummary &&
+                        Object.entries(countySummary).map(([datasetId, data]) => (
+                            <SingleMetric key={datasetId} data={data} />
+                        ))}
+                </tbody>
+            </table>
         </>
     )
 }
@@ -38,8 +64,7 @@ export default function ReportCard() {
     const { data: states } = useGetStatesQuery(undefined)
 
     const countyList = counties ? Object.values(counties) : []
-    const countyId = Number(params.countyId)
-    const selectedCounty = counties ? counties[countyId] : undefined
+    const selectedCounty = counties && params.countyId ? counties[params.countyId] : undefined
     const navigate = useNavigate()
 
     return (
