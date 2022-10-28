@@ -48,6 +48,7 @@ interface AppState {
     readonly showDatasetDescription: boolean
     readonly showDataDescription: boolean
     readonly state: State | undefined
+    readonly county: string | undefined
     readonly detailedView: boolean
     readonly showRiskMetrics: boolean
     readonly showDemographics: boolean
@@ -142,6 +143,7 @@ const initialState: AppState = {
     showDemographics: true,
     waterwayValue: 'total',
     transmissionLineType: 'Level 3 (>= 345kV)',
+    county: undefined,
 }
 
 // Convenience accessors
@@ -227,6 +229,7 @@ export const appSlice = createSlice({
             if (mapVisualization?.map_type === MapType.Bubble) {
                 // don't zoom in to state on bubble map. it's unsupported right now
                 state.state = undefined
+                state.county = undefined
             }
         },
         setMapSelections: (state, action: PayloadAction<MapSelection[]>) => {
@@ -241,8 +244,10 @@ export const appSlice = createSlice({
         clickCounty: (state, { payload }: PayloadAction<string>) => {
             if (state.state) {
                 state.state = undefined
+                state.county = undefined
             } else {
                 state.state = payload.slice(0, 2) as State
+                state.county = payload
             }
         },
         setMapVisualizations: (state, { payload }: PayloadAction<MapVisualizationByTabId>) => {
