@@ -7,6 +7,7 @@ import {
     useGetCountiesQuery,
     useGetCountySummaryQuery,
     useGetStatesQuery,
+    useGetTabsQuery,
 } from '../MapApi'
 import css from './ReportCard.module.css'
 
@@ -25,33 +26,36 @@ function SingleMetric({ data }: { data: CountyData }) {
     )
 }
 
-function CountyReport({ county, state }: { county: County; state: State }) {
+function CountyReport({
+    category,
+    county,
+    state,
+}: {
+    category: number
+    county: County
+    state: State
+}) {
     const { data: countySummary } = useGetCountySummaryQuery({
         stateId: state.id,
         countyId: county.id,
-        category: 8, // TODO: don't hardcode the category
+        category,
     })
     return (
-        <>
-            <h2>
-                County Report for: {county.name}, {state.name}
-            </h2>
-            <table className={css.countyMetrics}>
-                <thead>
-                    <tr>
-                        <td>Metric</td>
-                        <td>National Percentile</td>
-                        <td>Value</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    {countySummary &&
-                        Object.entries(countySummary).map(([datasetId, data]) => (
-                            <SingleMetric key={datasetId} data={data} />
-                        ))}
-                </tbody>
-            </table>
-        </>
+        <table className={css.countyMetrics}>
+            <thead>
+                <tr>
+                    <td>Metric</td>
+                    <td>National Percentile</td>
+                    <td>Value</td>
+                </tr>
+            </thead>
+            <tbody>
+                {countySummary &&
+                    Object.entries(countySummary).map(([datasetId, data]) => (
+                        <SingleMetric key={datasetId} data={data} />
+                    ))}
+            </tbody>
+        </table>
     )
 }
 
@@ -62,14 +66,21 @@ export default function ReportCard() {
     const params = useParams()
     const { data: counties } = useGetCountiesQuery(undefined)
     const { data: states } = useGetStatesQuery(undefined)
+    const { data: categories } = useGetTabsQuery(false)
 
     const countyList = counties ? Object.values(counties) : []
     const selectedCounty = counties && params.countyId ? counties[params.countyId] : undefined
+    const category = Number(params.category)
     const navigate = useNavigate()
 
     return (
         <>
-            <h1>County Report Card</h1>
+            <h1>
+                County Report Card
+                {categories &&
+                    category !== undefined &&
+                    `: ${categories.find((t) => t.id === category)?.name ?? ''}`}
+            </h1>
             <Autocomplete
                 loading={countyList.length === 0 && !states}
                 options={countyList}
@@ -79,12 +90,16 @@ export default function ReportCard() {
                 renderInput={(p) => <TextField {...p} label="County" />}
                 onChange={(_, county) => {
                     if (county) {
-                        navigate(`/report-card/${fipsCode(county)}`, { replace: true })
+                        navigate(`/report-card/${category}/${fipsCode(county)}`, { replace: true })
                     }
                 }}
             />
-            {selectedCounty && states && (
-                <CountyReport county={selectedCounty} state={states[selectedCounty.state]} />
+            {selectedCounty && states && category !== undefined && (
+                <CountyReport
+                    county={selectedCounty}
+                    state={states[selectedCounty.state]}
+                    category={category}
+                />
             )}
         </>
     )
