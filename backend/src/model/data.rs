@@ -2,6 +2,17 @@ use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
+#[derive(Debug, FromRow, Serialize)]
+pub struct CountyPercentileData {
+    pub dataset: i32,
+    pub dataset_name: String,
+    pub source: i32,
+    pub start_date: NaiveDate,
+    pub end_date: NaiveDate,
+    pub percent_rank: Option<f64>,
+    pub value: Option<f64>,
+}
+
 #[derive(FromRow, Deserialize, Serialize)]
 pub struct Data {
     pub county_id: i16,

@@ -1,0 +1,22 @@
+h1 {
+    text-transform: capitalize;
+}
+
+.county-metrics thead {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.county-metrics td{
+    padding:1em;
+}
+
+.county-metric:nth-child(2n) {
+    background-color: #f2f2f2;
+}
+
+.report-card {
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+}

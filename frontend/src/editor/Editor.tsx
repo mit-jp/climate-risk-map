@@ -53,7 +53,7 @@ function Navigation({ tabs, selectedTabId }: { tabs: Tab[]; selectedTabId?: numb
     const { tabId } = params
     useEffect(() => {
         const tab = Number(tabId)
-        if (tab) {
+        if (!Number.isNaN(tab)) {
             dispatch(setTab(tab))
         }
     }, [tabId, dispatch])

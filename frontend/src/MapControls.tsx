@@ -13,6 +13,7 @@ import { useSelector } from 'react-redux'
 import { Map } from 'immutable'
 import { csvFormat } from 'd3'
 import { saveAs } from 'file-saver'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
     Overlay,
     OverlayName,
@@ -53,6 +54,10 @@ function MapControls({ processedData }: Props) {
     const detailedView = useSelector((state: RootState) => state.app.detailedView)
     const waterwayValue = useSelector((state: RootState) => state.app.waterwayValue)
     const transmissionLineType = useSelector((state: RootState) => state.app.transmissionLineType)
+    const countyFips = useSelector((state: RootState) => state.app.county)
+    const params = useParams()
+    const { tabId } = params
+    const navigate = useNavigate()
     const transmissionLinesTypes: TransmissionLineType[] = [
         'Level 2 (230kV-344kV)',
         'Level 3 (>= 345kV)',
@@ -162,6 +167,15 @@ function MapControls({ processedData }: Props) {
 
     return (
         <div id={css.mapControls}>
+            {countyFips && (
+                <Button
+                    variant="outlined"
+                    onClick={() => navigate(`/report-card/${tabId ?? '8'}/${countyFips}`)}
+                >
+                    View report card for {counties.get(countyFips)},{' '}
+                    {states.get(countyFips.slice(0, 2) as State)}
+                </Button>
+            )}
             {mapToggleUI()}
             {isNormalized && processedData && (
                 <FormControlLabel

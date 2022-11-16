@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import Home from './Home'
 import Editor from './editor/Editor'
 import Uploader from './uploader/Uploader'
+import ReportCard from './report-card/ReportCard'
 
 function App() {
     return (
@@ -9,6 +10,8 @@ function App() {
             <Routes>
                 <Route path="/uploader" element={<Uploader />} />
                 <Route path="/editor" element={<Editor />} />
+                <Route path="/report-card/:category" element={<ReportCard />} />
+                <Route path="/report-card/:category/:countyId" element={<ReportCard />} />
                 <Route path="/editor/:tabId" element={<Editor />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/:tabId" element={<Home />} />

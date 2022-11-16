@@ -1,4 +1,4 @@
-use super::model::{MapVisualizationModel, SimpleData, SourceAndDate};
+use super::model::{MapVisualizationModel, SourceAndDate};
 use super::AppState;
 
 pub mod color_palette_controller;

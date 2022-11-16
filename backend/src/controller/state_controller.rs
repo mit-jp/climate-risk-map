@@ -1,3 +1,7 @@
+use std::collections::HashMap;
+
+use crate::model::State;
+
 use super::AppState;
 use actix_web::{get, web, HttpResponse, Responder};
 
@@ -16,12 +20,16 @@ async fn get(id: web::Path<i16>, app_state: web::Data<AppState<'_>>) -> impl Res
     }
 }
 
+fn states_to_map(states: Vec<State>) -> HashMap<i16, State> {
+    states.into_iter().map(|state| (state.id, state)).collect()
+}
+
 #[get("/state")]
 async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
     let states = app_state.database.state.all().await;
 
     match states {
         Err(_) => HttpResponse::NotFound().finish(),
-        Ok(states) => HttpResponse::Ok().json(states),
+        Ok(states) => HttpResponse::Ok().json(states_to_map(states)),
     }
 }
