@@ -13,11 +13,16 @@ import {
 } from '../MapApi'
 import css from './ReportCard.module.css'
 
+function PercentileBar({ value }: { value: number }) {
+    return <div className={css.percentileBar} style={{ width: `${value * 100}%` }} />
+}
+
 function SingleMetric({ data }: { data: CountySummaryRow }) {
     return (
         <tr className={css.countyMetric}>
             <td>{data.name}</td>
             <td>
+                <PercentileBar value={data.percentRank} />
                 {Number(data.percentRank).toLocaleString(undefined, {
                     style: 'percent',
                     minimumFractionDigits: 0,

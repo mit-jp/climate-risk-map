@@ -20,3 +20,10 @@ h1 {
     display: flex;
     flex-direction: column;
 }
+
+.percentile-bar {
+    background-color: #000000;
+    height: 4px;
+    width: 0%;
+    margin: 0.5em 0;
+}
