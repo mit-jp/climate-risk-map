@@ -26,6 +26,9 @@ impl<'c> Table<'c, Data> {
             entry.source as "source!",
             entry.start_date as "start_date!",
             entry.end_date as "end_date!",
+            entry.units,
+            entry.formatter_type,
+            entry.decimals,
             (
                 SELECT
                     value
@@ -65,7 +68,10 @@ impl<'c> Table<'c, Data> {
                     COALESCE(default_source, source) AS source,
                     COALESCE(default_start_date, start_date) AS start_date,
                     COALESCE(default_end_date, end_date) AS end_date,
-                    invert_normalized
+                    invert_normalized,
+                    units,
+                    formatter_type,
+                    decimals
                 FROM
                     map_visualization,
                     map_visualization_collection,
@@ -98,6 +104,9 @@ impl<'c> Table<'c, Data> {
             entry.source,
             entry.start_date,
             entry.end_date,
+            entry.units,
+            entry.formatter_type,
+            entry.decimals,
             entry.invert_normalized;
         "#,
             info.state_id,

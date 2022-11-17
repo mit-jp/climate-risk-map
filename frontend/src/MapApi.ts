@@ -32,17 +32,20 @@ export type CountySummaryQueryParams = {
     category: number
 }
 
-export type CountyData = {
+export type CountySummaryRow = {
     name: string
     source: number
     startDate: string
     endDate: string
     percentRank: number
     value: number
+    units: string
+    formatter_type: number
+    decimals: number
 }
 
 type CountySummary = {
-    [key in DatasetId]: CountyData
+    [key in DatasetId]: CountySummaryRow
 }
 
 type CountyCsvRow = {
@@ -53,6 +56,9 @@ type CountyCsvRow = {
     end_date: string
     percent_rank: number
     value: number
+    units: string
+    formatter_type: number
+    decimals: number
 }
 
 type CsvRow = {
@@ -81,6 +87,9 @@ const transformCountySummary = (csv: DSVParsedArray<CountyCsvRow>): CountySummar
             endDate: row.end_date,
             percentRank: row.percent_rank,
             value: row.value,
+            units: row.units,
+            formatter_type: row.formatter_type,
+            decimals: row.decimals,
         }
     })
     return countySummary

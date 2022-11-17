@@ -1,5 +1,5 @@
 import { Map } from 'immutable'
-import { format, geoPath } from 'd3'
+import { geoPath } from 'd3'
 import { feature } from 'topojson-client'
 import type { GeometryCollection } from 'topojson-specification'
 import type { GeoJsonProperties } from 'geojson'
@@ -11,47 +11,16 @@ import Legend from './Legend'
 import ProbabilityDensity from './ProbabilityDensity'
 import { clickCounty } from './appSlice'
 import { ZOOM_TRANSITION } from './MapWrapper'
-import { FormatterType, MapType, MapVisualization } from './MapVisualization'
+import { MapType, MapVisualization } from './MapVisualization'
 import css from './ChoroplethMap.module.css'
 import { useThunkDispatch } from './Home'
 import { getDomain } from './DataProcessor'
+import { getLegendFormatter } from './Formatter'
 
 const MISSING_DATA_COLOR = '#ccc'
 
 const getLegendTicks = (selectedMaps: MapVisualization[], isNormalized: boolean) =>
     isNormalized ? undefined : selectedMaps[0].legend_ticks
-
-export type Formatter = (n: number | { valueOf(): number }) => string
-
-export const riskMetricFormatter = (d: number | { valueOf(): number }) =>
-    format('.0%')(d).slice(0, -1)
-
-export const createFormatter = (
-    formatterType: FormatterType,
-    decimals: number,
-    isNormalized: boolean
-) => {
-    if (isNormalized) {
-        return riskMetricFormatter
-    }
-    switch (formatterType) {
-        case FormatterType.MONEY:
-            return format(`$,.${decimals}s`)
-        case FormatterType.NEAREST_SI_UNIT:
-            return format('~s')
-        case FormatterType.PERCENT:
-            return (d: number | { valueOf(): number }) => format(`.${decimals}%`)(d).slice(0, -1)
-        case FormatterType.DEFAULT:
-        default:
-            return format(`,.${decimals}f`)
-    }
-}
-const getLegendFormatter = (selectedMaps: MapVisualization[], isNormalized: boolean): Formatter => {
-    const firstMap = selectedMaps[0]
-    const formatterType = firstMap.legend_formatter_type ?? firstMap.formatter_type
-    const decimals = firstMap.legend_decimals ?? firstMap.decimals
-    return createFormatter(formatterType, decimals, isNormalized)
-}
 
 function shouldShowPdf(selectedMaps: MapVisualization[], isNormalized: boolean) {
     const firstSelection = selectedMaps[0]

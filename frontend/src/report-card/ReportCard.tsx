@@ -1,9 +1,10 @@
 import { Autocomplete, TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { formatData } from '../Formatter'
 import {
     County,
-    CountyData,
+    CountySummaryRow,
     State,
     useGetCountiesQuery,
     useGetCountySummaryQuery,
@@ -12,7 +13,7 @@ import {
 } from '../MapApi'
 import css from './ReportCard.module.css'
 
-function SingleMetric({ data }: { data: CountyData }) {
+function SingleMetric({ data }: { data: CountySummaryRow }) {
     return (
         <tr className={css.countyMetric}>
             <td>{data.name}</td>
@@ -22,7 +23,15 @@ function SingleMetric({ data }: { data: CountyData }) {
                     minimumFractionDigits: 0,
                 })}
             </td>
-            <td>{data.value}</td>
+
+            <td>
+                {formatData(data.value, {
+                    type: data.formatter_type,
+                    decimals: data.decimals,
+                    isNormalized: false,
+                    units: data.units,
+                })}
+            </td>
         </tr>
     )
 }
