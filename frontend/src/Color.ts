@@ -19,7 +19,7 @@ export type ColorScheme =
     | ScaleDiverging<string, never>
 
 const redBlueContinuous = scaleSequential<string>((x) => interpolateRdYlBu(1 - x))
-const redBlue = scaleThreshold<number, string, never>(
+export const redBlue = scaleThreshold<number, string, never>(
     [0.05, 0.25, 0.75, 0.95],
     [...schemeRdYlBu[5]].reverse()
 )

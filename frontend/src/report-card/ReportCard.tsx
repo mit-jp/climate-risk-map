@@ -1,6 +1,7 @@
 import { Autocomplete, TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { redBlue } from '../Color'
 import { formatData } from '../Formatter'
 import {
     County,
@@ -14,19 +15,26 @@ import {
 import css from './ReportCard.module.css'
 
 function PercentileBar({ value }: { value: number }) {
-    return <div className={css.percentileBar} style={{ width: `${value * 100}%` }} />
+    return (
+        <div
+            className={css.percentileBar}
+            style={{ width: `${value * 100}%`, background: redBlue(value) }}
+        />
+    )
 }
 
 function SingleMetric({ data }: { data: CountySummaryRow }) {
     return (
         <tr className={css.countyMetric}>
             <td>{data.name}</td>
-            <td>
-                <PercentileBar value={data.percentRank} />
+            <td className={css.percentileColumn}>
                 {Number(data.percentRank).toLocaleString(undefined, {
                     style: 'percent',
                     minimumFractionDigits: 0,
                 })}
+            </td>
+            <td className={css.percentileBarColumn}>
+                <PercentileBar value={data.percentRank} />
             </td>
 
             <td>
@@ -60,7 +68,7 @@ function CountyReport({
             <thead>
                 <tr>
                     <td>Metric</td>
-                    <td>National Percentile</td>
+                    <td colSpan={2}>National Percentile</td>
                     <td>Value</td>
                 </tr>
             </thead>
