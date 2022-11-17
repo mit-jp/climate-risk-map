@@ -28,7 +28,7 @@ impl<'c> Table<'c, Data> {
             entry.end_date as "end_date!",
             (
                 SELECT
-                    "value"
+                    value
                 FROM
                     county_data
                 WHERE
@@ -42,7 +42,7 @@ impl<'c> Table<'c, Data> {
             percent_rank(
                 (
                     SELECT
-                        "value"
+                        CASE WHEN entry.invert_normalized THEN -value ELSE value END as value
                     FROM
                         county_data
                     WHERE
@@ -54,8 +54,7 @@ impl<'c> Table<'c, Data> {
                         AND end_date = entry.end_date
                 )
             ) within GROUP (
-                ORDER BY
-                    "value"
+                ORDER BY CASE WHEN entry.invert_normalized THEN -value ELSE value END
             )
         FROM
             county_data,
@@ -98,7 +97,8 @@ impl<'c> Table<'c, Data> {
             entry.dataset_name,
             entry.source,
             entry.start_date,
-            entry.end_date;
+            entry.end_date,
+            entry.invert_normalized;
         "#,
             info.state_id,
             info.county_id,
