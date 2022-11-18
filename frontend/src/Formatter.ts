@@ -46,10 +46,11 @@ export const getUnitString = ({
     isNormalized: boolean
 }) => {
     const unitString = isNormalized ? 'Normalized value' : units
-    if (unitString.startsWith('%')) {
-        return unitString
+    if (!unitString) {
+        return ''
     }
-    return unitString ? ` ${unitString}` : ''
+
+    return unitString.startsWith('%') ? unitString : ` ${unitString}`
 }
 
 export const formatData = (value: number | undefined, params: FormatterParams) => {
