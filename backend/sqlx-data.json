@@ -30,8 +30,8 @@
       "nullable": []
     }
   },
-  "9d1cb3fb3c326c09eebf76607413fc0c57e74b38195aacb20072bc4e313c2b60": {
-    "query": "\n        SELECT\n            entry.dataset as \"dataset!\",\n            entry.dataset_name as \"dataset_name!\",\n            entry.source as \"source!\",\n            entry.start_date as \"start_date!\",\n            entry.end_date as \"end_date!\",\n            (\n                SELECT\n                    \"value\"\n                FROM\n                    county_data\n                WHERE\n                    state_id = $1\n                    AND county_id = $2\n                    AND dataset = entry.dataset\n                    AND source = entry.source\n                    AND start_date = entry.start_date\n                    AND end_date = entry.end_date\n            ),\n            percent_rank(\n                (\n                    SELECT\n                        \"value\"\n                    FROM\n                        county_data\n                    WHERE\n                        state_id = $1\n                        AND county_id = $2\n                        AND dataset = entry.dataset\n                        AND source = entry.source\n                        AND start_date = entry.start_date\n                        AND end_date = entry.end_date\n                )\n            ) within GROUP (\n                ORDER BY\n                    \"value\"\n            )\n        FROM\n            county_data,\n            (\n                SELECT\n                    map_visualization.dataset,\n                    dataset.name as dataset_name,\n                    COALESCE(default_source, source) AS source,\n                    COALESCE(default_start_date, start_date) AS start_date,\n                    COALESCE(default_end_date, end_date) AS end_date,\n                    invert_normalized\n                FROM\n                    map_visualization,\n                    map_visualization_collection,\n                    dataset,\n                    (\n                        SELECT\n                            dataset,\n                            MAX(end_date) AS end_date,\n                            MAX(start_date) AS start_date,\n                            MAX(\"source\") AS source\n                        FROM\n                            county_data\n                        GROUP BY\n                            dataset\n                    ) AS cd\n                WHERE\n                    map_visualization_collection.category = $3\n                    AND map_visualization.dataset = dataset.id\n                    AND cd.dataset = map_visualization.dataset\n                    AND map_visualization_collection.map_visualization = map_visualization.id\n            ) AS entry\n        WHERE\n            county_data.dataset = entry.dataset\n            AND county_data.source = entry.source\n            AND county_data.start_date = entry.start_date\n            AND county_data.end_date = entry.end_date\n        GROUP BY\n            entry.dataset,\n            entry.dataset_name,\n            entry.source,\n            entry.start_date,\n            entry.end_date;\n        ",
+  "b406a7f61c3319d65a116d25e355308a05307a80df13689de991b7455a24f190": {
+    "query": "\n        SELECT\n            entry.dataset as \"dataset!\",\n            entry.dataset_name as \"dataset_name!\",\n            entry.source as \"source!\",\n            entry.start_date as \"start_date!\",\n            entry.end_date as \"end_date!\",\n            entry.units,\n            entry.formatter_type,\n            entry.decimals,\n            (\n                SELECT\n                    value\n                FROM\n                    county_data\n                WHERE\n                    state_id = $1\n                    AND county_id = $2\n                    AND dataset = entry.dataset\n                    AND source = entry.source\n                    AND start_date = entry.start_date\n                    AND end_date = entry.end_date\n            ),\n            CASE WHEN (\n                SELECT\n                    value\n                FROM\n                    county_data\n                WHERE\n                    state_id = $1\n                    AND county_id = $2\n                    AND dataset = entry.dataset\n                    AND source = entry.source\n                    AND start_date = entry.start_date\n                    AND end_date = entry.end_date\n            ) IS NULL THEN NULL ELSE\n            percent_rank(\n                (\n                    SELECT\n                        CASE WHEN entry.invert_normalized THEN -value ELSE value END as value\n                    FROM\n                        county_data\n                    WHERE\n                        state_id = $1\n                        AND county_id = $2\n                        AND dataset = entry.dataset\n                        AND source = entry.source\n                        AND start_date = entry.start_date\n                        AND end_date = entry.end_date\n                )\n            ) within GROUP (\n                ORDER BY CASE WHEN entry.invert_normalized THEN -value ELSE value END\n            )\n        END\n        FROM\n            county_data,\n            (\n                SELECT\n                    map_visualization.dataset,\n                    dataset.name as dataset_name,\n                    COALESCE(default_source, source) AS source,\n                    COALESCE(default_start_date, start_date) AS start_date,\n                    COALESCE(default_end_date, end_date) AS end_date,\n                    invert_normalized,\n                    units,\n                    formatter_type,\n                    decimals\n                FROM\n                    map_visualization,\n                    map_visualization_collection,\n                    dataset,\n                    (\n                        SELECT\n                            dataset,\n                            MAX(end_date) AS end_date,\n                            MAX(start_date) AS start_date,\n                            MAX(\"source\") AS source\n                        FROM\n                            county_data\n                        GROUP BY\n                            dataset\n                    ) AS cd\n                WHERE\n                    map_visualization_collection.category = $3\n                    AND map_visualization.dataset = dataset.id\n                    AND cd.dataset = map_visualization.dataset\n                    AND map_visualization_collection.map_visualization = map_visualization.id\n            ) AS entry\n        WHERE\n            county_data.dataset = entry.dataset\n            AND county_data.source = entry.source\n            AND county_data.start_date = entry.start_date\n            AND county_data.end_date = entry.end_date\n        GROUP BY\n            entry.dataset,\n            entry.dataset_name,\n            entry.source,\n            entry.start_date,\n            entry.end_date,\n            entry.units,\n            entry.formatter_type,\n            entry.decimals,\n            entry.invert_normalized;\n        ",
     "describe": {
       "columns": [
         {
@@ -61,11 +61,26 @@
         },
         {
           "ordinal": 5,
+          "name": "units",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 6,
+          "name": "formatter_type",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 7,
+          "name": "decimals",
+          "type_info": "Int2"
+        },
+        {
+          "ordinal": 8,
           "name": "value",
           "type_info": "Float8"
         },
         {
-          "ordinal": 6,
+          "ordinal": 9,
           "name": "percent_rank",
           "type_info": "Float8"
         }
@@ -83,6 +98,9 @@
         null,
         null,
         null,
+        false,
+        false,
+        false,
         null,
         null
       ]
