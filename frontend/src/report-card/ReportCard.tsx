@@ -14,28 +14,38 @@ import {
 } from '../MapApi'
 import css from './ReportCard.module.css'
 
-function PercentileBar({ value }: { value: number }) {
+function Percentile({ value }: { value: number }) {
     return (
-        <div
-            className={css.percentileBar}
-            style={{ width: `${value * 100}%`, background: redBlue(value) }}
-        />
+        <>
+            <td className={css.percentileColumn}>
+                {Number(value).toLocaleString(undefined, {
+                    style: 'percent',
+                    minimumFractionDigits: 0,
+                })}
+            </td>
+            <td className={css.percentileBarColumn}>
+                <div
+                    className={css.percentileBar}
+                    style={{ width: `${value * 100}%`, background: redBlue(value) }}
+                />
+            </td>
+        </>
     )
+}
+
+function EmptyPercentile() {
+    return <td colSpan={2} />
 }
 
 function SingleMetric({ data }: { data: CountySummaryRow }) {
     return (
         <tr className={css.countyMetric}>
             <td>{data.name}</td>
-            <td className={css.percentileColumn}>
-                {Number(data.percentRank).toLocaleString(undefined, {
-                    style: 'percent',
-                    minimumFractionDigits: 0,
-                })}
-            </td>
-            <td className={css.percentileBarColumn}>
-                <PercentileBar value={data.percentRank} />
-            </td>
+            {data.percentRank == null ? (
+                <EmptyPercentile />
+            ) : (
+                <Percentile value={data.percentRank} />
+            )}
 
             <td>
                 {formatData(data.value, {

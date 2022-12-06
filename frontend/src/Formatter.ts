@@ -55,7 +55,7 @@ export const getUnitString = ({
 
 export const formatData = (value: number | undefined, params: FormatterParams) => {
     const formatter = createFormatter(params)
-    if (value === undefined) {
+    if (value == null) {
         return 'No data'
     }
     if (params.isNormalized) {

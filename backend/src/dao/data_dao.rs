@@ -42,6 +42,19 @@ impl<'c> Table<'c, Data> {
                     AND start_date = entry.start_date
                     AND end_date = entry.end_date
             ),
+            CASE WHEN (
+                SELECT
+                    value
+                FROM
+                    county_data
+                WHERE
+                    state_id = $1
+                    AND county_id = $2
+                    AND dataset = entry.dataset
+                    AND source = entry.source
+                    AND start_date = entry.start_date
+                    AND end_date = entry.end_date
+            ) IS NULL THEN NULL ELSE
             percent_rank(
                 (
                     SELECT
@@ -59,6 +72,7 @@ impl<'c> Table<'c, Data> {
             ) within GROUP (
                 ORDER BY CASE WHEN entry.invert_normalized THEN -value ELSE value END
             )
+        END
         FROM
             county_data,
             (
