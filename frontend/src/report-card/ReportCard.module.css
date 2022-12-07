@@ -2,21 +2,42 @@ h1 {
     text-transform: capitalize;
 }
 
+.county-metrics {
+    border-collapse: collapse;
+}
+
 .county-metrics thead {
     background-color: #f2f2f2;
     font-weight: bold;
+}
+
+.county-metrics tr:hover {
+    background: #f2f2f2;
 }
 
 .county-metrics td{
     padding:1em;
 }
 
-.county-metric:nth-child(2n) {
-    background-color: #f2f2f2;
-}
-
 .report-card {
     padding: 1em;
     display: flex;
     flex-direction: column;
+}
+
+.percentile-bar {
+    background-color: #000000;
+    height: 10px;
+    width: 0%;
+    margin: 0.5em 0;
+    border:1px solid #000000;
+}
+
+.county-metrics .percentile-bar-column {
+    padding-left: 0;
+}
+
+.county-metrics .percentile-column {
+    width: 2em;
+    padding-right: .5em;
 }

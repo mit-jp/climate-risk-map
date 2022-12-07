@@ -11,6 +11,9 @@ pub struct CountyPercentileData {
     pub end_date: NaiveDate,
     pub percent_rank: Option<f64>,
     pub value: Option<f64>,
+    pub units: String,
+    pub formatter_type: i32,
+    pub decimals: i16,
 }
 
 #[derive(FromRow, Deserialize, Serialize)]

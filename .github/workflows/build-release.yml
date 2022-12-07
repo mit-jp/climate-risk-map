@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      SQLX_VERSION: ^0.5.10
-      SQLX_FEATURES: native-tls postgres
+      SQLX_VERSION: ^0.6.2
+      SQLX_FEATURES: rustls postgres
       APP_URL: 127.0.0.1
       APP_PORT: 8080
       EDITOR_PORT: 4040
@@ -61,10 +61,6 @@ jobs:
 
       - name: Migrate database
         run: SKIP_DOCKER=true ./init_db.sh
-        working-directory: backend
-
-      - name: Check sqlx-data.json is up-to-date
-        run: cargo sqlx prepare --check -- --lib
         working-directory: backend
 
       - name: 🔨 Build

@@ -15,6 +15,7 @@
     "podman",
     "predeploy",
     "reduxjs",
+    "rustls",
     "scalerank",
     "SIGHUP",
     "SIGINT",

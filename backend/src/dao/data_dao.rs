@@ -26,9 +26,12 @@ impl<'c> Table<'c, Data> {
             entry.source as "source!",
             entry.start_date as "start_date!",
             entry.end_date as "end_date!",
+            entry.units,
+            entry.formatter_type,
+            entry.decimals,
             (
                 SELECT
-                    "value"
+                    value
                 FROM
                     county_data
                 WHERE
@@ -39,10 +42,23 @@ impl<'c> Table<'c, Data> {
                     AND start_date = entry.start_date
                     AND end_date = entry.end_date
             ),
+            CASE WHEN (
+                SELECT
+                    value
+                FROM
+                    county_data
+                WHERE
+                    state_id = $1
+                    AND county_id = $2
+                    AND dataset = entry.dataset
+                    AND source = entry.source
+                    AND start_date = entry.start_date
+                    AND end_date = entry.end_date
+            ) IS NULL THEN NULL ELSE
             percent_rank(
                 (
                     SELECT
-                        "value"
+                        CASE WHEN entry.invert_normalized THEN -value ELSE value END as value
                     FROM
                         county_data
                     WHERE
@@ -54,9 +70,9 @@ impl<'c> Table<'c, Data> {
                         AND end_date = entry.end_date
                 )
             ) within GROUP (
-                ORDER BY
-                    "value"
+                ORDER BY CASE WHEN entry.invert_normalized THEN -value ELSE value END
             )
+        END
         FROM
             county_data,
             (
@@ -66,7 +82,10 @@ impl<'c> Table<'c, Data> {
                     COALESCE(default_source, source) AS source,
                     COALESCE(default_start_date, start_date) AS start_date,
                     COALESCE(default_end_date, end_date) AS end_date,
-                    invert_normalized
+                    invert_normalized,
+                    units,
+                    formatter_type,
+                    decimals
                 FROM
                     map_visualization,
                     map_visualization_collection,
@@ -98,7 +117,11 @@ impl<'c> Table<'c, Data> {
             entry.dataset_name,
             entry.source,
             entry.start_date,
-            entry.end_date;
+            entry.end_date,
+            entry.units,
+            entry.formatter_type,
+            entry.decimals,
+            entry.invert_normalized;
         "#,
             info.state_id,
             info.county_id,

@@ -3,33 +3,10 @@ import { useSelector } from 'react-redux'
 import { useEffect, useState, RefObject } from 'react'
 import counties from './Counties'
 import states, { State } from './States'
-import { getUnitString } from './FullMap'
 import { MapVisualization } from './MapVisualization'
 import { selectIsNormalized } from './appSlice'
-import { createFormatter, Formatter } from './ChoroplethMap'
 import css from './CountyTooltip.module.css'
-
-const getFormatter = (selectedMap: MapVisualization, isNormalized: boolean): Formatter =>
-    createFormatter(selectedMap.formatter_type, selectedMap.decimals, isNormalized)
-
-const getUnits = (dataDefinition: MapVisualization, isNormalized: boolean) =>
-    isNormalized ? 'Normalized value' : dataDefinition.units
-
-const formatData = (
-    value: number | undefined,
-    selectedMap: MapVisualization,
-    isNormalized: boolean
-) => {
-    const formatter = getFormatter(selectedMap, isNormalized)
-    if (value === undefined) {
-        return 'No data'
-    }
-    if (isNormalized) {
-        return formatter(value)
-    }
-    const units = getUnits(selectedMap, isNormalized)
-    return formatter(value) + getUnitString(units)
-}
+import { formatData } from './Formatter'
 
 type TooltipHover = { x: number; y: number; id: string }
 type Props = {
@@ -87,7 +64,12 @@ function CountyTooltip({ data, mapRef, selectedMap }: Props) {
             name = `${county}, ${state}`
         }
         const value = data?.get(hover.id)
-        text = `${name}: ${formatData(value, selectedMap, isNormalized)}`
+        text = `${name}: ${formatData(value, {
+            type: selectedMap.formatter_type,
+            decimals: selectedMap.decimals,
+            units: selectedMap.units,
+            isNormalized,
+        })}`
     }
 
     return (

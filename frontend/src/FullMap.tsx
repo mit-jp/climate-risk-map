@@ -5,17 +5,11 @@ import ChoroplethMap from './ChoroplethMap'
 import { TopoJson } from './TopoJson'
 import { MapType, MapVisualization, TabToId } from './MapVisualization'
 import DataTab from './DataTab'
-
-export const getUnitString = (units: string) => (units ? ` ${units}` : '')
-
-const getUnits = (dataDefinition: MapVisualization, isNormalized: boolean) => {
-    return isNormalized ? 'Normalized value' : dataDefinition.units
-}
+import { getUnitString } from './Formatter'
 
 export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
     const dataDefinition = selectedMaps[0]
-    const units = getUnits(dataDefinition, isNormalized)
-    const unitString = getUnitString(units)
+    const unitString = getUnitString({ units: dataDefinition.units, isNormalized })
 
     if (isNormalized) {
         if (selectedMaps.some((value) => value.subcategory === 1)) {

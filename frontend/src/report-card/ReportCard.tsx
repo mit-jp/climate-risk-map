@@ -1,9 +1,11 @@
 import { Autocomplete, TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { redBlue } from '../Color'
+import { formatData } from '../Formatter'
 import {
     County,
-    CountyData,
+    CountySummaryRow,
     State,
     useGetCountiesQuery,
     useGetCountySummaryQuery,
@@ -12,17 +14,47 @@ import {
 } from '../MapApi'
 import css from './ReportCard.module.css'
 
-function SingleMetric({ data }: { data: CountyData }) {
+function Percentile({ value }: { value: number }) {
     return (
-        <tr className={css.countyMetric}>
-            <td>{data.name}</td>
-            <td>
-                {Number(data.percentRank).toLocaleString(undefined, {
+        <>
+            <td className={css.percentileColumn}>
+                {Number(value).toLocaleString(undefined, {
                     style: 'percent',
                     minimumFractionDigits: 0,
                 })}
             </td>
-            <td>{data.value}</td>
+            <td className={css.percentileBarColumn}>
+                <div
+                    className={css.percentileBar}
+                    style={{ width: `${value * 100}%`, background: redBlue(value) }}
+                />
+            </td>
+        </>
+    )
+}
+
+function EmptyPercentile() {
+    return <td colSpan={2} />
+}
+
+function SingleMetric({ data }: { data: CountySummaryRow }) {
+    return (
+        <tr className={css.countyMetric}>
+            <td>{data.name}</td>
+            {data.percentRank == null ? (
+                <EmptyPercentile />
+            ) : (
+                <Percentile value={data.percentRank} />
+            )}
+
+            <td>
+                {formatData(data.value, {
+                    type: data.formatter_type,
+                    decimals: data.decimals,
+                    isNormalized: false,
+                    units: data.units,
+                })}
+            </td>
         </tr>
     )
 }
@@ -46,7 +78,7 @@ function CountyReport({
             <thead>
                 <tr>
                     <td>Metric</td>
-                    <td>National Percentile</td>
+                    <td colSpan={2}>National Percentile</td>
                     <td>Value</td>
                 </tr>
             </thead>
