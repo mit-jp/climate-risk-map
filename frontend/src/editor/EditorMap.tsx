@@ -63,7 +63,12 @@ function EditorMap({ map, selection, detailedView, isNormalized }: Props) {
                     <EmptyMap map={map} />
                 )}
             </svg>
-            <CountyTooltip data={processedData} mapRef={mapRef} selectedMap={selection} />
+            <CountyTooltip
+                data={processedData}
+                mapRef={mapRef}
+                selectedMap={selection}
+                isNormalized={isNormalized}
+            />
             {selection && <EditorMapDescription selectedMap={selection} />}
         </div>
     )

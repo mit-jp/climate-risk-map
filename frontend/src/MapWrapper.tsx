@@ -86,6 +86,7 @@ function MapWrapper() {
                 data={processedData}
                 mapRef={mapRef}
                 selectedMap={selectedMapVisualizations[0]}
+                isNormalized={isNormalized}
             />
         </>
     )

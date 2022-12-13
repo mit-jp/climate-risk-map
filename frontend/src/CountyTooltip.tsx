@@ -13,10 +13,10 @@ type Props = {
     data: Map<string, number> | undefined
     mapRef: RefObject<SVGGElement>
     selectedMap: MapVisualization | undefined
+    isNormalized: boolean
 }
 
-function CountyTooltip({ data, mapRef, selectedMap }: Props) {
-    const isNormalized = useSelector(selectIsNormalized)
+function CountyTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
     const [hover, setHover] = useState<TooltipHover>()
 
     useEffect(() => {
