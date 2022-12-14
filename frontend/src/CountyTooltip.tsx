@@ -1,10 +1,8 @@
 import { Map } from 'immutable'
-import { useSelector } from 'react-redux'
 import { useEffect, useState, RefObject } from 'react'
 import counties from './Counties'
 import states, { State } from './States'
 import { MapVisualization } from './MapVisualization'
-import { selectIsNormalized } from './appSlice'
 import css from './CountyTooltip.module.css'
 import { formatData } from './Formatter'
 
