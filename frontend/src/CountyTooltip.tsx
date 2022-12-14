@@ -1,10 +1,8 @@
 import { Map } from 'immutable'
-import { useSelector } from 'react-redux'
 import { useEffect, useState, RefObject } from 'react'
 import counties from './Counties'
 import states, { State } from './States'
 import { MapVisualization } from './MapVisualization'
-import { selectIsNormalized } from './appSlice'
 import css from './CountyTooltip.module.css'
 import { formatData } from './Formatter'
 
@@ -13,10 +11,10 @@ type Props = {
     data: Map<string, number> | undefined
     mapRef: RefObject<SVGGElement>
     selectedMap: MapVisualization | undefined
+    isNormalized: boolean
 }
 
-function CountyTooltip({ data, mapRef, selectedMap }: Props) {
-    const isNormalized = useSelector(selectIsNormalized)
+function CountyTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
     const [hover, setHover] = useState<TooltipHover>()
 
     useEffect(() => {
