@@ -54,7 +54,7 @@ impl Database<'_> {
             source_and_date: Arc::from(Table::new(pool.clone())),
             data_source: Arc::from(Table::new(pool.clone())),
             color_palette: Arc::from(Table::new(pool.clone())),
-            scale_type: Arc::from(Table::new(pool.clone())),
+            scale_type: Arc::from(Table::new(pool)),
         }
     }
 }
