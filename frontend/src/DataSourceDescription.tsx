@@ -1,28 +1,23 @@
-import { useDispatch, useSelector } from 'react-redux'
-import { selectSelectedDataSource, toggleDatasetDescription } from './appSlice'
-import { RootState } from './store'
+import { useState } from 'react'
 import css from './DataDescription.module.css'
+import { DataSource } from './MapVisualization'
 
-function DataSourceDescription() {
-    const dispatch = useDispatch()
-    const shouldShow = useSelector((state: RootState) => state.app.showDatasetDescription)
-    const dataSource = useSelector(selectSelectedDataSource)
-
-    if (!dataSource) {
-        return null
-    }
+function DataSourceDescription({ dataSource }: { dataSource: DataSource }) {
+    const [show, setShow] = useState(false)
 
     return (
         <div className={css.dataDescription}>
             <button
                 type="button"
-                onClick={() => dispatch(toggleDatasetDescription())}
-                className={shouldShow ? css.shown : undefined}
+                onClick={() => {
+                    setShow(!show)
+                }}
+                className={show ? css.shown : undefined}
             >
                 About the {dataSource.name} dataset
             </button>
-            {shouldShow && <p>{dataSource.description}</p>}
-            {shouldShow && (
+            {show && <p>{dataSource.description}</p>}
+            {show && (
                 <p>
                     <a href={dataSource.link}>{dataSource.name} website</a>
                 </p>

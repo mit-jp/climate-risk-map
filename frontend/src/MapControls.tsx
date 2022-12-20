@@ -17,8 +17,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 import {
     Overlay,
     OverlayName,
-    selectIsNormalized,
-    selectSelectedMapVisualizations,
     setDetailedView,
     setShowOverlay,
     setTransmissionLineType,
@@ -43,12 +41,12 @@ const getFilename = (selectedMaps: MapVisualization[], isNormalized: boolean) =>
 
 type Props = {
     processedData: Map<string, number> | undefined
+    isNormalized: boolean
+    maps: MapVisualization[]
 }
 
-function MapControls({ processedData }: Props) {
+function MapControls({ processedData, isNormalized, maps }: Props) {
     const dispatch = useDispatch()
-    const isNormalized = useSelector(selectIsNormalized)
-    const selectedMapVisualizations = useSelector(selectSelectedMapVisualizations)
     const overlays = useSelector((state: RootState) => state.app.overlays)
     const detailedView = useSelector((state: RootState) => state.app.detailedView)
     const waterwayValue = useSelector((state: RootState) => state.app.waterwayValue)
@@ -152,7 +150,7 @@ function MapControls({ processedData }: Props) {
         if (objectData) {
             const csv = csvFormat(objectData, ['fipsCode', 'state', 'county', 'value'])
             const blob = new Blob([csv], { type: 'text/plain;charset=utf-8' })
-            saveAs(blob, `${getFilename(selectedMapVisualizations, isNormalized)}.csv`)
+            saveAs(blob, `${getFilename(maps, isNormalized)}.csv`)
         }
     }
 
@@ -160,7 +158,7 @@ function MapControls({ processedData }: Props) {
         const svg = document.getElementById('map-svg')
         if (svg?.outerHTML) {
             const blob = new Blob([svg.outerHTML], { type: 'text/plain' })
-            saveAs(blob, `${getFilename(selectedMapVisualizations, isNormalized)}.svg`)
+            saveAs(blob, `${getFilename(maps, isNormalized)}.svg`)
         }
     }
 

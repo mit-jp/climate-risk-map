@@ -5,13 +5,14 @@ import Header from './Header'
 import Navigation from './Navigation'
 import DataSelector from './DataSelector'
 import css from './Home.module.css'
-import { fetchMapVisualizations } from './MapVisualization'
 import { RootState } from './store'
 import MapWrapper from './MapWrapper'
-import { OverlayName, setMap, setMapVisualizations, setOverlay } from './appSlice'
-import SiteOverview from './SiteOverview'
+import { OverlayName, setTab, setMap, setOverlay, selectSelectedTabId } from './appSlice'
 import { TopoJson } from './TopoJson'
 import CountryNavigation from './CountryNavigation'
+import { useGetMapVisualizationsQuery, useGetTabsQuery } from './MapApi'
+import EmptyNavigation from './EmptyNavigation'
+import EmptyDataSelector from './EmptyDataSelector'
 
 type TopoJsonFile =
     | 'usa.json'
@@ -37,6 +38,12 @@ const mapFile: TopoJsonFile = 'usa.json'
 function Home() {
     const dispatch = useDispatch()
     const region = useSelector((state: RootState) => state.app.selectedRegion)
+    const { data: tabs } = useGetTabsQuery(false)
+    const tabId = useSelector(selectSelectedTabId)
+    const { data: mapVisualizations } = useGetMapVisualizationsQuery({
+        geographyType: region === 'USA' ? 1 : 2,
+    })
+    const isNormalized = tabs?.find((t) => t.id === tabId)?.normalized ?? false
 
     useEffect(() => {
         json<TopoJson>(mapFile).then((topoJson) => {
@@ -48,22 +55,44 @@ function Home() {
                 dispatch(setOverlay({ name: name as OverlayName, topoJson }))
             )
         })
-        fetchMapVisualizations({ geographyType: region === 'USA' ? 1 : 2 }).then(
-            (mapVisualizations) => {
-                dispatch(setMapVisualizations(mapVisualizations))
-            }
-        )
     }, [dispatch, region])
 
     return (
         <>
             <Header />
             <CountryNavigation />
-            <Navigation />
-            <SiteOverview />
+            {tabs ? (
+                <Navigation
+                    tabs={tabs}
+                    onTabClick={(tab) => dispatch(setTab(tab.id))}
+                    selectedTabId={tabId}
+                />
+            ) : (
+                <EmptyNavigation />
+            )}
+            {isNormalized && (
+                <div id={css.siteOverview}>
+                    <p>
+                        You can select multiple metrics and adjust their relative importance to view
+                        the combined impact. To see additional and supporting data, select the other
+                        categories.
+                    </p>
+                </div>
+            )}
             <div id={css.content}>
-                <DataSelector />
-                <MapWrapper />
+                {tabs && mapVisualizations && tabId ? (
+                    <DataSelector isNormalized={isNormalized} maps={mapVisualizations[tabId]} />
+                ) : (
+                    <EmptyDataSelector />
+                )}
+                {tabs && mapVisualizations && tabId ? (
+                    <MapWrapper
+                        isNormalized={isNormalized}
+                        allMapVisualizations={mapVisualizations[tabId]}
+                    />
+                ) : (
+                    <p>No Map</p>
+                )}
             </div>
         </>
     )

@@ -147,4 +147,29 @@ impl<'c> Table<'c, USACountyData> {
         .fetch_all(&*self.pool)
         .await
     }
+
+    pub async fn by_map_visualization(
+        &self,
+        id: i32,
+        source_and_date: SourceAndDate,
+    ) -> Result<Vec<USACountySimpleData>, sqlx::Error> {
+        sqlx::query_as!(
+            USACountySimpleData,
+            "
+            SELECT state_id, county_id, value
+            FROM usa_county_data as data, map_visualization
+            WHERE data.dataset = map_visualization.dataset
+            AND map_visualization.id = $1
+            AND data.source = $2
+            AND data.start_date = $3
+            AND data.end_date = $4
+            ",
+            id,
+            source_and_date.source,
+            source_and_date.start_date,
+            source_and_date.end_date
+        )
+        .fetch_all(&*self.pool)
+        .await
+    }
 }

@@ -42,6 +42,7 @@ macro_rules! select {
                 array_sort(map.pdf_domain) as "pdf_domain!",
                 map."name",
                 map.geography_type as "geography_type!",
+                map.bubble_color as "bubble_color!",
                 
                 dataset."name" as "dataset_name!",
                 dataset.units as "units!",
@@ -117,8 +118,9 @@ impl<'c> Table<'c, MapVisualization> {
                 legend_decimals = $17,
                 color_domain = $18,
                 pdf_domain = $19,
-                geography_type = $20
-            WHERE id = $21",
+                geography_type = $20,
+                bubble_color = $21
+            WHERE id = $22",
             patch.dataset,
             patch.map_type,
             patch.subcategory,
@@ -139,6 +141,7 @@ impl<'c> Table<'c, MapVisualization> {
             &patch.color_domain,
             &patch.pdf_domain,
             patch.geography_type,
+            patch.bubble_color,
             patch.id,
         )
         .execute(&*self.pool)
@@ -170,7 +173,8 @@ impl<'c> Table<'c, MapVisualization> {
                 legend_decimals,
                 color_domain,
                 pdf_domain,
-                geography_type
+                geography_type,
+                bubble_color
             )
             VALUES (
                 $1,
@@ -192,7 +196,8 @@ impl<'c> Table<'c, MapVisualization> {
                 $17,
                 $18,
                 $19,
-                $20)",
+                $20,
+                $21)",
             map.dataset,
             map.map_type,
             map.subcategory,
@@ -213,6 +218,7 @@ impl<'c> Table<'c, MapVisualization> {
             &map.color_domain,
             &map.pdf_domain,
             map.geography_type,
+            map.bubble_color,
         )
         .execute(&*self.pool)
         .await

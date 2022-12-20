@@ -8,6 +8,7 @@ import {
     fetchMapVisualizations,
     MapVisualization,
     MapVisualizationByTabId,
+    MapVisualizationId,
     MapVisualizationPatch,
     ScaleType,
 } from './MapVisualization'
@@ -16,9 +17,9 @@ export type CountyId = string
 export type DatasetId = number
 export type DataRow = { [key in DatasetId]: number | null }
 export type Data = { [key in CountyId]: number | null }
-export type DataByDataset = { [key in DatasetId]: Data }
+export type DataByMapVisualization = Record<MapVisualizationId, Data>
 export type DataQueryParams = {
-    dataset: number
+    mapVisualization: number
     source: number
     startDate: string
     endDate: string
@@ -27,7 +28,11 @@ export type MapVisualizationQueryParams = {
     includeDrafts?: boolean
     geographyType?: number
 }
-export type Tab = { id: number; name: string }
+export type Tab = {
+    id: number
+    name: string
+    normalized: boolean
+}
 export type County = { id: number; name: string; state: number }
 export type State = { id: number; name: string }
 export type CountySummaryQueryParams = {
@@ -100,16 +105,16 @@ const transformCountySummary = (csv: DSVParsedArray<CountyCsvRow>): CountySummar
 }
 
 const transformData = (
-    loadedCsvs: [dataset: number, csv: DSVParsedArray<CsvRow>][]
-): DataByDataset => {
-    const allData: DataByDataset = {}
-    loadedCsvs.forEach(([dataset, csv]) => {
+    loadedCsvs: [mapVisualization: number, csv: DSVParsedArray<CsvRow>][]
+): DataByMapVisualization => {
+    const allData: DataByMapVisualization = {}
+    loadedCsvs.forEach(([mapVisualizationId, csv]) => {
         const dataByCountyId = csv.reduce((accumulator, row) => {
             const [fips, value] = mergeFIPSCodes(row)
             accumulator[fips] = value
             return accumulator
         }, {} as Data)
-        allData[dataset] = dataByCountyId
+        allData[mapVisualizationId] = dataByCountyId
     })
     return allData
 }
@@ -138,15 +143,15 @@ export const mapApi = createApi({
                 )
             },
         }),
-        getData: builder.query<DataByDataset, DataQueryParams[]>({
+        getData: builder.query<DataByMapVisualization, DataQueryParams[]>({
             queryFn: (queryParams) => {
                 const loadingCsvs = queryParams.map(
-                    async ({ dataset, source, startDate, endDate }) => {
+                    async ({ mapVisualization, source, startDate, endDate }) => {
                         const csvRow = await loadCsv<CsvRow>(
-                            `/api/usa-county-data/${dataset}?source=${source}&start_date=${startDate}&end_date=${endDate}`,
+                            `/api/map-visualization/${mapVisualization}/data?source=${source}&start_date=${startDate}&end_date=${endDate}`,
                             autoType
                         )
-                        return [dataset, csvRow] as [number, DSVParsedArray<CsvRow>]
+                        return [mapVisualization, csvRow] as [number, DSVParsedArray<CsvRow>]
                     }
                 )
                 return Promise.all(loadingCsvs)

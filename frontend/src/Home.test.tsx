@@ -60,6 +60,7 @@ const MAP_VISUALIZATIONS: { [key: string]: { [key: string]: MapVisualizationJson
             legend_decimals: null,
             order: 1,
             geography_type: 1,
+            bubble_color: '#000000',
         },
     },
 }

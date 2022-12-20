@@ -1,30 +1,8 @@
 import { DateTime, Interval } from 'luxon'
 import { json as loadJson } from 'd3'
-import DataTab from './DataTab'
 import { DataQueryParams } from './MapApi'
+import { MapSelection } from './DataSelector'
 
-export const TabIdToTab: { [key: number]: DataTab } = {
-    8: DataTab.RiskMetrics,
-    3: DataTab.Climate,
-    1: DataTab.Water,
-    2: DataTab.Land,
-    5: DataTab.Energy,
-    4: DataTab.Economy,
-    7: DataTab.Demographics,
-    6: DataTab.ClimateOpinions,
-    9: DataTab.Health,
-}
-export const TabToId: { [key in DataTab]: number } = {
-    [DataTab.RiskMetrics]: 8,
-    [DataTab.Climate]: 3,
-    [DataTab.Water]: 1,
-    [DataTab.Land]: 2,
-    [DataTab.Energy]: 5,
-    [DataTab.Economy]: 4,
-    [DataTab.Demographics]: 7,
-    [DataTab.ClimateOpinions]: 6,
-    [DataTab.Health]: 9,
-}
 export type MapVisualizationId = number
 export type ScaleTypeName =
     | 'Diverging'
@@ -76,6 +54,8 @@ export interface MapVisualizationPatch {
     legend_formatter_type?: FormatterType
     decimals: number
     legend_decimals?: number
+    geography_type: number
+    bubble_color: string
 }
 
 export interface MapVisualization {
@@ -108,10 +88,9 @@ export interface MapVisualization {
     legend_decimals?: number
     order: number
     geography_type: number
+    bubble_color: string
 }
-export type MapVisualizationByTabId = {
-    [key: number]: { [key in MapVisualizationId]: MapVisualization }
-}
+export type MapVisualizationByTabId = Record<number, Record<MapVisualizationId, MapVisualization>>
 
 export interface MapVisualizationJson {
     id: MapVisualizationId
@@ -142,6 +121,7 @@ export interface MapVisualizationJson {
     legend_decimals: number | null
     order: number
     geography_type: number
+    bubble_color: string
 }
 
 export const applyPatch = (draft: MapVisualization, patch: MapVisualizationPatch) => {
@@ -203,6 +183,7 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
         order: json.order,
         displayName: json.name ?? json.dataset_name,
         geography_type: json.geography_type,
+        bubble_color: json.bubble_color,
     }
 }
 
@@ -230,12 +211,22 @@ export const getDataQueryParams = (mapVisualization: MapVisualization): DataQuer
     const dateRange = getDefaultDateRange(mapVisualization)
     return [
         {
-            dataset: mapVisualization.dataset,
+            mapVisualization: mapVisualization.id,
             source,
             startDate: dateRange.start.toISODate(),
             endDate: dateRange.end.toISODate(),
         },
     ]
+}
+
+export const getDefaultSelection = (mapVisualization: MapVisualization): MapSelection => {
+    const dataSource = getDefaultSource(mapVisualization)
+    const dateRange = getDefaultDateRange(mapVisualization)
+    return {
+        mapVisualization: mapVisualization.id,
+        dataSource,
+        dateRange,
+    }
 }
 
 export const fetchMapVisualization = async (id: number): Promise<MapVisualization> => {
@@ -266,7 +257,7 @@ export const fetchMapVisualizations = async (props: {
                     accumulator[parseInt(id, 10)] = jsonToMapVisualization(mapVisualizationJson)
                     return accumulator
                 },
-                {} as { [key in MapVisualizationId]: MapVisualization }
+                {} as Record<MapVisualizationId, MapVisualization>
             )
             accumulator[parseInt(tabId, 10)!] = mapVisualizations
             return accumulator

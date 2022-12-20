@@ -1,31 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { Tab } from '../MapApi'
+import { mapApi } from '../MapApi'
 import { MapVisualization, MapVisualizationId } from '../MapVisualization'
 import { RootState } from '../store'
 import { TopoJson } from '../TopoJson'
 
 interface EditorState {
     readonly selectedTabId?: number
-    readonly tabs: Tab[]
-    readonly selectedMapVisualizationByTab: { [key: number]: MapVisualizationId }
+    readonly selectedMapVisualizationByTab: Record<number, MapVisualizationId>
     readonly map?: TopoJson
 }
 
-const initialState: EditorState = {
-    tabs: [],
-    selectedTabId: 8, // risk metrics
-    selectedMapVisualizationByTab: {
-        8: 71,
-        1: 1,
-        2: 15,
-        3: 22,
-        4: 12,
-        7: 28,
-        6: 35,
-        5: 64,
-        9: 71,
-    },
-}
+const initialState: EditorState = { selectedMapVisualizationByTab: {} }
 
 export const editorSlice = createSlice({
     name: 'editor',
@@ -42,6 +27,20 @@ export const editorSlice = createSlice({
                 state.selectedMapVisualizationByTab[state.selectedTabId] = payload.id
             }
         },
+    },
+    extraReducers: (builder) => {
+        builder.addMatcher(mapApi.endpoints.getTabs.matchFulfilled, (state, actions) => {
+            state.selectedTabId = actions.payload[0].id
+        })
+        builder.addMatcher(
+            mapApi.endpoints.getMapVisualizations.matchFulfilled,
+            (state, actions) => {
+                Object.entries(actions.payload).forEach(([tabId, mapVisualizations]) => {
+                    state.selectedMapVisualizationByTab[Number(tabId)] =
+                        Object.values(mapVisualizations)[0].id
+                })
+            }
+        )
     },
 })
 

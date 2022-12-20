@@ -3,8 +3,7 @@ import { ForwardedRef, forwardRef } from 'react'
 import BubbleMap from './BubbleMap'
 import ChoroplethMap from './ChoroplethMap'
 import { TopoJson } from './TopoJson'
-import { MapType, MapVisualization, TabToId } from './MapVisualization'
-import DataTab from './DataTab'
+import { MapType, MapVisualization } from './MapVisualization'
 import { getUnitString } from './Formatter'
 
 export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
@@ -61,11 +60,7 @@ function FullMap(
                     map={map}
                     data={data}
                     legendTitle={legendTitle}
-                    color={
-                        mapVisualization.data_tab === TabToId[DataTab.Health]
-                            ? 'black'
-                            : 'rgb(34, 139, 69)'
-                    }
+                    color={mapVisualization.bubble_color}
                 />
             )
         default:

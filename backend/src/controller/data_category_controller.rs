@@ -21,6 +21,7 @@ async fn get_all(
                 data_categories.push(DataCategory {
                     id: -1,
                     name: "uncategorized".to_string(),
+                    normalized: false,
                 });
             }
             HttpResponse::Ok().json(data_categories)

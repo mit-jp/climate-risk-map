@@ -5,4 +5,5 @@ use sqlx::FromRow;
 pub struct DataCategory {
     pub id: i32,
     pub name: String,
+    pub normalized: bool,
 }

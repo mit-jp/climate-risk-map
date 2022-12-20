@@ -2,22 +2,18 @@ import { json } from 'd3'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import { Link, useParams } from 'react-router-dom'
-import classNames from 'classnames'
 import { Button } from '@mui/material'
 import { TopoJson } from '../TopoJson'
 import { RootState } from '../store'
 import editorCss from './Editor.module.css'
 import { MapVisualizationPatch } from '../MapVisualization'
-import navCss from '../Navigation.module.css'
 import {
     clickMapVisualization,
-    setTab,
     selectSelectedTabAndMapVisualization,
     setMap,
+    setTab,
 } from './editorSlice'
 import {
-    Tab,
     useCreateMapVisualizationMutation,
     useGetMapVisualizationQuery,
     useGetMapVisualizationsQuery,
@@ -26,6 +22,8 @@ import {
 import EditorMap from './EditorMap'
 import MapVisualizationList, { EmptyMapVisualizationList } from './MapVisualizationList'
 import MapOptions, { EmptyMapOptions } from './MapOptions'
+import Navigation from '../Navigation'
+import EmptyNavigation from '../EmptyNavigation'
 
 const NEW_MAP: MapVisualizationPatch = {
     id: -1,
@@ -40,38 +38,8 @@ const NEW_MAP: MapVisualizationPatch = {
     pdf_domain: [],
     formatter_type: 3,
     decimals: 1,
-}
-
-function EmptyNavigation() {
-    return <nav />
-}
-function Navigation({ tabs, selectedTabId }: { tabs: Tab[]; selectedTabId?: number }) {
-    const dispatch = useDispatch()
-    const params = useParams()
-    const { tabId } = params
-    useEffect(() => {
-        const tab = Number(tabId)
-        if (!Number.isNaN(tab)) {
-            dispatch(setTab(tab))
-        }
-    }, [tabId, dispatch])
-
-    return (
-        <nav id={navCss.nav}>
-            {tabs.map((tab) => (
-                <Link
-                    key={tab.id}
-                    className={classNames({
-                        [navCss.selected]: selectedTabId === tab.id,
-                        [navCss.uncategorized]: tab.id === -1,
-                    })}
-                    to={`/editor/${tab.id}`}
-                >
-                    {tab.name}
-                </Link>
-            ))}
-        </nav>
-    )
+    geography_type: 1,
+    bubble_color: '#000000',
 }
 
 function Editor() {
@@ -105,12 +73,20 @@ function Editor() {
         })
     }, [dispatch])
 
-    // if we're viewing risk metrics, normalize to 0-1
-    const isNormalized = selectedTabId === 8 ?? false
+    const isNormalized = tabs?.find((t) => t.id === selectedTabId)?.normalized ?? false
 
     return (
         <>
-            {tabs ? <Navigation tabs={tabs} selectedTabId={selectedTabId} /> : <EmptyNavigation />}
+            {tabs ? (
+                <Navigation
+                    tabs={tabs}
+                    selectedTabId={selectedTabId}
+                    onTabClick={(tab) => dispatch(setTab(tab.id))}
+                    root="/editor/"
+                />
+            ) : (
+                <EmptyNavigation />
+            )}
             <div id={editorCss.editor}>
                 <div id={editorCss.mapVisualizationList}>
                     {mapVisualizationsForTab ? (

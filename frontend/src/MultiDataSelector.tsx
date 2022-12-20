@@ -16,7 +16,6 @@ import {
     setMapSelections,
     setShowRiskMetrics,
     setShowDemographics,
-    selectMapVisualizations,
 } from './appSlice'
 import { RootState, store } from './store'
 import { MapSelection } from './DataSelector'
@@ -37,7 +36,7 @@ const checkBox = (
     shouldBeChecked: (mapId: MapVisualizationId) => boolean,
     onSelectionToggled: (event: ChangeEvent<HTMLInputElement>) => void,
     selections: MapSelection[],
-    dataWeights: { [key in MapVisualizationId]?: number },
+    dataWeights: Record<MapVisualizationId, number>,
     dispatch: typeof store.dispatch
 ) => {
     return (
@@ -85,12 +84,11 @@ const checkBox = (
     )
 }
 
-function MultiDataSelector() {
+function MultiDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisualization> }) {
     const dispatch = useDispatch()
     const dataWeights = useSelector((state: RootState) => state.app.dataWeights)
     const showRiskMetrics = useSelector((state: RootState) => state.app.showRiskMetrics)
     const showDemographics = useSelector((state: RootState) => state.app.showDemographics)
-    const maps = useSelector(selectMapVisualizations)
     const selections = useSelector(selectSelections)
 
     const selectionMap = Map(selections.map((selection) => [selection.mapVisualization, selection]))

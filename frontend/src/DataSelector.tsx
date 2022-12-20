@@ -1,14 +1,16 @@
-import { useSelector } from 'react-redux'
 import { Interval } from 'luxon'
 import MultiDataSelector from './MultiDataSelector'
 import SingleDataSelector from './SingleDataSelector'
-import DataTab from './DataTab'
-import { RootState } from './store'
-import { MapVisualizationId } from './MapVisualization'
+import { MapVisualization, MapVisualizationId } from './MapVisualization'
 
-function DataSelector() {
-    const dataTab = useSelector((state: RootState) => state.app.dataTab)
-    return dataTab === DataTab.RiskMetrics ? <MultiDataSelector /> : <SingleDataSelector />
+function DataSelector({
+    isNormalized,
+    maps,
+}: {
+    isNormalized: boolean
+    maps: Record<number, MapVisualization>
+}) {
+    return isNormalized ? <MultiDataSelector maps={maps} /> : <SingleDataSelector maps={maps} />
 }
 
 export type MapSelection = {
