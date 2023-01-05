@@ -19,7 +19,9 @@
       "consts",
       "COUNTYFP",
       "Csvs",
+      "dbaeumer",
       "dropzone",
+      "esbenp",
       "immer",
       "Jsons",
       "luxon",
@@ -41,9 +43,7 @@
       "vitejs",
       "webm",
       "webp",
-      "yarnrc",
-      "esbenp",
-      "dbaeumer"
+      "yarnrc"
     ],
     "workbench.colorCustomizations": {
       "activityBar.activeBackground": "#3399ff",
