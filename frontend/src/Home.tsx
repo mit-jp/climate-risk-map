@@ -81,14 +81,17 @@ function Home() {
             )}
             <div id={css.content}>
                 {tabs && mapVisualizations && tabId ? (
-                    <DataSelector isNormalized={isNormalized} maps={mapVisualizations[tabId]} />
+                    <DataSelector
+                        isNormalized={isNormalized}
+                        maps={mapVisualizations[tabId] ?? {}}
+                    />
                 ) : (
                     <EmptyDataSelector />
                 )}
                 {tabs && mapVisualizations && tabId ? (
                     <MapWrapper
                         isNormalized={isNormalized}
-                        allMapVisualizations={mapVisualizations[tabId]}
+                        allMapVisualizations={mapVisualizations[tabId] ?? {}}
                     />
                 ) : (
                     <p>No Map</p>
