@@ -31,6 +31,10 @@ export enum MapType {
     Choropleth = 1,
     Bubble = 2,
 }
+export enum GeographyType {
+    USA = 1,
+    World = 2,
+}
 
 export interface MapVisualizationPatch {
     id: MapVisualizationId
@@ -54,7 +58,7 @@ export interface MapVisualizationPatch {
     legend_formatter_type?: FormatterType
     decimals: number
     legend_decimals?: number
-    geography_type: number
+    geography_type: GeographyType
     bubble_color: string
 }
 
@@ -87,7 +91,7 @@ export interface MapVisualization {
     decimals: number
     legend_decimals?: number
     order: number
-    geography_type: number
+    geography_type: GeographyType
     bubble_color: string
 }
 export type MapVisualizationByTabId = Record<number, Record<MapVisualizationId, MapVisualization>>
@@ -120,7 +124,7 @@ export interface MapVisualizationJson {
     decimals: number
     legend_decimals: number | null
     order: number
-    geography_type: number
+    geography_type: GeographyType
     bubble_color: string
 }
 
@@ -239,7 +243,7 @@ export const fetchMapVisualization = async (id: number): Promise<MapVisualizatio
 
 export const fetchMapVisualizations = async (props: {
     includeDrafts?: boolean
-    geographyType?: number
+    geographyType?: GeographyType
 }): Promise<MapVisualizationByTabId> => {
     const rawJson = await loadJson<{ [key: number]: { [key: number]: MapVisualizationJson } }>(
         `/api/map-visualization?include_drafts=${props.includeDrafts ?? false}${

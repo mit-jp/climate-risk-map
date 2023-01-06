@@ -4,16 +4,16 @@ use sqlx::postgres::PgQueryResult;
 
 macro_rules! select {
     () => {
-        select!("LEFT JOIN", ,)
-    };
-    (include_drafts) => {
         select!("JOIN", ,)
     };
+    (include_drafts) => {
+        select!("LEFT JOIN", ,)
+    };
     (geography_type=$geography_type:expr) => {
-        select!("LEFT JOIN", geography_type=$geography_type,)
+        select!("JOIN", geography_type=$geography_type,)
     };
     (geography_type=$geography_type:expr, include_drafts) => {
-        select!("JOIN", geography_type=$geography_type,)
+        select!("LEFT JOIN", geography_type=$geography_type,)
     };
     ($id:ident) => {
         select!("LEFT JOIN", ,$id)
