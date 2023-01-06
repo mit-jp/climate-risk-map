@@ -30,7 +30,8 @@ export const editorSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder.addMatcher(mapApi.endpoints.getTabs.matchFulfilled, (state, actions) => {
-            state.selectedTabId = actions.payload[0].id
+            const tabIdString = Object.keys(actions.payload)[0]
+            state.selectedTabId = tabIdString ? Number(tabIdString) : undefined
         })
         builder.addMatcher(
             mapApi.endpoints.getMapVisualizations.matchFulfilled,

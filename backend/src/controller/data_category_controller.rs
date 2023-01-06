@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use super::AppState;
 use crate::controller::map_visualization_controller::MapVisualizationOptions;
 use crate::model::DataCategory;
@@ -24,7 +26,11 @@ async fn get_all(
                     normalized: false,
                 });
             }
-            HttpResponse::Ok().json(data_categories)
+            let data_categories_by_id: HashMap<i32, DataCategory> = data_categories
+                .into_iter()
+                .map(|data_category| (data_category.id, data_category))
+                .collect();
+            HttpResponse::Ok().json(data_categories_by_id)
         }
     }
 }

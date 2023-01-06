@@ -73,13 +73,15 @@ function Editor() {
         })
     }, [dispatch])
 
-    const isNormalized = tabs?.find((t) => t.id === selectedTabId)?.normalized ?? false
+    const selectedTab = tabs != null && selectedTabId != null ? tabs[selectedTabId] : undefined
+    const isNormalized = selectedTab?.normalized ?? false
+    const tabList = Object.values(tabs ?? [])
 
     return (
         <>
             {tabs ? (
                 <Navigation
-                    tabs={tabs}
+                    tabs={tabList}
                     selectedTabId={selectedTabId}
                     onTabClick={(tab) => dispatch(setTab(tab.id))}
                     root="/editor/"

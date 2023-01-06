@@ -1,8 +1,8 @@
 import { Link, useParams } from 'react-router-dom'
 import { useEffect } from 'react'
 import classNames from 'classnames'
-import { DataTab } from './appSlice'
 import css from './Navigation.module.css'
+import { Tab } from './MapApi'
 
 function Navigation({
     tabs,
@@ -10,8 +10,8 @@ function Navigation({
     selectedTabId,
     root = '/',
 }: {
-    tabs: DataTab[]
-    onTabClick: (tab: DataTab) => void
+    tabs: Tab[]
+    onTabClick: (tab: Tab) => void
     selectedTabId?: number
     root?: string
 }) {

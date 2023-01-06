@@ -1,6 +1,6 @@
 import { DateTime, Interval } from 'luxon'
 import { json as loadJson } from 'd3'
-import { DataQueryParams } from './MapApi'
+import { DataQueryParams, TabId } from './MapApi'
 import { MapSelection } from './DataSelector'
 
 export type MapVisualizationId = number
@@ -94,7 +94,6 @@ export interface MapVisualization {
     geography_type: GeographyType
     bubble_color: string
 }
-export type MapVisualizationByTabId = Record<number, Record<MapVisualizationId, MapVisualization>>
 
 export interface MapVisualizationJson {
     id: MapVisualizationId
@@ -191,17 +190,6 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
     }
 }
 
-export const defaultMapVisualizations: MapVisualizationByTabId = {
-    8: {},
-    1: {},
-    2: {},
-    3: {},
-    4: {},
-    7: {},
-    6: {},
-    5: {},
-}
-
 export const getDefaultSource = (mapVisualization: MapVisualization) =>
     mapVisualization.default_source ??
     Object.keys(mapVisualization.date_ranges_by_source).map((key) => parseInt(key, 10))[0]
@@ -244,7 +232,7 @@ export const fetchMapVisualization = async (id: number): Promise<MapVisualizatio
 export const fetchMapVisualizations = async (props: {
     includeDrafts?: boolean
     geographyType?: GeographyType
-}): Promise<MapVisualizationByTabId> => {
+}): Promise<Record<TabId, Record<MapVisualizationId, MapVisualization>>> => {
     const rawJson = await loadJson<{ [key: number]: { [key: number]: MapVisualizationJson } }>(
         `/api/map-visualization?include_drafts=${props.includeDrafts ?? false}${
             props.geographyType !== undefined ? `&geography_type=${props.geographyType}` : ''
@@ -266,7 +254,7 @@ export const fetchMapVisualizations = async (props: {
             accumulator[parseInt(tabId, 10)!] = mapVisualizations
             return accumulator
         },
-        {} as MapVisualizationByTabId
+        {} as Record<TabId, Record<MapVisualizationId, MapVisualization>>
     )
     return mapVisualizationsByTab
 }

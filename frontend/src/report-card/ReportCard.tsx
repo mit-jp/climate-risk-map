@@ -102,7 +102,7 @@ export default function ReportCard() {
     const { data: categories } = useGetTabsQuery(false)
     const [selectedCounty, setSelectedCounty] = useState<County | null>(null)
     const countyList = counties ? Object.values(counties) : []
-    const category = Number(params.category)
+    const categoryId = Number(params.category)
     const navigate = useNavigate()
     useEffect(() => {
         setSelectedCounty(counties && params.countyId ? counties[params.countyId] : null)
@@ -113,8 +113,8 @@ export default function ReportCard() {
             <h1>
                 County Report Card
                 {categories &&
-                    category !== undefined &&
-                    `: ${categories.find((t) => t.id === category)?.name ?? ''}`}
+                    categoryId !== undefined &&
+                    `: ${categories[categoryId]?.name ?? ''}`}
             </h1>
             <Autocomplete
                 loading={countyList.length === 0 && !states}
@@ -125,16 +125,18 @@ export default function ReportCard() {
                 renderInput={(p) => <TextField {...p} label="County" />}
                 onChange={(_, county) => {
                     if (county) {
-                        navigate(`/report-card/${category}/${fipsCode(county)}`, { replace: true })
+                        navigate(`/report-card/${categoryId}/${fipsCode(county)}`, {
+                            replace: true,
+                        })
                     }
                 }}
                 value={selectedCounty}
             />
-            {selectedCounty && states && category !== undefined && (
+            {selectedCounty && states && categoryId !== undefined && (
                 <CountyReport
                     county={selectedCounty}
                     state={states[selectedCounty.state]}
-                    category={category}
+                    category={categoryId}
                 />
             )}
         </div>

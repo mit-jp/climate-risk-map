@@ -7,7 +7,6 @@ import {
     fetchMapVisualization,
     fetchMapVisualizations,
     MapVisualization,
-    MapVisualizationByTabId,
     MapVisualizationId,
     MapVisualizationPatch,
     ScaleType,
@@ -15,6 +14,7 @@ import {
 
 export type CountyId = string
 export type DatasetId = number
+export type TabId = number
 export type DataRow = { [key in DatasetId]: number | null }
 export type Data = { [key in CountyId]: number | null }
 export type DataByMapVisualization = Record<MapVisualizationId, Data>
@@ -29,7 +29,7 @@ export type MapVisualizationQueryParams = {
     geographyType?: number
 }
 export type Tab = {
-    id: number
+    id: TabId
     name: string
     normalized: boolean
 }
@@ -170,7 +170,10 @@ export const mapApi = createApi({
                 ),
             providesTags: (_result, _error, id) => [{ type: 'MapVisualization', id }],
         }),
-        getMapVisualizations: builder.query<MapVisualizationByTabId, MapVisualizationQueryParams>({
+        getMapVisualizations: builder.query<
+            Record<TabId, Record<MapVisualizationId, MapVisualization>>,
+            MapVisualizationQueryParams
+        >({
             queryFn: (params) =>
                 fetchMapVisualizations(params).then(
                     (data) => ({ data }),
@@ -187,7 +190,7 @@ export const mapApi = createApi({
                       ]
                     : [{ type: 'MapVisualization', id: 'ALL' }],
         }),
-        getTabs: builder.query<Tab[], boolean>({
+        getTabs: builder.query<Record<number, Tab>, boolean>({
             query: (includeDrafts) => `data-category?include_drafts=${includeDrafts}`,
         }),
         getColorPalettes: builder.query<ColorPalette[], undefined>({

@@ -43,7 +43,12 @@ function Home() {
     const { data: mapVisualizations } = useGetMapVisualizationsQuery({
         geographyType: region === 'USA' ? 1 : 2,
     })
-    const isNormalized = tabs?.find((t) => t.id === tabId)?.normalized ?? false
+
+    const isNormalized = tabs != null && tabId != null ? tabs[tabId].normalized : false
+    const displayedTabs =
+        mapVisualizations != null && tabId != null && tabs != null
+            ? Object.keys(mapVisualizations).map((tabId) => tabs[Number(tabId)])
+            : []
 
     useEffect(() => {
         json<TopoJson>(mapFile).then((topoJson) => {
@@ -63,7 +68,7 @@ function Home() {
             <CountryNavigation />
             {tabs ? (
                 <Navigation
-                    tabs={tabs}
+                    tabs={displayedTabs}
                     onTabClick={(tab) => dispatch(setTab(tab.id))}
                     selectedTabId={tabId}
                 />

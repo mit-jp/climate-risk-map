@@ -17,11 +17,6 @@ import {
 } from './MapVisualization'
 import { mapApi } from './MapApi'
 
-export type DataTab = {
-    id: number
-    name: string
-    normalized: boolean
-}
 export type TransmissionLineType =
     | 'Level 2 (230kV-344kV)'
     | 'Level 3 (>= 345kV)'
@@ -34,10 +29,6 @@ export type OverlayName =
     | 'Critical water habitats'
     | 'Endangered species'
 export type Overlay = { topoJson?: TopoJson; shouldShow: boolean }
-export type TabAndMapVisualizations = {
-    dataTab: DataTab
-    mapVisualizations: MapVisualization[]
-}
 export type Region = 'USA' | 'World'
 interface AppState {
     readonly selectedRegion: Region
@@ -182,7 +173,8 @@ export const appSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder.addMatcher(mapApi.endpoints.getTabs.matchFulfilled, (state, actions) => {
-            state.tab = actions.payload[0].id
+            const tabIdString = Object.keys(actions.payload)[0]
+            state.tab = tabIdString ? Number(tabIdString) : undefined
         })
         builder.addMatcher(
             mapApi.endpoints.getMapVisualizations.matchFulfilled,
