@@ -31,7 +31,7 @@ export type OverlayName =
 export type Overlay = { topoJson?: TopoJson; shouldShow: boolean }
 export type Region = 'USA' | 'World'
 interface AppState {
-    readonly selectedRegion: Region
+    readonly region: Region
     readonly map?: TopoJson
     readonly mapTransform?: string
     readonly overlays: Record<OverlayName, Overlay>
@@ -48,7 +48,7 @@ interface AppState {
 }
 
 const initialState: AppState = {
-    selectedRegion: 'USA',
+    region: 'USA',
     overlays: {
         Highways: { shouldShow: false },
         'Major railroads': { shouldShow: false },
@@ -168,7 +168,7 @@ export const appSlice = createSlice({
             }
         },
         selectRegion: (state, { payload }: PayloadAction<Region>) => {
-            state.selectedRegion = payload
+            state.region = payload
         },
     },
     extraReducers: (builder) => {

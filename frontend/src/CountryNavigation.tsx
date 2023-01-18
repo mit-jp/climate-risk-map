@@ -5,7 +5,7 @@ import css from './Navigation.module.css'
 import { RootState } from './store'
 
 export default function CountryNavigation() {
-    const selectedRegion = useSelector((state: RootState) => state.app.selectedRegion)
+    const region = useSelector((state: RootState) => state.app.region)
     const dispatch = useDispatch()
     const onChange = (event: ChangeEvent<HTMLInputElement>) => {
         dispatch(selectRegion(event.target.value as Region))
@@ -19,7 +19,7 @@ export default function CountryNavigation() {
                     name="geography-type"
                     id="USA"
                     value="USA"
-                    checked={selectedRegion === 'USA'}
+                    checked={region === 'USA'}
                     onChange={onChange}
                 />
                 USA
@@ -30,7 +30,7 @@ export default function CountryNavigation() {
                     name="geography-type"
                     id="World"
                     value="World"
-                    checked={selectedRegion === 'World'}
+                    checked={region === 'World'}
                     onChange={onChange}
                 />
                 World

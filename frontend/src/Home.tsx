@@ -37,7 +37,7 @@ const mapFile: TopoJsonFile = 'usa.json'
 
 function Home() {
     const dispatch = useDispatch()
-    const region = useSelector((state: RootState) => state.app.selectedRegion)
+    const region = useSelector((state: RootState) => state.app.region)
     const { data: tabs } = useGetTabsQuery(false)
     const tab = useSelector(selectSelectedTab)
     const { data: mapVisualizations } = useGetMapVisualizationsQuery({
