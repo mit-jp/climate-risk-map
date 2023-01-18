@@ -15,7 +15,7 @@ import {
     MapVisualization,
     MapVisualizationId,
 } from './MapVisualization'
-import { mapApi, Tab } from './MapApi'
+import { mapApi, Tab, TabId } from './MapApi'
 
 export type TransmissionLineType =
     | 'Level 2 (230kV-344kV)'
@@ -35,7 +35,7 @@ interface AppState {
     readonly map?: TopoJson
     readonly mapTransform?: string
     readonly overlays: Record<OverlayName, Overlay>
-    readonly mapSelections: Record<number, MapSelection[]>
+    readonly mapSelections: Record<Region, Record<TabId, MapSelection[]>>
     readonly dataWeights: Record<MapVisualizationId, number>
     readonly tab: Tab | undefined
     readonly state: State | undefined
@@ -58,7 +58,7 @@ const initialState: AppState = {
         'Endangered species': { shouldShow: false },
     },
     tab: undefined,
-    mapSelections: {},
+    mapSelections: { USA: {}, World: {} },
     dataWeights: {},
     state: undefined,
     detailedView: true,
@@ -111,19 +111,19 @@ export const appSlice = createSlice({
             if (state.tab === undefined) {
                 return
             }
-            state.mapSelections[state.tab.id][0].dateRange = action.payload
+            state.mapSelections[state.region][state.tab.id][0].dateRange = action.payload
         },
         changeDataSource: (state, action: PayloadAction<number>) => {
             if (state.tab === undefined) {
                 return
             }
-            state.mapSelections[state.tab.id][0].dataSource = action.payload
+            state.mapSelections[state.region][state.tab.id][0].dataSource = action.payload
         },
         changeMapSelection: (state, action: PayloadAction<MapVisualization>) => {
             if (state.tab === undefined) {
                 return
             }
-            const selection = state.mapSelections[state.tab.id][0]
+            const selection = state.mapSelections[state.region][state.tab.id][0]
             const mapVisualization = action.payload
             selection.mapVisualization = mapVisualization.id
             const possibleDataSources = Object.values(mapVisualization.sources).map((s) => s.id)
@@ -150,7 +150,7 @@ export const appSlice = createSlice({
             if (state.tab === undefined) {
                 return
             }
-            state.mapSelections[state.tab.id] = action.payload
+            state.mapSelections[state.region][state.tab.id] = action.payload
         },
         setWaterwayValue(state, action: PayloadAction<WaterwayValue>) {
             state.waterwayValue = action.payload
@@ -181,7 +181,9 @@ export const appSlice = createSlice({
             (state, actions) => {
                 Object.entries(actions.payload).forEach(([tabId, mapVisualizations]) => {
                     const mapVisualization = Object.values(mapVisualizations)[0]
-                    state.mapSelections[Number(tabId)] = [getDefaultSelection(mapVisualization)]
+                    state.mapSelections[state.region][Number(tabId)] = [
+                        getDefaultSelection(mapVisualization),
+                    ]
                 })
             }
         )
@@ -239,7 +241,7 @@ export const selectSelections = (state: RootState) => {
     if (state.app.tab === undefined) {
         return []
     }
-    const mapSelections = state.app.mapSelections[state.app.tab.id]
+    const mapSelections = state.app.mapSelections[state.app.region][state.app.tab.id]
     if (mapSelections === undefined) {
         return []
     }
