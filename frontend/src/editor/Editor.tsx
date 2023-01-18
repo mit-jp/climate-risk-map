@@ -48,12 +48,12 @@ function Editor() {
     const { data: tabs } = useGetTabsQuery(true)
     const [createMap] = useCreateMapVisualizationMutation()
 
-    const { selectedTabId, selectedMapVisualizationId: maybeSelectedMap } = useSelector(
+    const { selectedTab, selectedMapVisualizationId: maybeSelectedMap } = useSelector(
         selectSelectedTabAndMapVisualization
     )
     const mapVisualizationsForTab =
-        allMapVisualizations && selectedTabId !== undefined
-            ? Object.values(allMapVisualizations[selectedTabId] ?? []).sort(
+        allMapVisualizations && selectedTab !== undefined
+            ? Object.values(allMapVisualizations[selectedTab.id] ?? []).sort(
                   (a, b) => a.order - b.order
               )
             : undefined
@@ -73,17 +73,15 @@ function Editor() {
         })
     }, [dispatch])
 
-    const selectedTab = tabs != null && selectedTabId != null ? tabs[selectedTabId] : undefined
     const isNormalized = selectedTab?.normalized ?? false
-    const tabList = Object.values(tabs ?? [])
 
     return (
         <>
             {tabs ? (
                 <Navigation
-                    tabs={tabList}
-                    selectedTabId={selectedTabId}
-                    onTabClick={(tab) => dispatch(setTab(tab.id))}
+                    tabs={tabs}
+                    selectedTabId={selectedTab?.id}
+                    onTabClick={(tab) => dispatch(setTab(tab))}
                     root="/editor/"
                 />
             ) : (
@@ -100,7 +98,7 @@ function Editor() {
                                     dispatch(clickMapVisualization(clickedMap))
                                 }
                             />
-                            {selectedTabId === -1 && (
+                            {selectedTab?.id === -1 && (
                                 <Button
                                     id={editorCss.createMap}
                                     onClick={() => createMap(NEW_MAP)}

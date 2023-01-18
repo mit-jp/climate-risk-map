@@ -190,7 +190,7 @@ export const mapApi = createApi({
                       ]
                     : [{ type: 'MapVisualization', id: 'ALL' }],
         }),
-        getTabs: builder.query<Record<number, Tab>, boolean>({
+        getTabs: builder.query<Tab[], boolean>({
             query: (includeDrafts) => `data-category?include_drafts=${includeDrafts}`,
         }),
         getColorPalettes: builder.query<ColorPalette[], undefined>({

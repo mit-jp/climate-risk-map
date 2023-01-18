@@ -7,7 +7,7 @@ import DataSelector from './DataSelector'
 import css from './Home.module.css'
 import { RootState } from './store'
 import MapWrapper from './MapWrapper'
-import { OverlayName, setTab, setMap, setOverlay, selectSelectedTabId } from './appSlice'
+import { OverlayName, setTab, setMap, setOverlay, selectSelectedTab } from './appSlice'
 import { TopoJson } from './TopoJson'
 import CountryNavigation from './CountryNavigation'
 import { useGetMapVisualizationsQuery, useGetTabsQuery } from './MapApi'
@@ -39,15 +39,15 @@ function Home() {
     const dispatch = useDispatch()
     const region = useSelector((state: RootState) => state.app.selectedRegion)
     const { data: tabs } = useGetTabsQuery(false)
-    const tabId = useSelector(selectSelectedTabId)
+    const tab = useSelector(selectSelectedTab)
     const { data: mapVisualizations } = useGetMapVisualizationsQuery({
         geographyType: region === 'USA' ? 1 : 2,
     })
 
-    const isNormalized = tabs != null && tabId != null ? tabs[tabId].normalized : false
+    const isNormalized = tab?.normalized ?? false
     const displayedTabs =
-        mapVisualizations != null && tabId != null && tabs != null
-            ? Object.keys(mapVisualizations).map((tabId) => tabs[Number(tabId)])
+        mapVisualizations != null && tabs != null
+            ? tabs.filter((tab) => tab.id in mapVisualizations)
             : []
 
     useEffect(() => {
@@ -69,8 +69,8 @@ function Home() {
             {tabs ? (
                 <Navigation
                     tabs={displayedTabs}
-                    onTabClick={(tab) => dispatch(setTab(tab.id))}
-                    selectedTabId={tabId}
+                    onTabClick={(tab) => dispatch(setTab(tab))}
+                    selectedTabId={tab?.id}
                 />
             ) : (
                 <EmptyNavigation />
@@ -85,18 +85,18 @@ function Home() {
                 </div>
             )}
             <div id={css.content}>
-                {tabs && mapVisualizations && tabId ? (
+                {tabs && mapVisualizations && tab ? (
                     <DataSelector
                         isNormalized={isNormalized}
-                        maps={mapVisualizations[tabId] ?? {}}
+                        maps={mapVisualizations[tab.id] ?? {}}
                     />
                 ) : (
                     <EmptyDataSelector />
                 )}
-                {tabs && mapVisualizations && tabId ? (
+                {tabs && mapVisualizations && tab ? (
                     <MapWrapper
                         isNormalized={isNormalized}
-                        allMapVisualizations={mapVisualizations[tabId] ?? {}}
+                        allMapVisualizations={mapVisualizations[tab.id] ?? {}}
                     />
                 ) : (
                     <p>No Map</p>

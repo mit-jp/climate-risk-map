@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { mapApi } from '../MapApi'
+import { mapApi, Tab } from '../MapApi'
 import { MapVisualization, MapVisualizationId } from '../MapVisualization'
 import { RootState } from '../store'
 import { TopoJson } from '../TopoJson'
 
 interface EditorState {
-    readonly selectedTabId?: number
+    readonly selectedTab?: Tab
     readonly selectedMapVisualizationByTab: Record<number, MapVisualizationId>
     readonly map?: TopoJson
 }
@@ -16,22 +16,22 @@ export const editorSlice = createSlice({
     name: 'editor',
     initialState,
     reducers: {
-        setTab(state, { payload }: PayloadAction<number>) {
-            state.selectedTabId = payload
+        setTab(state, { payload }: PayloadAction<Tab>) {
+            state.selectedTab = payload
         },
         setMap(state, { payload }: PayloadAction<TopoJson>) {
             state.map = payload
         },
         clickMapVisualization(state, { payload }: PayloadAction<MapVisualization>) {
-            if (state.selectedTabId) {
-                state.selectedMapVisualizationByTab[state.selectedTabId] = payload.id
+            if (state.selectedTab) {
+                state.selectedMapVisualizationByTab[state.selectedTab.id] = payload.id
             }
         },
     },
     extraReducers: (builder) => {
         builder.addMatcher(mapApi.endpoints.getTabs.matchFulfilled, (state, actions) => {
-            const tabIdString = Object.keys(actions.payload)[0]
-            state.selectedTabId = tabIdString ? Number(tabIdString) : undefined
+            const firstTab = actions.payload[0]
+            state.selectedTab = firstTab
         })
         builder.addMatcher(
             mapApi.endpoints.getMapVisualizations.matchFulfilled,
@@ -48,13 +48,13 @@ export const editorSlice = createSlice({
 export const { setTab, setMap, clickMapVisualization } = editorSlice.actions
 
 export const selectSelectedTabAndMapVisualization = (state: RootState) => {
-    const { selectedTabId } = state.editor
+    const { selectedTab } = state.editor
     const selectedMapVisualizationId =
-        selectedTabId !== undefined
-            ? state.editor.selectedMapVisualizationByTab[selectedTabId]
+        selectedTab !== undefined
+            ? state.editor.selectedMapVisualizationByTab[selectedTab.id]
             : undefined
     return {
-        selectedTabId,
+        selectedTab,
         selectedMapVisualizationId,
     }
 }
