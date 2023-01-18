@@ -180,9 +180,11 @@ export const appSlice = createSlice({
             mapApi.endpoints.getMapVisualizations.matchFulfilled,
             (state, actions) => {
                 Object.entries(actions.payload).forEach(([tabId, mapVisualizations]) => {
-                    const mapVisualization = Object.values(mapVisualizations)[0]
+                    const firstMap = Object.values(mapVisualizations).reduce((a, b) =>
+                        a.order < b.order ? a : b
+                    )
                     state.mapSelections[state.region][Number(tabId)] = [
-                        getDefaultSelection(mapVisualization),
+                        getDefaultSelection(firstMap),
                     ]
                 })
             }
