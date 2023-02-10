@@ -15,6 +15,7 @@ function App() {
                 <Route path="/editor/:tabId" element={<Editor />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/:tabId" element={<Home />} />
+                <Route path="/:tabId/:region" element={<Home />} />
                 <Route
                     path="*"
                     element={
