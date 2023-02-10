@@ -1,10 +1,10 @@
 import { Map } from 'immutable'
-import { useEffect, useState, RefObject } from 'react'
+import { RefObject, useEffect, useState } from 'react'
 import counties from './Counties'
-import states, { State } from './States'
-import { MapVisualization } from './MapVisualization'
 import css from './CountyTooltip.module.css'
 import { formatData } from './Formatter'
+import { MapVisualization } from './MapVisualization'
+import states, { State } from './States'
 
 type TooltipHover = { x: number; y: number; id: string }
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
     isNormalized: boolean
 }
 
-function CountyTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
+function MapTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
     const [hover, setHover] = useState<TooltipHover>()
 
     useEffect(() => {
@@ -77,4 +77,4 @@ function CountyTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
     )
 }
 
-export default CountyTooltip
+export default MapTooltip

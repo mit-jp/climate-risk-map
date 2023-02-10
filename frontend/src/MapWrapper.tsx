@@ -1,20 +1,20 @@
-import { useSelector } from 'react-redux'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { useMemo, useRef } from 'react'
-import css from './MapWrapper.module.css'
-import { RootState } from './store'
+import { useSelector } from 'react-redux'
+import { selectMapTransform, selectSelections } from './appSlice'
+import DataDescription from './DataDescription'
+import DataProcessor from './DataProcessor'
+import DataSourceDescription from './DataSourceDescription'
 import EmptyMap from './EmptyMap'
 import FullMap from './FullMap'
-import MapTitle, { EmptyMapTitle } from './MapTitle'
-import { selectMapTransform, selectSelections } from './appSlice'
-import CountyTooltip from './CountyTooltip'
-import MapControls from './MapControls'
-import DataDescription from './DataDescription'
-import Overlays from './Overlays'
-import DataSourceDescription from './DataSourceDescription'
 import { DataQueryParams, useGetDataQuery } from './MapApi'
-import DataProcessor from './DataProcessor'
+import MapControls from './MapControls'
+import MapTitle, { EmptyMapTitle } from './MapTitle'
+import MapTooltip from './MapTooltip'
 import { MapVisualization, MapVisualizationId } from './MapVisualization'
+import css from './MapWrapper.module.css'
+import Overlays from './Overlays'
+import { RootState } from './store'
 
 export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
 
@@ -101,7 +101,7 @@ function MapWrapper({
                 )}
                 {dataSource && <DataSourceDescription dataSource={dataSource} />}
             </div>
-            <CountyTooltip
+            <MapTooltip
                 data={processedData}
                 mapRef={mapRef}
                 selectedMap={maps[0]}
