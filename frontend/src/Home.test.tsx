@@ -1,11 +1,11 @@
 import { screen } from '@testing-library/react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
-import { Route, MemoryRouter, Routes } from 'react-router-dom'
-import Home from './Home'
-import { render } from './test-utils'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import jsonFile from '../public/usa.json'
+import Home from './Home'
 import { MapVisualizationJson } from './MapVisualization'
+import { render } from './test-utils'
 
 const MAP_VISUALIZATIONS: { [key: string]: { [key: string]: MapVisualizationJson } } = {
     '8': {
@@ -81,7 +81,7 @@ test('It shows header and loads data selector', async () => {
             </Routes>
         </MemoryRouter>
     )
-    expect(screen.getByText(/environmental systems risk triage/i)).toBeInTheDocument()
+    expect(screen.getByText(/STRESS Tool/i)).toBeInTheDocument()
     // map title, data selector, and description expander all have the same text
     expect(
         await screen.findAllByText(/Exposure to airborne particulate matter/i, undefined, {

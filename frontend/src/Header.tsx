@@ -1,22 +1,16 @@
-import climateRiskLogo from './climate-risk-logo.jpg'
-import mitLogo from './MIT-logo.svg'
-import jointProgramLogo from './joint-program-logo.jpg'
 import css from './Header.module.css'
+import jointProgramLogo from './joint-program-logo.jpg'
+import mitLogo from './MIT-logo.svg'
 
 function Header() {
     return (
         <header id={css.header}>
             <div id={css.title}>
-                <img
-                    src={climateRiskLogo}
-                    alt="Socio-Environmental Systems Risk Triage"
-                    id={css.climateRiskLogo}
-                />
                 <div id={css.titleAndSubtitle}>
-                    <h1>Socio-Environmental Systems Risk Triage</h1>
+                    <h1>STRESS Tool</h1>
                     <p>
-                        An open-science visualization platform to combine, overlay, and diagnose
-                        landscapes of socioeconomic, health, and environmental risk and injustice.
+                        System for the Triage of Risks from Environmental and Socio-Economic
+                        Stressors.
                     </p>
                 </div>
             </div>
