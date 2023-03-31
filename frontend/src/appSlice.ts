@@ -1,21 +1,21 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import type { GeoJsonProperties, Feature, Geometry } from 'geojson'
-import type { GeometryCollection } from 'topojson-specification'
 import { geoPath } from 'd3'
-import { feature } from 'topojson-client'
+import type { Feature, GeoJsonProperties, Geometry } from 'geojson'
 import { Interval } from 'luxon'
-import { TopoJson } from './TopoJson'
-import { State } from './States'
-import { WaterwayValue } from './WaterwayType'
-import { RootState } from './store'
+import { feature } from 'topojson-client'
+import type { GeometryCollection } from 'topojson-specification'
 import { MapSelection } from './DataSelector'
+import { mapApi, Tab, TabId } from './MapApi'
 import {
     getDefaultSelection,
     MapType,
     MapVisualization,
     MapVisualizationId,
 } from './MapVisualization'
-import { mapApi, Tab, TabId } from './MapApi'
+import { State } from './States'
+import { RootState } from './store'
+import { TopoJson } from './TopoJson'
+import { WaterwayValue } from './WaterwayType'
 
 export type TransmissionLineType =
     | 'Level 2 (230kV-344kV)'
@@ -38,7 +38,7 @@ interface AppState {
     readonly mapSelections: Record<Region, Record<TabId, MapSelection[]>>
     readonly dataWeights: Record<MapVisualizationId, number>
     readonly tab: Tab | undefined
-    readonly state: State | undefined
+    readonly zoomTo: string | undefined
     readonly county: string | undefined
     readonly detailedView: boolean
     readonly showRiskMetrics: boolean
@@ -60,7 +60,7 @@ const initialState: AppState = {
     tab: undefined,
     mapSelections: { USA: {}, World: {} },
     dataWeights: {},
-    state: undefined,
+    zoomTo: undefined,
     detailedView: true,
     showRiskMetrics: true,
     showDemographics: true,
@@ -142,7 +142,7 @@ export const appSlice = createSlice({
 
             if (mapVisualization?.map_type === MapType.Bubble) {
                 // don't zoom in to state on bubble map. it's unsupported right now
-                state.state = undefined
+                state.zoomTo = undefined
                 state.county = undefined
             }
         },
@@ -158,17 +158,23 @@ export const appSlice = createSlice({
         setTransmissionLineType(state, action: PayloadAction<TransmissionLineType>) {
             state.transmissionLineType = action.payload
         },
-        clickCounty: (state, { payload }: PayloadAction<string>) => {
-            if (state.state) {
-                state.state = undefined
-                state.county = undefined
+        clickMap: (state, { payload }: PayloadAction<string>) => {
+            if (state.region === 'USA') {
+                if (state.zoomTo) {
+                    state.zoomTo = undefined
+                    state.county = undefined
+                } else {
+                    state.zoomTo = payload.slice(0, 2) as State
+                    state.county = payload
+                }
             } else {
-                state.state = payload.slice(0, 2) as State
-                state.county = payload
+                state.zoomTo = state.zoomTo === undefined ? payload : undefined
             }
         },
         selectRegion: (state, { payload }: PayloadAction<Region>) => {
             state.region = payload
+            state.zoomTo = undefined
+            state.county = undefined
         },
     },
     extraReducers: (builder) => {
@@ -207,32 +213,38 @@ export const {
     setShowRiskMetrics,
     setWaterwayValue,
     setTransmissionLineType,
-    clickCounty,
+    clickMap,
     selectRegion,
 } = appSlice.actions
 
 // Accessors that return a new object every time, or run for a long time.
 // Do not use these as they will always force a re-render, or take too long to re-render.
 // Instead use the selectors that use them.
-const generateMapTransform = (state: State | undefined, map: TopoJson | undefined) => {
-    if (state === undefined || map === undefined) {
+const generateMapTransform = (
+    zoomTo: string | undefined,
+    region: Region,
+    map: TopoJson | undefined
+) => {
+    if (zoomTo === undefined || map === undefined) {
         return undefined
     }
-    const stateFeatures = feature(
-        map,
-        map.objects.states as GeometryCollection<GeoJsonProperties>
-    ).features.reduce((accumulator, currentValue) => {
-        accumulator[currentValue.id as State] = currentValue
-        return accumulator
-    }, {} as Record<State, Feature<Geometry, GeoJsonProperties>>)
+    const objects = region === 'USA' ? map.objects.state : map.objects.nations
+    const features = feature(map, objects as GeometryCollection<GeoJsonProperties>).features.reduce(
+        (accumulator, currentValue) => {
+            accumulator[currentValue.id as State] = currentValue
+            return accumulator
+        },
+        {} as Record<string, Feature<Geometry, GeoJsonProperties>>
+    )
     const width = 900
-    const bounds = geoPath().bounds(stateFeatures[state])
+    const height = 610
+    const bounds = geoPath().bounds(features[zoomTo])
     const dx = bounds[1][0] - bounds[0][0]
     const dy = bounds[1][1] - bounds[0][1]
     const x = (bounds[0][0] + bounds[1][0]) / 2
     const y = (bounds[0][1] + bounds[1][1]) / 2
-    const scale = 0.9 / Math.max(dx / width, dy / 610)
-    const translate = [width / 2 - scale * x, 610 / 2 - scale * y]
+    const scale = 0.9 / Math.max(dx / width, dy / height)
+    const translate = [width / 2 - scale * x, height / 2 - scale * y]
     const transform = `translate(${translate})scale(${scale})`
     return transform
 }
@@ -252,7 +264,8 @@ export const selectSelections = (state: RootState) => {
 }
 
 export const selectMapTransform = createSelector(
-    (state: RootState) => state.app.state,
+    (state: RootState) => state.app.zoomTo,
+    (state: RootState) => state.app.region,
     (state: RootState) => state.app.map,
     generateMapTransform
 )

@@ -1,7 +1,6 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { useMemo, useRef } from 'react'
 import { useSelector } from 'react-redux'
-import { selectMapTransform, selectSelections } from './appSlice'
 import DataDescription from './DataDescription'
 import DataProcessor from './DataProcessor'
 import DataSourceDescription from './DataSourceDescription'
@@ -14,6 +13,7 @@ import MapTooltip from './MapTooltip'
 import { MapVisualization, MapVisualizationId } from './MapVisualization'
 import css from './MapWrapper.module.css'
 import Overlays from './Overlays'
+import { selectMapTransform, selectSelections } from './appSlice'
 import { RootState } from './store'
 
 export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
@@ -27,10 +27,11 @@ function MapWrapper({
 }) {
     const map = useSelector((state: RootState) => state.app.map)
     const detailedView = useSelector((state: RootState) => state.app.detailedView)
-    const state = useSelector((rootState: RootState) => rootState.app.state)
+    const zoomTo = useSelector((rootState: RootState) => rootState.app.zoomTo)
     const dataWeights = useSelector((rootState: RootState) => rootState.app.dataWeights)
     const transform = useSelector(selectMapTransform)
     const selections = useSelector(selectSelections)
+    const region = useSelector((rootState: RootState) => rootState.app.region)
     const maps = useMemo(() => {
         return selections
             .map((selection) => selection.mapVisualization)
@@ -49,8 +50,21 @@ function MapWrapper({
     const { data } = useGetDataQuery(queryParams ?? skipToken)
     const mapRef = useRef<SVGGElement>(null)
     const processedData = useMemo(
-        () => (data ? DataProcessor(data, maps, dataWeights, state, isNormalized) : undefined),
-        [data, maps, dataWeights, state, isNormalized]
+        () =>
+            data
+                ? DataProcessor({
+                      data,
+                      params: maps.map((map) => ({
+                          mapId: map.id,
+                          weight: dataWeights[map.id],
+                          invertNormalized: map.invert_normalized,
+                      })),
+                      normalize: isNormalized,
+                      filter:
+                          zoomTo && region ? (geoId) => geoId.slice(0, 2) === zoomTo : undefined,
+                  })
+                : undefined,
+        [data, maps, dataWeights, zoomTo, isNormalized, region]
     )
     const dataSource =
         maps[0] && selections[0] ? maps[0].sources[selections[0].dataSource] : undefined

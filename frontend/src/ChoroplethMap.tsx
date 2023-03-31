@@ -1,21 +1,21 @@
-import { Map } from 'immutable'
 import { geoPath } from 'd3'
-import { feature } from 'topojson-client'
-import type { GeometryCollection } from 'topojson-specification'
 import type { GeoJsonProperties } from 'geojson'
+import { Map } from 'immutable'
 import { ForwardedRef, forwardRef } from 'react'
 import { useDispatch } from 'react-redux'
-import { TopoJson } from './TopoJson'
-import Color from './Color'
-import StateMap from './StateMap'
-import Legend from './Legend'
-import ProbabilityDensity from './ProbabilityDensity'
-import { clickCounty } from './appSlice'
-import { ZOOM_TRANSITION } from './MapWrapper'
-import { MapType, MapVisualization } from './MapVisualization'
+import { feature } from 'topojson-client'
+import type { GeometryCollection } from 'topojson-specification'
+import { clickMap } from './appSlice'
 import css from './ChoroplethMap.module.css'
+import Color from './Color'
 import { getDomain } from './DataProcessor'
 import { getLegendFormatter } from './Formatter'
+import Legend from './Legend'
+import { MapType, MapVisualization } from './MapVisualization'
+import { ZOOM_TRANSITION } from './MapWrapper'
+import ProbabilityDensity from './ProbabilityDensity'
+import StateMap from './StateMap'
+import { TopoJson } from './TopoJson'
 
 const MISSING_DATA_COLOR = '#ccc'
 
@@ -70,7 +70,7 @@ function ChoroplethMap(
 ) {
     const dispatch = useDispatch()
     const onCountyClicked = (event: any) =>
-        event.target?.id ? dispatch(clickCounty(event.target.id)) : null
+        event.target?.id ? dispatch(clickMap(event.target.id)) : null
     const domain = getDomain(data)
     const colorScheme = Color(isNormalized, detailedView, selectedMapVisualizations[0], domain)
     const color = (countyId: string) => {

@@ -1,29 +1,29 @@
+import { Button } from '@mui/material'
+import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { json } from 'd3'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { skipToken } from '@reduxjs/toolkit/dist/query'
-import { Button } from '@mui/material'
-import { TopoJson } from '../TopoJson'
-import { RootState } from '../store'
-import editorCss from './Editor.module.css'
-import { MapVisualizationPatch } from '../MapVisualization'
-import {
-    clickMapVisualization,
-    selectSelectedTabAndMapVisualization,
-    setMap,
-    setTab,
-} from './editorSlice'
+import EmptyNavigation from '../EmptyNavigation'
 import {
     useCreateMapVisualizationMutation,
     useGetMapVisualizationQuery,
     useGetMapVisualizationsQuery,
     useGetTabsQuery,
 } from '../MapApi'
-import EditorMap from './EditorMap'
-import MapVisualizationList, { EmptyMapVisualizationList } from './MapVisualizationList'
-import MapOptions, { EmptyMapOptions } from './MapOptions'
+import { MapVisualizationPatch } from '../MapVisualization'
 import Navigation from '../Navigation'
-import EmptyNavigation from '../EmptyNavigation'
+import { RootState } from '../store'
+import { TopoJson } from '../TopoJson'
+import editorCss from './Editor.module.css'
+import EditorMap from './EditorMap'
+import {
+    clickMapVisualization,
+    selectSelectedTabAndMapVisualization,
+    setMap,
+    setTab,
+} from './editorSlice'
+import MapOptions, { EmptyMapOptions } from './MapOptions'
+import MapVisualizationList, { EmptyMapVisualizationList } from './MapVisualizationList'
 
 const NEW_MAP: MapVisualizationPatch = {
     id: -1,
@@ -46,6 +46,7 @@ function Editor() {
     const dispatch = useDispatch()
     const { data: allMapVisualizations } = useGetMapVisualizationsQuery({ includeDrafts: true })
     const { data: tabs } = useGetTabsQuery(true)
+    const region = useSelector((state: RootState) => state.editor.region)
     const [createMap] = useCreateMapVisualizationMutation()
 
     const { selectedTab, selectedMapVisualizationId: maybeSelectedMap } = useSelector(
@@ -66,12 +67,13 @@ function Editor() {
     const map = useSelector((state: RootState) => state.editor.map)
 
     useEffect(() => {
-        json<TopoJson>('/usa.json').then((topoJson) => {
+        const file = region === 'USA' ? '/usa.json' : '/world.json'
+        json<TopoJson>(file).then((topoJson) => {
             if (topoJson) {
                 dispatch(setMap(topoJson))
             }
         })
-    }, [dispatch])
+    }, [dispatch, region])
 
     const isNormalized = selectedTab?.normalized ?? false
 

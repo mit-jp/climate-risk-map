@@ -6,7 +6,7 @@ import FullMap from '../FullMap'
 import { useGetDataQuery, useGetDatasetsQuery } from '../MapApi'
 import { EmptyMapTitle } from '../MapTitle'
 import MapTooltip from '../MapTooltip'
-import { getDataQueryParams, MapVisualization } from '../MapVisualization'
+import { MapVisualization, getDataQueryParams } from '../MapVisualization'
 import { TopoJson } from '../TopoJson'
 import DatasetSelector from './DatasetSelector'
 import css from './Editor.module.css'
@@ -31,7 +31,16 @@ function EditorMap({ map, selection, detailedView, isNormalized }: Props) {
     const processedData = useMemo(
         () =>
             data && selection
-                ? DataProcessor(data, [selection], {}, undefined, isNormalized)
+                ? DataProcessor({
+                      data,
+                      params: [
+                          {
+                              mapId: selection.id,
+                              invertNormalized: selection.invert_normalized,
+                          },
+                      ],
+                      normalize: isNormalized,
+                  })
                 : undefined,
         [data, selection, isNormalized]
     )
