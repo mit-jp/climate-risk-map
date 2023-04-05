@@ -41,7 +41,7 @@ macro_rules! select {
                 map.color_domain as "color_domain!",
                 array_sort(map.pdf_domain) as "pdf_domain!",
                 map."name",
-                map.geography_type as "geography_type!",
+                dataset.geography_type as "geography_type!",
                 map.bubble_color as "bubble_color!",
                 
                 dataset."name" as "dataset_name!",
@@ -64,7 +64,7 @@ macro_rules! select {
             "#
             + $join_type
             + " map_visualization_collection ON map.id = map_visualization_collection.map_visualization"
-            $( + " WHERE map.geography_type = $1", $geography_type)?
+            $( + " WHERE dataset.geography_type = $1", $geography_type)?
             $( + " WHERE map.id = $1", $id)?
         )
     };
@@ -118,9 +118,8 @@ impl<'c> Table<'c, MapVisualization> {
                 legend_decimals = $17,
                 color_domain = $18,
                 pdf_domain = $19,
-                geography_type = $20,
-                bubble_color = $21
-            WHERE id = $22",
+                bubble_color = $20
+            WHERE id = $21",
             patch.dataset,
             patch.map_type,
             patch.subcategory,
@@ -140,7 +139,6 @@ impl<'c> Table<'c, MapVisualization> {
             patch.legend_decimals,
             &patch.color_domain,
             &patch.pdf_domain,
-            patch.geography_type,
             patch.bubble_color,
             patch.id,
         )
@@ -173,7 +171,6 @@ impl<'c> Table<'c, MapVisualization> {
                 legend_decimals,
                 color_domain,
                 pdf_domain,
-                geography_type,
                 bubble_color
             )
             VALUES (
@@ -196,8 +193,7 @@ impl<'c> Table<'c, MapVisualization> {
                 $17,
                 $18,
                 $19,
-                $20,
-                $21)",
+                $20)",
             map.dataset,
             map.map_type,
             map.subcategory,
@@ -217,7 +213,6 @@ impl<'c> Table<'c, MapVisualization> {
             map.legend_decimals,
             &map.color_domain,
             &map.pdf_domain,
-            map.geography_type,
             map.bubble_color,
         )
         .execute(&*self.pool)

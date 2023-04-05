@@ -1,14 +1,12 @@
 import {
     Autocomplete,
+    Checkbox,
     FormControl,
     FormControlLabel,
     FormLabel,
     Radio,
     RadioGroup,
     TextField,
-    Checkbox,
-    ToggleButtonGroup,
-    ToggleButton,
 } from '@mui/material'
 import { ascending } from 'd3'
 import { useState } from 'react'
@@ -17,7 +15,7 @@ import {
     useGetScaleTypesQuery,
     useUpdateMapVisualizationMutation,
 } from '../MapApi'
-import { FormatterType, GeographyType, MapType, MapVisualization } from '../MapVisualization'
+import { FormatterType, MapType, MapVisualization } from '../MapVisualization'
 import css from './Editor.module.css'
 
 const INPUT_MARGIN = { margin: '0.5em 0' }
@@ -30,26 +28,6 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
 
     return (
         <form id={css.mapOptions}>
-            <ToggleButtonGroup
-                value={mapVisualization.geography_type}
-                exclusive
-                onChange={(_, geographyType) => {
-                    if (geographyType !== null) {
-                        updateMap({
-                            ...mapVisualization,
-                            geography_type: parseInt(geographyType, 10),
-                        })
-                    }
-                }}
-                aria-label="geography type"
-            >
-                <ToggleButton value={GeographyType.World} aria-label="world">
-                    World
-                </ToggleButton>
-                <ToggleButton value={GeographyType.USA} aria-label="usa">
-                    USA
-                </ToggleButton>
-            </ToggleButtonGroup>
             <FormControl component="fieldset">
                 <FormLabel component="legend">Map Type</FormLabel>
                 <RadioGroup

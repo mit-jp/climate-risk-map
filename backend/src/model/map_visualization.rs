@@ -46,7 +46,6 @@ pub struct MapVisualizationDaoPatch {
     pub legend_decimals: Option<i16>,
     pub color_domain: Vec<f64>,
     pub pdf_domain: Vec<f64>,
-    pub geography_type: i32,
     pub bubble_color: String,
 }
 
@@ -74,7 +73,6 @@ impl MapVisualizationDaoPatch {
             legend_decimals: patch.legend_decimals,
             color_domain: patch.color_domain,
             pdf_domain: patch.pdf_domain,
-            geography_type: patch.geography_type,
             bubble_color: patch.bubble_color,
         }
     }
@@ -103,7 +101,6 @@ pub struct MapVisualizationPatch {
     pub legend_formatter_type: Option<i32>,
     pub decimals: i16,
     pub legend_decimals: Option<i16>,
-    pub geography_type: i32,
     pub bubble_color: String,
 }
 

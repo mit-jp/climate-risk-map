@@ -76,8 +76,8 @@ function ChoroplethMap(
         event.target?.id ? dispatch(clickMap(event.target.id)) : null
     const domain = getDomain(data)
     const colorScheme = Color(isNormalized, detailedView, selectedMapVisualizations[0], domain)
-    const color = (countyId: string) => {
-        const value = data.get(countyId)
+    const color = (regionId: string) => {
+        const value = data.get(regionId)
         return colorScheme(value as any) ?? MISSING_DATA_COLOR
     }
     const borders = map.region === 'USA' ? USACounties(map.topoJson) : countries(map.topoJson)
