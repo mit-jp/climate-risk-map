@@ -1,5 +1,8 @@
 use super::{AppState, MapVisualizationModel};
-use crate::model::{MapVisualization, MapVisualizationDaoPatch, MapVisualizationPatch};
+use crate::model::{
+    GeographyType, MapVisualization, MapVisualizationDaoPatch, MapVisualizationError,
+    MapVisualizationPatch,
+};
 use actix_web::{get, patch, post, web, HttpResponse, Responder};
 use futures::future::try_join;
 use log::error;
@@ -26,22 +29,44 @@ async fn get_map_visualization_model(
     map_visualization: MapVisualization,
     app_state: &web::Data<AppState<'_>>,
 ) -> Result<MapVisualizationModel, sqlx::Error> {
+    let geography_type = match map_visualization.geography_type {
+        1 => GeographyType::Usa,
+        2 => GeographyType::World,
+        _ => {
+            error!(
+                "Invalid geography type: {}",
+                map_visualization.geography_type
+            );
+            return Err(sqlx::Error::Decode(Box::new(MapVisualizationError {
+                message: "Invalid geography type".to_string(),
+            })));
+        }
+    };
     let sources_and_dates = app_state
         .database
         .source_and_date
-        .by_dataset(map_visualization.dataset);
+        .by_dataset(map_visualization.dataset, &geography_type);
     let data_sources = app_state
         .database
         .data_source
-        .by_dataset(map_visualization.dataset);
+        .by_dataset(map_visualization.dataset, &geography_type);
     let result = try_join(sources_and_dates, data_sources).await;
     match result {
         Err(e) => Err(e),
-        Ok((source_and_dates, data_sources)) => Ok(MapVisualizationModel::new(
-            map_visualization,
-            source_and_dates,
-            data_sources,
-        )),
+        Ok((source_and_dates, data_sources)) => {
+            if data_sources.is_empty() {
+                return Err(sqlx::Error::Decode(Box::new(MapVisualizationError {
+                    message: format!(
+                        "No sources and dates found for map visualization {map_visualization:#?}",
+                    ),
+                })));
+            }
+            Ok(MapVisualizationModel::new(
+                map_visualization,
+                source_and_dates,
+                data_sources,
+            ))
+        }
     }
 }
 

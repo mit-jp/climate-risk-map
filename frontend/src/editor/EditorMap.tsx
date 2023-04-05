@@ -7,7 +7,7 @@ import { useGetDataQuery, useGetDatasetsQuery } from '../MapApi'
 import { EmptyMapTitle } from '../MapTitle'
 import MapTooltip from '../MapTooltip'
 import { MapVisualization, getDataQueryParams } from '../MapVisualization'
-import { TopoJson } from '../TopoJson'
+import { GeoMap } from '../appSlice'
 import DatasetSelector from './DatasetSelector'
 import css from './Editor.module.css'
 import EditorMapDescription from './EditorMapDescription'
@@ -15,7 +15,7 @@ import EditorMapTitle from './EditorMapTitle'
 import EmptyDatasetSelector from './EmptyDatasetSelector'
 
 type Props = {
-    map: TopoJson
+    map: GeoMap
     selection: MapVisualization | undefined
     detailedView: boolean
     isNormalized: boolean

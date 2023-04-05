@@ -2,9 +2,9 @@ import { Map } from 'immutable'
 import { ForwardedRef, forwardRef } from 'react'
 import BubbleMap from './BubbleMap'
 import ChoroplethMap from './ChoroplethMap'
-import { TopoJson } from './TopoJson'
-import { MapType, MapVisualization } from './MapVisualization'
 import { getUnitString } from './Formatter'
+import { MapType, MapVisualization } from './MapVisualization'
+import { GeoMap } from './appSlice'
 
 export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
     const dataDefinition = selectedMaps[0]
@@ -23,9 +23,8 @@ export enum Aggregation {
     State = 'state',
     County = 'county',
 }
-
 type Props = {
-    map: TopoJson
+    map: GeoMap
     selectedMapVisualizations: MapVisualization[]
     data: Map<string, number>
     detailedView: boolean

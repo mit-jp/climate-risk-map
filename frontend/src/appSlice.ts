@@ -30,9 +30,14 @@ export type OverlayName =
     | 'Endangered species'
 export type Overlay = { topoJson?: TopoJson; shouldShow: boolean }
 export type Region = 'USA' | 'World'
+export type GeoMap = {
+    topoJson: TopoJson
+    region: Region
+}
+
 interface AppState {
     readonly region: Region
-    readonly map?: TopoJson
+    readonly map?: GeoMap
     readonly mapTransform?: string
     readonly overlays: Record<OverlayName, Overlay>
     readonly mapSelections: Record<Region, Record<TabId, MapSelection[]>>
@@ -73,7 +78,7 @@ export const appSlice = createSlice({
     name: 'app',
     initialState,
     reducers: {
-        setMap: (state, action: PayloadAction<TopoJson | undefined>) => {
+        setMap: (state, action: PayloadAction<GeoMap | undefined>) => {
             state.map = action.payload
         },
         setOverlay: (
@@ -220,22 +225,18 @@ export const {
 // Accessors that return a new object every time, or run for a long time.
 // Do not use these as they will always force a re-render, or take too long to re-render.
 // Instead use the selectors that use them.
-const generateMapTransform = (
-    zoomTo: string | undefined,
-    region: Region,
-    map: TopoJson | undefined
-) => {
+const generateMapTransform = (zoomTo: string | undefined, map: GeoMap | undefined) => {
     if (zoomTo === undefined || map === undefined) {
         return undefined
     }
-    const objects = region === 'USA' ? map.objects.state : map.objects.nations
-    const features = feature(map, objects as GeometryCollection<GeoJsonProperties>).features.reduce(
-        (accumulator, currentValue) => {
-            accumulator[currentValue.id as State] = currentValue
-            return accumulator
-        },
-        {} as Record<string, Feature<Geometry, GeoJsonProperties>>
-    )
+    const objects = map.region === 'USA' ? map.topoJson.objects.state : map.topoJson.objects.nations
+    const features = feature(
+        map.topoJson,
+        objects as GeometryCollection<GeoJsonProperties>
+    ).features.reduce((accumulator, currentValue) => {
+        accumulator[currentValue.id as State] = currentValue
+        return accumulator
+    }, {} as Record<string, Feature<Geometry, GeoJsonProperties>>)
     const width = 900
     const height = 610
     const bounds = geoPath().bounds(features[zoomTo])
@@ -265,7 +266,6 @@ export const selectSelections = (state: RootState) => {
 
 export const selectMapTransform = createSelector(
     (state: RootState) => state.app.zoomTo,
-    (state: RootState) => state.app.region,
     (state: RootState) => state.app.map,
     generateMapTransform
 )

@@ -25,3 +25,5 @@ pub type MapVisualizationModel = map_visualization::MapVisualizationModel;
 pub type DataCategory = data_category::DataCategory;
 pub type ColorPalette = color_palette::ColorPalette;
 pub type ScaleType = scale_type::ScaleType;
+pub type GeographyType = data::GeographyType;
+pub type MapVisualizationError = map_visualization::MapVisualizationError;

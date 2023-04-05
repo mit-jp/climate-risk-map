@@ -1,21 +1,22 @@
-import { useEffect } from 'react'
 import { json } from 'd3'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import Header from './Header'
-import Navigation from './Navigation'
-import DataSelector from './DataSelector'
-import css from './Home.module.css'
-import { RootState } from './store'
-import MapWrapper from './MapWrapper'
-import { OverlayName, setTab, setMap, setOverlay, selectSelectedTab } from './appSlice'
-import { TopoJson } from './TopoJson'
 import CountryNavigation from './CountryNavigation'
-import { useGetMapVisualizationsQuery, useGetTabsQuery } from './MapApi'
-import EmptyNavigation from './EmptyNavigation'
+import DataSelector from './DataSelector'
 import EmptyDataSelector from './EmptyDataSelector'
+import EmptyNavigation from './EmptyNavigation'
+import Header from './Header'
+import css from './Home.module.css'
+import { useGetMapVisualizationsQuery, useGetTabsQuery } from './MapApi'
+import MapWrapper from './MapWrapper'
+import Navigation from './Navigation'
+import { TopoJson } from './TopoJson'
+import { OverlayName, Region, selectSelectedTab, setMap, setOverlay, setTab } from './appSlice'
+import { RootState } from './store'
 
 type TopoJsonFile =
     | 'usa.json'
+    | 'world.json'
     | 'roads-topo.json'
     | 'railroads-topo.json'
     | 'waterways-topo.json'
@@ -33,7 +34,8 @@ const overlayToFile: OverlayMap = {
     'Critical water habitats': 'critical-habitats-topo.json',
     'Endangered species': 'endangered-species-topo.json',
 }
-const mapFile: TopoJsonFile = 'usa.json'
+const usaFile: { name: TopoJsonFile; region: Region } = { name: 'usa.json', region: 'USA' }
+const worldFile: { name: TopoJsonFile; region: Region } = { name: 'world.json', region: 'World' }
 
 function Home() {
     const dispatch = useDispatch()
@@ -51,8 +53,9 @@ function Home() {
             : []
 
     useEffect(() => {
-        json<TopoJson>(mapFile).then((topoJson) => {
-            dispatch(setMap(topoJson))
+        const file = region === 'USA' ? usaFile : worldFile
+        json<TopoJson>(file.name).then((topoJson) => {
+            dispatch(setMap(topoJson ? { topoJson, region } : undefined))
         })
 
         Object.entries(overlayToFile).forEach(([name, file]) => {

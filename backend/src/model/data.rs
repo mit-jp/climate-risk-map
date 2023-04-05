@@ -2,6 +2,11 @@ use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
+pub enum GeographyType {
+    Usa,
+    World,
+}
+
 #[derive(Debug, FromRow, Serialize)]
 pub struct USACountyPercentileData {
     pub dataset: i32,

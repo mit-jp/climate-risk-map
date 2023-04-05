@@ -12,18 +12,19 @@ import {
 } from '../MapApi'
 import { MapVisualizationPatch } from '../MapVisualization'
 import Navigation from '../Navigation'
-import { RootState } from '../store'
 import { TopoJson } from '../TopoJson'
+import { Region } from '../appSlice'
+import { RootState } from '../store'
 import editorCss from './Editor.module.css'
 import EditorMap from './EditorMap'
+import MapOptions, { EmptyMapOptions } from './MapOptions'
+import MapVisualizationList, { EmptyMapVisualizationList } from './MapVisualizationList'
 import {
     clickMapVisualization,
     selectSelectedTabAndMapVisualization,
     setMap,
     setTab,
 } from './editorSlice'
-import MapOptions, { EmptyMapOptions } from './MapOptions'
-import MapVisualizationList, { EmptyMapVisualizationList } from './MapVisualizationList'
 
 const NEW_MAP: MapVisualizationPatch = {
     id: -1,
@@ -46,7 +47,6 @@ function Editor() {
     const dispatch = useDispatch()
     const { data: allMapVisualizations } = useGetMapVisualizationsQuery({ includeDrafts: true })
     const { data: tabs } = useGetTabsQuery(true)
-    const region = useSelector((state: RootState) => state.editor.region)
     const [createMap] = useCreateMapVisualizationMutation()
 
     const { selectedTab, selectedMapVisualizationId: maybeSelectedMap } = useSelector(
@@ -67,13 +67,14 @@ function Editor() {
     const map = useSelector((state: RootState) => state.editor.map)
 
     useEffect(() => {
+        const region: Region = selectedMapVisualization?.geography_type === 1 ? 'USA' : 'World'
         const file = region === 'USA' ? '/usa.json' : '/world.json'
         json<TopoJson>(file).then((topoJson) => {
             if (topoJson) {
-                dispatch(setMap(topoJson))
+                dispatch(setMap({ topoJson, region }))
             }
         })
-    }, [dispatch, region])
+    }, [dispatch, selectedMapVisualization])
 
     const isNormalized = selectedTab?.normalized ?? false
 

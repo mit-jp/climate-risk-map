@@ -6,6 +6,22 @@ use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use std::collections::HashMap;
+use std::error::Error;
+use std::fmt::Display;
+use std::fmt::Formatter;
+
+#[derive(Debug)]
+pub struct MapVisualizationError {
+    pub message: String,
+}
+
+impl Display for MapVisualizationError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.message)
+    }
+}
+
+impl Error for MapVisualizationError {}
 
 #[derive(FromRow, Deserialize, Serialize)]
 pub struct MapVisualizationDaoPatch {
@@ -91,7 +107,7 @@ pub struct MapVisualizationPatch {
     pub bubble_color: String,
 }
 
-#[derive(FromRow, Deserialize, Serialize)]
+#[derive(FromRow, Deserialize, Serialize, Debug)]
 pub struct MapVisualization {
     pub id: i32,
     pub units: String,

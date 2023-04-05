@@ -1,21 +1,31 @@
-import { feature } from 'topojson-client'
 import { geoPath } from 'd3'
 import type { GeoJsonProperties } from 'geojson'
+import { feature } from 'topojson-client'
 import type { GeometryCollection } from 'topojson-specification'
-import { TopoJson } from './TopoJson'
 import { ZOOM_TRANSITION } from './MapWrapper'
+import { GeoMap } from './appSlice'
 
-function EmptyMap({ map, transform }: { map: TopoJson; transform?: string }) {
-    const nation = feature(
-        map,
-        map.objects.nation as GeometryCollection<GeoJsonProperties>
-    ).features
+const path = geoPath()
+
+function EmptyMap({ map, transform }: { map: GeoMap; transform?: string }) {
+    const geometry =
+        map.region === 'USA' ? map.topoJson.objects.nation : map.topoJson.objects.countries
+    const borders = feature(
+        map.topoJson,
+        geometry as GeometryCollection<GeoJsonProperties>
+    ).features.filter(
+        // two regions in the map of the world have null ids
+        // TODO: figure out what's going with those regions
+        // for now we filter them out
+        (region) => region.id != null
+    )
+
     return (
         <g transform={transform} style={ZOOM_TRANSITION}>
-            {nation.map((n) => (
+            {borders.map((region) => (
                 <path
-                    key="nation"
-                    d={geoPath()(n)!}
+                    key={region.id}
+                    d={path(region)!}
                     stroke="white"
                     fill="#eee"
                     strokeLinejoin="round"

@@ -5,7 +5,6 @@ import { ForwardedRef, forwardRef } from 'react'
 import { useDispatch } from 'react-redux'
 import { feature } from 'topojson-client'
 import type { GeometryCollection } from 'topojson-specification'
-import { clickMap } from './appSlice'
 import css from './ChoroplethMap.module.css'
 import Color from './Color'
 import { getDomain } from './DataProcessor'
@@ -16,6 +15,7 @@ import { ZOOM_TRANSITION } from './MapWrapper'
 import ProbabilityDensity from './ProbabilityDensity'
 import StateMap from './StateMap'
 import { TopoJson } from './TopoJson'
+import { GeoMap, clickMap } from './appSlice'
 
 const MISSING_DATA_COLOR = '#ccc'
 
@@ -43,11 +43,14 @@ function getPdfDomain(selectedMaps: MapVisualization[]) {
 }
 const path = geoPath()
 
-const getCountyFeatures = (map: TopoJson) =>
+export const USACounties = (map: TopoJson) =>
     feature(map, map.objects.counties as GeometryCollection<GeoJsonProperties>).features
 
+export const countries = (map: TopoJson) =>
+    feature(map, map.objects.countries as GeometryCollection<GeoJsonProperties>).features
+
 type Props = {
-    map: TopoJson
+    map: GeoMap
     selectedMapVisualizations: MapVisualization[]
     data: Map<string, number>
     detailedView: boolean
@@ -69,7 +72,7 @@ function ChoroplethMap(
     ref: ForwardedRef<SVGGElement>
 ) {
     const dispatch = useDispatch()
-    const onCountyClicked = (event: any) =>
+    const onRegionClicked = (event: any) =>
         event.target?.id ? dispatch(clickMap(event.target.id)) : null
     const domain = getDomain(data)
     const colorScheme = Color(isNormalized, detailedView, selectedMapVisualizations[0], domain)
@@ -77,7 +80,7 @@ function ChoroplethMap(
         const value = data.get(countyId)
         return colorScheme(value as any) ?? MISSING_DATA_COLOR
     }
-    const countyFeatures = getCountyFeatures(map)
+    const borders = map.region === 'USA' ? USACounties(map.topoJson) : countries(map.topoJson)
     const legendTicks = getLegendTicks(selectedMapVisualizations, isNormalized)
     const legendFormatter = getLegendFormatter(selectedMapVisualizations, isNormalized)
     const getArrayOfData = () =>
@@ -86,17 +89,17 @@ function ChoroplethMap(
     return (
         <>
             <g id={css.counties} transform={transform} style={ZOOM_TRANSITION} ref={ref}>
-                {countyFeatures.map((county) => (
+                {borders.map((region) => (
                     <path
-                        key={county.id}
-                        id={county.id as string}
-                        fill={color(county.id as string)}
-                        d={path(county)!}
-                        onClick={onCountyClicked}
+                        key={region.id}
+                        id={region.id as string}
+                        fill={color(region.id as string)}
+                        d={path(region)!}
+                        onClick={onRegionClicked}
                     />
                 ))}
             </g>
-            <StateMap map={map} transform={transform} />
+            {map.region === 'USA' && <StateMap topoJson={map.topoJson} transform={transform} />}
             <Legend
                 title={legendTitle}
                 colorScheme={colorScheme}
