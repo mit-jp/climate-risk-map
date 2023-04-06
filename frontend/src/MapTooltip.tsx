@@ -4,6 +4,7 @@ import counties from './Counties'
 import css from './CountyTooltip.module.css'
 import { formatData } from './Formatter'
 import { MapVisualization } from './MapVisualization'
+import nations from './Nations'
 import states from './States'
 import { GeoId, stateId } from './appSlice'
 
@@ -14,6 +15,14 @@ type Props = {
     selectedMap: MapVisualization | undefined
     isNormalized: boolean
 }
+
+const countyName = (id: number): string | undefined => {
+    const county = counties.get(id)
+    const state = states.get(stateId(id))
+    return county && state ? `${county}, ${state}` : undefined
+}
+
+const nationName = (id: number): string | undefined => nations.get(id) ?? undefined
 
 function MapTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
     const [hover, setHover] = useState<TooltipHover>()
@@ -56,12 +65,8 @@ function MapTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
 
     let text = ''
     if (hover?.id) {
-        const county = counties.get(hover.id)
-        const state = states.get(stateId(hover.id))
-        let name = '---'
-        if (state && county) {
-            name = `${county}, ${state}`
-        }
+        const name =
+            selectedMap.geography_type === 1 ? countyName(hover.id) : nationName(hover.id) ?? '---'
         const value = data?.get(hover.id)
         text = `${name}: ${formatData(value, {
             type: selectedMap.formatter_type,
