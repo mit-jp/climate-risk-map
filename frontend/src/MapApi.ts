@@ -103,10 +103,10 @@ export const mapApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: '/api/' }),
     tagTypes: ['MapVisualization', 'Dataset'],
     endpoints: (builder) => ({
-        getCounties: builder.query<Record<string, County>, undefined>({
+        getCounties: builder.query<Record<GeoId, County>, undefined>({
             query: () => 'county',
         }),
-        getStates: builder.query<Record<number, State>, undefined>({
+        getStates: builder.query<Record<GeoId, State>, undefined>({
             query: () => 'state',
         }),
         getPercentiles: builder.query<Percentiles, PercentileQueryParams>({

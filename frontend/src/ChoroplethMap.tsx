@@ -73,7 +73,7 @@ function ChoroplethMap(
 ) {
     const dispatch = useDispatch()
     const onRegionClicked = (event: any) =>
-        event.target?.id ? dispatch(clickMap(event.target.id)) : null
+        Number(event.target?.id) ? dispatch(clickMap(Number(event.target.id))) : null
     const domain = getDomain(data)
     const colorScheme = Color(isNormalized, detailedView, selectedMapVisualizations[0], domain)
     const color = (regionId: number) => {
