@@ -4,6 +4,8 @@ import LegendTicks from './LegendTicks'
 type Props = {
     colorScheme: any
     title: string
+    x?: number
+    y?: number
     tickSize?: number
     width?: number
     height?: number
@@ -33,6 +35,8 @@ function ramp(color: any, n = 256) {
 function Legend({
     colorScheme,
     title,
+    x = 550,
+    y = 20,
     tickSize = 6,
     width = 345,
     height = 54 + tickSize,
@@ -115,8 +119,8 @@ function Legend({
 
     return (
         <svg
-            x="550"
-            y="20"
+            x={x}
+            y={y}
             width={width}
             height={height}
             viewBox={`0 0 ${width} ${height}`}
