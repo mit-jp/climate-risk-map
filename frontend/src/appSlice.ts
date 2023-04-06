@@ -241,7 +241,7 @@ const generateMapTransform = (zoomTo: number | undefined, map: GeoMap | undefine
         return undefined
     }
     const objects =
-        map.region === 'USA' ? map.topoJson.objects.states : map.topoJson.objects.nations
+        map.region === 'USA' ? map.topoJson.objects.states : map.topoJson.objects.countries
     const features = feature(
         map.topoJson,
         objects as GeometryCollection<GeoJsonProperties>
