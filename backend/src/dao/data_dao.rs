@@ -1,28 +1,52 @@
-use crate::controller::data_controller::DataQuery;
-use crate::model::USACountyData;
-use crate::model::USACountyPercentileData;
+use crate::controller::data_controller::PercentileInfo;
+use crate::model::Data;
+use crate::model::PercentileData;
+use crate::model::SimpleData;
 
 use super::SourceAndDate;
 use super::Table;
-use super::USACountySimpleData;
 
-impl<'c> Table<'c, USACountyData> {
-    pub async fn by_id_source_date(
+impl<'c> Table<'c, Data> {
+    pub async fn by_dataset(
         &self,
-        id: i32,
-        source_and_date: SourceAndDate,
-    ) -> Result<Vec<USACountySimpleData>, sqlx::Error> {
+        dataset: i32,
+        source_and_date: &SourceAndDate,
+    ) -> Result<Vec<SimpleData>, sqlx::Error> {
         sqlx::query_as!(
-            USACountySimpleData,
+            SimpleData,
             "
-            SELECT state_id, county_id, value
-            FROM usa_county_data
+            SELECT id, value
+            FROM data
             WHERE dataset = $1
             AND source = $2
             AND start_date = $3
             AND end_date = $4
             ",
-            id,
+            dataset,
+            source_and_date.source,
+            source_and_date.start_date,
+            source_and_date.end_date,
+        )
+        .fetch_all(&*self.pool)
+        .await
+    }
+    pub async fn by_map_visualization(
+        &self,
+        map_visualization: i32,
+        source_and_date: SourceAndDate,
+    ) -> Result<Vec<SimpleData>, sqlx::Error> {
+        sqlx::query_as!(
+            SimpleData,
+            "
+            SELECT data.id, data.value
+            FROM data, map_visualization
+            WHERE data.dataset = map_visualization.dataset
+            AND map_visualization.id = $1
+            AND data.source = $2
+            AND data.start_date = $3
+            AND data.end_date = $4
+            ",
+            map_visualization,
             source_and_date.source,
             source_and_date.start_date,
             source_and_date.end_date
@@ -30,12 +54,16 @@ impl<'c> Table<'c, USACountyData> {
         .fetch_all(&*self.pool)
         .await
     }
-    pub async fn by_category_state_county(
+
+    /**
+     * The percentile for a given geo-id for all datasets in a category
+     */
+    pub async fn percentile(
         &self,
-        info: DataQuery,
-    ) -> Result<Vec<USACountyPercentileData>, sqlx::Error> {
+        info: PercentileInfo,
+    ) -> Result<Vec<PercentileData>, sqlx::Error> {
         sqlx::query_as!(
-            USACountyPercentileData,
+            PercentileData,
             r#"
         SELECT
             entry.dataset as "dataset!",
@@ -50,10 +78,9 @@ impl<'c> Table<'c, USACountyData> {
                 SELECT
                     value
                 FROM
-                    usa_county_data
+                    data
                 WHERE
-                    state_id = $1
-                    AND county_id = $2
+                    id = $1
                     AND dataset = entry.dataset
                     AND source = entry.source
                     AND start_date = entry.start_date
@@ -63,10 +90,9 @@ impl<'c> Table<'c, USACountyData> {
                 SELECT
                     value
                 FROM
-                    usa_county_data
+                    data
                 WHERE
-                    state_id = $1
-                    AND county_id = $2
+                    id = $1
                     AND dataset = entry.dataset
                     AND source = entry.source
                     AND start_date = entry.start_date
@@ -77,10 +103,9 @@ impl<'c> Table<'c, USACountyData> {
                     SELECT
                         CASE WHEN entry.invert_normalized THEN -value ELSE value END as value
                     FROM
-                        usa_county_data
+                        data
                     WHERE
-                        state_id = $1
-                        AND county_id = $2
+                        id = $1
                         AND dataset = entry.dataset
                         AND source = entry.source
                         AND start_date = entry.start_date
@@ -91,7 +116,7 @@ impl<'c> Table<'c, USACountyData> {
             )
         END
         FROM
-            usa_county_data,
+            data,
             (
                 SELECT
                     map_visualization.dataset,
@@ -114,21 +139,22 @@ impl<'c> Table<'c, USACountyData> {
                             MAX(start_date) AS start_date,
                             MAX("source") AS source
                         FROM
-                            usa_county_data
+                            data
                         GROUP BY
                             dataset
                     ) AS cd
                 WHERE
-                    map_visualization_collection.category = $3
+                    map_visualization_collection.category = $2
                     AND map_visualization.dataset = dataset.id
                     AND cd.dataset = map_visualization.dataset
                     AND map_visualization_collection.map_visualization = map_visualization.id
+                    AND dataset.geography_type = $3
             ) AS entry
         WHERE
-            usa_county_data.dataset = entry.dataset
-            AND usa_county_data.source = entry.source
-            AND usa_county_data.start_date = entry.start_date
-            AND usa_county_data.end_date = entry.end_date
+            data.dataset = entry.dataset
+            AND data.source = entry.source
+            AND data.start_date = entry.start_date
+            AND data.end_date = entry.end_date
         GROUP BY
             entry.dataset,
             entry.dataset_name,
@@ -140,34 +166,9 @@ impl<'c> Table<'c, USACountyData> {
             entry.decimals,
             entry.invert_normalized;
         "#,
-            info.state_id,
-            info.county_id,
-            info.category
-        )
-        .fetch_all(&*self.pool)
-        .await
-    }
-
-    pub async fn by_map_visualization(
-        &self,
-        id: i32,
-        source_and_date: SourceAndDate,
-    ) -> Result<Vec<USACountySimpleData>, sqlx::Error> {
-        sqlx::query_as!(
-            USACountySimpleData,
-            "
-            SELECT state_id, county_id, value
-            FROM usa_county_data as data, map_visualization
-            WHERE data.dataset = map_visualization.dataset
-            AND map_visualization.id = $1
-            AND data.source = $2
-            AND data.start_date = $3
-            AND data.end_date = $4
-            ",
-            id,
-            source_and_date.source,
-            source_and_date.start_date,
-            source_and_date.end_date
+            info.geo_id,
+            info.category,
+            info.geography_type
         )
         .fetch_all(&*self.pool)
         .await

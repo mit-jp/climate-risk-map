@@ -1,7 +1,6 @@
 use super::{AppState, MapVisualizationModel};
 use crate::model::{
-    GeographyType, MapVisualization, MapVisualizationDaoPatch, MapVisualizationError,
-    MapVisualizationPatch,
+    MapVisualization, MapVisualizationDaoPatch, MapVisualizationError, MapVisualizationPatch,
 };
 use actix_web::{get, patch, post, web, HttpResponse, Responder};
 use futures::future::try_join;
@@ -29,27 +28,14 @@ async fn get_map_visualization_model(
     map_visualization: MapVisualization,
     app_state: &web::Data<AppState<'_>>,
 ) -> Result<MapVisualizationModel, sqlx::Error> {
-    let geography_type = match map_visualization.geography_type {
-        1 => GeographyType::Usa,
-        2 => GeographyType::World,
-        _ => {
-            error!(
-                "Invalid geography type: {}",
-                map_visualization.geography_type
-            );
-            return Err(sqlx::Error::Decode(Box::new(MapVisualizationError {
-                message: "Invalid geography type".to_string(),
-            })));
-        }
-    };
     let sources_and_dates = app_state
         .database
         .source_and_date
-        .by_dataset(map_visualization.dataset, &geography_type);
+        .by_dataset(map_visualization.dataset);
     let data_sources = app_state
         .database
         .data_source
-        .by_dataset(map_visualization.dataset, &geography_type);
+        .by_dataset(map_visualization.dataset);
     let result = try_join(sources_and_dates, data_sources).await;
     match result {
         Err(e) => Err(e),

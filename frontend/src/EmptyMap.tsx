@@ -13,18 +13,13 @@ function EmptyMap({ map, transform }: { map: GeoMap; transform?: string }) {
     const borders = feature(
         map.topoJson,
         geometry as GeometryCollection<GeoJsonProperties>
-    ).features.filter(
-        // two regions in the map of the world have null ids
-        // TODO: figure out what's going with those regions
-        // for now we filter them out
-        (region) => region.id != null
-    )
+    ).features
 
     return (
         <g transform={transform} style={ZOOM_TRANSITION}>
             {borders.map((region) => (
                 <path
-                    key={region.id}
+                    key={map.region === 'USA' ? 'nation' : region.id}
                     d={path(region)!}
                     stroke="white"
                     fill="#eee"

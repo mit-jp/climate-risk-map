@@ -1,6 +1,8 @@
 import { scaleSequentialQuantile, sum } from 'd3'
 import { Map, Set } from 'immutable'
-import { Data, DataByMapVisualization } from './MapApi'
+import { Data2 } from './MapApi'
+import { MapVisualizationId } from './MapVisualization'
+import { GeoId } from './appSlice'
 
 export type ProcessedData = Map<string, number | undefined>
 type Params = {
@@ -9,13 +11,7 @@ type Params = {
     invertNormalized: boolean
 }
 
-const filterData = (data: Data, filter?: (geoId: string) => boolean): [string, number][] =>
-    Object.entries(data).filter(
-        ([geoId, value]) => value !== null && value !== undefined && (!filter || filter(geoId))
-        // need explicit cast because typescript doesn't know we're filtering out null values
-    ) as [string, number][]
-
-const normalizeData = (params: Params, totalWeight: number, valueByGeoId: Map<string, number>) => {
+const normalizeData = (params: Params, totalWeight: number, valueByGeoId: Map<number, number>) => {
     let weight = params.weight ?? 1
     weight = totalWeight === 0 ? 0 : weight / totalWeight
     const normalizedValueByGeoId = params.invertNormalized
@@ -29,7 +25,7 @@ const normalizeData = (params: Params, totalWeight: number, valueByGeoId: Map<st
     return normalizedValueByGeoId.map((value) => weightedPercentileScale(value))
 }
 
-const intersect = (sets: Set<string>[]) => {
+const intersect = <T>(sets: Set<T>[]) => {
     if (sets.length > 1) {
         const firstSet = sets[0]
         const otherSets = sets.slice(1, sets.length)
@@ -41,13 +37,8 @@ const intersect = (sets: Set<string>[]) => {
     return Set()
 }
 
-const dataIsLoaded = (data: DataByMapVisualization, params: Params[]) => {
-    const loadedDatasets = Object.keys(data).map((id) => parseInt(id, 10))
-    return params.every((map) => loadedDatasets.includes(map.mapId))
-}
-
 export const getDomain = (
-    data: Map<string, number>
+    data: Map<GeoId, number>
 ): { min: number; median: number; max: number } => {
     const values = data.valueSeq().sort()
     return {
@@ -70,35 +61,33 @@ export const getDomain = (
 const DataProcessor = ({
     data,
     params,
-    filter,
+    filter = () => true,
     normalize = false,
 }: {
-    data: Record<number, Data>
+    data: Map<MapVisualizationId, Data2>
     params: Params[]
-    filter?: (geoId: string) => boolean
+    filter?: (geoId: GeoId) => boolean
     normalize?: boolean
-}): Map<string, number> | undefined => {
-    if (params.length === 0 || !dataIsLoaded(data, params)) {
+}): Map<GeoId, number> | undefined => {
+    if (params.length === 0 || !params.every((param) => data.has(param.mapId))) {
         return undefined
     }
     const totalWeight = sum(params, (param) => param.weight ?? 1)
 
-    const allProcessedData: Map<string, number>[] = []
+    const allProcessedData: Map<number, number>[] = []
 
-    params.forEach((map) => {
-        const filteredData = Map(filterData(data[map.mapId], filter))
+    params.forEach((param) => {
+        const filteredData = Map(data.get(param.mapId)!.filter(([geoId]) => filter(geoId)))
         if (normalize) {
-            allProcessedData.push(normalizeData(map, totalWeight, filteredData))
+            allProcessedData.push(normalizeData(param, totalWeight, filteredData))
         } else {
             allProcessedData.push(filteredData)
         }
     })
 
-    const geoIdsForEachSelection = allProcessedData.map((dataByGeoId) =>
-        dataByGeoId.keySeq().toSet()
-    )
+    const geoIdsForEachSelection = allProcessedData.map((dataset) => dataset.keySeq().toSet())
     const geoIdsInAllSelections = intersect(geoIdsForEachSelection)
-    const mergedData = Map<string, number>().mergeWith(
+    const mergedData = Map<number, number>().mergeWith(
         (oldVal, newVal) => oldVal + newVal,
         ...allProcessedData
     )

@@ -4,7 +4,7 @@ import BubbleMap from './BubbleMap'
 import ChoroplethMap from './ChoroplethMap'
 import { getUnitString } from './Formatter'
 import { MapType, MapVisualization } from './MapVisualization'
-import { GeoMap } from './appSlice'
+import { GeoId, GeoMap } from './appSlice'
 
 export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
     const dataDefinition = selectedMaps[0]
@@ -26,7 +26,7 @@ export enum Aggregation {
 type Props = {
     map: GeoMap
     selectedMapVisualizations: MapVisualization[]
-    data: Map<string, number>
+    data: Map<GeoId, number>
     detailedView: boolean
     isNormalized: boolean
     transform?: string

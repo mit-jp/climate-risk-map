@@ -34,6 +34,17 @@ export type GeoMap = {
     topoJson: TopoJson
     region: Region
 }
+export type GeoId = number
+
+/**
+ * The state id is the first two digits of the county id.
+ * For example the state id for county 06037 is 06.
+ * See https://en.wikipedia.org/wiki/List_of_United_States_FIPS_codes_by_county
+ *
+ * @param countyId the county id (or FIPS code)
+ * @returns the state id
+ */
+export const stateId = (countyId: number): State => Math.floor(countyId / 1000) as State
 
 interface AppState {
     readonly region: Region
@@ -43,8 +54,8 @@ interface AppState {
     readonly mapSelections: Record<Region, Record<TabId, MapSelection[]>>
     readonly dataWeights: Record<MapVisualizationId, number>
     readonly tab: Tab | undefined
-    readonly zoomTo: string | undefined
-    readonly county: string | undefined
+    readonly zoomTo: number | undefined
+    readonly county: number | undefined
     readonly detailedView: boolean
     readonly showRiskMetrics: boolean
     readonly showDemographics: boolean
@@ -163,13 +174,13 @@ export const appSlice = createSlice({
         setTransmissionLineType(state, action: PayloadAction<TransmissionLineType>) {
             state.transmissionLineType = action.payload
         },
-        clickMap: (state, { payload }: PayloadAction<string>) => {
+        clickMap: (state, { payload }: PayloadAction<number>) => {
             if (state.region === 'USA') {
                 if (state.zoomTo) {
                     state.zoomTo = undefined
                     state.county = undefined
                 } else {
-                    state.zoomTo = payload.slice(0, 2) as State
+                    state.zoomTo = stateId(payload)
                     state.county = payload
                 }
             } else {
@@ -225,21 +236,28 @@ export const {
 // Accessors that return a new object every time, or run for a long time.
 // Do not use these as they will always force a re-render, or take too long to re-render.
 // Instead use the selectors that use them.
-const generateMapTransform = (zoomTo: string | undefined, map: GeoMap | undefined) => {
+const generateMapTransform = (zoomTo: number | undefined, map: GeoMap | undefined) => {
     if (zoomTo === undefined || map === undefined) {
         return undefined
     }
-    const objects = map.region === 'USA' ? map.topoJson.objects.state : map.topoJson.objects.nations
+    const objects =
+        map.region === 'USA' ? map.topoJson.objects.states : map.topoJson.objects.nations
     const features = feature(
         map.topoJson,
         objects as GeometryCollection<GeoJsonProperties>
     ).features.reduce((accumulator, currentValue) => {
-        accumulator[currentValue.id as State] = currentValue
+        accumulator[currentValue.id as string] = currentValue
         return accumulator
     }, {} as Record<string, Feature<Geometry, GeoJsonProperties>>)
     const width = 900
     const height = 610
-    const bounds = geoPath().bounds(features[zoomTo])
+    // pad number id by 0s to match topojson
+    // topoJson country id: "012", country id: 12
+    // topoJson state id: "01", state id: 1
+    const idLength = map.region === 'USA' ? 2 : 3
+    const zoomToId = '0'.repeat(idLength - zoomTo.toString().length) + zoomTo.toString()
+
+    const bounds = geoPath().bounds(features[zoomToId])
     const dx = bounds[1][0] - bounds[0][0]
     const dy = bounds[1][1] - bounds[0][1]
     const x = (bounds[0][0] + bounds[1][0]) / 2

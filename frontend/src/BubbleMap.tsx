@@ -1,7 +1,7 @@
 import { geoPath, ScalePower, scaleSqrt } from 'd3'
 import type { Feature, GeoJsonProperties, Geometry } from 'geojson'
 import { Map } from 'immutable'
-import { GeoMap } from './appSlice'
+import { GeoId, GeoMap } from './appSlice'
 import BubbleLegend from './BubbleLegend'
 import { countries, USACounties } from './ChoroplethMap'
 import { getDomain } from './DataProcessor'
@@ -12,14 +12,14 @@ const BUBBLE_TRANSITION = { transition: 'r 0.3s ease-in-out' }
 
 type Props = {
     map: GeoMap
-    data: Map<string, number>
+    data: Map<GeoId, number>
     legendTitle: string
     color: string
 }
 const makeRegionToRadius =
-    (valueToRadius: ScalePower<number, number, never>, data: Map<string, number>) =>
+    (valueToRadius: ScalePower<number, number, never>, data: Map<GeoId, number>) =>
     (county: Feature<Geometry, GeoJsonProperties>) => {
-        const value = data.get(county.id as string) ?? 0
+        const value = data.get(Number(county.id)) ?? 0
         return valueToRadius(value)
     }
 

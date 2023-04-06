@@ -8,28 +8,30 @@ import {
     Select,
     Switch,
 } from '@mui/material'
-import { Fragment } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { Map } from 'immutable'
 import { csvFormat } from 'd3'
 import { saveAs } from 'file-saver'
+import { Map } from 'immutable'
+import { Fragment } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
+import counties from './Counties'
+import { getLegendTitle } from './FullMap'
+import css from './MapControls.module.css'
+import { MapVisualization } from './MapVisualization'
+import states from './States'
+import waterwayTypes, { WaterwayValue } from './WaterwayType'
 import {
+    GeoId,
     Overlay,
     OverlayName,
+    TransmissionLineType,
     setDetailedView,
     setShowOverlay,
     setTransmissionLineType,
     setWaterwayValue,
-    TransmissionLineType,
+    stateId,
 } from './appSlice'
 import { RootState } from './store'
-import counties from './Counties'
-import states, { State } from './States'
-import waterwayTypes, { WaterwayValue } from './WaterwayType'
-import { getLegendTitle } from './FullMap'
-import { MapVisualization } from './MapVisualization'
-import css from './MapControls.module.css'
 
 const getFilename = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
     const unitString = getLegendTitle(selectedMaps, isNormalized)
@@ -40,18 +42,18 @@ const getFilename = (selectedMaps: MapVisualization[], isNormalized: boolean) =>
 }
 
 type Props = {
-    processedData: Map<string, number> | undefined
+    data: Map<GeoId, number> | undefined
     isNormalized: boolean
     maps: MapVisualization[]
 }
 
-function MapControls({ processedData, isNormalized, maps }: Props) {
+function MapControls({ data, isNormalized, maps }: Props) {
     const dispatch = useDispatch()
     const overlays = useSelector((state: RootState) => state.app.overlays)
     const detailedView = useSelector((state: RootState) => state.app.detailedView)
     const waterwayValue = useSelector((state: RootState) => state.app.waterwayValue)
     const transmissionLineType = useSelector((state: RootState) => state.app.transmissionLineType)
-    const countyFips = useSelector((state: RootState) => state.app.county)
+    const countyId = useSelector((state: RootState) => state.app.county)
     const params = useParams()
     const { tabId } = params
     const navigate = useNavigate()
@@ -138,11 +140,11 @@ function MapControls({ processedData, isNormalized, maps }: Props) {
     }
 
     const downloadData = () => {
-        const objectData = processedData
+        const objectData = data
             ?.sortBy((_, fipsCode) => fipsCode)
             .map((value, fipsCode) => {
                 const county = counties.get(fipsCode)
-                const state = states.get(fipsCode.slice(0, 2) as State)
+                const state = states.get(stateId(fipsCode))
                 return { fipsCode, state, county, value }
             })
             .valueSeq()
@@ -164,17 +166,16 @@ function MapControls({ processedData, isNormalized, maps }: Props) {
 
     return (
         <div id={css.mapControls}>
-            {countyFips && (
+            {countyId && (
                 <Button
                     variant="outlined"
-                    onClick={() => navigate(`/report-card/${tabId ?? '8'}/${countyFips}`)}
+                    onClick={() => navigate(`/report-card/${tabId ?? '8'}/${countyId}`)}
                 >
-                    View report card for {counties.get(countyFips)},{' '}
-                    {states.get(countyFips.slice(0, 2) as State)}
+                    View report card for {counties.get(countyId)}, {states.get(stateId(countyId))}
                 </Button>
             )}
             {mapToggleUI()}
-            {isNormalized && processedData && (
+            {isNormalized && data && (
                 <FormControlLabel
                     control={
                         <Switch
@@ -187,12 +188,12 @@ function MapControls({ processedData, isNormalized, maps }: Props) {
                     label="Detailed View"
                 />
             )}
-            {processedData && (
+            {data && (
                 <Button variant="outlined" onClick={downloadData}>
                     Download data
                 </Button>
             )}
-            {processedData && (
+            {data && (
                 <Button variant="outlined" onClick={downloadImage}>
                     Download Image
                 </Button>

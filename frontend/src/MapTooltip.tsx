@@ -4,11 +4,12 @@ import counties from './Counties'
 import css from './CountyTooltip.module.css'
 import { formatData } from './Formatter'
 import { MapVisualization } from './MapVisualization'
-import states, { State } from './States'
+import states from './States'
+import { GeoId, stateId } from './appSlice'
 
-type TooltipHover = { x: number; y: number; id: string }
+type TooltipHover = { x: number; y: number; id: number }
 type Props = {
-    data: Map<string, number> | undefined
+    data: Map<GeoId, number> | undefined
     mapRef: RefObject<SVGGElement>
     selectedMap: MapVisualization | undefined
     isNormalized: boolean
@@ -27,13 +28,13 @@ function MapTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
             setHover({
                 x: event.touches[0].pageX + 30,
                 y: event.touches[0].pageY - 45,
-                id: event.target.id,
+                id: Number(event.target.id),
             })
         const onMouseMove = (event: any) =>
             setHover({
                 x: event.pageX + 10,
                 y: event.pageY - 25,
-                id: event.target.id,
+                id: Number(event.target.id),
             })
         const onHoverEnd = () => setHover(undefined)
 
@@ -56,7 +57,7 @@ function MapTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
     let text = ''
     if (hover?.id) {
         const county = counties.get(hover.id)
-        const state = states.get(hover.id.slice(0, 2) as State)
+        const state = states.get(stateId(hover.id))
         let name = '---'
         if (state && county) {
             name = `${county}, ${state}`

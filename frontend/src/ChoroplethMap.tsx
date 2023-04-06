@@ -15,7 +15,7 @@ import { ZOOM_TRANSITION } from './MapWrapper'
 import ProbabilityDensity from './ProbabilityDensity'
 import StateMap from './StateMap'
 import { TopoJson } from './TopoJson'
-import { GeoMap, clickMap } from './appSlice'
+import { GeoId, GeoMap, clickMap } from './appSlice'
 
 const MISSING_DATA_COLOR = '#ccc'
 
@@ -52,7 +52,7 @@ export const countries = (map: TopoJson) =>
 type Props = {
     map: GeoMap
     selectedMapVisualizations: MapVisualization[]
-    data: Map<string, number>
+    data: Map<GeoId, number>
     detailedView: boolean
     legendTitle: string
     isNormalized: boolean
@@ -76,7 +76,7 @@ function ChoroplethMap(
         event.target?.id ? dispatch(clickMap(event.target.id)) : null
     const domain = getDomain(data)
     const colorScheme = Color(isNormalized, detailedView, selectedMapVisualizations[0], domain)
-    const color = (regionId: string) => {
+    const color = (regionId: number) => {
         const value = data.get(regionId)
         return colorScheme(value as any) ?? MISSING_DATA_COLOR
     }
@@ -93,7 +93,7 @@ function ChoroplethMap(
                     <path
                         key={region.id}
                         id={region.id as string}
-                        fill={color(region.id as string)}
+                        fill={color(Number(region.id))}
                         d={path(region)!}
                         onClick={onRegionClicked}
                     />

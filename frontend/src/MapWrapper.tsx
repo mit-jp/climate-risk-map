@@ -13,7 +13,7 @@ import MapTooltip from './MapTooltip'
 import { MapVisualization, MapVisualizationId } from './MapVisualization'
 import css from './MapWrapper.module.css'
 import Overlays from './Overlays'
-import { selectMapTransform, selectSelections } from './appSlice'
+import { selectMapTransform, selectSelections, stateId } from './appSlice'
 import { RootState } from './store'
 
 export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
@@ -60,8 +60,7 @@ function MapWrapper({
                           invertNormalized: map.invert_normalized,
                       })),
                       normalize: isNormalized,
-                      filter:
-                          zoomTo && region ? (geoId) => geoId.slice(0, 2) === zoomTo : undefined,
+                      filter: zoomTo && region ? (geoId) => stateId(geoId) === zoomTo : undefined,
                   })
                 : undefined,
         [data, maps, dataWeights, zoomTo, isNormalized, region]
@@ -104,11 +103,7 @@ function MapWrapper({
                     <Overlays />
                 </svg>
                 {map && (
-                    <MapControls
-                        processedData={processedData}
-                        isNormalized={isNormalized}
-                        maps={maps}
-                    />
+                    <MapControls data={processedData} isNormalized={isNormalized} maps={maps} />
                 )}
                 {maps[0] && (
                     <DataDescription name={maps[0].displayName} description={maps[0].description} />
