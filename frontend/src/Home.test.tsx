@@ -8,7 +8,7 @@ import { MapVisualizationJson } from './MapVisualization'
 import { render } from './test-utils'
 
 const MAP_VISUALIZATIONS: { [key: string]: { [key: string]: MapVisualizationJson } } = {
-    '8': {
+    '9': {
         '71': {
             id: 71,
             dataset: 69,
@@ -67,6 +67,10 @@ const MAP_VISUALIZATIONS: { [key: string]: { [key: string]: MapVisualizationJson
 
 const server = setupServer(
     rest.get('/api/map-visualization', (_, res, ctx) => res(ctx.json(MAP_VISUALIZATIONS))),
+    rest.get('/api/data-category', (_, res, ctx) =>
+        res(ctx.json([{ id: 9, name: 'health', normalized: false }]))
+    ),
+    rest.get('/api/map-visualization/71/data', (_, res, ctx) => res(ctx.text('id,value\n1,1'))),
     rest.get('*.json', (_, res, ctx) => res(ctx.json(jsonFile))),
     rest.get('/api/data/:id', (_, res, ctx) => res(ctx.text('state_id,county_id,value')))
 )
