@@ -18,12 +18,14 @@ import counties from './Counties'
 import { getLegendTitle } from './FullMap'
 import css from './MapControls.module.css'
 import { MapVisualization } from './MapVisualization'
+import nations from './Nations'
 import states from './States'
 import waterwayTypes, { WaterwayValue } from './WaterwayType'
 import {
     GeoId,
     Overlay,
     OverlayName,
+    Region,
     TransmissionLineType,
     setDetailedView,
     setShowOverlay,
@@ -54,6 +56,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
     const waterwayValue = useSelector((state: RootState) => state.app.waterwayValue)
     const transmissionLineType = useSelector((state: RootState) => state.app.transmissionLineType)
     const countyId = useSelector((state: RootState) => state.app.county)
+    const region: Region = maps[0]?.geography_type === 1 ? 'USA' : 'World'
     const params = useParams()
     const { tabId } = params
     const navigate = useNavigate()
@@ -139,18 +142,39 @@ function MapControls({ data, isNormalized, maps }: Props) {
         )
     }
 
-    const downloadData = () => {
-        const objectData = data
-            ?.sortBy((_, fipsCode) => fipsCode)
-            .map((value, fipsCode) => {
-                const county = counties.get(fipsCode)
-                const state = states.get(stateId(fipsCode))
-                return { fipsCode, state, county, value }
+    const UsaCsv = (sortedData: Map<number, number> | undefined) => {
+        const objectData = sortedData
+            ?.map((value, id) => {
+                const county = counties.get(id)
+                const state = states.get(stateId(id))
+                return { id, state, county, value }
             })
             .valueSeq()
             .toArray()
         if (objectData) {
-            const csv = csvFormat(objectData, ['fipsCode', 'state', 'county', 'value'])
+            return csvFormat(objectData, ['id', 'state', 'county', 'value'])
+        }
+        return undefined
+    }
+
+    const WorldCsv = (sortedData: Map<number, number> | undefined) => {
+        const objectData = sortedData
+            ?.map((value, id) => {
+                const nation = nations.get(id)
+                return { id, nation, value }
+            })
+            .valueSeq()
+            .toArray()
+        if (objectData) {
+            return csvFormat(objectData, ['id', 'nation', 'value'])
+        }
+        return undefined
+    }
+
+    const downloadData = () => {
+        const sortedData = data?.sortBy((_, id) => id)
+        const csv = region === 'USA' ? UsaCsv(sortedData) : WorldCsv(sortedData)
+        if (csv) {
             const blob = new Blob([csv], { type: 'text/plain;charset=utf-8' })
             saveAs(blob, `${getFilename(maps, isNormalized)}.csv`)
         }
