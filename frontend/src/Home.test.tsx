@@ -14,7 +14,6 @@ const MAP_VISUALIZATIONS: { [key: string]: { [key: string]: MapVisualizationJson
             dataset: 69,
             map_type: 1,
             subcategory: 1,
-            data_tab: 9,
             units: 'Âµg/mÂ³ (population weighted average)',
             short_name: 'PM2_5',
             name: null,

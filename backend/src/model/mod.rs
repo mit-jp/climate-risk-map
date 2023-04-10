@@ -7,6 +7,7 @@ mod dataset;
 mod map_visualization;
 mod scale_type;
 mod state;
+mod subcategory;
 
 pub type DataSource = data_source::DataSource;
 pub type State = state::State;
@@ -24,3 +25,4 @@ pub type DataCategory = data_category::DataCategory;
 pub type ColorPalette = color_palette::ColorPalette;
 pub type ScaleType = scale_type::ScaleType;
 pub type MapVisualizationError = map_visualization::MapVisualizationError;
+pub type Subcategory = subcategory::Subcategory;

@@ -57,8 +57,6 @@ interface AppState {
     readonly zoomTo: number | undefined
     readonly county: number | undefined
     readonly detailedView: boolean
-    readonly showRiskMetrics: boolean
-    readonly showDemographics: boolean
     readonly waterwayValue: WaterwayValue
     readonly transmissionLineType: TransmissionLineType
 }
@@ -78,8 +76,6 @@ const initialState: AppState = {
     dataWeights: {},
     zoomTo: undefined,
     detailedView: true,
-    showRiskMetrics: true,
-    showDemographics: true,
     waterwayValue: 'total',
     transmissionLineType: 'Level 3 (>= 345kV)',
     county: undefined,
@@ -103,12 +99,6 @@ export const appSlice = createSlice({
             { payload }: PayloadAction<{ name: OverlayName; shouldShow: boolean }>
         ) => {
             state.overlays[payload.name].shouldShow = payload.shouldShow
-        },
-        setShowRiskMetrics: (state, action: PayloadAction<boolean>) => {
-            state.showRiskMetrics = action.payload
-        },
-        setShowDemographics: (state, action: PayloadAction<boolean>) => {
-            state.showDemographics = action.payload
         },
         setDetailedView: (state, action: PayloadAction<boolean>) => {
             state.detailedView = action.payload
@@ -225,8 +215,6 @@ export const {
     changeDataSource,
     changeMapSelection,
     setMapSelections,
-    setShowDemographics,
-    setShowRiskMetrics,
     setWaterwayValue,
     setTransmissionLineType,
     clickMap,

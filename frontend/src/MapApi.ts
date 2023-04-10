@@ -40,6 +40,10 @@ export type PercentileQueryParams = {
     category: number
     geographyType: number
 }
+export type Subcategory = {
+    id: number
+    name: string
+}
 
 export type PercentileRow = {
     name: string
@@ -101,7 +105,7 @@ export const mapApi = createApi({
     reducerPath: 'mapApi',
     keepUnusedDataFor: 5 * 60, // 5 minutes
     baseQuery: fetchBaseQuery({ baseUrl: '/api/' }),
-    tagTypes: ['MapVisualization', 'Dataset'],
+    tagTypes: ['MapVisualization', 'Dataset', 'Subcategory'],
     endpoints: (builder) => ({
         getCounties: builder.query<Record<GeoId, County>, undefined>({
             query: () => 'county',
@@ -205,6 +209,10 @@ export const mapApi = createApi({
             query: () => 'dataset',
             providesTags: ['Dataset'],
         }),
+        getSubcategories: builder.query<Subcategory[], undefined>({
+            query: () => 'subcategory',
+            providesTags: ['Subcategory'],
+        }),
     }),
 })
 
@@ -222,4 +230,5 @@ export const {
     useGetCountiesQuery,
     useGetStatesQuery,
     useGetPercentilesQuery,
+    useGetSubcategoriesQuery,
 } = mapApi
