@@ -1,3 +1,4 @@
+use crate::model::MapVisualizationCollection;
 use crate::model::Subcategory;
 
 use super::{
@@ -34,6 +35,7 @@ pub struct Database<'c> {
     pub data: Arc<Table<'c, Data>>,
     pub dataset: Arc<Table<'c, Dataset>>,
     pub map_visualization: Arc<Table<'c, MapVisualization>>,
+    pub map_visualization_collection: Arc<Table<'c, MapVisualizationCollection>>,
     pub data_category: Arc<Table<'c, DataCategory>>,
     pub source_and_date: Arc<Table<'c, SourceAndDate>>,
     pub data_source: Arc<Table<'c, DataSource>>,
@@ -53,6 +55,7 @@ impl Database<'_> {
             data: Arc::from(Table::new(pool.clone())),
             dataset: Arc::from(Table::new(pool.clone())),
             map_visualization: Arc::from(Table::new(pool.clone())),
+            map_visualization_collection: Arc::from(Table::new(pool.clone())),
             data_category: Arc::from(Table::new(pool.clone())),
             source_and_date: Arc::from(Table::new(pool.clone())),
             data_source: Arc::from(Table::new(pool.clone())),

@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import EmptyNavigation from '../EmptyNavigation'
 import {
+    Tab,
     useCreateMapVisualizationMutation,
     useGetMapVisualizationQuery,
     useGetMapVisualizationsQuery,
@@ -42,6 +43,8 @@ const NEW_MAP: MapVisualizationPatch = {
     geography_type: 1,
     bubble_color: '#000000',
 }
+
+export const isDrafts = (tab: Tab | undefined) => tab?.id === -1
 
 function Editor() {
     const dispatch = useDispatch()
@@ -101,7 +104,7 @@ function Editor() {
                                     dispatch(clickMapVisualization(clickedMap))
                                 }
                             />
-                            {selectedTab?.id === -1 && (
+                            {isDrafts(selectedTab) && (
                                 <Button
                                     id={editorCss.createMap}
                                     onClick={() => createMap(NEW_MAP)}
@@ -115,12 +118,14 @@ function Editor() {
                         <EmptyMapVisualizationList />
                     )}
                 </div>
-                {map && (
+                {map && selectedTab && tabs && (
                     <EditorMap
                         map={map}
                         selection={isUninitialized ? undefined : selectedMapVisualization}
                         detailedView
                         isNormalized={isNormalized}
+                        tab={selectedTab}
+                        tabs={tabs.filter((tab) => !isDrafts(tab))}
                     />
                 )}
                 {!isUninitialized && selectedMapVisualization && !isNormalized ? (

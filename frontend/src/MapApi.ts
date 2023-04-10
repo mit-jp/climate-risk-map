@@ -73,6 +73,10 @@ type CountyCsvRow = {
     formatter_type: number
     decimals: number
 }
+type MapVisualizationCollectionId = {
+    map_visualization: number
+    category: number
+}
 
 export type CsvRow = {
     id: number
@@ -213,6 +217,24 @@ export const mapApi = createApi({
             query: () => 'subcategory',
             providesTags: ['Subcategory'],
         }),
+        publishMapVisualization: builder.mutation<MapVisualization, MapVisualizationCollectionId>({
+            query: (id) => ({
+                url: `editor/map-visualization-collection`,
+                method: 'POST',
+                body: id,
+            }),
+            invalidatesTags: [{ type: 'MapVisualization', id: 'ALL' }],
+        }),
+        unpublishMapVisualization: builder.mutation<MapVisualization, MapVisualizationCollectionId>(
+            {
+                query: (id) => ({
+                    url: `editor/map-visualization-collection`,
+                    method: 'DELETE',
+                    body: id,
+                }),
+                invalidatesTags: [{ type: 'MapVisualization', id: 'ALL' }],
+            }
+        ),
     }),
 })
 
@@ -231,4 +253,6 @@ export const {
     useGetStatesQuery,
     useGetPercentilesQuery,
     useGetSubcategoriesQuery,
+    useUnpublishMapVisualizationMutation,
+    usePublishMapVisualizationMutation,
 } = mapApi

@@ -1,14 +1,22 @@
+import { Button, MenuItem, Select } from '@mui/material'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import DataProcessor from '../DataProcessor'
 import EmptyMap from '../EmptyMap'
 import FullMap from '../FullMap'
-import { useGetDataQuery, useGetDatasetsQuery } from '../MapApi'
+import {
+    Tab,
+    useGetDataQuery,
+    useGetDatasetsQuery,
+    usePublishMapVisualizationMutation,
+    useUnpublishMapVisualizationMutation,
+} from '../MapApi'
 import { EmptyMapTitle } from '../MapTitle'
 import MapTooltip from '../MapTooltip'
 import { MapVisualization, getDataQueryParams } from '../MapVisualization'
 import { GeoMap } from '../appSlice'
 import DatasetSelector from './DatasetSelector'
+import { isDrafts } from './Editor'
 import css from './Editor.module.css'
 import EditorMapDescription from './EditorMapDescription'
 import EditorMapTitle from './EditorMapTitle'
@@ -19,15 +27,20 @@ type Props = {
     selection: MapVisualization | undefined
     detailedView: boolean
     isNormalized: boolean
+    tab: Tab
+    tabs: Tab[]
 }
 
-function EditorMap({ map, selection, detailedView, isNormalized }: Props) {
+function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Props) {
     const queryParams = useMemo(
         () => (selection ? getDataQueryParams(selection) : undefined),
         [selection]
     )
+    const [publish] = usePublishMapVisualizationMutation()
+    const [unpublish] = useUnpublishMapVisualizationMutation()
     const { data: datasets } = useGetDatasetsQuery(undefined)
     const { data } = useGetDataQuery(queryParams ?? skipToken)
+    const [publishTo, setPublishTo] = useState(tabs[0].id)
     const processedData = useMemo(
         () =>
             data && selection
@@ -45,6 +58,7 @@ function EditorMap({ map, selection, detailedView, isNormalized }: Props) {
         [data, selection, isNormalized]
     )
     const mapRef = useRef(null)
+    const isDraft = isDrafts(tab)
 
     return (
         <div id={css.map}>
@@ -78,7 +92,37 @@ function EditorMap({ map, selection, detailedView, isNormalized }: Props) {
                 selectedMap={selection}
                 isNormalized={isNormalized}
             />
-            {selection && <EditorMapDescription selectedMap={selection} />}
+            {selection && (
+                <>
+                    <EditorMapDescription selectedMap={selection} />
+                    {isDraft && (
+                        <Select
+                            value={publishTo}
+                            onChange={(event) => setPublishTo(event.target.value as number)}
+                        >
+                            {tabs.map(({ id, name }) => (
+                                <MenuItem key={id} value={id}>
+                                    {name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    )}
+                    <Button
+                        className={css.publishButton}
+                        onClick={() => {
+                            const id = {
+                                map_visualization: selection.id,
+                                category: isDraft ? publishTo : tab.id,
+                            }
+                            isDraft ? publish(id) : unpublish(id)
+                        }}
+                        variant="contained"
+                        color={isDraft ? 'secondary' : 'error'}
+                    >
+                        {isDraft ? 'Publish' : 'Unpublish'}
+                    </Button>
+                </>
+            )}
         </div>
     )
 }

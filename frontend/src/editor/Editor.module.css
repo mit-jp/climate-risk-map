@@ -30,3 +30,7 @@
 #map-options > fieldset {
     margin: 1em 0;
 }
+
+.publish-button {
+    margin: 1em 0 !important;
+}
