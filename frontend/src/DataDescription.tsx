@@ -1,35 +1,19 @@
-import { useSelector } from 'react-redux'
-import { selectSelectedMapVisualizations, toggleDataDescription } from './appSlice'
-import { useThunkDispatch } from './Home'
-import { RootState } from './store'
+import { useState } from 'react'
 import css from './DataDescription.module.css'
 
-function DataDescription() {
-    const dispatch = useThunkDispatch()
-    const showDataDescription = useSelector((state: RootState) => state.app.showDataDescription)
-    const maps = useSelector(selectSelectedMapVisualizations)
-
-    if (maps.length !== 1) {
-        return null
-    }
-    const map = maps[0]
-    const { description } = map
-    const { displayName } = map
-
-    if (!description) {
-        return null
-    }
+function DataDescription({ name, description }: { name: string; description: string }) {
+    const [show, setShow] = useState(false)
 
     return (
         <div className={css.dataDescription}>
             <button
                 type="button"
-                onClick={() => dispatch(toggleDataDescription())}
-                className={showDataDescription ? css.shown : undefined}
+                onClick={() => setShow(!show)}
+                className={show ? css.shown : undefined}
             >
-                About the {displayName} data
+                About the {name} data
             </button>
-            {showDataDescription && <p>{description}</p>}
+            {show && <p>{description}</p>}
         </div>
     )
 }

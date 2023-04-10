@@ -31,6 +31,7 @@ async fn main() -> std::io::Result<()> {
             .configure(controller::data_category_controller::init)
             .configure(controller::color_palette_controller::init)
             .configure(controller::scale_type_controller::init)
+            .configure(controller::subcategory_controller::init)
             .wrap(Logger::default())
     })
     .bind(config.app_url())?;

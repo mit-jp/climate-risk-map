@@ -2,76 +2,96 @@ use super::Table;
 use super::{MapVisualization, MapVisualizationDaoPatch};
 use sqlx::postgres::PgQueryResult;
 
-const SELECT: &str = r#"
-SELECT
-    map.id,
-    map.reverse_scale,
-    map.invert_normalized,
-    map.subcategory,
-    map.dataset,
-    map.map_type,
-    map.legend_ticks,
-    map.formatter_type,
-    map.decimals,
-    map.legend_formatter_type,
-    map.legend_decimals,
-    map.show_pdf,
-    map.default_start_date,
-    map.default_end_date,
-    map.default_source,
-    map.color_domain,
-    array_sort(map.pdf_domain) as pdf_domain,
-    map."name",
-    
-    dataset."name" as dataset_name,
-    dataset.units,
-    dataset.short_name,
-    dataset.description,
-    
-    color_palette."name" as color_palette_name,
-    color_palette.id as color_palette_id,
+macro_rules! select {
+    () => {
+        select!("JOIN", ,)
+    };
+    (include_drafts) => {
+        select!("LEFT JOIN", ,)
+    };
+    (geography_type=$geography_type:expr) => {
+        select!("JOIN", geography_type=$geography_type,)
+    };
+    (geography_type=$geography_type:expr, include_drafts) => {
+        select!("LEFT JOIN", geography_type=$geography_type,)
+    };
+    ($id:ident) => {
+        select!("LEFT JOIN", ,$id)
+    };
+    ($join_type:expr, $(geography_type=$geography_type:expr)?, $($id:expr)?) => {
+        sqlx::query_as!(
+            MapVisualization,
+            r#"
+            SELECT
+                map.id as "id!",
+                map.reverse_scale as "reverse_scale!",
+                map.invert_normalized as "invert_normalized!",
+                map.subcategory,
+                map.dataset as "dataset!",
+                map.map_type as "map_type!",
+                map.legend_ticks,
+                map.formatter_type as "formatter_type!",
+                map.decimals as "decimals!",
+                map.legend_formatter_type,
+                map.legend_decimals,
+                map.show_pdf as "show_pdf!",
+                map.default_start_date,
+                map.default_end_date,
+                map.default_source,
+                map.color_domain as "color_domain!",
+                array_sort(map.pdf_domain) as "pdf_domain!",
+                map."name",
+                dataset.geography_type as "geography_type!",
+                map.bubble_color as "bubble_color!",
+                
+                dataset."name" as "dataset_name!",
+                dataset.units as "units!",
+                dataset.short_name as "short_name!",
+                dataset.description as "description!",
+                
+                color_palette."name" as "color_palette_name!",
+                color_palette.id as "color_palette_id!",
 
-    scale_type.name as scale_type_name,
-    scale_type.id as scale_type_id,
-    
-    map_visualization_collection.category as data_tab,
-    COALESCE(map_visualization_collection.order, int2(0)) as order
-"#;
-
-const FROM_CATEGORIZED: &str = r#"
-FROM map_visualization AS map
-JOIN dataset ON map.dataset = dataset.id
-JOIN color_palette ON map.color_palette = color_palette.id
-JOIN scale_type ON map.scale_type = scale_type.id
-JOIN map_visualization_collection ON map.id = map_visualization_collection.map_visualization
-"#;
-
-const FROM_ALL: &str = r#"
-FROM map_visualization AS map
-JOIN dataset ON map.dataset = dataset.id
-JOIN color_palette ON map.color_palette = color_palette.id
-JOIN scale_type ON map.scale_type = scale_type.id
-LEFT JOIN map_visualization_collection ON map.id = map_visualization_collection.map_visualization
-"#;
+                scale_type.name as "scale_type_name!",
+                scale_type.id as "scale_type_id!",
+                
+                map_visualization_collection.category as "data_tab?",
+                COALESCE(map_visualization_collection.order, int2(0)) as "order!"
+                FROM map_visualization AS map
+                INNER JOIN dataset ON map.dataset = dataset.id
+                INNER JOIN color_palette ON map.color_palette = color_palette.id
+                INNER JOIN scale_type ON map.scale_type = scale_type.id
+            "#
+            + $join_type
+            + " map_visualization_collection ON map.id = map_visualization_collection.map_visualization"
+            $( + " WHERE dataset.geography_type = $1", $geography_type)?
+            $( + " WHERE map.id = $1", $id)?
+        )
+    };
+}
 
 impl<'c> Table<'c, MapVisualization> {
-    pub async fn all(&self, include_drafts: bool) -> Result<Vec<MapVisualization>, sqlx::Error> {
-        sqlx::query_as(&format!(
-            "{} {}",
-            SELECT,
-            match include_drafts {
-                true => FROM_ALL,
-                false => FROM_CATEGORIZED,
-            }
-        ))
-        .fetch_all(&*self.pool)
-        .await
+    pub async fn all(
+        &self,
+        include_drafts: bool,
+        geography_type: Option<i32>,
+    ) -> Result<Vec<MapVisualization>, sqlx::Error> {
+        if geography_type.is_none() && include_drafts {
+            select!(include_drafts).fetch_all(&*self.pool).await
+        } else if geography_type.is_none() {
+            select!().fetch_all(&*self.pool).await
+        } else if include_drafts {
+            select!(geography_type = geography_type, include_drafts)
+                .fetch_all(&*self.pool)
+                .await
+        } else {
+            select!(geography_type = geography_type)
+                .fetch_all(&*self.pool)
+                .await
+        }
     }
     pub async fn get(&self, id: i32) -> Result<MapVisualization, sqlx::Error> {
-        sqlx::query_as(&format!("{} {} WHERE map.id = $1", SELECT, FROM_ALL))
-            .bind(id)
-            .fetch_one(&*self.pool)
-            .await
+        select!(id).fetch_one(&*self.pool).await
     }
     pub async fn update(
         &self,
@@ -97,8 +117,9 @@ impl<'c> Table<'c, MapVisualization> {
                 decimals = $16,
                 legend_decimals = $17,
                 color_domain = $18,
-                pdf_domain = $19
-            WHERE id = $20",
+                pdf_domain = $19,
+                bubble_color = $20
+            WHERE id = $21",
             patch.dataset,
             patch.map_type,
             patch.subcategory,
@@ -118,6 +139,7 @@ impl<'c> Table<'c, MapVisualization> {
             patch.legend_decimals,
             &patch.color_domain,
             &patch.pdf_domain,
+            patch.bubble_color,
             patch.id,
         )
         .execute(&*self.pool)
@@ -148,7 +170,9 @@ impl<'c> Table<'c, MapVisualization> {
                 decimals,
                 legend_decimals,
                 color_domain,
-                pdf_domain)
+                pdf_domain,
+                bubble_color
+            )
             VALUES (
                 $1,
                 $2,
@@ -168,7 +192,8 @@ impl<'c> Table<'c, MapVisualization> {
                 $16,
                 $17,
                 $18,
-                $19)",
+                $19,
+                $20)",
             map.dataset,
             map.map_type,
             map.subcategory,
@@ -188,6 +213,7 @@ impl<'c> Table<'c, MapVisualization> {
             map.legend_decimals,
             &map.color_domain,
             &map.pdf_domain,
+            map.bubble_color,
         )
         .execute(&*self.pool)
         .await

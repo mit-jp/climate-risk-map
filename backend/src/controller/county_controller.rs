@@ -7,24 +7,13 @@ use actix_web::{get, web, HttpResponse, Responder};
 
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get_all);
-    cfg.service(get);
 }
 
-#[get("/county/{id}")]
-async fn get(id: web::Path<i16>, app_state: web::Data<AppState<'_>>) -> impl Responder {
-    let counties = app_state.database.county.by_id(id.into_inner()).await;
-
-    match counties {
-        Err(_) => HttpResponse::NotFound().finish(),
-        Ok(counties) => HttpResponse::Ok().json(counties),
-    }
+fn fips_code(county: &County) -> i32 {
+    county.state as i32 * 1000 + county.id as i32
 }
 
-fn fips_code(county: &County) -> String {
-    format!("{:02}{:03}", county.state, county.id)
-}
-
-fn counties_to_map(counties: Vec<County>) -> HashMap<String, County> {
+fn counties_to_map(counties: Vec<County>) -> HashMap<i32, County> {
     counties
         .into_iter()
         .map(|county| (fips_code(&county), county))
@@ -62,7 +51,7 @@ mod tests {
             ]),
             HashMap::from([
                 (
-                    "02001".to_string(),
+                    2001,
                     County {
                         name: "test1".to_string(),
                         id: 1,
@@ -70,7 +59,7 @@ mod tests {
                     }
                 ),
                 (
-                    "44033".to_string(),
+                    44033,
                     County {
                         name: "test2".to_string(),
                         id: 33,

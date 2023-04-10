@@ -1,30 +1,8 @@
 import { DateTime, Interval } from 'luxon'
 import { json as loadJson } from 'd3'
-import DataTab from './DataTab'
-import { DataQueryParams } from './MapApi'
+import { DataQueryParams, TabId } from './MapApi'
+import { MapSelection } from './DataSelector'
 
-export const TabIdToTab: { [key: number]: DataTab } = {
-    8: DataTab.RiskMetrics,
-    3: DataTab.Climate,
-    1: DataTab.Water,
-    2: DataTab.Land,
-    5: DataTab.Energy,
-    4: DataTab.Economy,
-    7: DataTab.Demographics,
-    6: DataTab.ClimateOpinions,
-    9: DataTab.Health,
-}
-export const TabToId: { [key in DataTab]: number } = {
-    [DataTab.RiskMetrics]: 8,
-    [DataTab.Climate]: 3,
-    [DataTab.Water]: 1,
-    [DataTab.Land]: 2,
-    [DataTab.Energy]: 5,
-    [DataTab.Economy]: 4,
-    [DataTab.Demographics]: 7,
-    [DataTab.ClimateOpinions]: 6,
-    [DataTab.Health]: 9,
-}
 export type MapVisualizationId = number
 export type ScaleTypeName =
     | 'Diverging'
@@ -53,6 +31,10 @@ export enum MapType {
     Choropleth = 1,
     Bubble = 2,
 }
+export enum GeographyType {
+    USA = 1,
+    World = 2,
+}
 
 export interface MapVisualizationPatch {
     id: MapVisualizationId
@@ -76,6 +58,8 @@ export interface MapVisualizationPatch {
     legend_formatter_type?: FormatterType
     decimals: number
     legend_decimals?: number
+    geography_type: GeographyType
+    bubble_color: string
 }
 
 export interface MapVisualization {
@@ -107,9 +91,8 @@ export interface MapVisualization {
     decimals: number
     legend_decimals?: number
     order: number
-}
-export type MapVisualizationByTabId = {
-    [key: number]: { [key in MapVisualizationId]: MapVisualization }
+    geography_type: GeographyType
+    bubble_color: string
 }
 
 export interface MapVisualizationJson {
@@ -140,6 +123,8 @@ export interface MapVisualizationJson {
     decimals: number
     legend_decimals: number | null
     order: number
+    geography_type: GeographyType
+    bubble_color: string
 }
 
 export const applyPatch = (draft: MapVisualization, patch: MapVisualizationPatch) => {
@@ -200,18 +185,9 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
         legend_decimals: json.legend_decimals ?? undefined,
         order: json.order,
         displayName: json.name ?? json.dataset_name,
+        geography_type: json.geography_type,
+        bubble_color: json.bubble_color,
     }
-}
-
-export const defaultMapVisualizations: MapVisualizationByTabId = {
-    8: {},
-    1: {},
-    2: {},
-    3: {},
-    4: {},
-    7: {},
-    6: {},
-    5: {},
 }
 
 export const getDefaultSource = (mapVisualization: MapVisualization) =>
@@ -227,12 +203,22 @@ export const getDataQueryParams = (mapVisualization: MapVisualization): DataQuer
     const dateRange = getDefaultDateRange(mapVisualization)
     return [
         {
-            dataset: mapVisualization.dataset,
+            mapVisualization: mapVisualization.id,
             source,
             startDate: dateRange.start.toISODate(),
             endDate: dateRange.end.toISODate(),
         },
     ]
+}
+
+export const getDefaultSelection = (mapVisualization: MapVisualization): MapSelection => {
+    const dataSource = getDefaultSource(mapVisualization)
+    const dateRange = getDefaultDateRange(mapVisualization)
+    return {
+        mapVisualization: mapVisualization.id,
+        dataSource,
+        dateRange,
+    }
 }
 
 export const fetchMapVisualization = async (id: number): Promise<MapVisualization> => {
@@ -243,11 +229,14 @@ export const fetchMapVisualization = async (id: number): Promise<MapVisualizatio
     return jsonToMapVisualization(rawJson)
 }
 
-export const fetchMapVisualizations = async (
+export const fetchMapVisualizations = async (props: {
     includeDrafts?: boolean
-): Promise<MapVisualizationByTabId> => {
+    geographyType?: GeographyType
+}): Promise<Record<TabId, Record<MapVisualizationId, MapVisualization>>> => {
     const rawJson = await loadJson<{ [key: number]: { [key: number]: MapVisualizationJson } }>(
-        `/api/map-visualization?include_drafts=${includeDrafts ?? false}`
+        `/api/map-visualization?include_drafts=${props.includeDrafts ?? false}${
+            props.geographyType !== undefined ? `&geography_type=${props.geographyType}` : ''
+        }`
     )
     if (rawJson === undefined) {
         return Promise.reject(new Error('Failed to fetch map visualizations'))
@@ -260,12 +249,12 @@ export const fetchMapVisualizations = async (
                     accumulator[parseInt(id, 10)] = jsonToMapVisualization(mapVisualizationJson)
                     return accumulator
                 },
-                {} as { [key in MapVisualizationId]: MapVisualization }
+                {} as Record<MapVisualizationId, MapVisualization>
             )
             accumulator[parseInt(tabId, 10)!] = mapVisualizations
             return accumulator
         },
-        {} as MapVisualizationByTabId
+        {} as Record<TabId, Record<MapVisualizationId, MapVisualization>>
     )
     return mapVisualizationsByTab
 }

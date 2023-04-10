@@ -1,24 +1,21 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import type { GeoJsonProperties, Feature, Geometry } from 'geojson'
-import type { GeometryCollection } from 'topojson-specification'
 import { geoPath } from 'd3'
-import { feature } from 'topojson-client'
+import type { Feature, GeoJsonProperties, Geometry } from 'geojson'
 import { Interval } from 'luxon'
-import { TopoJson } from './TopoJson'
-import { State } from './States'
-import { WaterwayValue } from './WaterwayType'
-import { RootState } from './store'
+import { feature } from 'topojson-client'
+import type { GeometryCollection } from 'topojson-specification'
 import { MapSelection } from './DataSelector'
+import { mapApi, Tab, TabId } from './MapApi'
 import {
-    DataSource,
-    defaultMapVisualizations,
+    getDefaultSelection,
     MapType,
     MapVisualization,
-    MapVisualizationByTabId,
     MapVisualizationId,
-    TabToId,
 } from './MapVisualization'
-import DataTab from './DataTab'
+import { State } from './States'
+import { RootState } from './store'
+import { TopoJson } from './TopoJson'
+import { WaterwayValue } from './WaterwayType'
 
 export type TransmissionLineType =
     | 'Level 2 (230kV-344kV)'
@@ -32,97 +29,40 @@ export type OverlayName =
     | 'Critical water habitats'
     | 'Endangered species'
 export type Overlay = { topoJson?: TopoJson; shouldShow: boolean }
-export type TabAndMapVisualizations = {
-    dataTab: DataTab
-    mapVisualizations: MapVisualization[]
+export type Region = 'USA' | 'World'
+export type GeoMap = {
+    topoJson: TopoJson
+    region: Region
 }
+export type GeoId = number
+
+/**
+ * The state id is the first two digits of the county id.
+ * For example the state id for county 06037 is 06.
+ * See https://en.wikipedia.org/wiki/List_of_United_States_FIPS_codes_by_county
+ *
+ * @param countyId the county id (or FIPS code)
+ * @returns the state id
+ */
+export const stateId = (countyId: number): State => Math.floor(countyId / 1000) as State
 
 interface AppState {
-    readonly map?: TopoJson
+    readonly region: Region
+    readonly map?: GeoMap
     readonly mapTransform?: string
     readonly overlays: Record<OverlayName, Overlay>
-    readonly mapSelections: Record<DataTab, MapSelection[]>
+    readonly mapSelections: Record<Region, Record<TabId, MapSelection[]>>
     readonly dataWeights: Record<MapVisualizationId, number>
-    readonly mapVisualizations: MapVisualizationByTabId
-    readonly dataTab: DataTab
-    readonly showDatasetDescription: boolean
-    readonly showDataDescription: boolean
-    readonly state: State | undefined
-    readonly county: string | undefined
+    readonly tab: Tab | undefined
+    readonly zoomTo: number | undefined
+    readonly county: number | undefined
     readonly detailedView: boolean
-    readonly showRiskMetrics: boolean
-    readonly showDemographics: boolean
     readonly waterwayValue: WaterwayValue
     readonly transmissionLineType: TransmissionLineType
 }
 
-const defaultSelections: Record<DataTab, MapSelection[]> = {
-    [DataTab.RiskMetrics]: [
-        {
-            mapVisualization: 71,
-            dateRange: Interval.fromISO('2015-01-01/2015-12-31'),
-            dataSource: 12,
-        },
-    ],
-    [DataTab.Water]: [
-        {
-            mapVisualization: 1,
-            dateRange: Interval.fromISO('2015-01-01/2015-12-31'),
-            dataSource: 2,
-        },
-    ],
-    [DataTab.Land]: [
-        {
-            mapVisualization: 15,
-            dateRange: Interval.fromISO('2017-01-01/2017-01-01'),
-            dataSource: 7,
-        },
-    ],
-    [DataTab.Climate]: [
-        {
-            mapVisualization: 22,
-            dateRange: Interval.fromISO('2000-01-01/2019-01-01'),
-            dataSource: 2,
-        },
-    ],
-    [DataTab.Economy]: [
-        {
-            mapVisualization: 12,
-            dateRange: Interval.fromISO('2019-01-01/2019-01-01'),
-            dataSource: 6,
-        },
-    ],
-    [DataTab.Demographics]: [
-        {
-            mapVisualization: 28,
-            dateRange: Interval.fromISO('2012-01-01/2016-12-31'),
-            dataSource: 6,
-        },
-    ],
-    [DataTab.ClimateOpinions]: [
-        {
-            mapVisualization: 35,
-            dateRange: Interval.fromISO('2008-01-01/2020-12-31'),
-            dataSource: 4,
-        },
-    ],
-    [DataTab.Energy]: [
-        {
-            mapVisualization: 64,
-            dateRange: Interval.fromISO('2020-01-01/2020-12-31'),
-            dataSource: 11,
-        },
-    ],
-    [DataTab.Health]: [
-        {
-            mapVisualization: 71,
-            dateRange: Interval.fromISO('2015-01-01/2015-12-31'),
-            dataSource: 12,
-        },
-    ],
-}
-
 const initialState: AppState = {
+    region: 'USA',
     overlays: {
         Highways: { shouldShow: false },
         'Major railroads': { shouldShow: false },
@@ -131,37 +71,21 @@ const initialState: AppState = {
         'Critical water habitats': { shouldShow: false },
         'Endangered species': { shouldShow: false },
     },
-    mapSelections: defaultSelections,
-    mapVisualizations: defaultMapVisualizations,
+    tab: undefined,
+    mapSelections: { USA: {}, World: {} },
     dataWeights: {},
-    dataTab: DataTab.RiskMetrics,
-    showDatasetDescription: false,
-    showDataDescription: false,
-    state: undefined,
+    zoomTo: undefined,
     detailedView: true,
-    showRiskMetrics: true,
-    showDemographics: true,
     waterwayValue: 'total',
     transmissionLineType: 'Level 3 (>= 345kV)',
     county: undefined,
-}
-
-// Convenience accessors
-const getMapVisualizations = (state: AppState) => state.mapVisualizations[TabToId[state.dataTab]]
-const getPossibleDataSources = (state: AppState, selection: MapSelection): number[] => {
-    const mapVisualization = getMapVisualizations(state)[selection.mapVisualization]
-    return Object.keys(mapVisualization!.date_ranges_by_source).map((key) => parseInt(key, 10))
-}
-const getPossibleDates = (state: AppState, selection: MapSelection) => {
-    const mapVisualization = getMapVisualizations(state)[selection.mapVisualization]
-    return mapVisualization!.date_ranges_by_source[selection.dataSource]
 }
 
 export const appSlice = createSlice({
     name: 'app',
     initialState,
     reducers: {
-        setMap: (state, action: PayloadAction<TopoJson | undefined>) => {
+        setMap: (state, action: PayloadAction<GeoMap | undefined>) => {
             state.map = action.payload
         },
         setOverlay: (
@@ -176,23 +100,11 @@ export const appSlice = createSlice({
         ) => {
             state.overlays[payload.name].shouldShow = payload.shouldShow
         },
-        setShowRiskMetrics: (state, action: PayloadAction<boolean>) => {
-            state.showRiskMetrics = action.payload
-        },
-        setShowDemographics: (state, action: PayloadAction<boolean>) => {
-            state.showDemographics = action.payload
-        },
         setDetailedView: (state, action: PayloadAction<boolean>) => {
             state.detailedView = action.payload
         },
-        toggleDatasetDescription: (state) => {
-            state.showDatasetDescription = !state.showDatasetDescription
-        },
-        toggleDataDescription: (state) => {
-            state.showDataDescription = !state.showDataDescription
-        },
-        setDataTab: (state, action: PayloadAction<DataTab>) => {
-            state.dataTab = action.payload
+        setTab: (state, action: PayloadAction<Tab>) => {
+            state.tab = action.payload
         },
         changeWeight: (
             state,
@@ -202,21 +114,29 @@ export const appSlice = createSlice({
             state.dataWeights[mapVisualizationId] = weight
         },
         changeDateRange: (state, action: PayloadAction<Interval>) => {
-            state.mapSelections[state.dataTab][0].dateRange = action.payload
+            if (state.tab === undefined) {
+                return
+            }
+            state.mapSelections[state.region][state.tab.id][0].dateRange = action.payload
         },
         changeDataSource: (state, action: PayloadAction<number>) => {
-            state.mapSelections[state.dataTab][0].dataSource = action.payload
+            if (state.tab === undefined) {
+                return
+            }
+            state.mapSelections[state.region][state.tab.id][0].dataSource = action.payload
         },
-        changeMapSelection: (state, action: PayloadAction<MapVisualizationId>) => {
-            const selection = state.mapSelections[state.dataTab][0]
-            selection.mapVisualization = action.payload
-            const mapVisualization =
-                state.mapVisualizations[TabToId[state.dataTab]][selection.mapVisualization]
-            const possibleDataSources = getPossibleDataSources(state, selection)
+        changeMapSelection: (state, action: PayloadAction<MapVisualization>) => {
+            if (state.tab === undefined) {
+                return
+            }
+            const selection = state.mapSelections[state.region][state.tab.id][0]
+            const mapVisualization = action.payload
+            selection.mapVisualization = mapVisualization.id
+            const possibleDataSources = Object.values(mapVisualization.sources).map((s) => s.id)
             if (!possibleDataSources.includes(selection.dataSource)) {
                 selection.dataSource = mapVisualization?.default_source ?? possibleDataSources[0]
             }
-            const possibleDates = getPossibleDates(state, selection)
+            const possibleDates = mapVisualization.date_ranges_by_source[selection.dataSource] ?? []
             if (selection.dateRange && !possibleDates.includes(selection.dateRange)) {
                 if (mapVisualization.default_date_range) {
                     selection.dateRange = mapVisualization.default_date_range
@@ -228,12 +148,15 @@ export const appSlice = createSlice({
 
             if (mapVisualization?.map_type === MapType.Bubble) {
                 // don't zoom in to state on bubble map. it's unsupported right now
-                state.state = undefined
+                state.zoomTo = undefined
                 state.county = undefined
             }
         },
         setMapSelections: (state, action: PayloadAction<MapSelection[]>) => {
-            state.mapSelections[state.dataTab] = action.payload
+            if (state.tab === undefined) {
+                return
+            }
+            state.mapSelections[state.region][state.tab.id] = action.payload
         },
         setWaterwayValue(state, action: PayloadAction<WaterwayValue>) {
             state.waterwayValue = action.payload
@@ -241,18 +164,43 @@ export const appSlice = createSlice({
         setTransmissionLineType(state, action: PayloadAction<TransmissionLineType>) {
             state.transmissionLineType = action.payload
         },
-        clickCounty: (state, { payload }: PayloadAction<string>) => {
-            if (state.state) {
-                state.state = undefined
-                state.county = undefined
+        clickMap: (state, { payload }: PayloadAction<number>) => {
+            if (state.region === 'USA') {
+                if (state.zoomTo) {
+                    state.zoomTo = undefined
+                    state.county = undefined
+                } else {
+                    state.zoomTo = stateId(payload)
+                    state.county = payload
+                }
             } else {
-                state.state = payload.slice(0, 2) as State
-                state.county = payload
+                state.zoomTo = state.zoomTo === undefined ? payload : undefined
             }
         },
-        setMapVisualizations: (state, { payload }: PayloadAction<MapVisualizationByTabId>) => {
-            state.mapVisualizations = payload
+        selectRegion: (state, { payload }: PayloadAction<Region>) => {
+            state.region = payload
+            state.zoomTo = undefined
+            state.county = undefined
         },
+    },
+    extraReducers: (builder) => {
+        builder.addMatcher(mapApi.endpoints.getTabs.matchFulfilled, (state, actions) => {
+            const firstTab = actions.payload[0]
+            state.tab = firstTab
+        })
+        builder.addMatcher(
+            mapApi.endpoints.getMapVisualizations.matchFulfilled,
+            (state, actions) => {
+                Object.entries(actions.payload).forEach(([tabId, mapVisualizations]) => {
+                    const firstMap = Object.values(mapVisualizations).reduce((a, b) =>
+                        a.order < b.order ? a : b
+                    )
+                    state.mapSelections[state.region][Number(tabId)] = [
+                        getDefaultSelection(firstMap),
+                    ]
+                })
+            }
+        )
     },
 })
 
@@ -261,89 +209,71 @@ export const {
     setShowOverlay,
     setOverlay,
     setDetailedView,
-    toggleDatasetDescription,
     changeWeight,
     changeDateRange,
-    setDataTab,
+    setTab,
     changeDataSource,
     changeMapSelection,
     setMapSelections,
-    toggleDataDescription,
-    setShowDemographics,
-    setShowRiskMetrics,
     setWaterwayValue,
     setTransmissionLineType,
-    clickCounty,
-    setMapVisualizations,
+    clickMap,
+    selectRegion,
 } = appSlice.actions
 
 // Accessors that return a new object every time, or run for a long time.
 // Do not use these as they will always force a re-render, or take too long to re-render.
 // Instead use the selectors that use them.
-const generateMapTransform = (state: State | undefined, map: TopoJson | undefined) => {
-    if (state === undefined || map === undefined) {
+const generateMapTransform = (zoomTo: number | undefined, map: GeoMap | undefined) => {
+    if (zoomTo === undefined || map === undefined) {
         return undefined
     }
-    const stateFeatures = feature(
-        map,
-        map.objects.states as GeometryCollection<GeoJsonProperties>
+    const objects =
+        map.region === 'USA' ? map.topoJson.objects.states : map.topoJson.objects.countries
+    const features = feature(
+        map.topoJson,
+        objects as GeometryCollection<GeoJsonProperties>
     ).features.reduce((accumulator, currentValue) => {
-        accumulator[currentValue.id as State] = currentValue
+        accumulator[currentValue.id as string] = currentValue
         return accumulator
-    }, {} as Record<State, Feature<Geometry, GeoJsonProperties>>)
+    }, {} as Record<string, Feature<Geometry, GeoJsonProperties>>)
     const width = 900
-    const bounds = geoPath().bounds(stateFeatures[state])
+    const height = 610
+    // pad number id by 0s to match topojson
+    // topoJson country id: "012", country id: 12
+    // topoJson state id: "01", state id: 1
+    const idLength = map.region === 'USA' ? 2 : 3
+    const zoomToId = '0'.repeat(idLength - zoomTo.toString().length) + zoomTo.toString()
+
+    const bounds = geoPath().bounds(features[zoomToId])
     const dx = bounds[1][0] - bounds[0][0]
     const dy = bounds[1][1] - bounds[0][1]
     const x = (bounds[0][0] + bounds[1][0]) / 2
     const y = (bounds[0][1] + bounds[1][1]) / 2
-    const scale = 0.9 / Math.max(dx / width, dy / 610)
-    const translate = [width / 2 - scale * x, 610 / 2 - scale * y]
+    const scale = 0.9 / Math.max(dx / width, dy / height)
+    const translate = [width / 2 - scale * x, height / 2 - scale * y]
     const transform = `translate(${translate})scale(${scale})`
     return transform
 }
 
 // Selectors
-export const selectIsNormalized = (state: RootState) => state.app.dataTab === DataTab.RiskMetrics
-export const selectSelections = (state: RootState) => state.app.mapSelections[state.app.dataTab]
-export const selectMapVisualizations = (state: RootState) => getMapVisualizations(state.app)
-export const selectSelectedMapVisualizations = createSelector(
-    selectSelections,
-    selectMapVisualizations,
-    (selections, mapVisualizations): MapVisualization[] => {
-        return Object.keys(mapVisualizations).length === 0
-            ? []
-            : selections.map((selection) => mapVisualizations[selection.mapVisualization])
+export const selectSelectedTab = (state: RootState) => state.app.tab
+export const selectSelections = (state: RootState) => {
+    if (state.app.tab === undefined) {
+        return []
     }
-)
+    const mapSelections = state.app.mapSelections[state.app.region][state.app.tab.id]
+    if (mapSelections === undefined) {
+        return []
+    }
+
+    return mapSelections
+}
+
 export const selectMapTransform = createSelector(
-    (state: RootState) => state.app.state,
+    (state: RootState) => state.app.zoomTo,
     (state: RootState) => state.app.map,
     generateMapTransform
 )
-export const selectDataQueryParams = createSelector(
-    selectMapVisualizations,
-    selectSelections,
-    (mapVisualizations, selections) =>
-        Object.entries(mapVisualizations).length > 0 && selections.length > 0
-            ? selections.map((selection) => ({
-                  dataset: mapVisualizations[selection.mapVisualization].dataset,
-                  source: selection.dataSource,
-                  startDate: selection.dateRange.start.toISODate(),
-                  endDate: selection.dateRange.end.toISODate(),
-              }))
-            : undefined
-)
-export const selectSelectedDataSource = (state: RootState): DataSource | undefined => {
-    const selections = selectSelections(state)
-    const selectedMaps = selectSelectedMapVisualizations(state)
-    if (selections.length !== 1 || selectedMaps.length !== 1) {
-        return undefined
-    }
-    const selection = selections[0]
-    const selectedMap = selectedMaps[0]
-
-    return selectedMap.sources[selection.dataSource]
-}
 
 export default appSlice.reducer

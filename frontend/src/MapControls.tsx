@@ -8,31 +8,32 @@ import {
     Select,
     Switch,
 } from '@mui/material'
-import { Fragment } from 'react'
-import { useSelector } from 'react-redux'
-import { Map } from 'immutable'
 import { csvFormat } from 'd3'
 import { saveAs } from 'file-saver'
+import { Map } from 'immutable'
+import { Fragment } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
+import counties from './Counties'
+import { getLegendTitle } from './FullMap'
+import css from './MapControls.module.css'
+import { MapVisualization } from './MapVisualization'
+import nations from './Nations'
+import states from './States'
+import waterwayTypes, { WaterwayValue } from './WaterwayType'
 import {
+    GeoId,
     Overlay,
     OverlayName,
-    selectIsNormalized,
-    selectSelectedMapVisualizations,
+    Region,
+    TransmissionLineType,
     setDetailedView,
     setShowOverlay,
     setTransmissionLineType,
     setWaterwayValue,
-    TransmissionLineType,
+    stateId,
 } from './appSlice'
-import { useThunkDispatch } from './Home'
 import { RootState } from './store'
-import counties from './Counties'
-import states, { State } from './States'
-import waterwayTypes, { WaterwayValue } from './WaterwayType'
-import { getLegendTitle } from './FullMap'
-import { MapVisualization } from './MapVisualization'
-import css from './MapControls.module.css'
 
 const getFilename = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
     const unitString = getLegendTitle(selectedMaps, isNormalized)
@@ -42,118 +43,148 @@ const getFilename = (selectedMaps: MapVisualization[], isNormalized: boolean) =>
     return selectedMaps[0].displayName + unitString
 }
 
-type Props = {
-    processedData: Map<string, number> | undefined
-}
+const transmissionLinesTypes: TransmissionLineType[] = [
+    'Level 2 (230kV-344kV)',
+    'Level 3 (>= 345kV)',
+    'Level 2 & 3 (>= 230kV)',
+]
 
-function MapControls({ processedData }: Props) {
-    const dispatch = useThunkDispatch()
-    const isNormalized = useSelector(selectIsNormalized)
-    const selectedMapVisualizations = useSelector(selectSelectedMapVisualizations)
-    const overlays = useSelector((state: RootState) => state.app.overlays)
-    const detailedView = useSelector((state: RootState) => state.app.detailedView)
+function OverlaySubControl({ name }: { name: OverlayName }) {
+    const dispatch = useDispatch()
     const waterwayValue = useSelector((state: RootState) => state.app.waterwayValue)
     const transmissionLineType = useSelector((state: RootState) => state.app.transmissionLineType)
-    const countyFips = useSelector((state: RootState) => state.app.county)
+    if (name === 'Transmission lines') {
+        return (
+            <FormControl>
+                <InputLabel shrink id="transmission-lines-type">
+                    Type
+                </InputLabel>
+                <Select
+                    labelId="transmission-lines-type"
+                    value={transmissionLineType}
+                    onChange={(event) =>
+                        dispatch(
+                            setTransmissionLineType(event.target.value as TransmissionLineType)
+                        )
+                    }
+                >
+                    {transmissionLinesTypes.map((value) => (
+                        <MenuItem key={value} value={value}>
+                            {value}
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+        )
+    }
+    if (name === 'Marine highways') {
+        return (
+            <FormControl>
+                <InputLabel shrink id="waterway-type">
+                    Tonnage
+                </InputLabel>
+                <Select
+                    labelId="waterway-type"
+                    value={waterwayValue}
+                    onChange={(event) =>
+                        dispatch(setWaterwayValue(event.target.value as WaterwayValue))
+                    }
+                >
+                    {waterwayTypes.map(({ name, value }) => (
+                        <MenuItem key={value} value={value}>
+                            {name}
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+        )
+    }
+    return null
+}
+
+function OverlayCheckBoxes({ overlays }: { overlays: Record<OverlayName, Overlay> }) {
+    const dispatch = useDispatch()
+
+    return (
+        <>
+            {Object.entries(overlays).map(([overlayName, overlay]) => (
+                <Fragment key={overlayName}>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                onChange={(_, value) =>
+                                    dispatch(
+                                        setShowOverlay({
+                                            name: overlayName as OverlayName,
+                                            shouldShow: value,
+                                        })
+                                    )
+                                }
+                                title={overlayName}
+                                color="primary"
+                            />
+                        }
+                        label={overlayName}
+                    />
+                    {overlay.shouldShow && <OverlaySubControl name={overlayName as OverlayName} />}
+                </Fragment>
+            ))}
+        </>
+    )
+}
+
+type Props = {
+    data: Map<GeoId, number> | undefined
+    isNormalized: boolean
+    maps: MapVisualization[]
+}
+
+function MapControls({ data, isNormalized, maps }: Props) {
+    const dispatch = useDispatch()
+    const overlays = useSelector((state: RootState) => state.app.overlays)
+    const detailedView = useSelector((state: RootState) => state.app.detailedView)
+
+    const countyId = useSelector((state: RootState) => state.app.county)
+    const region: Region = maps[0]?.geography_type === 1 ? 'USA' : 'World'
     const params = useParams()
     const { tabId } = params
     const navigate = useNavigate()
-    const transmissionLinesTypes: TransmissionLineType[] = [
-        'Level 2 (230kV-344kV)',
-        'Level 3 (>= 345kV)',
-        'Level 2 & 3 (>= 230kV)',
-    ]
 
-    const subControl = (overlayName: OverlayName) => {
-        if (overlayName === 'Transmission lines') {
-            return (
-                <FormControl>
-                    <InputLabel shrink id="transmission-lines-type">
-                        Type
-                    </InputLabel>
-                    <Select
-                        labelId="transmission-lines-type"
-                        value={transmissionLineType}
-                        onChange={(event) =>
-                            dispatch(
-                                setTransmissionLineType(event.target.value as TransmissionLineType)
-                            )
-                        }
-                    >
-                        {transmissionLinesTypes.map((value) => (
-                            <MenuItem key={value} value={value}>
-                                {value}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-            )
-        }
-        if (overlayName === 'Marine highways') {
-            return (
-                <FormControl>
-                    <InputLabel shrink id="waterway-type">
-                        Tonnage
-                    </InputLabel>
-                    <Select
-                        labelId="waterway-type"
-                        value={waterwayValue}
-                        onChange={(event) =>
-                            dispatch(setWaterwayValue(event.target.value as WaterwayValue))
-                        }
-                    >
-                        {waterwayTypes.map(({ name, value }) => (
-                            <MenuItem key={value} value={value}>
-                                {name}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-            )
-        }
-        return null
-    }
-
-    const mapToggleUI = () => {
-        return (Object.entries(overlays) as [OverlayName, Overlay][]).map(
-            ([overlayName, overlay]) => {
-                return (
-                    <Fragment key={overlayName}>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    onChange={(_, value) =>
-                                        dispatch(
-                                            setShowOverlay({ name: overlayName, shouldShow: value })
-                                        )
-                                    }
-                                    title={overlayName}
-                                    color="primary"
-                                />
-                            }
-                            label={overlayName}
-                        />
-                        {overlay.shouldShow && subControl(overlayName)}
-                    </Fragment>
-                )
-            }
-        )
-    }
-
-    const downloadData = () => {
-        const objectData = processedData
-            ?.sortBy((_, fipsCode) => fipsCode)
-            .map((value, fipsCode) => {
-                const county = counties.get(fipsCode)
-                const state = states.get(fipsCode.slice(0, 2) as State)
-                return { fipsCode, state, county, value }
+    const UsaCsv = (sortedData: Map<number, number> | undefined) => {
+        const objectData = sortedData
+            ?.map((value, id) => {
+                const county = counties.get(id)
+                const state = states.get(stateId(id))
+                return { id, state, county, value }
             })
             .valueSeq()
             .toArray()
         if (objectData) {
-            const csv = csvFormat(objectData, ['fipsCode', 'state', 'county', 'value'])
+            return csvFormat(objectData, ['id', 'state', 'county', 'value'])
+        }
+        return undefined
+    }
+
+    const WorldCsv = (sortedData: Map<number, number> | undefined) => {
+        const objectData = sortedData
+            ?.map((value, id) => {
+                const nation = nations.get(id)
+                return { id, nation, value }
+            })
+            .valueSeq()
+            .toArray()
+        if (objectData) {
+            return csvFormat(objectData, ['id', 'nation', 'value'])
+        }
+        return undefined
+    }
+
+    const downloadData = () => {
+        const sortedData = data?.sortBy((_, id) => id)
+        const csv = region === 'USA' ? UsaCsv(sortedData) : WorldCsv(sortedData)
+        if (csv) {
             const blob = new Blob([csv], { type: 'text/plain;charset=utf-8' })
-            saveAs(blob, `${getFilename(selectedMapVisualizations, isNormalized)}.csv`)
+            saveAs(blob, `${getFilename(maps, isNormalized)}.csv`)
         }
     }
 
@@ -161,23 +192,22 @@ function MapControls({ processedData }: Props) {
         const svg = document.getElementById('map-svg')
         if (svg?.outerHTML) {
             const blob = new Blob([svg.outerHTML], { type: 'text/plain' })
-            saveAs(blob, `${getFilename(selectedMapVisualizations, isNormalized)}.svg`)
+            saveAs(blob, `${getFilename(maps, isNormalized)}.svg`)
         }
     }
 
     return (
         <div id={css.mapControls}>
-            {countyFips && (
+            {countyId && (
                 <Button
                     variant="outlined"
-                    onClick={() => navigate(`/report-card/${tabId ?? '8'}/${countyFips}`)}
+                    onClick={() => navigate(`/report-card/${tabId ?? '8'}/${countyId}`)}
                 >
-                    View report card for {counties.get(countyFips)},{' '}
-                    {states.get(countyFips.slice(0, 2) as State)}
+                    View report card for {counties.get(countyId)}, {states.get(stateId(countyId))}
                 </Button>
             )}
-            {mapToggleUI()}
-            {isNormalized && processedData && (
+            {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
+            {isNormalized && data && (
                 <FormControlLabel
                     control={
                         <Switch
@@ -190,12 +220,12 @@ function MapControls({ processedData }: Props) {
                     label="Detailed View"
                 />
             )}
-            {processedData && (
+            {data && (
                 <Button variant="outlined" onClick={downloadData}>
                     Download data
                 </Button>
             )}
-            {processedData && (
+            {data && (
                 <Button variant="outlined" onClick={downloadImage}>
                     Download Image
                 </Button>

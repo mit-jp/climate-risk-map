@@ -1,45 +1,72 @@
-import { useSelector } from 'react-redux'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { useMemo, useRef } from 'react'
-import css from './MapWrapper.module.css'
-import { RootState } from './store'
+import { useSelector } from 'react-redux'
+import DataDescription from './DataDescription'
+import DataProcessor from './DataProcessor'
+import DataSourceDescription from './DataSourceDescription'
 import EmptyMap from './EmptyMap'
 import FullMap from './FullMap'
-import MapTitle, { EmptyMapTitle } from './MapTitle'
-import {
-    selectDataQueryParams,
-    selectIsNormalized,
-    selectMapTransform,
-    selectSelectedMapVisualizations,
-} from './appSlice'
-import CountyTooltip from './CountyTooltip'
+import { DataQueryParams, useGetDataQuery } from './MapApi'
 import MapControls from './MapControls'
-import DataDescription from './DataDescription'
+import MapTitle, { EmptyMapTitle } from './MapTitle'
+import MapTooltip from './MapTooltip'
+import { MapVisualization, MapVisualizationId } from './MapVisualization'
+import css from './MapWrapper.module.css'
 import Overlays from './Overlays'
-import DataSourceDescription from './DataSourceDescription'
-import { useGetDataQuery } from './MapApi'
-import DataProcessor from './DataProcessor'
+import { selectMapTransform, selectSelections, stateId } from './appSlice'
+import { RootState } from './store'
 
 export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
 
-function MapWrapper() {
-    const selectedMapVisualizations = useSelector(selectSelectedMapVisualizations)
+function MapWrapper({
+    allMapVisualizations,
+    isNormalized,
+}: {
+    allMapVisualizations: Record<MapVisualizationId, MapVisualization>
+    isNormalized: boolean
+}) {
     const map = useSelector((state: RootState) => state.app.map)
     const detailedView = useSelector((state: RootState) => state.app.detailedView)
-    const isNormalized = useSelector(selectIsNormalized)
-    const state = useSelector((rootState: RootState) => rootState.app.state)
+    const zoomTo = useSelector((rootState: RootState) => rootState.app.zoomTo)
     const dataWeights = useSelector((rootState: RootState) => rootState.app.dataWeights)
-    const queryParams = useSelector(selectDataQueryParams)
     const transform = useSelector(selectMapTransform)
+    const selections = useSelector(selectSelections)
+    const region = useSelector((rootState: RootState) => rootState.app.region)
+    const maps = useMemo(() => {
+        return selections
+            .map((selection) => selection.mapVisualization)
+            .map((id) => allMapVisualizations[id])
+            .filter((mapVisualization) => mapVisualization !== undefined)
+    }, [allMapVisualizations, selections])
+    const queryParams: DataQueryParams[] | undefined =
+        Object.entries(selections).length > 0
+            ? selections.map((selection) => ({
+                  mapVisualization: selection.mapVisualization,
+                  source: selection.dataSource,
+                  startDate: selection.dateRange.start.toISODate(),
+                  endDate: selection.dateRange.end.toISODate(),
+              }))
+            : undefined
     const { data } = useGetDataQuery(queryParams ?? skipToken)
     const mapRef = useRef<SVGGElement>(null)
     const processedData = useMemo(
         () =>
             data
-                ? DataProcessor(data, selectedMapVisualizations, dataWeights, state, isNormalized)
+                ? DataProcessor({
+                      data,
+                      params: maps.map((map) => ({
+                          mapId: map.id,
+                          weight: dataWeights[map.id],
+                          invertNormalized: map.invert_normalized,
+                      })),
+                      normalize: isNormalized,
+                      filter: zoomTo && region ? (geoId) => stateId(geoId) === zoomTo : undefined,
+                  })
                 : undefined,
-        [data, selectedMapVisualizations, dataWeights, state, isNormalized]
+        [data, maps, dataWeights, zoomTo, isNormalized, region]
     )
+    const dataSource =
+        maps[0] && selections[0] ? maps[0].sources[selections[0].dataSource] : undefined
 
     if (map === undefined) {
         return <p>Loading</p>
@@ -47,11 +74,8 @@ function MapWrapper() {
     return (
         <>
             <div className={css.map}>
-                {selectedMapVisualizations.length > 0 ? (
-                    <MapTitle
-                        selectedMapVisualizations={selectedMapVisualizations}
-                        isNormalized={isNormalized}
-                    />
+                {maps.length > 0 ? (
+                    <MapTitle selectedMapVisualizations={maps} isNormalized={isNormalized} />
                 ) : (
                     <EmptyMapTitle />
                 )}
@@ -67,7 +91,7 @@ function MapWrapper() {
                         <FullMap
                             ref={mapRef}
                             map={map}
-                            selectedMapVisualizations={selectedMapVisualizations}
+                            selectedMapVisualizations={maps}
                             data={processedData}
                             detailedView={detailedView}
                             isNormalized={isNormalized}
@@ -78,14 +102,18 @@ function MapWrapper() {
                     )}
                     <Overlays />
                 </svg>
-                {map && <MapControls processedData={processedData} />}
-                <DataDescription />
-                <DataSourceDescription />
+                {map && (
+                    <MapControls data={processedData} isNormalized={isNormalized} maps={maps} />
+                )}
+                {maps[0] && (
+                    <DataDescription name={maps[0].displayName} description={maps[0].description} />
+                )}
+                {dataSource && <DataSourceDescription dataSource={dataSource} />}
             </div>
-            <CountyTooltip
+            <MapTooltip
                 data={processedData}
                 mapRef={mapRef}
-                selectedMap={selectedMapVisualizations[0]}
+                selectedMap={maps[0]}
                 isNormalized={isNormalized}
             />
         </>

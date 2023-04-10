@@ -1,31 +1,30 @@
+import { Button } from '@mui/material'
+import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { json } from 'd3'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { skipToken } from '@reduxjs/toolkit/dist/query'
-import { Link, useParams } from 'react-router-dom'
-import classNames from 'classnames'
-import { Button } from '@mui/material'
-import { TopoJson } from '../TopoJson'
-import { RootState, store } from '../store'
-import editorCss from './Editor.module.css'
-import { MapVisualizationPatch } from '../MapVisualization'
-import navCss from '../Navigation.module.css'
+import EmptyNavigation from '../EmptyNavigation'
 import {
-    clickMapVisualization,
-    setTab,
-    selectSelectedTabAndMapVisualization,
-    setMap,
-} from './editorSlice'
-import {
-    Tab,
     useCreateMapVisualizationMutation,
     useGetMapVisualizationQuery,
     useGetMapVisualizationsQuery,
     useGetTabsQuery,
 } from '../MapApi'
+import { MapVisualizationPatch } from '../MapVisualization'
+import Navigation from '../Navigation'
+import { TopoJson } from '../TopoJson'
+import { Region } from '../appSlice'
+import { RootState } from '../store'
+import editorCss from './Editor.module.css'
 import EditorMap from './EditorMap'
-import MapVisualizationList, { EmptyMapVisualizationList } from './MapVisualizationList'
 import MapOptions, { EmptyMapOptions } from './MapOptions'
+import MapVisualizationList, { EmptyMapVisualizationList } from './MapVisualizationList'
+import {
+    clickMapVisualization,
+    selectSelectedTabAndMapVisualization,
+    setMap,
+    setTab,
+} from './editorSlice'
 
 const NEW_MAP: MapVisualizationPatch = {
     id: -1,
@@ -40,54 +39,22 @@ const NEW_MAP: MapVisualizationPatch = {
     pdf_domain: [],
     formatter_type: 3,
     decimals: 1,
-}
-
-export const useThunkDispatch = () => useDispatch<typeof store.dispatch>()
-
-function EmptyNavigation() {
-    return <nav />
-}
-function Navigation({ tabs, selectedTabId }: { tabs: Tab[]; selectedTabId?: number }) {
-    const dispatch = useThunkDispatch()
-    const params = useParams()
-    const { tabId } = params
-    useEffect(() => {
-        const tab = Number(tabId)
-        if (!Number.isNaN(tab)) {
-            dispatch(setTab(tab))
-        }
-    }, [tabId, dispatch])
-
-    return (
-        <nav id={navCss.nav}>
-            {tabs.map((tab) => (
-                <Link
-                    key={tab.id}
-                    className={classNames({
-                        [navCss.selected]: selectedTabId === tab.id,
-                        [navCss.uncategorized]: tab.id === -1,
-                    })}
-                    to={`/editor/${tab.id}`}
-                >
-                    {tab.name}
-                </Link>
-            ))}
-        </nav>
-    )
+    geography_type: 1,
+    bubble_color: '#000000',
 }
 
 function Editor() {
-    const dispatch = useThunkDispatch()
-    const { data: allMapVisualizations } = useGetMapVisualizationsQuery(true)
+    const dispatch = useDispatch()
+    const { data: allMapVisualizations } = useGetMapVisualizationsQuery({ includeDrafts: true })
     const { data: tabs } = useGetTabsQuery(true)
     const [createMap] = useCreateMapVisualizationMutation()
 
-    const { selectedTabId, selectedMapVisualizationId: maybeSelectedMap } = useSelector(
+    const { selectedTab, selectedMapVisualizationId: maybeSelectedMap } = useSelector(
         selectSelectedTabAndMapVisualization
     )
     const mapVisualizationsForTab =
-        allMapVisualizations && selectedTabId !== undefined
-            ? Object.values(allMapVisualizations[selectedTabId] ?? []).sort(
+        allMapVisualizations && selectedTab !== undefined
+            ? Object.values(allMapVisualizations[selectedTab.id] ?? []).sort(
                   (a, b) => a.order - b.order
               )
             : undefined
@@ -100,19 +67,29 @@ function Editor() {
     const map = useSelector((state: RootState) => state.editor.map)
 
     useEffect(() => {
-        json<TopoJson>('/usa.json').then((topoJson) => {
+        const region: Region = selectedMapVisualization?.geography_type === 2 ? 'World' : 'USA'
+        const file = region === 'USA' ? '/usa.json' : '/world.json'
+        json<TopoJson>(file).then((topoJson) => {
             if (topoJson) {
-                dispatch(setMap(topoJson))
+                dispatch(setMap({ topoJson, region }))
             }
         })
-    }, [dispatch])
+    }, [dispatch, selectedMapVisualization])
 
-    // if we're viewing risk metrics, normalize to 0-1
-    const isNormalized = selectedTabId === 8 ?? false
+    const isNormalized = selectedTab?.normalized ?? false
 
     return (
         <>
-            {tabs ? <Navigation tabs={tabs} selectedTabId={selectedTabId} /> : <EmptyNavigation />}
+            {tabs ? (
+                <Navigation
+                    tabs={tabs}
+                    selectedTabId={selectedTab?.id}
+                    onTabClick={(tab) => dispatch(setTab(tab))}
+                    root="/editor/"
+                />
+            ) : (
+                <EmptyNavigation />
+            )}
             <div id={editorCss.editor}>
                 <div id={editorCss.mapVisualizationList}>
                     {mapVisualizationsForTab ? (
@@ -124,7 +101,7 @@ function Editor() {
                                     dispatch(clickMapVisualization(clickedMap))
                                 }
                             />
-                            {selectedTabId === -1 && (
+                            {selectedTab?.id === -1 && (
                                 <Button
                                     id={editorCss.createMap}
                                     onClick={() => createMap(NEW_MAP)}

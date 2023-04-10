@@ -1,38 +1,42 @@
 import { Link, useParams } from 'react-router-dom'
 import { useEffect } from 'react'
-import { useSelector } from 'react-redux'
-import { useThunkDispatch } from './Home'
-import DataTab from './DataTab'
-import { setDataTab } from './appSlice'
+import classNames from 'classnames'
 import css from './Navigation.module.css'
+import { Tab } from './MapApi'
 
-import { TabIdToTab, TabToId } from './MapVisualization'
-import { RootState } from './store'
-
-const dataTabs = Object.values(DataTab)
-
-function Navigation() {
-    const dispatch = useThunkDispatch()
-    const selectedDataTab = useSelector((state: RootState) => state.app.dataTab)
+function Navigation({
+    tabs,
+    onTabClick,
+    selectedTabId,
+    root = '/',
+}: {
+    tabs: Tab[]
+    onTabClick: (tab: Tab) => void
+    selectedTabId?: number
+    root?: string
+}) {
     const params = useParams()
-    const { tabId } = params
+    const urlTab = Number(params.tabId)
 
     useEffect(() => {
-        const tab = TabIdToTab[Number(tabId)]
+        const tab = tabs.find((t) => t.id === urlTab)
         if (tab) {
-            dispatch(setDataTab(tab))
+            onTabClick(tab)
         }
-    }, [tabId, dispatch])
+    }, [urlTab, tabs, onTabClick])
 
     return (
-        <nav id={css.nav}>
-            {dataTabs.map((dataTab) => (
+        <nav className={css.nav}>
+            {tabs.map((tab) => (
                 <Link
-                    key={dataTab}
-                    className={selectedDataTab === dataTab ? css.selected : undefined}
-                    to={`/${TabToId[dataTab]}`}
+                    key={tab.id}
+                    className={classNames({
+                        [css.selected]: selectedTabId === tab.id,
+                        [css.uncategorized]: tab.id === -1,
+                    })}
+                    to={root + tab.id}
                 >
-                    {dataTab}
+                    {tab.name}
                 </Link>
             ))}
         </nav>

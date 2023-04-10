@@ -1,38 +1,51 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { autoType, csv as loadCsv, DSVParsedArray } from 'd3'
+import { DSVParsedArray, autoType, csv as loadCsv } from 'd3'
+import { Map } from 'immutable'
 import { Dataset } from './Dataset'
 import {
-    applyPatch,
     ColorPalette,
-    fetchMapVisualization,
-    fetchMapVisualizations,
     MapVisualization,
-    MapVisualizationByTabId,
+    MapVisualizationId,
     MapVisualizationPatch,
     ScaleType,
+    applyPatch,
+    fetchMapVisualization,
+    fetchMapVisualizations,
 } from './MapVisualization'
+import { GeoId } from './appSlice'
 
-export type CountyId = string
 export type DatasetId = number
-export type DataRow = { [key in DatasetId]: number | null }
-export type Data = { [key in CountyId]: number | null }
-export type DataByDataset = { [key in DatasetId]: Data }
+export type TabId = number
+export type Data = Record<GeoId, number | null>
+export type DataByMapVisualization = Record<MapVisualizationId, Data>
 export type DataQueryParams = {
-    dataset: number
+    mapVisualization: number
     source: number
     startDate: string
     endDate: string
 }
-export type Tab = { id: number; name: string }
+export type MapVisualizationQueryParams = {
+    includeDrafts?: boolean
+    geographyType?: number
+}
+export type Tab = {
+    id: TabId
+    name: string
+    normalized: boolean
+}
 export type County = { id: number; name: string; state: number }
 export type State = { id: number; name: string }
-export type CountySummaryQueryParams = {
-    stateId: number
-    countyId: number
+export type PercentileQueryParams = {
+    geoId: number
     category: number
+    geographyType: number
+}
+export type Subcategory = {
+    id: number
+    name: string
 }
 
-export type CountySummaryRow = {
+export type PercentileRow = {
     name: string
     source: number
     startDate: string
@@ -44,8 +57,8 @@ export type CountySummaryRow = {
     decimals: number
 }
 
-type CountySummary = {
-    [key in DatasetId]: CountySummaryRow
+type Percentiles = {
+    [key in DatasetId]: PercentileRow
 }
 
 type CountyCsvRow = {
@@ -61,24 +74,13 @@ type CountyCsvRow = {
     decimals: number
 }
 
-type CsvRow = {
-    state_id: number
-    county_id: number
+export type CsvRow = {
+    id: number
     value: number
 }
 
-const mergeFIPSCodes = (row: CsvRow): [CountyId, number | null] => {
-    let stateId = row.state_id.toString()
-    let countyId = row.county_id.toString()
-    const { value } = row
-
-    stateId = '0'.repeat(2 - stateId.length) + stateId
-    countyId = '0'.repeat(3 - countyId.length) + countyId
-    return [stateId + countyId, value]
-}
-
-const transformCountySummary = (csv: DSVParsedArray<CountyCsvRow>): CountySummary => {
-    const countySummary: CountySummary = {}
+const transformCountySummary = (csv: DSVParsedArray<CountyCsvRow>): Percentiles => {
+    const countySummary: Percentiles = {}
     csv.forEach((row) => {
         countySummary[row.dataset] = {
             name: row.dataset_name,
@@ -95,37 +97,26 @@ const transformCountySummary = (csv: DSVParsedArray<CountyCsvRow>): CountySummar
     return countySummary
 }
 
-const transformData = (
-    loadedCsvs: [dataset: number, csv: DSVParsedArray<CsvRow>][]
-): DataByDataset => {
-    const allData: DataByDataset = {}
-    loadedCsvs.forEach(([dataset, csv]) => {
-        const dataByCountyId = csv.reduce((accumulator, row) => {
-            const [fips, value] = mergeFIPSCodes(row)
-            accumulator[fips] = value
-            return accumulator
-        }, {} as Data)
-        allData[dataset] = dataByCountyId
-    })
-    return allData
-}
+export type Data2 = [GeoId, number][]
+const transformData = (dataByMapId: [number, DSVParsedArray<CsvRow>][]): Map<number, Data2> =>
+    Map(dataByMapId.map(([mapId, data]) => [mapId, data.map((row) => [row.id, row.value])]))
 
 export const mapApi = createApi({
     reducerPath: 'mapApi',
     keepUnusedDataFor: 5 * 60, // 5 minutes
     baseQuery: fetchBaseQuery({ baseUrl: '/api/' }),
-    tagTypes: ['MapVisualization', 'Dataset'],
+    tagTypes: ['MapVisualization', 'Dataset', 'Subcategory'],
     endpoints: (builder) => ({
-        getCounties: builder.query<Record<string, County>, undefined>({
+        getCounties: builder.query<Record<GeoId, County>, undefined>({
             query: () => 'county',
         }),
-        getStates: builder.query<Record<number, State>, undefined>({
+        getStates: builder.query<Record<GeoId, State>, undefined>({
             query: () => 'state',
         }),
-        getCountySummary: builder.query<CountySummary, CountySummaryQueryParams>({
-            queryFn: ({ stateId, countyId, category }) => {
+        getPercentiles: builder.query<Percentiles, PercentileQueryParams>({
+            queryFn: ({ geoId, category, geographyType }) => {
                 const loadingCsv = loadCsv<CountyCsvRow>(
-                    `/api/data?state_id=${stateId}&county_id=${countyId}&category=${category}`,
+                    `/api/percentile?geo_id=${geoId}&category=${category}&geography_type=${geographyType}`,
                     autoType
                 )
                 return loadingCsv.then(transformCountySummary).then(
@@ -134,15 +125,15 @@ export const mapApi = createApi({
                 )
             },
         }),
-        getData: builder.query<DataByDataset, DataQueryParams[]>({
+        getData: builder.query<Map<number, Data2>, DataQueryParams[]>({
             queryFn: (queryParams) => {
                 const loadingCsvs = queryParams.map(
-                    async ({ dataset, source, startDate, endDate }) => {
+                    async ({ mapVisualization, source, startDate, endDate }) => {
                         const csvRow = await loadCsv<CsvRow>(
-                            `/api/data/${dataset}?source=${source}&start_date=${startDate}&end_date=${endDate}`,
+                            `/api/map-visualization/${mapVisualization}/data?source=${source}&start_date=${startDate}&end_date=${endDate}`,
                             autoType
                         )
-                        return [dataset, csvRow] as [number, DSVParsedArray<CsvRow>]
+                        return [mapVisualization, csvRow] as [number, DSVParsedArray<CsvRow>]
                     }
                 )
                 return Promise.all(loadingCsvs)
@@ -161,9 +152,12 @@ export const mapApi = createApi({
                 ),
             providesTags: (_result, _error, id) => [{ type: 'MapVisualization', id }],
         }),
-        getMapVisualizations: builder.query<MapVisualizationByTabId, boolean>({
-            queryFn: (includeDrafts) =>
-                fetchMapVisualizations(includeDrafts).then(
+        getMapVisualizations: builder.query<
+            Record<TabId, Record<MapVisualizationId, MapVisualization>>,
+            MapVisualizationQueryParams
+        >({
+            queryFn: (params) =>
+                fetchMapVisualizations(params).then(
                     (data) => ({ data }),
                     (error) => ({ error })
                 ),
@@ -215,6 +209,10 @@ export const mapApi = createApi({
             query: () => 'dataset',
             providesTags: ['Dataset'],
         }),
+        getSubcategories: builder.query<Subcategory[], undefined>({
+            query: () => 'subcategory',
+            providesTags: ['Subcategory'],
+        }),
     }),
 })
 
@@ -231,5 +229,6 @@ export const {
     useGetDatasetsQuery,
     useGetCountiesQuery,
     useGetStatesQuery,
-    useGetCountySummaryQuery,
+    useGetPercentilesQuery,
+    useGetSubcategoriesQuery,
 } = mapApi

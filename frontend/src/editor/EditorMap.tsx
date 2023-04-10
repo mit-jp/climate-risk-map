@@ -1,21 +1,21 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { useMemo, useRef } from 'react'
-import CountyTooltip from '../CountyTooltip'
 import DataProcessor from '../DataProcessor'
 import EmptyMap from '../EmptyMap'
 import FullMap from '../FullMap'
 import { useGetDataQuery, useGetDatasetsQuery } from '../MapApi'
 import { EmptyMapTitle } from '../MapTitle'
-import { getDataQueryParams, MapVisualization } from '../MapVisualization'
-import { TopoJson } from '../TopoJson'
+import MapTooltip from '../MapTooltip'
+import { MapVisualization, getDataQueryParams } from '../MapVisualization'
+import { GeoMap } from '../appSlice'
+import DatasetSelector from './DatasetSelector'
+import css from './Editor.module.css'
 import EditorMapDescription from './EditorMapDescription'
 import EditorMapTitle from './EditorMapTitle'
-import css from './Editor.module.css'
-import DatasetSelector from './DatasetSelector'
 import EmptyDatasetSelector from './EmptyDatasetSelector'
 
 type Props = {
-    map: TopoJson
+    map: GeoMap
     selection: MapVisualization | undefined
     detailedView: boolean
     isNormalized: boolean
@@ -31,7 +31,16 @@ function EditorMap({ map, selection, detailedView, isNormalized }: Props) {
     const processedData = useMemo(
         () =>
             data && selection
-                ? DataProcessor(data, [selection], {}, undefined, isNormalized)
+                ? DataProcessor({
+                      data,
+                      params: [
+                          {
+                              mapId: selection.id,
+                              invertNormalized: selection.invert_normalized,
+                          },
+                      ],
+                      normalize: isNormalized,
+                  })
                 : undefined,
         [data, selection, isNormalized]
     )
@@ -63,7 +72,7 @@ function EditorMap({ map, selection, detailedView, isNormalized }: Props) {
                     <EmptyMap map={map} />
                 )}
             </svg>
-            <CountyTooltip
+            <MapTooltip
                 data={processedData}
                 mapRef={mapRef}
                 selectedMap={selection}

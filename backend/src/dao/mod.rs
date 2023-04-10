@@ -1,6 +1,6 @@
 use super::model::{
     ColorPalette, County, Data, DataCategory, DataSource, Dataset, MapVisualization,
-    MapVisualizationDaoPatch, ScaleType, SimpleData, SourceAndDate, State,
+    MapVisualizationDaoPatch, ScaleType, SourceAndDate, State,
 };
 
 mod color_palette_dao;
@@ -14,6 +14,7 @@ mod map_visualization_dao;
 mod scale_type_dao;
 mod source_and_date_dao;
 mod state_dao;
+mod subcategory_dao;
 
 pub type Database<'c> = database::Database<'c>;
 pub type Table<'c, T> = database::Table<'c, T>;

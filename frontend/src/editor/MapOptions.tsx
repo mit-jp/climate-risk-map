@@ -1,12 +1,12 @@
 import {
     Autocomplete,
+    Checkbox,
     FormControl,
     FormControlLabel,
     FormLabel,
     Radio,
     RadioGroup,
     TextField,
-    Checkbox,
 } from '@mui/material'
 import { ascending } from 'd3'
 import { useState } from 'react'

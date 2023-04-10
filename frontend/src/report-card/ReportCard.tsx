@@ -5,10 +5,9 @@ import { redBlue } from '../Color'
 import { formatData } from '../Formatter'
 import {
     County,
-    CountySummaryRow,
-    State,
+    PercentileRow,
     useGetCountiesQuery,
-    useGetCountySummaryQuery,
+    useGetPercentilesQuery,
     useGetStatesQuery,
     useGetTabsQuery,
 } from '../MapApi'
@@ -37,7 +36,7 @@ function EmptyPercentile() {
     return <td colSpan={2} />
 }
 
-function SingleMetric({ data }: { data: CountySummaryRow }) {
+function SingleMetric({ data }: { data: PercentileRow }) {
     return (
         <tr className={css.countyMetric}>
             <td>{data.name}</td>
@@ -59,19 +58,19 @@ function SingleMetric({ data }: { data: CountySummaryRow }) {
     )
 }
 
-function CountyReport({
+function PercentileReport({
     category,
-    county,
-    state,
+    geoId,
+    geographyType,
 }: {
     category: number
-    county: County
-    state: State
+    geoId: number
+    geographyType: number
 }) {
-    const { data: countySummary } = useGetCountySummaryQuery({
-        stateId: state.id,
-        countyId: county.id,
+    const { data: countySummary } = useGetPercentilesQuery({
+        geoId,
         category,
+        geographyType,
     })
     return (
         <table className={css.countyMetrics}>
@@ -100,12 +99,14 @@ export default function ReportCard() {
     const { data: counties } = useGetCountiesQuery(undefined)
     const { data: states } = useGetStatesQuery(undefined)
     const { data: categories } = useGetTabsQuery(false)
-    const [selectedCounty, setSelectedCounty] = useState<County | null>(null)
+    const [selectedRegion, setSelectedRegion] = useState<County | null>(null)
     const countyList = counties ? Object.values(counties) : []
-    const category = Number(params.category)
+    const categoryId = Number(params.category)
     const navigate = useNavigate()
     useEffect(() => {
-        setSelectedCounty(counties && params.countyId ? counties[params.countyId] : null)
+        setSelectedRegion(
+            counties && Number(params.countyId) ? counties[Number(params.countyId)] : null
+        )
     }, [params, counties])
 
     return (
@@ -113,8 +114,8 @@ export default function ReportCard() {
             <h1>
                 County Report Card
                 {categories &&
-                    category !== undefined &&
-                    `: ${categories.find((t) => t.id === category)?.name ?? ''}`}
+                    categoryId !== undefined &&
+                    `: ${categories[categoryId]?.name ?? ''}`}
             </h1>
             <Autocomplete
                 loading={countyList.length === 0 && !states}
@@ -125,16 +126,18 @@ export default function ReportCard() {
                 renderInput={(p) => <TextField {...p} label="County" />}
                 onChange={(_, county) => {
                     if (county) {
-                        navigate(`/report-card/${category}/${fipsCode(county)}`, { replace: true })
+                        navigate(`/report-card/${categoryId}/${fipsCode(county)}`, {
+                            replace: true,
+                        })
                     }
                 }}
-                value={selectedCounty}
+                value={selectedRegion}
             />
-            {selectedCounty && states && category !== undefined && (
-                <CountyReport
-                    county={selectedCounty}
-                    state={states[selectedCounty.state]}
-                    category={category}
+            {selectedRegion && states && categoryId !== undefined && (
+                <PercentileReport
+                    geoId={selectedRegion.state * 1000 + selectedRegion.id}
+                    category={categoryId}
+                    geographyType={1}
                 />
             )}
         </div>

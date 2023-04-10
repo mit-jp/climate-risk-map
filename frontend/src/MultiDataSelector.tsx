@@ -1,6 +1,4 @@
-import { ChangeEvent } from 'react'
-import { Map } from 'immutable'
-import Slider from '@mui/material/Slider'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import {
     Accordion,
     AccordionDetails,
@@ -8,21 +6,16 @@ import {
     Checkbox,
     FormControlLabel,
 } from '@mui/material'
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { useSelector } from 'react-redux'
-import { useThunkDispatch } from './Home'
-import {
-    changeWeight,
-    selectSelections,
-    setMapSelections,
-    setShowRiskMetrics,
-    setShowDemographics,
-    selectMapVisualizations,
-} from './appSlice'
-import { RootState, store } from './store'
+import Slider from '@mui/material/Slider'
+import { Map } from 'immutable'
+import { ChangeEvent } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { MapSelection } from './DataSelector'
-import { MapVisualization, MapVisualizationId } from './MapVisualization'
 import css from './DataSelector.module.css'
+import { useGetSubcategoriesQuery } from './MapApi'
+import { MapVisualization, MapVisualizationId } from './MapVisualization'
+import { changeWeight, selectSelections, setMapSelections } from './appSlice'
+import { RootState, store } from './store'
 
 const multipleChecked = (selections: MapSelection[]) => {
     return selections.length > 1
@@ -38,7 +31,7 @@ const checkBox = (
     shouldBeChecked: (mapId: MapVisualizationId) => boolean,
     onSelectionToggled: (event: ChangeEvent<HTMLInputElement>) => void,
     selections: MapSelection[],
-    dataWeights: { [key in MapVisualizationId]?: number },
+    dataWeights: Record<MapVisualizationId, number>,
     dispatch: typeof store.dispatch
 ) => {
     return (
@@ -86,14 +79,11 @@ const checkBox = (
     )
 }
 
-function MultiDataSelector() {
-    const dispatch = useThunkDispatch()
+function MultiDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisualization> }) {
+    const dispatch = useDispatch()
     const dataWeights = useSelector((state: RootState) => state.app.dataWeights)
-    const showRiskMetrics = useSelector((state: RootState) => state.app.showRiskMetrics)
-    const showDemographics = useSelector((state: RootState) => state.app.showDemographics)
-    const maps = useSelector(selectMapVisualizations)
     const selections = useSelector(selectSelections)
-
+    const { data: subcategories } = useGetSubcategoriesQuery(undefined)
     const selectionMap = Map(selections.map((selection) => [selection.mapVisualization, selection]))
 
     const onSelectionToggled = (event: ChangeEvent<HTMLInputElement>) => {
@@ -115,14 +105,6 @@ function MultiDataSelector() {
         dispatch(setMapSelections(Array.from(changedSelections.values())))
     }
 
-    const onRiskMetricsToggled = (_: ChangeEvent<{}>, expanded: boolean) => {
-        dispatch(setShowRiskMetrics(expanded))
-    }
-
-    const onDemographicsToggled = (_: ChangeEvent<{}>, expanded: boolean) => {
-        dispatch(setShowDemographics(expanded))
-    }
-
     const shouldBeChecked = (mapId: MapVisualizationId) => {
         return selectionMap.has(mapId)
     }
@@ -142,32 +124,29 @@ function MultiDataSelector() {
                 )
             )
 
+    const isEmpty = (subcategoryId: number) =>
+        Object.values(maps).filter((map) => map.subcategory === subcategoryId).length === 0
+
     return (
         <form id={css.dataSelector}>
-            <Accordion expanded={showRiskMetrics} onChange={onRiskMetricsToggled}>
-                <AccordionSummary
-                    aria-controls="panel1a-content"
-                    id="panel1a-header"
-                    expandIcon={<ExpandMoreIcon />}
-                >
-                    Risk Metrics
-                </AccordionSummary>
-                <AccordionDetails style={{ padding: 0 }}>
-                    {getDataList((map) => map.subcategory === 1)}
-                </AccordionDetails>
-            </Accordion>
-            <Accordion expanded={showDemographics} onChange={onDemographicsToggled}>
-                <AccordionSummary
-                    aria-controls="panel1a-content"
-                    id="panel1a-header"
-                    expandIcon={<ExpandMoreIcon />}
-                >
-                    Environmental Equity
-                </AccordionSummary>
-                <AccordionDetails style={{ padding: 0 }}>
-                    {getDataList((map) => map.subcategory === 2)}
-                </AccordionDetails>
-            </Accordion>
+            {subcategories &&
+                subcategories
+                    .filter((subcategory) => !isEmpty(subcategory.id))
+                    .map((subcategory) => (
+                        <Accordion key={subcategory.id} defaultExpanded>
+                            <AccordionSummary
+                                aria-controls="panel1a-content"
+                                id="panel1a-header"
+                                expandIcon={<ExpandMoreIcon />}
+                            >
+                                {subcategory.name}
+                            </AccordionSummary>
+                            <AccordionDetails style={{ padding: 0 }}>
+                                {getDataList((map) => map.subcategory === subcategory.id)}
+                            </AccordionDetails>
+                        </Accordion>
+                    ))}
+            {getDataList((map) => map.subcategory == null)}
         </form>
     )
 }

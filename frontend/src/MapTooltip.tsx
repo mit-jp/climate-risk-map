@@ -1,20 +1,30 @@
 import { Map } from 'immutable'
-import { useEffect, useState, RefObject } from 'react'
+import { RefObject, useEffect, useState } from 'react'
 import counties from './Counties'
-import states, { State } from './States'
-import { MapVisualization } from './MapVisualization'
 import css from './CountyTooltip.module.css'
 import { formatData } from './Formatter'
+import { MapVisualization } from './MapVisualization'
+import nations from './Nations'
+import states from './States'
+import { GeoId, stateId } from './appSlice'
 
-type TooltipHover = { x: number; y: number; id: string }
+type TooltipHover = { x: number; y: number; id: number }
 type Props = {
-    data: Map<string, number> | undefined
+    data: Map<GeoId, number> | undefined
     mapRef: RefObject<SVGGElement>
     selectedMap: MapVisualization | undefined
     isNormalized: boolean
 }
 
-function CountyTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
+const countyName = (id: number): string | undefined => {
+    const county = counties.get(id)
+    const state = states.get(stateId(id))
+    return county && state ? `${county}, ${state}` : undefined
+}
+
+const nationName = (id: number): string | undefined => nations.get(id) ?? undefined
+
+function MapTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
     const [hover, setHover] = useState<TooltipHover>()
 
     useEffect(() => {
@@ -27,13 +37,13 @@ function CountyTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
             setHover({
                 x: event.touches[0].pageX + 30,
                 y: event.touches[0].pageY - 45,
-                id: event.target.id,
+                id: Number(event.target.id),
             })
         const onMouseMove = (event: any) =>
             setHover({
                 x: event.pageX + 10,
                 y: event.pageY - 25,
-                id: event.target.id,
+                id: Number(event.target.id),
             })
         const onHoverEnd = () => setHover(undefined)
 
@@ -55,12 +65,8 @@ function CountyTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
 
     let text = ''
     if (hover?.id) {
-        const county = counties.get(hover.id)
-        const state = states.get(hover.id.slice(0, 2) as State)
-        let name = '---'
-        if (state && county) {
-            name = `${county}, ${state}`
-        }
+        const name =
+            selectedMap.geography_type === 1 ? countyName(hover.id) : nationName(hover.id) ?? '---'
         const value = data?.get(hover.id)
         text = `${name}: ${formatData(value, {
             type: selectedMap.formatter_type,
@@ -77,4 +83,4 @@ function CountyTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
     )
 }
 
-export default CountyTooltip
+export default MapTooltip

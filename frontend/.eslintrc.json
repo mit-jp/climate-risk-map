@@ -59,9 +59,7 @@
         ],
         "@typescript-eslint/no-unused-vars": "error",
         "no-unused-vars": "off",
-        // https://stackoverflow.com/a/63961972/382892
         "no-shadow": "off",
-        "@typescript-eslint/no-shadow": ["error"],
         "import/no-extraneous-dependencies": [
             "error",
             {

@@ -6,6 +6,22 @@ use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use std::collections::HashMap;
+use std::error::Error;
+use std::fmt::Display;
+use std::fmt::Formatter;
+
+#[derive(Debug)]
+pub struct MapVisualizationError {
+    pub message: String,
+}
+
+impl Display for MapVisualizationError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.message)
+    }
+}
+
+impl Error for MapVisualizationError {}
 
 #[derive(FromRow, Deserialize, Serialize)]
 pub struct MapVisualizationDaoPatch {
@@ -30,6 +46,7 @@ pub struct MapVisualizationDaoPatch {
     pub legend_decimals: Option<i16>,
     pub color_domain: Vec<f64>,
     pub pdf_domain: Vec<f64>,
+    pub bubble_color: String,
 }
 
 impl MapVisualizationDaoPatch {
@@ -56,6 +73,7 @@ impl MapVisualizationDaoPatch {
             legend_decimals: patch.legend_decimals,
             color_domain: patch.color_domain,
             pdf_domain: patch.pdf_domain,
+            bubble_color: patch.bubble_color,
         }
     }
 }
@@ -83,9 +101,10 @@ pub struct MapVisualizationPatch {
     pub legend_formatter_type: Option<i32>,
     pub decimals: i16,
     pub legend_decimals: Option<i16>,
+    pub bubble_color: String,
 }
 
-#[derive(FromRow, Deserialize, Serialize)]
+#[derive(FromRow, Deserialize, Serialize, Debug)]
 pub struct MapVisualization {
     pub id: i32,
     pub units: String,
@@ -115,6 +134,8 @@ pub struct MapVisualization {
     pub order: i16,
     pub color_domain: Vec<f64>,
     pub pdf_domain: Vec<f64>,
+    pub geography_type: i32,
+    pub bubble_color: String,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -146,6 +167,8 @@ pub struct MapVisualizationModel {
     pub decimals: i16,
     pub legend_decimals: Option<i16>,
     pub order: i16,
+    pub geography_type: i32,
+    pub bubble_color: String,
 }
 
 impl MapVisualizationModel {
@@ -209,6 +232,8 @@ impl MapVisualizationModel {
             decimals: map_visualization.decimals,
             legend_decimals: map_visualization.legend_decimals,
             order: map_visualization.order,
+            geography_type: map_visualization.geography_type,
+            bubble_color: map_visualization.bubble_color,
         }
     }
 }
@@ -230,59 +255,132 @@ impl DateRange {
 
 #[cfg(test)]
 mod tests {
+    use std::convert::TryInto;
+
     use super::*;
+
+    fn get_models(source_ids: Vec<i32>) -> (MapVisualization, Vec<SourceAndDate>, Vec<DataSource>) {
+        (
+            MapVisualization {
+                id: 1,
+                units: "".to_string(),
+                short_name: "".to_string(),
+                dataset_name: "".to_string(),
+                name: None,
+                description: "".to_string(),
+                subcategory: None,
+                data_tab: Some(1),
+                dataset: 1,
+                map_type: 1,
+                legend_ticks: None,
+                color_palette_name: "".to_string(),
+                color_palette_id: 1,
+                reverse_scale: false,
+                invert_normalized: false,
+                scale_type_id: 1,
+                scale_type_name: "".to_string(),
+                formatter_type: 1,
+                decimals: 1,
+                legend_formatter_type: None,
+                legend_decimals: None,
+                show_pdf: false,
+                default_start_date: None,
+                default_end_date: None,
+                default_source: None,
+                order: 1,
+                color_domain: vec![],
+                pdf_domain: vec![],
+                geography_type: 1,
+                bubble_color: "black".to_string(),
+            },
+            source_ids
+                .iter()
+                .map(|&source| SourceAndDate {
+                    source,
+                    start_date: NaiveDate::from_ymd(
+                        2019,
+                        source.try_into().unwrap(),
+                        source.try_into().unwrap(),
+                    ),
+                    end_date: NaiveDate::from_ymd(
+                        2020,
+                        source.try_into().unwrap(),
+                        source.try_into().unwrap(),
+                    ),
+                })
+                .collect(),
+            source_ids
+                .iter()
+                .map(|&id| DataSource {
+                    id,
+                    name: id.to_string(),
+                    description: id.to_string(),
+                    link: id.to_string(),
+                })
+                .collect(),
+        )
+    }
 
     #[test]
     fn it_converts_dates_to_range() {
-        let map_visualization: MapVisualization = MapVisualization {
-            id: 1,
-            units: "".to_string(),
-            short_name: "".to_string(),
-            dataset_name: "".to_string(),
-            name: None,
-            description: "".to_string(),
-            subcategory: None,
-            data_tab: Some(1),
-            dataset: 1,
-            map_type: 1,
-            legend_ticks: None,
-            color_palette_name: "".to_string(),
-            color_palette_id: 1,
-            reverse_scale: false,
-            invert_normalized: false,
-            scale_type_id: 1,
-            scale_type_name: "".to_string(),
-            formatter_type: 1,
-            decimals: 1,
-            legend_formatter_type: None,
-            legend_decimals: None,
-            show_pdf: false,
-            default_start_date: None,
-            default_end_date: None,
-            default_source: None,
-            order: 1,
-            color_domain: vec![],
-            pdf_domain: vec![],
-        };
         let source_id = 1;
-        let source: DataSource = DataSource {
-            id: source_id,
-            name: "".to_string(),
-            description: "".to_string(),
-            link: "".to_string(),
-        };
-        let source_and_date: SourceAndDate = SourceAndDate {
-            source: source.id,
-            start_date: NaiveDate::from_ymd(2019, 1, 1),
-            end_date: NaiveDate::from_ymd(2020, 1, 1),
-        };
-        let expected_date_range = DateRange::from(&source_and_date);
-        let map_visualization_model =
-            MapVisualizationModel::new(map_visualization, vec![source_and_date], vec![source]);
+        let (map_visualization, source_and_dates, data_sources) = get_models(vec![source_id]);
+
+        let expected_date_range = DateRange::from(source_and_dates.first().unwrap());
+        let result = MapVisualizationModel::new(map_visualization, source_and_dates, data_sources);
 
         assert_eq!(
-            map_visualization_model.date_ranges_by_source[&source_id][0],
+            result.date_ranges_by_source[&source_id][0],
             expected_date_range
-        );
+        )
+    }
+
+    #[test]
+    fn no_default_source_carries_through() {
+        let (map_visualization, source_and_dates, data_sources) = get_models(vec![1, 2]);
+        let result = MapVisualizationModel::new(map_visualization, source_and_dates, data_sources);
+
+        assert_eq!(result.default_source, None)
+    }
+
+    #[test]
+    fn it_uses_default_source_and_date() {
+        let (map_visualization, source_and_dates, data_sources) = get_models(vec![1, 2, 3]);
+        let map_visualization = MapVisualization {
+            default_source: Some(4),
+            default_end_date: Some(NaiveDate::from_ymd(2020, 4, 4)),
+            default_start_date: Some(NaiveDate::from_ymd(2019, 4, 4)),
+            ..map_visualization
+        };
+        let result = MapVisualizationModel::new(map_visualization, source_and_dates, data_sources);
+
+        assert_eq!(result.default_source, Some(4));
+        assert_eq!(
+            result.default_date_range,
+            Some(DateRange {
+                start_date: NaiveDate::from_ymd(2019, 4, 4),
+                end_date: NaiveDate::from_ymd(2020, 4, 4),
+            })
+        )
+    }
+
+    #[test]
+    fn it_handles_no_sources() {
+        let (map_visualization, source_and_dates, data_sources) = get_models(vec![]);
+        let result = MapVisualizationModel::new(map_visualization, source_and_dates, data_sources);
+
+        assert_eq!(result.default_source, None)
+    }
+
+    #[test]
+    fn no_default_date_carries_through() {
+        let (map_visualization, source_and_dates, data_sources) = get_models(vec![1, 2, 3]);
+        let map_visualization = MapVisualization {
+            default_source: Some(3),
+            ..map_visualization
+        };
+        let result = MapVisualizationModel::new(map_visualization, source_and_dates, data_sources);
+
+        assert_eq!(result.default_date_range, None)
     }
 }

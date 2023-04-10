@@ -1,6 +1,6 @@
-import { ReactElement } from 'react'
-import { render, RenderOptions } from '@testing-library/react'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { render, RenderOptions } from '@testing-library/react'
+import { ReactElement } from 'react'
 import { Provider } from 'react-redux'
 import { store } from './store'
 

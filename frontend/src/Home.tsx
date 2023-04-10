@@ -1,19 +1,22 @@
-import { useEffect } from 'react'
 import { json } from 'd3'
-import { useDispatch } from 'react-redux'
-import Header from './Header'
-import Navigation from './Navigation'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import RegionNavigation from './CountryNavigation'
 import DataSelector from './DataSelector'
+import EmptyDataSelector from './EmptyDataSelector'
+import EmptyNavigation from './EmptyNavigation'
+import Header from './Header'
 import css from './Home.module.css'
-import { fetchMapVisualizations } from './MapVisualization'
-import { store } from './store'
+import { useGetMapVisualizationsQuery, useGetTabsQuery } from './MapApi'
 import MapWrapper from './MapWrapper'
-import { OverlayName, setMap, setMapVisualizations, setOverlay } from './appSlice'
-import SiteOverview from './SiteOverview'
+import Navigation from './Navigation'
 import { TopoJson } from './TopoJson'
+import { OverlayName, Region, selectSelectedTab, setMap, setOverlay, setTab } from './appSlice'
+import { RootState } from './store'
 
 type TopoJsonFile =
     | 'usa.json'
+    | 'world.json'
     | 'roads-topo.json'
     | 'railroads-topo.json'
     | 'waterways-topo.json'
@@ -31,16 +34,28 @@ const overlayToFile: OverlayMap = {
     'Critical water habitats': 'critical-habitats-topo.json',
     'Endangered species': 'endangered-species-topo.json',
 }
-const mapFile: TopoJsonFile = 'usa.json'
-
-export const useThunkDispatch = () => useDispatch<typeof store.dispatch>()
+const usaFile: { name: TopoJsonFile; region: Region } = { name: 'usa.json', region: 'USA' }
+const worldFile: { name: TopoJsonFile; region: Region } = { name: 'world.json', region: 'World' }
 
 function Home() {
-    const dispatch = useThunkDispatch()
+    const dispatch = useDispatch()
+    const region = useSelector((state: RootState) => state.app.region)
+    const { data: tabs } = useGetTabsQuery(false)
+    const tab = useSelector(selectSelectedTab)
+    const { data: mapVisualizations } = useGetMapVisualizationsQuery({
+        geographyType: region === 'USA' ? 1 : 2,
+    })
+
+    const isNormalized = tab?.normalized ?? false
+    const displayedTabs =
+        mapVisualizations != null && tabs != null
+            ? tabs.filter((tab) => tab.id in mapVisualizations)
+            : []
 
     useEffect(() => {
-        json<TopoJson>(mapFile).then((topoJson) => {
-            dispatch(setMap(topoJson))
+        const file = region === 'USA' ? usaFile : worldFile
+        json<TopoJson>(file.name).then((topoJson) => {
+            dispatch(setMap(topoJson ? { topoJson, region } : undefined))
         })
 
         Object.entries(overlayToFile).forEach(([name, file]) => {
@@ -48,19 +63,47 @@ function Home() {
                 dispatch(setOverlay({ name: name as OverlayName, topoJson }))
             )
         })
-        fetchMapVisualizations().then((mapVisualizations) => {
-            dispatch(setMapVisualizations(mapVisualizations))
-        })
-    }, [dispatch])
+    }, [dispatch, region])
 
     return (
         <>
             <Header />
-            <Navigation />
-            <SiteOverview />
+            <RegionNavigation />
+            {tabs ? (
+                <Navigation
+                    tabs={displayedTabs}
+                    onTabClick={(tab) => dispatch(setTab(tab))}
+                    selectedTabId={tab?.id}
+                />
+            ) : (
+                <EmptyNavigation />
+            )}
+            {isNormalized && (
+                <div id={css.siteOverview}>
+                    <p>
+                        You can select multiple metrics and adjust their relative importance to view
+                        the combined impact. To see additional and supporting data, select the other
+                        categories.
+                    </p>
+                </div>
+            )}
             <div id={css.content}>
-                <DataSelector />
-                <MapWrapper />
+                {tabs && mapVisualizations && tab ? (
+                    <DataSelector
+                        isNormalized={isNormalized}
+                        maps={mapVisualizations[tab.id] ?? {}}
+                    />
+                ) : (
+                    <EmptyDataSelector />
+                )}
+                {tabs && mapVisualizations && tab ? (
+                    <MapWrapper
+                        isNormalized={isNormalized}
+                        allMapVisualizations={mapVisualizations[tab.id] ?? {}}
+                    />
+                ) : (
+                    <p>No Map</p>
+                )}
             </div>
         </>
     )

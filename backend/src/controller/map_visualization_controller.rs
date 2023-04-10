@@ -1,5 +1,7 @@
 use super::{AppState, MapVisualizationModel};
-use crate::model::{MapVisualization, MapVisualizationDaoPatch, MapVisualizationPatch};
+use crate::model::{
+    MapVisualization, MapVisualizationDaoPatch, MapVisualizationError, MapVisualizationPatch,
+};
 use actix_web::{get, patch, post, web, HttpResponse, Responder};
 use futures::future::try_join;
 use log::error;
@@ -17,8 +19,9 @@ pub fn init_editor(cfg: &mut web::ServiceConfig) {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct IncludeDrafts {
+pub struct MapVisualizationOptions {
     pub include_drafts: Option<bool>,
+    pub geography_type: Option<i32>,
 }
 
 async fn get_map_visualization_model(
@@ -36,11 +39,20 @@ async fn get_map_visualization_model(
     let result = try_join(sources_and_dates, data_sources).await;
     match result {
         Err(e) => Err(e),
-        Ok((sources_and_dates, data_sources)) => Ok(MapVisualizationModel::new(
-            map_visualization,
-            sources_and_dates,
-            data_sources,
-        )),
+        Ok((source_and_dates, data_sources)) => {
+            if data_sources.is_empty() {
+                return Err(sqlx::Error::Decode(Box::new(MapVisualizationError {
+                    message: format!(
+                        "No sources and dates found for map visualization {map_visualization:#?}",
+                    ),
+                })));
+            }
+            Ok(MapVisualizationModel::new(
+                map_visualization,
+                source_and_dates,
+                data_sources,
+            ))
+        }
     }
 }
 
@@ -73,12 +85,12 @@ async fn get(app_state: web::Data<AppState<'_>>, id: web::Path<i32>) -> impl Res
 #[get("/map-visualization")]
 async fn get_all(
     app_state: web::Data<AppState<'_>>,
-    info: web::Query<IncludeDrafts>,
+    info: web::Query<MapVisualizationOptions>,
 ) -> impl Responder {
     let map_visualizations = app_state
         .database
         .map_visualization
-        .all(info.include_drafts.unwrap_or(false))
+        .all(info.include_drafts.unwrap_or(false), info.geography_type)
         .await;
     match map_visualizations {
         Err(e) => {
@@ -94,7 +106,8 @@ async fn get_all(
                 let data_tab = map_visualization.data_tab;
                 let map_visualization_model =
                     get_map_visualization_model(map_visualization, &app_state).await;
-                if map_visualization_model.is_err() {
+                if let Err(e) = map_visualization_model {
+                    error!("{}", e);
                     return HttpResponse::InternalServerError().finish();
                 }
                 let map_visualization_model = map_visualization_model.unwrap();

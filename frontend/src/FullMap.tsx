@@ -2,10 +2,9 @@ import { Map } from 'immutable'
 import { ForwardedRef, forwardRef } from 'react'
 import BubbleMap from './BubbleMap'
 import ChoroplethMap from './ChoroplethMap'
-import { TopoJson } from './TopoJson'
-import { MapType, MapVisualization, TabToId } from './MapVisualization'
-import DataTab from './DataTab'
 import { getUnitString } from './Formatter'
+import { MapType, MapVisualization } from './MapVisualization'
+import { GeoId, GeoMap } from './appSlice'
 
 export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
     const dataDefinition = selectedMaps[0]
@@ -24,11 +23,10 @@ export enum Aggregation {
     State = 'state',
     County = 'county',
 }
-
 type Props = {
-    map: TopoJson
+    map: GeoMap
     selectedMapVisualizations: MapVisualization[]
-    data: Map<string, number>
+    data: Map<GeoId, number>
     detailedView: boolean
     isNormalized: boolean
     transform?: string
@@ -61,11 +59,7 @@ function FullMap(
                     map={map}
                     data={data}
                     legendTitle={legendTitle}
-                    color={
-                        mapVisualization.data_tab === TabToId[DataTab.Health]
-                            ? 'black'
-                            : 'rgb(34, 139, 69)'
-                    }
+                    color={mapVisualization.bubble_color}
                 />
             )
         default:
