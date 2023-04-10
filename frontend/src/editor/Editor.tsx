@@ -12,6 +12,7 @@ import {
     useGetTabsQuery,
 } from '../MapApi'
 import { MapVisualizationPatch } from '../MapVisualization'
+import SelectorList, { EmptyMapVisualizationList, SkeletonSelectorList } from '../SelectorList'
 import { TopoJson } from '../TopoJson'
 import { Region } from '../appSlice'
 import { RootState } from '../store'
@@ -19,10 +20,6 @@ import editorCss from './Editor.module.css'
 import EditorMap from './EditorMap'
 import EditorNavigation from './EditorNavigation'
 import MapOptions, { EmptyMapOptions } from './MapOptions'
-import MapVisualizationList, {
-    EmptyMapVisualizationList,
-    SkeletonMapVisualizationList,
-} from './MapVisualizationList'
 import {
     clickMapVisualization,
     selectSelectedTabAndMapVisualization,
@@ -100,12 +97,14 @@ function Editor() {
                 <div id={editorCss.mapVisualizationList}>
                     {mapVisualizationsForTab && mapVisualizationsForTab.length > 0 && (
                         <>
-                            <MapVisualizationList
-                                mapVisualizations={mapVisualizationsForTab}
+                            <SelectorList
+                                items={mapVisualizationsForTab}
                                 selectedId={selectedMap}
                                 onClick={(clickedMap) =>
                                     dispatch(clickMapVisualization(clickedMap))
                                 }
+                                id={(map) => map.id}
+                                label={(map) => map.displayName}
                             />
                             {isDrafts(selectedTab) && (
                                 <Button
@@ -118,7 +117,7 @@ function Editor() {
                             )}
                         </>
                     )}
-                    {!mapVisualizationsForTab && <SkeletonMapVisualizationList />}
+                    {!mapVisualizationsForTab && <SkeletonSelectorList />}
                     {mapVisualizationsForTab &&
                         mapVisualizationsForTab.length === 0 &&
                         selectedTab && <EmptyMapVisualizationList tabId={selectedTab.id} />}

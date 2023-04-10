@@ -1,39 +1,43 @@
+import { Key } from 'react'
 import { Link } from 'react-router-dom'
-import css from '../DataSelector.module.css'
-import { useDeleteTabMutation } from '../MapApi'
-import { MapVisualization } from '../MapVisualization'
+import css from './DataSelector.module.css'
+import { useDeleteTabMutation } from './MapApi'
 
-function MapVisualizationList({
-    mapVisualizations,
+function SelectorList<Item, Id extends Key>({
+    items,
     selectedId,
     onClick,
+    id,
+    label,
 }: {
-    mapVisualizations: MapVisualization[]
-    selectedId?: number
-    onClick: (mapVisualization: MapVisualization) => void
+    items: Item[]
+    selectedId: Id | undefined
+    onClick: (item: Item) => void
+    id: (item: Item) => Id
+    label: (item: Item) => string
 }) {
     return (
         <form id={css.dataSelector}>
-            {mapVisualizations.map((map) => (
-                <div key={map.id}>
+            {items.map((item) => (
+                <div key={id(item)}>
                     <input
                         className={css.dataGroup}
-                        id={map.id.toString()}
-                        checked={selectedId === map.id}
+                        id={id(item).toString()}
+                        checked={selectedId === id(item)}
                         type="radio"
-                        value={map.id}
-                        onChange={() => onClick(map)}
+                        value={id(item)}
+                        onChange={() => onClick(item)}
                         name="dataGroup"
                     />
-                    <label className={css.dataGroup} htmlFor={map.id.toString()}>
-                        {map.displayName}
+                    <label className={css.dataGroup} htmlFor={id(item).toString()}>
+                        {label(item)}
                     </label>
                 </div>
             ))}
         </form>
     )
 }
-export function SkeletonMapVisualizationList() {
+export function SkeletonSelectorList() {
     return <div id={css.dataSelector} />
 }
 
@@ -54,4 +58,4 @@ export function EmptyMapVisualizationList({ tabId }: { tabId: number }) {
         </div>
     )
 }
-export default MapVisualizationList
+export default SelectorList

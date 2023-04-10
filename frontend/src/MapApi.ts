@@ -183,7 +183,7 @@ export const mapApi = createApi({
         }),
         getTabs: builder.query<Tab[], boolean>({
             query: (includeDrafts) => `data-category?include_drafts=${includeDrafts}`,
-            providesTags: () => [{ type: 'Tab', id: 'ALL' }],
+            providesTags: () => ['Tab'],
         }),
         getColorPalettes: builder.query<ColorPalette[], undefined>({
             query: () => 'color-palette',
@@ -219,6 +219,14 @@ export const mapApi = createApi({
             query: () => 'dataset',
             providesTags: ['Dataset'],
         }),
+        updateDataset: builder.mutation<undefined, Dataset>({
+            query: (patch) => ({
+                url: 'editor/dataset',
+                method: 'PATCH',
+                body: patch,
+            }),
+            invalidatesTags: () => ['Dataset'],
+        }),
         getSubcategories: builder.query<Subcategory[], undefined>({
             query: () => 'subcategory',
             providesTags: ['Subcategory'],
@@ -247,7 +255,7 @@ export const mapApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
-            invalidatesTags: () => [{ type: 'Tab', id: 'ALL' }],
+            invalidatesTags: () => ['Tab'],
             async onQueryStarted(patch, { dispatch, queryFulfilled }) {
                 const patchResult = dispatch(
                     mapApi.util.updateQueryData('getTabs', true, (draft) =>
@@ -263,14 +271,14 @@ export const mapApi = createApi({
                 method: 'POST',
                 body: tab,
             }),
-            invalidatesTags: () => [{ type: 'Tab', id: 'ALL' }],
+            invalidatesTags: () => ['Tab'],
         }),
         deleteTab: builder.mutation<undefined, number>({
             query: (tabId) => ({
                 url: `editor/data-category/${tabId}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: () => [{ type: 'Tab', id: 'ALL' }],
+            invalidatesTags: () => ['Tab'],
             async onQueryStarted(tabId, { dispatch, queryFulfilled }) {
                 const patchResult = dispatch(
                     mapApi.util.updateQueryData('getTabs', true, (draft) => {
@@ -305,4 +313,5 @@ export const {
     useUpdateTabMutation,
     useCreateTabMutation,
     useDeleteTabMutation,
+    useUpdateDatasetMutation,
 } = mapApi

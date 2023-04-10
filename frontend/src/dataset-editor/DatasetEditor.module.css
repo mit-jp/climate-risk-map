@@ -1,0 +1,14 @@
+.dataset-editor {
+    display: flex;
+    flex-direction: row;
+}
+
+.dataset-options {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.dataset-options > * {
+    margin: 1em !important;
+}

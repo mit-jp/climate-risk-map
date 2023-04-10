@@ -41,6 +41,7 @@ async fn main() -> std::io::Result<()> {
             .configure(controller::map_visualization_controller::init_editor)
             .configure(controller::map_visualization_collection_controller::init_editor)
             .configure(controller::data_category_controller::init_editor)
+            .configure(controller::dataset_controller::init_editor)
             .wrap(Logger::default())
     })
     .bind(config.editor_url())?;
