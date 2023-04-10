@@ -1,8 +1,9 @@
-import { Link, useParams } from 'react-router-dom'
-import { useEffect } from 'react'
 import classNames from 'classnames'
-import css from './Navigation.module.css'
+import { useEffect } from 'react'
+import { Link, useParams } from 'react-router-dom'
 import { Tab } from './MapApi'
+import css from './Navigation.module.css'
+import { isDrafts } from './editor/Editor'
 
 function Navigation({
     tabs,
@@ -32,7 +33,7 @@ function Navigation({
                     key={tab.id}
                     className={classNames({
                         [css.selected]: selectedTabId === tab.id,
-                        [css.uncategorized]: tab.id === -1,
+                        [css.uncategorized]: isDrafts(tab),
                     })}
                     to={root + tab.id}
                 >

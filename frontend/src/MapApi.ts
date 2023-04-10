@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { DSVParsedArray, autoType, csv as loadCsv } from 'd3'
 import { Map } from 'immutable'
-import { Dataset } from './Dataset'
+import { Dataset, DatasetPatch } from './Dataset'
 import {
     ColorPalette,
     MapVisualization,
@@ -30,6 +30,11 @@ export type MapVisualizationQueryParams = {
 }
 export type Tab = {
     id: TabId
+    name: string
+    normalized: boolean
+    order: number
+}
+export type NewTab = {
     name: string
     normalized: boolean
 }
@@ -73,6 +78,10 @@ type CountyCsvRow = {
     formatter_type: number
     decimals: number
 }
+type MapVisualizationCollectionId = {
+    map_visualization: number
+    category: number
+}
 
 export type CsvRow = {
     id: number
@@ -105,7 +114,7 @@ export const mapApi = createApi({
     reducerPath: 'mapApi',
     keepUnusedDataFor: 5 * 60, // 5 minutes
     baseQuery: fetchBaseQuery({ baseUrl: '/api/' }),
-    tagTypes: ['MapVisualization', 'Dataset', 'Subcategory'],
+    tagTypes: ['MapVisualization', 'Dataset', 'Subcategory', 'Tab'],
     endpoints: (builder) => ({
         getCounties: builder.query<Record<GeoId, County>, undefined>({
             query: () => 'county',
@@ -174,6 +183,7 @@ export const mapApi = createApi({
         }),
         getTabs: builder.query<Tab[], boolean>({
             query: (includeDrafts) => `data-category?include_drafts=${includeDrafts}`,
+            providesTags: () => ['Tab'],
         }),
         getColorPalettes: builder.query<ColorPalette[], undefined>({
             query: () => 'color-palette',
@@ -209,9 +219,76 @@ export const mapApi = createApi({
             query: () => 'dataset',
             providesTags: ['Dataset'],
         }),
+        updateDataset: builder.mutation<undefined, DatasetPatch>({
+            query: (patch) => ({
+                url: 'editor/dataset',
+                method: 'PATCH',
+                body: patch,
+            }),
+            invalidatesTags: () => ['Dataset', 'MapVisualization'],
+        }),
         getSubcategories: builder.query<Subcategory[], undefined>({
             query: () => 'subcategory',
             providesTags: ['Subcategory'],
+        }),
+        publishMapVisualization: builder.mutation<MapVisualization, MapVisualizationCollectionId>({
+            query: (id) => ({
+                url: `editor/map-visualization-collection`,
+                method: 'POST',
+                body: id,
+            }),
+            invalidatesTags: [{ type: 'MapVisualization', id: 'ALL' }],
+        }),
+        unpublishMapVisualization: builder.mutation<MapVisualization, MapVisualizationCollectionId>(
+            {
+                query: (id) => ({
+                    url: `editor/map-visualization-collection`,
+                    method: 'DELETE',
+                    body: id,
+                }),
+                invalidatesTags: [{ type: 'MapVisualization', id: 'ALL' }],
+            }
+        ),
+        updateTab: builder.mutation<undefined, Tab>({
+            query: (patch) => ({
+                url: 'editor/data-category',
+                method: 'PATCH',
+                body: patch,
+            }),
+            invalidatesTags: () => ['Tab'],
+            async onQueryStarted(patch, { dispatch, queryFulfilled }) {
+                const patchResult = dispatch(
+                    mapApi.util.updateQueryData('getTabs', true, (draft) =>
+                        Object.assign(draft, { [patch.id]: patch })
+                    )
+                )
+                queryFulfilled.catch(() => patchResult.undo())
+            },
+        }),
+        createTab: builder.mutation<Tab, NewTab>({
+            query: (tab) => ({
+                url: 'editor/data-category',
+                method: 'POST',
+                body: tab,
+            }),
+            invalidatesTags: () => ['Tab'],
+        }),
+        deleteTab: builder.mutation<undefined, number>({
+            query: (tabId) => ({
+                url: `editor/data-category/${tabId}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: () => ['Tab'],
+            async onQueryStarted(tabId, { dispatch, queryFulfilled }) {
+                const patchResult = dispatch(
+                    mapApi.util.updateQueryData('getTabs', true, (draft) => {
+                        // eslint-disable-next-line no-param-reassign
+                        delete draft[tabId]
+                        return draft
+                    })
+                )
+                queryFulfilled.catch(() => patchResult.undo())
+            },
         }),
     }),
 })
@@ -231,4 +308,10 @@ export const {
     useGetStatesQuery,
     useGetPercentilesQuery,
     useGetSubcategoriesQuery,
+    useUnpublishMapVisualizationMutation,
+    usePublishMapVisualizationMutation,
+    useUpdateTabMutation,
+    useCreateTabMutation,
+    useDeleteTabMutation,
+    useUpdateDatasetMutation,
 } = mapApi

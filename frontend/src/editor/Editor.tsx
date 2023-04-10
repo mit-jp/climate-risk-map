@@ -5,20 +5,21 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import EmptyNavigation from '../EmptyNavigation'
 import {
+    Tab,
     useCreateMapVisualizationMutation,
     useGetMapVisualizationQuery,
     useGetMapVisualizationsQuery,
     useGetTabsQuery,
 } from '../MapApi'
 import { MapVisualizationPatch } from '../MapVisualization'
-import Navigation from '../Navigation'
+import SelectorList, { EmptyMapVisualizationList, SkeletonSelectorList } from '../SelectorList'
 import { TopoJson } from '../TopoJson'
 import { Region } from '../appSlice'
 import { RootState } from '../store'
 import editorCss from './Editor.module.css'
 import EditorMap from './EditorMap'
+import EditorNavigation from './EditorNavigation'
 import MapOptions, { EmptyMapOptions } from './MapOptions'
-import MapVisualizationList, { EmptyMapVisualizationList } from './MapVisualizationList'
 import {
     clickMapVisualization,
     selectSelectedTabAndMapVisualization,
@@ -42,6 +43,8 @@ const NEW_MAP: MapVisualizationPatch = {
     geography_type: 1,
     bubble_color: '#000000',
 }
+
+export const isDrafts = (tab: Tab | undefined) => tab?.id === -1
 
 function Editor() {
     const dispatch = useDispatch()
@@ -81,7 +84,7 @@ function Editor() {
     return (
         <>
             {tabs ? (
-                <Navigation
+                <EditorNavigation
                     tabs={tabs}
                     selectedTabId={selectedTab?.id}
                     onTabClick={(tab) => dispatch(setTab(tab))}
@@ -92,16 +95,18 @@ function Editor() {
             )}
             <div id={editorCss.editor}>
                 <div id={editorCss.mapVisualizationList}>
-                    {mapVisualizationsForTab ? (
+                    {mapVisualizationsForTab && mapVisualizationsForTab.length > 0 && (
                         <>
-                            <MapVisualizationList
-                                mapVisualizations={mapVisualizationsForTab}
+                            <SelectorList
+                                items={mapVisualizationsForTab}
                                 selectedId={selectedMap}
                                 onClick={(clickedMap) =>
                                     dispatch(clickMapVisualization(clickedMap))
                                 }
+                                id={(map) => map.id}
+                                label={(map) => map.displayName}
                             />
-                            {selectedTab?.id === -1 && (
+                            {isDrafts(selectedTab) && (
                                 <Button
                                     id={editorCss.createMap}
                                     onClick={() => createMap(NEW_MAP)}
@@ -111,16 +116,20 @@ function Editor() {
                                 </Button>
                             )}
                         </>
-                    ) : (
-                        <EmptyMapVisualizationList />
                     )}
+                    {!mapVisualizationsForTab && <SkeletonSelectorList />}
+                    {mapVisualizationsForTab &&
+                        mapVisualizationsForTab.length === 0 &&
+                        selectedTab && <EmptyMapVisualizationList tabId={selectedTab.id} />}
                 </div>
-                {map && (
+                {map && selectedTab && tabs && (
                     <EditorMap
                         map={map}
                         selection={isUninitialized ? undefined : selectedMapVisualization}
                         detailedView
                         isNormalized={isNormalized}
+                        tab={selectedTab}
+                        tabs={tabs.filter((tab) => !isDrafts(tab))}
                     />
                 )}
                 {!isUninitialized && selectedMapVisualization && !isNormalized ? (

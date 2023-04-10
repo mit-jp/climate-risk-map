@@ -1,7 +1,7 @@
-import { DateTime, Interval } from 'luxon'
 import { json as loadJson } from 'd3'
-import { DataQueryParams, TabId } from './MapApi'
+import { DateTime, Interval } from 'luxon'
 import { MapSelection } from './DataSelector'
+import { DataQueryParams, TabId } from './MapApi'
 
 export type MapVisualizationId = number
 export type ScaleTypeName =
@@ -41,7 +41,6 @@ export interface MapVisualizationPatch {
     dataset: number
     map_type: MapType
     subcategory?: number
-    data_tab?: number
     name?: string
     legend_ticks?: number
     color_palette: ColorPalette
@@ -67,7 +66,6 @@ export interface MapVisualization {
     dataset: number
     map_type: MapType
     subcategory?: number
-    data_tab: number
     units: string
     short_name: string
     dataset_name: string
@@ -100,7 +98,6 @@ export interface MapVisualizationJson {
     dataset: number
     map_type: MapType
     subcategory: number | null
-    data_tab: number
     units: string
     short_name: string
     dataset_name: string
@@ -161,7 +158,6 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
         dataset: json.dataset,
         map_type: json.map_type,
         subcategory: json.subcategory ?? undefined,
-        data_tab: json.data_tab,
         units: json.units,
         short_name: json.short_name,
         dataset_name: json.dataset_name,
