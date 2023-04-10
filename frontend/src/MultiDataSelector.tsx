@@ -124,23 +124,28 @@ function MultiDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisua
                 )
             )
 
+    const isEmpty = (subcategoryId: number) =>
+        Object.values(maps).filter((map) => map.subcategory === subcategoryId).length === 0
+
     return (
         <form id={css.dataSelector}>
             {subcategories &&
-                subcategories.map((subcategory) => (
-                    <Accordion key={subcategory.id} defaultExpanded>
-                        <AccordionSummary
-                            aria-controls="panel1a-content"
-                            id="panel1a-header"
-                            expandIcon={<ExpandMoreIcon />}
-                        >
-                            {subcategory.name}
-                        </AccordionSummary>
-                        <AccordionDetails style={{ padding: 0 }}>
-                            {getDataList((map) => map.subcategory === subcategory.id)}
-                        </AccordionDetails>
-                    </Accordion>
-                ))}
+                subcategories
+                    .filter((subcategory) => !isEmpty(subcategory.id))
+                    .map((subcategory) => (
+                        <Accordion key={subcategory.id} defaultExpanded>
+                            <AccordionSummary
+                                aria-controls="panel1a-content"
+                                id="panel1a-header"
+                                expandIcon={<ExpandMoreIcon />}
+                            >
+                                {subcategory.name}
+                            </AccordionSummary>
+                            <AccordionDetails style={{ padding: 0 }}>
+                                {getDataList((map) => map.subcategory === subcategory.id)}
+                            </AccordionDetails>
+                        </Accordion>
+                    ))}
             {getDataList((map) => map.subcategory == null)}
         </form>
     )
