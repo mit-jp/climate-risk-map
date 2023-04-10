@@ -37,8 +37,16 @@ export const editorSlice = createSlice({
             mapApi.endpoints.getMapVisualizations.matchFulfilled,
             (state, actions) => {
                 Object.entries(actions.payload).forEach(([tabId, mapVisualizations]) => {
-                    state.selectedMapVisualizationByTab[Number(tabId)] =
-                        Object.values(mapVisualizations)[0].id
+                    const tab = Number(tabId)
+                    // set the first map visualization as the selected one if there's not
+                    // already one selected or the selection no longer exists
+                    if (
+                        state.selectedMapVisualizationByTab[tab] === undefined ||
+                        !mapVisualizations[state.selectedMapVisualizationByTab[tab]]
+                    ) {
+                        state.selectedMapVisualizationByTab[tab] =
+                            Object.values(mapVisualizations)[0].id
+                    }
                 })
             }
         )
