@@ -2,11 +2,11 @@ import { ToggleButton, ToggleButtonGroup } from '@mui/material'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
-import { Region, selectRegion } from './appSlice'
 import css from './Navigation.module.css'
+import { Region, selectRegion } from './appSlice'
 import { RootState } from './store'
 
-export default function CountryNavigation() {
+export default function RegionNavigation() {
     const params = useParams()
     const urlRegion = Number(params.region)
     const region = useSelector((state: RootState) => state.app.region)
@@ -24,7 +24,7 @@ export default function CountryNavigation() {
     }
 
     return (
-        <nav className={css.nav}>
+        <nav className={css.regionNav}>
             <ToggleButtonGroup
                 value={region}
                 exclusive

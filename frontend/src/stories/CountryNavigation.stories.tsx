@@ -1,5 +1,5 @@
 import { BrowserRouter as Router } from 'react-router-dom'
-import CountryNavigation from '../CountryNavigation'
+import RegionNavigation from '../CountryNavigation'
 
 export default {
     title: 'CountryNavigation',
@@ -7,7 +7,7 @@ export default {
 export const USASelected = () => {
     return (
         <Router>
-            <CountryNavigation />
+            <RegionNavigation />
         </Router>
     )
 }

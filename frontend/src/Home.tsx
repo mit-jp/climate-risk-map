@@ -1,7 +1,7 @@
 import { json } from 'd3'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import CountryNavigation from './CountryNavigation'
+import RegionNavigation from './CountryNavigation'
 import DataSelector from './DataSelector'
 import EmptyDataSelector from './EmptyDataSelector'
 import EmptyNavigation from './EmptyNavigation'
@@ -68,7 +68,7 @@ function Home() {
     return (
         <>
             <Header />
-            <CountryNavigation />
+            <RegionNavigation />
             {tabs ? (
                 <Navigation
                     tabs={displayedTabs}
