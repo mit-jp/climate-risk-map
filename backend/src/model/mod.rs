@@ -18,6 +18,7 @@ pub type SimpleData = data::SimpleData;
 pub type PercentileData = data::PercentileData;
 pub type SourceAndDate = data::SourceAndDate;
 pub type Dataset = dataset::Dataset;
+pub type DatasetDiff = dataset::DatasetDiff;
 pub type MapVisualization = map_visualization::MapVisualization;
 pub type MapVisualizationDaoPatch = map_visualization::MapVisualizationDaoPatch;
 pub type MapVisualizationPatch = map_visualization::MapVisualizationPatch;

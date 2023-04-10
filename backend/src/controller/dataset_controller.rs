@@ -1,4 +1,4 @@
-use crate::model::Dataset;
+use crate::model::DatasetDiff;
 
 use super::AppState;
 use actix_web::{get, patch, web, HttpResponse, Responder};
@@ -13,7 +13,10 @@ pub fn init_editor(cfg: &mut web::ServiceConfig) {
 }
 
 #[patch("/dataset")]
-async fn update(app_state: web::Data<AppState<'_>>, dataset: web::Json<Dataset>) -> impl Responder {
+async fn update(
+    app_state: web::Data<AppState<'_>>,
+    dataset: web::Json<DatasetDiff>,
+) -> impl Responder {
     let result = app_state.database.dataset.update(&dataset).await;
 
     match result {

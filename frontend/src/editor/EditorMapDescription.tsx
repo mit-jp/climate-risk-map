@@ -1,23 +1,40 @@
 import { LoadingButton } from '@mui/lab'
 import { TextField } from '@mui/material'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useUpdateDatasetMutation } from '../MapApi'
 import { MapVisualization } from '../MapVisualization'
 
 function EditorMapDescription({ selectedMap }: { selectedMap: MapVisualization }) {
-    const [, setDescription] = useState(selectedMap.description)
-    const isLoading = false
+    const [updateDataset, { isLoading }] = useUpdateDatasetMutation()
+    const [description, setDescription] = useState(selectedMap.description)
+
+    useEffect(() => {
+        setDescription(selectedMap.description)
+    }, [selectedMap])
+
+    const noDiff = () => description === selectedMap.description
 
     return (
-        <form>
+        <form
+            onSubmit={(e) => {
+                updateDataset({ id: selectedMap.dataset, description })
+                e.preventDefault()
+            }}
+        >
             <TextField
                 label="Description"
-                value={selectedMap.description}
+                value={description}
                 multiline
                 fullWidth
                 onChange={(e) => setDescription(e.target.value)}
-                disabled
+                disabled={isLoading}
             />
-            <LoadingButton loading={isLoading} variant="contained" disabled>
+            <LoadingButton
+                type="submit"
+                loading={isLoading}
+                variant="contained"
+                disabled={noDiff()}
+            >
                 save
             </LoadingButton>
         </form>

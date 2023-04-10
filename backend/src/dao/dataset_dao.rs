@@ -1,15 +1,22 @@
 use sqlx::postgres::PgQueryResult;
 
+use crate::model::DatasetDiff;
+
 use super::Dataset;
 use super::Table;
 
 impl<'c> Table<'c, Dataset> {
-    pub async fn update(&self, dataset: &Dataset) -> Result<PgQueryResult, sqlx::Error> {
+    pub async fn update(&self, dataset: &DatasetDiff) -> Result<PgQueryResult, sqlx::Error> {
+        // COALESCE values to update only if they are not None
         sqlx::query!(
-            r#"
-            UPDATE "dataset"
-            SET "short_name" = $1, "name" = $2, "description" = $3, "units" = $4
-            WHERE "id" = $5"#,
+            "
+            UPDATE dataset
+            SET short_name = COALESCE($1, short_name),
+                name = COALESCE($2, name),
+                description = COALESCE($3, description),
+                units = COALESCE($4, units)
+            WHERE id = $5
+            ",
             dataset.short_name,
             dataset.name,
             dataset.description,

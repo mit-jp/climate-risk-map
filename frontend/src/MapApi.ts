@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { DSVParsedArray, autoType, csv as loadCsv } from 'd3'
 import { Map } from 'immutable'
-import { Dataset } from './Dataset'
+import { Dataset, DatasetPatch } from './Dataset'
 import {
     ColorPalette,
     MapVisualization,
@@ -219,13 +219,13 @@ export const mapApi = createApi({
             query: () => 'dataset',
             providesTags: ['Dataset'],
         }),
-        updateDataset: builder.mutation<undefined, Dataset>({
+        updateDataset: builder.mutation<undefined, DatasetPatch>({
             query: (patch) => ({
                 url: 'editor/dataset',
                 method: 'PATCH',
                 body: patch,
             }),
-            invalidatesTags: () => ['Dataset'],
+            invalidatesTags: () => ['Dataset', 'MapVisualization'],
         }),
         getSubcategories: builder.query<Subcategory[], undefined>({
             query: () => 'subcategory',
