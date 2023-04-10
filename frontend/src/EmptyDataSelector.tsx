@@ -1,3 +1,5 @@
+import css from './DataSelector.module.css'
+
 export default function EmptyDataSelector() {
-    return <p>Empty data selector</p>
+    return <div id={css.dataSelector} />
 }
