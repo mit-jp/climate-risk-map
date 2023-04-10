@@ -1,5 +1,7 @@
-import { MapVisualization } from '../MapVisualization'
+import { Link } from 'react-router-dom'
 import css from '../DataSelector.module.css'
+import { useDeleteTabMutation } from '../MapApi'
+import { MapVisualization } from '../MapVisualization'
 
 function MapVisualizationList({
     mapVisualizations,
@@ -31,8 +33,25 @@ function MapVisualizationList({
         </form>
     )
 }
-
-export function EmptyMapVisualizationList() {
+export function SkeletonMapVisualizationList() {
     return <div id={css.dataSelector} />
+}
+
+export function EmptyMapVisualizationList({ tabId }: { tabId: number }) {
+    const [deleteTab] = useDeleteTabMutation()
+
+    return (
+        <div id={css.dataSelector}>
+            <div className={css.actions}>
+                <Link to="/editor/-1" className={css.publishLink}>
+                    Publish a draft
+                </Link>
+
+                <button type="button" className={css.deleteTab} onClick={() => deleteTab(tabId)}>
+                    delete this tab
+                </button>
+            </div>
+        </div>
+    )
 }
 export default MapVisualizationList

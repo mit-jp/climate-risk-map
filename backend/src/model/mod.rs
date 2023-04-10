@@ -23,6 +23,7 @@ pub type MapVisualizationDaoPatch = map_visualization::MapVisualizationDaoPatch;
 pub type MapVisualizationPatch = map_visualization::MapVisualizationPatch;
 pub type MapVisualizationModel = map_visualization::MapVisualizationModel;
 pub type DataCategory = data_category::DataCategory;
+pub type DataCategoryCreation = data_category::DataCategoryCreation;
 pub type ColorPalette = color_palette::ColorPalette;
 pub type ScaleType = scale_type::ScaleType;
 pub type MapVisualizationError = map_visualization::MapVisualizationError;

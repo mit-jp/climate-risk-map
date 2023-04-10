@@ -40,6 +40,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(editor_state.clone())
             .configure(controller::map_visualization_controller::init_editor)
             .configure(controller::map_visualization_collection_controller::init_editor)
+            .configure(controller::data_category_controller::init_editor)
             .wrap(Logger::default())
     })
     .bind(config.editor_url())?;

@@ -12,14 +12,17 @@ import {
     useGetTabsQuery,
 } from '../MapApi'
 import { MapVisualizationPatch } from '../MapVisualization'
-import Navigation from '../Navigation'
 import { TopoJson } from '../TopoJson'
 import { Region } from '../appSlice'
 import { RootState } from '../store'
 import editorCss from './Editor.module.css'
 import EditorMap from './EditorMap'
+import EditorNavigation from './EditorNavigation'
 import MapOptions, { EmptyMapOptions } from './MapOptions'
-import MapVisualizationList, { EmptyMapVisualizationList } from './MapVisualizationList'
+import MapVisualizationList, {
+    EmptyMapVisualizationList,
+    SkeletonMapVisualizationList,
+} from './MapVisualizationList'
 import {
     clickMapVisualization,
     selectSelectedTabAndMapVisualization,
@@ -84,7 +87,7 @@ function Editor() {
     return (
         <>
             {tabs ? (
-                <Navigation
+                <EditorNavigation
                     tabs={tabs}
                     selectedTabId={selectedTab?.id}
                     onTabClick={(tab) => dispatch(setTab(tab))}
@@ -95,7 +98,7 @@ function Editor() {
             )}
             <div id={editorCss.editor}>
                 <div id={editorCss.mapVisualizationList}>
-                    {mapVisualizationsForTab ? (
+                    {mapVisualizationsForTab && mapVisualizationsForTab.length > 0 && (
                         <>
                             <MapVisualizationList
                                 mapVisualizations={mapVisualizationsForTab}
@@ -114,9 +117,11 @@ function Editor() {
                                 </Button>
                             )}
                         </>
-                    ) : (
-                        <EmptyMapVisualizationList />
                     )}
+                    {!mapVisualizationsForTab && <SkeletonMapVisualizationList />}
+                    {mapVisualizationsForTab &&
+                        mapVisualizationsForTab.length === 0 &&
+                        selectedTab && <EmptyMapVisualizationList tabId={selectedTab.id} />}
                 </div>
                 {map && selectedTab && tabs && (
                     <EditorMap

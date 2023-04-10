@@ -1,6 +1,7 @@
 .nav {
     margin-bottom: 1em;
     display: flex;
+    flex-wrap: wrap;
 }
 
 .nav a {
@@ -43,4 +44,31 @@
 .region-nav {
     margin-left: 40px;
     margin-bottom: 1em;
+}
+
+input.new-tab {
+    margin-left: 2em;
+    font: inherit;
+    padding: 1em;
+    border: 1px solid #ccc;
+}
+
+button.create-tab {
+    background: #fff;
+    border: none;
+    padding: 1em;
+    font: inherit;
+    cursor: pointer;
+    background-color: #f0f6fc;
+    margin-left: 5px;
+    border: 1px solid #ccc;
+}
+
+button.create-tab:hover {
+    background: #ddeaf6;
+}
+
+button.create-tab:disabled {
+    cursor: not-allowed;
+    background: #ffffff !important;
 }
