@@ -11,6 +11,7 @@ import {
 import { csvFormat } from 'd3'
 import { saveAs } from 'file-saver'
 import { Map } from 'immutable'
+import { Fragment } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import counties from './Counties'
@@ -101,15 +102,14 @@ function OverlaySubControl({ name }: { name: OverlayName }) {
     return null
 }
 
-function Overlays({ overlays }: { overlays: Record<OverlayName, Overlay> }) {
+function OverlayCheckBoxes({ overlays }: { overlays: Record<OverlayName, Overlay> }) {
     const dispatch = useDispatch()
 
     return (
         <>
             {Object.entries(overlays).map(([overlayName, overlay]) => (
-                <>
+                <Fragment key={overlayName}>
                     <FormControlLabel
-                        key={overlayName}
                         control={
                             <Checkbox
                                 onChange={(_, value) =>
@@ -127,7 +127,7 @@ function Overlays({ overlays }: { overlays: Record<OverlayName, Overlay> }) {
                         label={overlayName}
                     />
                     {overlay.shouldShow && <OverlaySubControl name={overlayName as OverlayName} />}
-                </>
+                </Fragment>
             ))}
         </>
     )
@@ -206,7 +206,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
                     View report card for {counties.get(countyId)}, {states.get(stateId(countyId))}
                 </Button>
             )}
-            {region === 'USA' && <Overlays overlays={overlays} />}
+            {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
             {isNormalized && data && (
                 <FormControlLabel
                     control={

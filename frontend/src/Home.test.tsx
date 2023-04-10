@@ -17,6 +17,7 @@ const MAP_VISUALIZATIONS: { [key: string]: { [key: string]: MapVisualizationJson
             units: 'Âµg/mÂ³ (population weighted average)',
             short_name: 'PM2_5',
             name: null,
+            data_tab: 1,
             dataset_name: 'Exposure to airborne particulate matter',
             description:
                 'Gridded concentrations of fine particulate matter (PM2.5) (Di et al, 2021) are combined with gridded population data (CIESIN, 2018) to provide an estimate of the annual average level of PM2.5 experienced by the population of each county in the US. Link: Di et al, 2021 (https://doi.org/10.7927/0rvr-4538) and CIESIN, 2018 (https://doi.org/10.7927/H4F47M65)',
