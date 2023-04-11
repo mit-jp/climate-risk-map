@@ -8,3 +8,11 @@ pub struct DataSource {
     pub description: String,
     pub link: String,
 }
+
+#[derive(Deserialize, Serialize)]
+pub struct DataSourceDiff {
+    pub id: i32,
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub link: Option<String>,
+}

@@ -38,6 +38,18 @@ export type NewTab = {
     name: string
     normalized: boolean
 }
+export type DataSource = {
+    id: number
+    name: string
+    description: string
+    link: string
+}
+export type DataSourcePatch = {
+    id: number
+    name?: string
+    description?: string
+    link?: string
+}
 export type County = { id: number; name: string; state: number }
 export type State = { id: number; name: string }
 export type PercentileQueryParams = {
@@ -114,7 +126,7 @@ export const mapApi = createApi({
     reducerPath: 'mapApi',
     keepUnusedDataFor: 5 * 60, // 5 minutes
     baseQuery: fetchBaseQuery({ baseUrl: '/api/' }),
-    tagTypes: ['MapVisualization', 'Dataset', 'Subcategory', 'Tab'],
+    tagTypes: ['MapVisualization', 'Dataset', 'Subcategory', 'Tab', 'DataSource'],
     endpoints: (builder) => ({
         getCounties: builder.query<Record<GeoId, County>, undefined>({
             query: () => 'county',
@@ -227,6 +239,18 @@ export const mapApi = createApi({
             }),
             invalidatesTags: () => ['Dataset', 'MapVisualization'],
         }),
+        getDataSources: builder.query<DataSource[], undefined>({
+            query: () => 'data-source',
+            providesTags: ['DataSource'],
+        }),
+        updateDataSource: builder.mutation<undefined, DataSourcePatch>({
+            query: (patch) => ({
+                url: 'editor/data-source',
+                method: 'PATCH',
+                body: patch,
+            }),
+            invalidatesTags: () => ['DataSource', 'MapVisualization'],
+        }),
         getSubcategories: builder.query<Subcategory[], undefined>({
             query: () => 'subcategory',
             providesTags: ['Subcategory'],
@@ -304,6 +328,7 @@ export const {
     useUpdateMapVisualizationMutation,
     useCreateMapVisualizationMutation,
     useGetDatasetsQuery,
+    useGetDataSourcesQuery,
     useGetCountiesQuery,
     useGetStatesQuery,
     useGetPercentilesQuery,
@@ -314,4 +339,5 @@ export const {
     useCreateTabMutation,
     useDeleteTabMutation,
     useUpdateDatasetMutation,
+    useUpdateDataSourceMutation,
 } = mapApi
