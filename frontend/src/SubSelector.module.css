@@ -19,3 +19,6 @@
 .sub-selector input:checked + label {
     text-decoration: underline;
 }
+.year-dropdown {
+    margin-left: 1em;
+}

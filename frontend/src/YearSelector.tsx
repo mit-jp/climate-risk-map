@@ -1,11 +1,12 @@
-import { ChangeEvent, Fragment } from 'react'
+import { MenuItem, Select } from '@mui/material'
 import { Interval } from 'luxon'
+import { Fragment } from 'react'
 import css from './SubSelector.module.css'
 
 type Props = {
     years: Interval[]
     selectedYear: Interval
-    onSelectionChange: (event: ChangeEvent<HTMLInputElement>) => void
+    onChange: (date: Interval) => void
     id: string
 }
 
@@ -16,7 +17,27 @@ const readable = (interval: Interval) => {
     return `${interval.start.year.toString()}-${interval.end.year.toString()}`
 }
 
-function YearSelector({ years, selectedYear, onSelectionChange, id }: Props) {
+function DropdownYearSelector({ years, selectedYear, onChange, id }: Props) {
+    return (
+        <div className={css.subSelector}>
+            <p>Year:</p>
+            <Select
+                className={css.yearDropdown}
+                value={selectedYear.toISODate()}
+                onChange={(e) => onChange(Interval.fromISO(e.target.value))}
+                id={id}
+            >
+                {years.map((year) => (
+                    <MenuItem key={year.toISODate()} value={year.toISODate()}>
+                        {readable(year)}
+                    </MenuItem>
+                ))}
+            </Select>
+        </div>
+    )
+}
+
+function ButtonsYearSelector({ years, selectedYear, onChange, id }: Props) {
     const getYears = () => {
         return years.map((year) => (
             <Fragment key={year.toISODate()}>
@@ -24,7 +45,7 @@ function YearSelector({ years, selectedYear, onSelectionChange, id }: Props) {
                     type="radio"
                     value={year.toISODate()}
                     id={id + year.toISODate()}
-                    onChange={onSelectionChange}
+                    onChange={(e) => onChange(Interval.fromISO(e.target.value))}
                     checked={year.equals(selectedYear)}
                 />
                 <label htmlFor={id + year.toISODate()}>{readable(year)}</label>
@@ -36,6 +57,27 @@ function YearSelector({ years, selectedYear, onSelectionChange, id }: Props) {
             <p>Year:</p>
             {getYears()}
         </div>
+    )
+}
+
+function YearSelector({ years, selectedYear, onChange, id }: Props) {
+    if (years.length > 5) {
+        return (
+            <DropdownYearSelector
+                years={years}
+                selectedYear={selectedYear}
+                onChange={onChange}
+                id={id}
+            />
+        )
+    }
+    return (
+        <ButtonsYearSelector
+            years={years}
+            selectedYear={selectedYear}
+            onChange={onChange}
+            id={id}
+        />
     )
 }
 
