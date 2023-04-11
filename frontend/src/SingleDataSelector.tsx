@@ -1,12 +1,11 @@
 import { ChangeEvent } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Interval } from 'luxon'
-import YearSelector from './YearSelector'
-import DataSourceSelector from './DatasetSelector'
-import { changeMapSelection, changeDataSource, changeDateRange, selectSelections } from './appSlice'
-import { RootState } from './store'
-import { MapVisualization, MapVisualizationId } from './MapVisualization'
 import css from './DataSelector.module.css'
+import DataSourceSelector from './DatasetSelector'
+import { MapVisualization, MapVisualizationId } from './MapVisualization'
+import YearSelector from './YearSelector'
+import { changeDataSource, changeDateRange, changeMapSelection, selectSelections } from './appSlice'
+import { RootState } from './store'
 
 function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisualization> }) {
     const selection = useSelector((state: RootState) =>
@@ -15,10 +14,6 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
 
     const dispatch = useDispatch()
 
-    const onDateRangeChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const dateRange = Interval.fromISO(event.target.value)
-        dispatch(changeDateRange(dateRange))
-    }
     const onDataSourceChange = (event: ChangeEvent<HTMLInputElement>) => {
         const dataset = parseInt(event.target.value, 10)
         dispatch(changeDataSource(dataset))
@@ -61,7 +56,7 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
                                 id={map.id.toString()}
                                 years={map.date_ranges_by_source[selection.dataSource]}
                                 selectedYear={selection.dateRange}
-                                onSelectionChange={onDateRangeChange}
+                                onChange={(dateRange) => dispatch(changeDateRange(dateRange))}
                             />
                         )}
                         {selection !== undefined && shouldShowDatasets(map) && (
