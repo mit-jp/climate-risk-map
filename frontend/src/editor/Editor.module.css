@@ -34,3 +34,39 @@
 .publish-button {
     margin: 1em 0 !important;
 }
+
+.actions {
+    margin: 1em;
+    display: flex;
+    justify-content: space-between;
+}
+
+.actions > * {
+    margin: 0 1em;
+}
+
+.publish-link {
+    display: inline-block;
+    padding: 1em;
+    color: inherit;
+    background-color: #fff6d0;
+    text-decoration: none;
+}
+
+.publish-link:hover {
+    background-color: #fce995;
+}
+
+.delete-tab {
+    font: inherit;
+    border: none;
+    display: inline-block;
+    padding: 1em;
+    color: inherit;
+    background-color: #f7d7d7;
+    cursor: pointer;
+}
+
+.delete-tab:hover {
+    background-color: #f5b0b0;
+}

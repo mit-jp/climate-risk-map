@@ -2,7 +2,7 @@ import { LoadingButton } from '@mui/lab'
 import { TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { DataSource, useGetDataSourcesQuery, useUpdateDataSourceMutation } from '../MapApi'
-import SelectorList, { SkeletonSelectorList } from '../SelectorList'
+import SelectorList, { EmptySelectorList } from '../SelectorList'
 import css from './DatasetEditor.module.css'
 
 function DataSourceOptions({ dataSource }: { dataSource: DataSource }) {
@@ -83,7 +83,7 @@ export default function DataSourceEditor() {
                     label={(dataset) => dataset.name}
                 />
             ) : (
-                <SkeletonSelectorList />
+                <EmptySelectorList />
             )}
             {dataSource ? (
                 <DataSourceOptions dataSource={dataSource} />

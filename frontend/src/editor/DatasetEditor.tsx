@@ -3,7 +3,7 @@ import { TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { Dataset } from '../Dataset'
 import { useGetDatasetsQuery, useUpdateDatasetMutation } from '../MapApi'
-import SelectorList, { SkeletonSelectorList } from '../SelectorList'
+import SelectorList, { EmptySelectorList } from '../SelectorList'
 import css from './DatasetEditor.module.css'
 
 function DatasetOptions({ dataset }: { dataset: Dataset }) {
@@ -88,7 +88,7 @@ export default function DatasetEditor() {
                     label={(dataset) => dataset.name}
                 />
             ) : (
-                <SkeletonSelectorList />
+                <EmptySelectorList />
             )}
             {dataset ? <DatasetOptions dataset={dataset} /> : <EmptyDatasetOptions />}
         </div>

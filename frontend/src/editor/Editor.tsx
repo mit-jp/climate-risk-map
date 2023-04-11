@@ -3,16 +3,18 @@ import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { json } from 'd3'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { Link } from 'react-router-dom'
 import EmptyNavigation from '../EmptyNavigation'
 import {
     Tab,
     useCreateMapVisualizationMutation,
+    useDeleteTabMutation,
     useGetMapVisualizationQuery,
     useGetMapVisualizationsQuery,
     useGetTabsQuery,
 } from '../MapApi'
 import { MapVisualizationPatch } from '../MapVisualization'
-import SelectorList, { EmptyMapVisualizationList, SkeletonSelectorList } from '../SelectorList'
+import SelectorList, { EmptySelectorList } from '../SelectorList'
 import { TopoJson } from '../TopoJson'
 import { Region } from '../appSlice'
 import { RootState } from '../store'
@@ -51,21 +53,18 @@ function Editor() {
     const { data: allMapVisualizations } = useGetMapVisualizationsQuery({ includeDrafts: true })
     const { data: tabs } = useGetTabsQuery(true)
     const [createMap] = useCreateMapVisualizationMutation()
+    const [deleteTab] = useDeleteTabMutation()
 
-    const { selectedTab, selectedMapVisualizationId: maybeSelectedMap } = useSelector(
+    const { selectedTab: tab, selectedMapVisualizationId: maybeMapId } = useSelector(
         selectSelectedTabAndMapVisualization
     )
-    const mapVisualizationsForTab =
-        allMapVisualizations && selectedTab !== undefined
-            ? Object.values(allMapVisualizations[selectedTab.id] ?? []).sort(
-                  (a, b) => a.order - b.order
-              )
+    const maps =
+        allMapVisualizations && tab !== undefined
+            ? Object.values(allMapVisualizations[tab.id] ?? []).sort((a, b) => a.order - b.order)
             : undefined
-    const selectedMap = mapVisualizationsForTab?.find((m) => m.id === maybeSelectedMap)
-        ? maybeSelectedMap
-        : undefined
+    const mapId = maps?.find((m) => m.id === maybeMapId) ? maybeMapId : undefined
     const { data: selectedMapVisualization, isUninitialized } = useGetMapVisualizationQuery(
-        selectedMap ?? skipToken
+        mapId ?? skipToken
     )
     const map = useSelector((state: RootState) => state.editor.map)
 
@@ -79,14 +78,14 @@ function Editor() {
         })
     }, [dispatch, selectedMapVisualization])
 
-    const isNormalized = selectedTab?.normalized ?? false
+    const isNormalized = tab?.normalized ?? false
 
     return (
         <>
             {tabs ? (
                 <EditorNavigation
                     tabs={tabs}
-                    selectedTabId={selectedTab?.id}
+                    selectedTabId={tab?.id}
                     onTabClick={(tab) => dispatch(setTab(tab))}
                     root="/editor/"
                 />
@@ -95,40 +94,50 @@ function Editor() {
             )}
             <div id={editorCss.editor}>
                 <div id={editorCss.mapVisualizationList}>
-                    {mapVisualizationsForTab && mapVisualizationsForTab.length > 0 && (
-                        <>
-                            <SelectorList
-                                items={mapVisualizationsForTab}
-                                selectedId={selectedMap}
-                                onClick={(clickedMap) =>
-                                    dispatch(clickMapVisualization(clickedMap))
-                                }
-                                id={(map) => map.id}
-                                label={(map) => map.displayName}
-                            />
-                            {isDrafts(selectedTab) && (
-                                <Button
-                                    id={editorCss.createMap}
-                                    onClick={() => createMap(NEW_MAP)}
-                                    variant="contained"
-                                >
-                                    Create new map
-                                </Button>
-                            )}
-                        </>
+                    {maps && maps.length > 0 ? (
+                        <SelectorList
+                            items={maps}
+                            selectedId={mapId}
+                            onClick={(clickedMap) => dispatch(clickMapVisualization(clickedMap))}
+                            id={(map) => map.id}
+                            label={(map) => map.displayName}
+                        />
+                    ) : (
+                        <EmptySelectorList />
                     )}
-                    {!mapVisualizationsForTab && <SkeletonSelectorList />}
-                    {mapVisualizationsForTab &&
-                        mapVisualizationsForTab.length === 0 &&
-                        selectedTab && <EmptyMapVisualizationList tabId={selectedTab.id} />}
+
+                    {!isDrafts(tab) && maps && maps.length === 0 && tab && (
+                        <div className={editorCss.actions}>
+                            <Link to="/editor/-1" className={editorCss.publishLink}>
+                                Publish a draft
+                            </Link>
+
+                            <button
+                                type="button"
+                                className={editorCss.deleteTab}
+                                onClick={() => deleteTab(tab.id)}
+                            >
+                                delete this tab
+                            </button>
+                        </div>
+                    )}
+                    {isDrafts(tab) && (
+                        <Button
+                            id={editorCss.createMap}
+                            onClick={() => createMap(NEW_MAP)}
+                            variant="contained"
+                        >
+                            Create new map
+                        </Button>
+                    )}
                 </div>
-                {map && selectedTab && tabs && (
+                {map && tab && tabs && (
                     <EditorMap
                         map={map}
                         selection={isUninitialized ? undefined : selectedMapVisualization}
                         detailedView
                         isNormalized={isNormalized}
-                        tab={selectedTab}
+                        tab={tab}
                         tabs={tabs.filter((tab) => !isDrafts(tab))}
                     />
                 )}
