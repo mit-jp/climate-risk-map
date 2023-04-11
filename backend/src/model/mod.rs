@@ -11,6 +11,7 @@ mod state;
 mod subcategory;
 
 pub type DataSource = data_source::DataSource;
+pub type DataSourceDiff = data_source::DataSourceDiff;
 pub type State = state::State;
 pub type County = county::County;
 pub type Data = data::Data;

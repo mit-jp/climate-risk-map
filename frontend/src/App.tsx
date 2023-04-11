@@ -1,6 +1,7 @@
 import { Link, Route, BrowserRouter as Router, Routes } from 'react-router-dom'
 import Home from './Home'
-import DatasetEditor from './dataset-editor/DatasetEditor'
+import DataSourceEditor from './editor/DataSourceEditor'
+import DatasetEditor from './editor/DatasetEditor'
 import Editor from './editor/Editor'
 import ReportCard from './report-card/ReportCard'
 import Uploader from './uploader/Uploader'
@@ -15,6 +16,7 @@ function App() {
                 <Route path="/report-card/:category/:countyId" element={<ReportCard />} />
                 <Route path="/editor/:tabId" element={<Editor />} />
                 <Route path="/dataset-editor" element={<DatasetEditor />} />
+                <Route path="/data-source-editor" element={<DataSourceEditor />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/:tabId" element={<Home />} />
                 <Route path="/:tabId/:region" element={<Home />} />
