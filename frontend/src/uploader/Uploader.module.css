@@ -16,8 +16,12 @@
     background-color: rgb(190, 221, 248);
 }
 
+.date-column {
+    background-color: rgb(255, 255, 182);
+}
+
 .data-column {
-    background-color: rgb(190, 221, 248);
+    background-color: rgb(234, 247, 232);
 }
 
 .dataset-editor {

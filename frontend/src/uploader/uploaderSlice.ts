@@ -1,5 +1,4 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit'
-import { DateTime, Interval } from 'luxon'
 import Papa from 'papaparse'
 import { convert as makeUrlFriendly } from 'url-slug'
 import { v4 as uuid } from 'uuid'
@@ -9,7 +8,6 @@ import { FormData, NewSource } from './UploadData'
 
 export interface Column {
     readonly name: string
-    readonly dateRange: Interval
 }
 
 export interface Dataset {
@@ -33,6 +31,7 @@ interface UploaderState {
     readonly csv?: Papa.ParseResult<any>
     readonly geographyType: number
     readonly idColumn: string
+    readonly dateColumn: string
     readonly datasets: Dataset[]
     readonly source: NewSource | DataSource
 }
@@ -43,18 +42,20 @@ const initialState: UploaderState = {
     datasets: [],
     geographyType: 1,
     idColumn: '',
+    dateColumn: '',
     source: emptySource,
 }
 
 const findColumn = (
     columns: string[] | undefined,
-    preferredName: string,
+    preferredNames: string[],
     preferredIndex: number
 ): string | undefined => {
     if (!columns) {
         return undefined
     }
-    if (columns.includes(preferredName)) {
+    const preferredName = preferredNames.find((n) => columns.includes(n))
+    if (preferredName) {
         return preferredName
     }
     if (columns[preferredIndex]) {
@@ -64,25 +65,33 @@ const findColumn = (
 }
 const generateDataColumns = (datasets: Dataset[]) => datasets.flatMap((d) => d.columns)
 
-const findFreeColumns = (idColumn: string, columns: string[], dataColumns: Column[]): string[] => {
+const findFreeColumns = (
+    idColumn: string,
+    dateColumn: string,
+    columns: string[],
+    dataColumns: Column[]
+): string[] => {
     if (columns.length === 0) {
         return []
     }
-    const usedColumns: (string | undefined)[] = [idColumn, ...dataColumns.map((c) => c.name)]
+    const usedColumns: (string | undefined)[] = [
+        idColumn,
+        dateColumn,
+        ...dataColumns.map((c) => c.name),
+    ]
     const freeColumns = columns.filter((c) => !usedColumns.includes(c))
     return freeColumns
 }
 
 const generateNextColumn = (state: UploaderState): Column | undefined => {
-    const { idColumn, datasets, csv } = state
+    const { idColumn, dateColumn, datasets, csv } = state
     const dataColumns = generateDataColumns(datasets)
-    const freeColumns = findFreeColumns(idColumn, csv?.meta?.fields ?? [], dataColumns)
+    const freeColumns = findFreeColumns(idColumn, dateColumn, csv?.meta?.fields ?? [], dataColumns)
     if (freeColumns.length === 0) {
         return undefined
     }
     return {
         name: freeColumns[0],
-        dateRange: Interval.fromISO('2020-01-01/2020-12-31'),
     }
 }
 
@@ -105,6 +114,7 @@ const generateMetadata = (
     datasets: Dataset[],
     geographyType: number,
     idColumn: string,
+    dateColumn: string,
     source: NewSource | DataSource,
     columns: string[] | undefined
 ): FormData | undefined => {
@@ -112,11 +122,12 @@ const generateMetadata = (
         return undefined
     }
     const dataColumns = generateDataColumns(datasets)
-    const freeColumns = findFreeColumns(idColumn, columns, dataColumns)
+    const freeColumns = findFreeColumns(idColumn, dateColumn, columns, dataColumns)
     return {
         datasets,
         geographyType,
         idColumn,
+        dateColumn,
         source,
         columns,
         freeColumns,
@@ -129,7 +140,13 @@ export const uploaderSlice = createSlice({
     reducers: {
         setCsv: (state, { payload }: { payload: Papa.ParseResult<any> }) => {
             state.csv = payload
-            state.idColumn = findColumn(state.csv.meta.fields, 'id', 0) ?? ''
+            state.idColumn =
+                findColumn(
+                    state.csv.meta.fields,
+                    ['id', 'geo_id', 'county_id', 'state_id', 'country_id'],
+                    0
+                ) ?? ''
+            state.dateColumn = findColumn(state.csv.meta.fields, ['date', 'year'], 1) ?? ''
             const dataset = generateNextDataset(state)
             if (dataset) {
                 state.datasets = [dataset]
@@ -146,6 +163,9 @@ export const uploaderSlice = createSlice({
         },
         setIdColumn: (state, { payload }: { payload: string }) => {
             state.idColumn = payload
+        },
+        setDateColumn: (state, { payload }: { payload: string }) => {
+            state.dateColumn = payload
         },
         setSourceName: (state, { payload }: { payload: string }) => {
             state.source.name = payload
@@ -174,30 +194,6 @@ export const uploaderSlice = createSlice({
 
             if (dataset) {
                 dataset.columns.push(newColumn)
-            }
-        },
-        setYear: (
-            state,
-            {
-                payload,
-            }: {
-                payload: {
-                    datasetId: string
-                    columnName: string
-                    year: number
-                }
-            }
-        ) => {
-            const dataset = state.datasets.find((d) => d.id === payload.datasetId)
-            if (dataset) {
-                const column = dataset.columns.find((c) => c.name === payload.columnName)
-                const range = Interval.fromDateTimes(
-                    DateTime.utc(payload.year, 1, 1),
-                    DateTime.utc(payload.year, 12, 31)
-                )
-                if (column && range.isValid) {
-                    column.dateRange = range
-                }
             }
         },
         selectColumn: (
@@ -253,13 +249,13 @@ export const {
     createDataset,
     setGeographyType,
     setIdColumn,
+    setDateColumn,
     setSourceName,
     setSourceLink,
     setSourceDescription,
     setExistingSource,
     onDatasetChange,
     addColumn,
-    setYear,
     selectColumn,
     deleteDataset,
     removeColumn,
@@ -277,6 +273,7 @@ export const selectMetadata = createSelector(
     (state: RootState) => state.uploader.datasets,
     (state: RootState) => state.uploader.geographyType,
     (state: RootState) => state.uploader.idColumn,
+    (state: RootState) => state.uploader.dateColumn,
     (state: RootState) => state.uploader.source,
     (state: RootState) => state.uploader.csv?.meta?.fields,
     generateMetadata

@@ -111,8 +111,8 @@ impl<'c> Table<'c, Data> {
             PercentileData,
             r#"
         SELECT
-            entry.dataset as "dataset!",
-            entry.dataset_name as "dataset_name!",
+            entry.dataset,
+            entry.dataset_name,
             entry.source as "source!",
             entry.start_date as "start_date!",
             entry.end_date as "end_date!",
@@ -225,7 +225,7 @@ impl<'c> Table<'c, Data> {
         let mut datasets: Vec<i32> = Vec::with_capacity(data.len());
         let mut start_dates: Vec<NaiveDate> = Vec::with_capacity(data.len());
         let mut end_dates: Vec<NaiveDate> = Vec::with_capacity(data.len());
-        let mut values: Vec<Option<f64>> = Vec::with_capacity(data.len());
+        let mut values: Vec<f64> = Vec::with_capacity(data.len());
         let mut geography_types: Vec<i32> = Vec::with_capacity(data.len());
 
         data.iter().for_each(|row| {
@@ -239,7 +239,7 @@ impl<'c> Table<'c, Data> {
         });
 
         // https://github.com/launchbadge/sqlx/issues/294#issuecomment-886080306
-        sqlx::query(
+        sqlx::query!(
             "
             INSERT INTO
             data (
@@ -253,16 +253,16 @@ impl<'c> Table<'c, Data> {
             )
             SELECT *
             FROM
-            UNNEST ($1, $2, $3, $4, $5, $6, $7)
+            UNNEST ($1::int[], $2::int[], $3::int[], $4::date[], $5::date[], $6::float[], $7::int[])
             ",
+            &ids,
+            &sources,
+            &datasets,
+            &start_dates,
+            &end_dates,
+            &values,
+            &geography_types
         )
-        .bind(ids)
-        .bind(sources)
-        .bind(datasets)
-        .bind(start_dates)
-        .bind(end_dates)
-        .bind(values)
-        .bind(geography_types)
         .execute(&*self.pool)
         .await
     }

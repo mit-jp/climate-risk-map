@@ -1,8 +1,8 @@
-import { useDispatch } from 'react-redux'
-import { Button, MenuItem, Select, TextField } from '@mui/material'
 import { Delete } from '@mui/icons-material'
-import { Column, removeColumn, selectColumn, setYear } from './uploaderSlice'
+import { Button, MenuItem, Select } from '@mui/material'
+import { useDispatch } from 'react-redux'
 import css from './Uploader.module.css'
+import { Column, removeColumn, selectColumn } from './uploaderSlice'
 
 export default function ColumnEditor({
     column,
@@ -44,26 +44,6 @@ export default function ColumnEditor({
                 })}
             </Select>
 
-            <TextField
-                required
-                label="Year"
-                type="number"
-                inputProps={{
-                    min: 0,
-                    max: 3000,
-                    step: 1,
-                }}
-                value={column.dateRange.start.year}
-                onChange={(e) =>
-                    dispatch(
-                        setYear({
-                            datasetId,
-                            columnName: column.name,
-                            year: Number(e.target.value),
-                        })
-                    )
-                }
-            />
             {canDelete && (
                 <Button
                     onClick={() => dispatch(removeColumn({ datasetId, column: column.name }))}

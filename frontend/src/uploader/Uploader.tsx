@@ -113,6 +113,12 @@ function Error({
                 return <p>Missing file</p>
             case 'Internal':
                 return <p>Something went wrong on the server. Contact an admin.</p>
+            case 'InvalidYear':
+                return (
+                    <p>
+                        Invalid year {e.info.year} on row {e.info.row}
+                    </p>
+                )
             default: {
                 const exhaustiveCheck: never = e
                 return exhaustiveCheck
@@ -181,11 +187,20 @@ function Uploader() {
                     }}
                 />
                 {file && (!metadata || !dataSources) && <p>loading...</p>}
+                {csv && metadata && (
+                    <CsvPreview
+                        csv={csv}
+                        idColumn={metadata.idColumn}
+                        dateColumn={metadata.dateColumn}
+                        dataColumns={dataColumns}
+                    />
+                )}
                 {metadata && dataSources && geographyTypes && (
                     <MetadataForm
                         freeColumns={metadata.freeColumns}
                         geographyType={metadata.geographyType}
                         idColumn={metadata.idColumn}
+                        dateColumn={metadata.dateColumn}
                         source={metadata.source}
                         datasets={metadata.datasets}
                         geographyTypes={geographyTypes}
@@ -212,10 +227,6 @@ function Uploader() {
                     />
                 )}
             </form>
-
-            {csv && metadata && (
-                <CsvPreview csv={csv} idColumn={metadata.idColumn} dataColumns={dataColumns} />
-            )}
         </div>
     )
 }

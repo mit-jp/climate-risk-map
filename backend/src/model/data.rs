@@ -23,7 +23,7 @@ pub struct Data {
     pub source: i32,
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
-    pub value: Option<f64>,
+    pub value: f64,
 }
 
 #[derive(Debug, Serialize)]
@@ -32,7 +32,7 @@ pub struct FullData {
     pub source: i32,
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
-    pub value: Option<f64>,
+    pub value: f64,
     pub dataset: i32,
     pub geography_type: i32,
 }
@@ -47,7 +47,7 @@ pub struct NewData {
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
     #[derivative(Hash = "ignore", PartialEq = "ignore")]
-    pub value: Option<f64>,
+    pub value: f64,
 }
 
 impl NewData {
@@ -72,13 +72,13 @@ pub struct ParsedData {
     pub end_date: NaiveDate,
     pub id: i32,
     #[derivative(Hash = "ignore", PartialEq = "ignore")]
-    pub value: Option<f64>,
+    pub value: f64,
 }
 
 #[derive(FromRow, Deserialize, Serialize)]
 pub struct SimpleData {
     pub id: i32,
-    pub value: Option<f64>,
+    pub value: f64,
 }
 
 #[derive(FromRow, Deserialize, Serialize)]

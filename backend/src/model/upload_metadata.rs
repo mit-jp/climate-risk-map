@@ -1,5 +1,4 @@
 use super::NewDataSource;
-use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -12,8 +11,6 @@ pub enum Source {
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
 pub struct Column {
     pub name: String,
-    pub start_date: NaiveDate,
-    pub end_date: NaiveDate,
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
@@ -29,6 +26,7 @@ pub struct NewDataset {
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
 pub struct UploadMetadata {
     pub id_column: String,
+    pub date_column: String,
     pub source: Source,
     pub datasets: Vec<NewDataset>,
 }
@@ -43,6 +41,7 @@ impl fmt::Display for UploadMetadata {
 fn test_parse_metadata() {
     let metadata_string = r#"{
         "id_column": "id",
+        "date_column": "date",
         "source": {
             "New": {
                 "name": "US Census Bureau",
@@ -80,6 +79,7 @@ fn test_parse_metadata() {
         metadata,
         UploadMetadata {
             id_column: "id".to_string(),
+            date_column: "date".to_string(),
             source: Source::New(NewDataSource {
                 name: "US Census Bureau".to_string(),
                 description: "Population estimates by the US Census Bureau".to_string(),
@@ -94,13 +94,9 @@ fn test_parse_metadata() {
                 columns: vec![
                     Column {
                         name: "POPESTIMATE2010".to_string(),
-                        start_date: NaiveDate::from_ymd_opt(2010, 1, 1).unwrap(),
-                        end_date: NaiveDate::from_ymd_opt(2010, 12, 31).unwrap(),
                     },
                     Column {
                         name: "POPESTIMATE2011".to_string(),
-                        start_date: NaiveDate::from_ymd_opt(2011, 1, 1).unwrap(),
-                        end_date: NaiveDate::from_ymd_opt(2011, 12, 31).unwrap(),
                     },
                 ],
             }],

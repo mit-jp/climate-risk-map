@@ -107,10 +107,6 @@ export type GeographyType = {
 
 export type UploadError =
     | {
-          name: 'InvalidCsv'
-          info: string
-      }
-    | {
           name: 'MissingColumn'
           info: {
               column: string
@@ -181,27 +177,14 @@ export type UploadError =
               link: string
           }
       }
-    | {
-          name: 'DataSourceIncomplete'
-      }
-    | {
-          name: 'DataSourceLinkInvalid'
-          info: string
-      }
-    | {
-          name: 'MissingMetadata'
-      }
-    | {
-          name: 'InvalidMetadata'
-          info: string
-      }
-    | {
-          name: 'MissingFile'
-      }
-    | {
-          name: 'Internal'
-          info: string
-      }
+    | { name: 'DataSourceIncomplete' }
+    | { name: 'DataSourceLinkInvalid'; info: string }
+    | { name: 'MissingMetadata' }
+    | { name: 'InvalidMetadata'; info: string }
+    | { name: 'MissingFile' }
+    | { name: 'Internal'; info: string }
+    | { name: 'InvalidYear'; info: { year: string; row: number } }
+    | { name: 'InvalidCsv'; info: string }
 
 const transformCountySummary = (csv: DSVParsedArray<CountyCsvRow>): Percentiles => {
     const countySummary: Percentiles = {}

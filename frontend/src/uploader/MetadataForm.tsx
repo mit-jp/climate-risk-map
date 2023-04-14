@@ -13,9 +13,11 @@ import { DataSource } from '../MapVisualization'
 import DatasetEditor from './DatasetEditor'
 import NewSourceInput from './NewSourceInput'
 import { FormData } from './UploadData'
+import css from './Uploader.module.css'
 import {
     Dataset,
     createDataset,
+    setDateColumn,
     setExistingSource,
     setGeographyType,
     setIdColumn,
@@ -28,6 +30,7 @@ function getPossibleColumns(
     columns: string[],
     datasets: Dataset[],
     idColumn: string | undefined,
+    dateColumn: string | undefined,
     datasetId: string
 ): string[] {
     const otherDatasetColumns = datasets
@@ -35,14 +38,19 @@ function getPossibleColumns(
         .flatMap((dataset) => dataset.columns)
         .map((column) => column.name)
     return (
-        columns.filter((column) => column !== idColumn && !otherDatasetColumns.includes(column)) ??
-        []
+        columns.filter(
+            (column) =>
+                column !== idColumn &&
+                column !== dateColumn &&
+                !otherDatasetColumns.includes(column)
+        ) ?? []
     )
 }
 
 export default function MetadataForm({
     geographyType,
     idColumn,
+    dateColumn,
     source,
     datasets,
     geographyTypes,
@@ -54,7 +62,9 @@ export default function MetadataForm({
 
     return (
         <>
-            <h2>Select geographic id column</h2>
+            <h2>
+                Select <span className={css.idColumn}>geographic ID column</span>
+            </h2>
             <Select
                 required
                 label="Geography type"
@@ -72,6 +82,22 @@ export default function MetadataForm({
                 label="Geographic id column"
                 onChange={(e) => dispatch(setIdColumn(e.target.value))}
                 value={idColumn}
+            >
+                {columns.map((column) => (
+                    <MenuItem value={column} key={column}>
+                        {column}
+                    </MenuItem>
+                ))}
+            </Select>
+
+            <h2>
+                Select <span className={css.dateColumn}>year column</span>
+            </h2>
+            <Select
+                required
+                label="Date"
+                onChange={(e) => dispatch(setDateColumn(e.target.value))}
+                value={dateColumn}
             >
                 {columns.map((column) => (
                     <MenuItem value={column} key={column}>
@@ -108,12 +134,20 @@ export default function MetadataForm({
                 />
             )}
             {!('id' in source) && <NewSourceInput source={source} />}
-            <h2>Data</h2>
+            <h2>
+                Select <span className={css.dataColumn}>data columns</span>
+            </h2>
             {datasets.map((dataset) => (
                 <DatasetEditor
                     dataset={dataset}
                     key={dataset.id}
-                    possibleColumns={getPossibleColumns(columns, datasets, idColumn, dataset.id)}
+                    possibleColumns={getPossibleColumns(
+                        columns,
+                        datasets,
+                        idColumn,
+                        dateColumn,
+                        dataset.id
+                    )}
                     deletable={datasets.length > 1}
                     freeColumns={freeColumns}
                 />

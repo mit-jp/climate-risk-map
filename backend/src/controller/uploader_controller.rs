@@ -28,6 +28,11 @@ enum Error {
         geo_id: String,
         row: usize,
     },
+    #[display(fmt = "Invalid year {year} in row {row}")]
+    InvalidYear {
+        year: String,
+        row: usize,
+    },
     #[display(fmt = "Invalid geo ids: {_0:#?}")]
     InvalidGeoIds(Vec<GeoId>),
     #[display(fmt = "Duplicate data in csv row {}", row)]
@@ -105,6 +110,34 @@ fn parse_csv(file: &File, metadata: &UploadMetadata) -> Result<HashSet<ParsedDat
             row: i,
         })?;
 
+        let year_str = match record.get(&metadata.date_column) {
+            None => {
+                return Err(Error::MissingColumn {
+                    record,
+                    column: metadata.date_column.clone(),
+                    row: i,
+                })
+            }
+            Some(year_str) => year_str,
+        };
+
+        let year: i32 = year_str
+            .parse::<i32>()
+            .map_err(|_| Error::GeoIdNotNumeric {
+                geo_id: year_str.to_string(),
+                row: i,
+            })?;
+        let start_date: chrono::NaiveDate = chrono::NaiveDate::from_ymd_opt(year, 1, 1)
+            .ok_or_else(|| Error::InvalidYear {
+                year: year_str.to_string(),
+                row: i,
+            })?;
+        let end_date: chrono::NaiveDate = chrono::NaiveDate::from_ymd_opt(year, 12, 31)
+            .ok_or_else(|| Error::InvalidYear {
+                year: year_str.to_string(),
+                row: i,
+            })?;
+
         for dataset in &metadata.datasets {
             for column in &dataset.columns {
                 let value = match record.get(&column.name) {
@@ -117,27 +150,31 @@ fn parse_csv(file: &File, metadata: &UploadMetadata) -> Result<HashSet<ParsedDat
                     }
                     Some(value) => value,
                 };
-                let value = value.parse::<f64>().ok();
-                let parsed_data = ParsedData {
-                    dataset: column.name.clone(),
-                    start_date: column.start_date,
-                    end_date: column.end_date,
-                    id,
-                    value,
-                };
-                let inserted = new_data.insert(parsed_data);
+                let value = value.parse::<f64>();
+                if let Ok(value) = value {
+                    // ignore empty values or values that can't parse to float
+                    // assume those are intentionally empty in the csv (no measured value)
+                    let parsed_data = ParsedData {
+                        start_date,
+                        end_date,
+                        dataset: column.name.clone(),
+                        id,
+                        value,
+                    };
+                    let inserted = new_data.insert(parsed_data);
 
-                if !inserted {
-                    return Err(Error::DuplicateDataInCsv {
-                        parsed_data: ParsedData {
-                            dataset: column.name.clone(),
-                            start_date: column.start_date,
-                            end_date: column.end_date,
-                            id,
-                            value,
-                        },
-                        row: i,
-                    });
+                    if !inserted {
+                        return Err(Error::DuplicateDataInCsv {
+                            parsed_data: ParsedData {
+                                start_date,
+                                end_date,
+                                dataset: column.name.clone(),
+                                id,
+                                value,
+                            },
+                            row: i,
+                        });
+                    }
                 }
             }
         }
@@ -282,13 +319,9 @@ mod tests {
                 columns: vec![
                     Column {
                         name: "value1".to_string(),
-                        start_date: NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
-                        end_date: NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
                     },
                     Column {
                         name: "value2".to_string(),
-                        start_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap(),
-                        end_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap(),
                     },
                 ],
                 geography_type: 1,
@@ -298,6 +331,7 @@ mod tests {
                 units: "units".to_string(),
             }],
             id_column: "id".to_string(),
+            date_column: "date".to_string(),
         }
     }
 
@@ -313,6 +347,7 @@ mod tests {
             && row == 0
             && record == HashMap::from([
                 ("id".to_string(), "1".to_string()),
+                ("date".to_string(), "2020".to_string()),
                 ("value1".to_string(), "11".to_string())
             ])
         );
@@ -329,6 +364,25 @@ mod tests {
             if column == "id"
             && row == 0
             && record == HashMap::from([
+                ("date".to_string(), "2020".to_string()),
+                ("value1".to_string(), "11".to_string()),
+                ("value2".to_string(), "21".to_string())
+            ])
+        );
+    }
+
+    #[test]
+    fn it_reports_missing_date_column() {
+        let metadata = metadata();
+        let file = File::open("src/controller/test_data/missing_date_column.csv").unwrap();
+        let result = parse_csv(&file, &metadata);
+        assert_matches!(
+            result,
+            Err(Error::MissingColumn { column, row, record })
+            if column == "date"
+            && row == 0
+            && record == HashMap::from([
+                ("id".to_string(), "1".to_string()),
                 ("value1".to_string(), "11".to_string()),
                 ("value2".to_string(), "21".to_string())
             ])
@@ -347,53 +401,54 @@ mod tests {
     fn test_valid_csv() {
         let metadata = metadata();
         let file = File::open("src/controller/test_data/valid_data.csv").unwrap();
-        let result = parse_csv(&file, &metadata);
+        let received = parse_csv(&file, &metadata).unwrap();
+        let expected = HashSet::from([
+            ParsedData {
+                dataset: "value1".to_string(),
+                start_date: NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
+                end_date: NaiveDate::from_ymd_opt(2020, 12, 31).unwrap(),
+                id: 1,
+                value: 11.0,
+            },
+            ParsedData {
+                dataset: "value1".to_string(),
+                start_date: NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
+                end_date: NaiveDate::from_ymd_opt(2020, 12, 31).unwrap(),
+                id: 3,
+                value: 13.0,
+            },
+            ParsedData {
+                dataset: "value2".to_string(),
+                start_date: NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
+                end_date: NaiveDate::from_ymd_opt(2020, 12, 31).unwrap(),
+                id: 1,
+                value: 21.0,
+            },
+            ParsedData {
+                dataset: "value2".to_string(),
+                start_date: NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
+                end_date: NaiveDate::from_ymd_opt(2020, 12, 31).unwrap(),
+                id: 3,
+                value: 23.0,
+            },
+            ParsedData {
+                dataset: "value2".to_string(),
+                start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+                end_date: NaiveDate::from_ymd_opt(2022, 12, 31).unwrap(),
+                id: 5,
+                value: 25.0,
+            },
+            ParsedData {
+                dataset: "value1".to_string(),
+                start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+                end_date: NaiveDate::from_ymd_opt(2022, 12, 31).unwrap(),
+                id: 7,
+                value: 17.7,
+            },
+        ]);
         assert_eq!(
-            result.unwrap(),
-            HashSet::from([
-                ParsedData {
-                    dataset: "value1".to_string(),
-                    start_date: NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
-                    end_date: NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
-                    id: 1,
-                    value: Some(11.0),
-                },
-                ParsedData {
-                    dataset: "value1".to_string(),
-                    start_date: NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
-                    end_date: NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
-                    id: 3,
-                    value: Some(13.0),
-                },
-                ParsedData {
-                    dataset: "value1".to_string(),
-                    start_date: NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
-                    end_date: NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
-                    id: 5,
-                    value: None,
-                },
-                ParsedData {
-                    dataset: "value2".to_string(),
-                    start_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap(),
-                    end_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap(),
-                    id: 1,
-                    value: Some(21.0),
-                },
-                ParsedData {
-                    dataset: "value2".to_string(),
-                    start_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap(),
-                    end_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap(),
-                    id: 3,
-                    value: Some(23.0),
-                },
-                ParsedData {
-                    dataset: "value2".to_string(),
-                    start_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap(),
-                    end_date: NaiveDate::from_ymd_opt(2021, 1, 1).unwrap(),
-                    id: 5,
-                    value: None,
-                },
-            ])
+            expected, received,
+            "\nexpected: {expected:#?}\nreceived: {received:#?}\n",
         );
     }
 }

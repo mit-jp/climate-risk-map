@@ -5,15 +5,20 @@ import { Column } from './uploaderSlice'
 export default function CsvPreview({
     csv,
     idColumn = undefined,
+    dateColumn = undefined,
     dataColumns = [],
 }: {
     csv: Papa.ParseResult<any>
     idColumn?: string
+    dateColumn?: string
     dataColumns?: Column[]
 }) {
     const getClassName = (column: string): string | undefined => {
         if (column === idColumn) {
             return css.idColumn
+        }
+        if (column === dateColumn) {
+            return css.dateColumn
         }
         if (dataColumns.map((c) => c.name).includes(column)) {
             return css.dataColumn

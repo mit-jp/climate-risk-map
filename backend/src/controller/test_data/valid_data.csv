@@ -1,4 +1,5 @@
-id,value1,value2
-1,11,21
-3,13,23
-5,missing_data,
+id,date,value1,value2
+1,2020,11,21
+3,2020,13,23
+5,2022,missing_data,25
+7,2022,17.7,
