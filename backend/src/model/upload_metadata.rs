@@ -22,13 +22,13 @@ pub struct NewDataset {
     pub name: String,
     pub short_name: String,
     pub units: String,
+    pub geography_type: i32,
     pub description: String,
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
 pub struct UploadMetadata {
-    pub state_id_column: String,
-    pub county_id_column: String,
+    pub id_column: String,
     pub source: Source,
     pub datasets: Vec<NewDataset>,
 }
@@ -42,8 +42,7 @@ impl fmt::Display for UploadMetadata {
 #[test]
 fn test_parse_metadata() {
     let metadata_string = r#"{
-        "state_id_column": "STATEFP",
-        "county_id_column": "COUNTYFP",
+        "id_column": "id",
         "source": {
             "New": {
                 "name": "US Census Bureau",
@@ -56,7 +55,8 @@ fn test_parse_metadata() {
                 "name": "Population",
                 "short_name": "population",
                 "units": "people",
-                "description": "",
+                "geography_type": 1,
+                "description": "this is the description",
                 "columns": [
                     {
                         "name": "POPESTIMATE2010",
@@ -79,8 +79,7 @@ fn test_parse_metadata() {
     assert_eq!(
         metadata,
         UploadMetadata {
-            state_id_column: "STATEFP".to_string(),
-            county_id_column: "COUNTYFP".to_string(),
+            id_column: "id".to_string(),
             source: Source::New(NewDataSource {
                 name: "US Census Bureau".to_string(),
                 description: "Population estimates by the US Census Bureau".to_string(),
@@ -90,7 +89,8 @@ fn test_parse_metadata() {
                 name: "Population".to_string(),
                 short_name: "population".to_string(),
                 units: "people".to_string(),
-                description: "".to_string(),
+                geography_type: 1,
+                description: "this is the description".to_string(),
                 columns: vec![
                     Column {
                         name: "POPESTIMATE2010".to_string(),

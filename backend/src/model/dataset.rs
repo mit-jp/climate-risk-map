@@ -1,12 +1,13 @@
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
-#[derive(FromRow, Deserialize, Serialize)]
+#[derive(FromRow, Deserialize, Serialize, Debug)]
 pub struct Dataset {
     pub id: i32,
     pub short_name: String,
     pub name: String,
     pub description: String,
+    pub geography_type: i32,
     pub units: String,
 }
 
@@ -16,5 +17,6 @@ pub struct DatasetDiff {
     pub short_name: Option<String>,
     pub name: Option<String>,
     pub description: Option<String>,
+    pub geography_type: Option<i32>,
     pub units: Option<String>,
 }

@@ -14,6 +14,7 @@ interface Column {
 }
 
 interface NewDataset {
+    readonly geography_type: number
     readonly columns: Column[]
     readonly name: string
     readonly short_name: string
@@ -23,15 +24,14 @@ interface NewDataset {
 
 export default interface UploadData {
     readonly file: File
-    readonly state_id_column: string
-    readonly county_id_column: string
+    readonly id_column: string
     readonly source: { ExistingId: number } | { New: NewSource }
     readonly datasets: NewDataset[]
 }
 
 export interface FormData {
-    stateColumn: string
-    countyColumn: string
+    geographyType: number
+    idColumn: string
     source: NewSource | DataSource
     datasets: Dataset[]
     columns: string[]
@@ -39,14 +39,14 @@ export interface FormData {
 }
 
 export const uploadDataFromForm = (formData: FormData, file: File): UploadData => {
-    const { stateColumn, countyColumn, source, datasets } = formData
+    const { idColumn, source, datasets } = formData
 
     return {
         file,
-        state_id_column: stateColumn,
-        county_id_column: countyColumn,
+        id_column: idColumn,
         source: 'id' in source ? { ExistingId: source.id } : { New: source },
         datasets: datasets.map(({ name, shortName, units, description, columns }) => ({
+            geography_type: formData.geographyType,
             name,
             short_name: shortName,
             units,

@@ -4,21 +4,16 @@ import { Column } from './uploaderSlice'
 
 export default function CsvPreview({
     csv,
-    stateColumn = undefined,
-    countyColumn = undefined,
+    idColumn = undefined,
     dataColumns = [],
 }: {
     csv: Papa.ParseResult<any>
-    stateColumn?: string
-    countyColumn?: string
+    idColumn?: string
     dataColumns?: Column[]
 }) {
     const getClassName = (column: string): string | undefined => {
-        if (column === countyColumn) {
-            return css.countyColumn
-        }
-        if (column === stateColumn) {
-            return css.stateColumn
+        if (column === idColumn) {
+            return css.idColumn
         }
         if (dataColumns.map((c) => c.name).includes(column)) {
             return css.dataColumn

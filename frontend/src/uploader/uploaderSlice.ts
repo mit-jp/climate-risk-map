@@ -1,11 +1,11 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit'
-import Papa from 'papaparse'
 import { DateTime, Interval } from 'luxon'
-import { v4 as uuid } from 'uuid'
+import Papa from 'papaparse'
 import { convert as makeUrlFriendly } from 'url-slug'
+import { v4 as uuid } from 'uuid'
+import { DataSource } from '../MapVisualization'
 import { RootState } from '../store'
 import { FormData, NewSource } from './UploadData'
-import { DataSource } from '../MapVisualization'
 
 export interface Column {
     readonly name: string
@@ -31,8 +31,8 @@ export interface DatasetDiff {
 
 interface UploaderState {
     readonly csv?: Papa.ParseResult<any>
-    readonly stateColumn: string
-    readonly countyColumn: string
+    readonly geographyType: number
+    readonly idColumn: string
     readonly datasets: Dataset[]
     readonly source: NewSource | DataSource
 }
@@ -41,8 +41,8 @@ const emptySource: NewSource = { name: '', description: '', link: '' }
 
 const initialState: UploaderState = {
     datasets: [],
-    stateColumn: '',
-    countyColumn: '',
+    geographyType: 1,
+    idColumn: '',
     source: emptySource,
 }
 
@@ -64,33 +64,19 @@ const findColumn = (
 }
 const generateDataColumns = (datasets: Dataset[]) => datasets.flatMap((d) => d.columns)
 
-const findFreeColumns = (
-    stateColumn: string | undefined,
-    countyColumn: string | undefined,
-    columns: string[],
-    dataColumns: Column[]
-): string[] => {
+const findFreeColumns = (idColumn: string, columns: string[], dataColumns: Column[]): string[] => {
     if (columns.length === 0) {
         return []
     }
-    const usedColumns: (string | undefined)[] = [
-        stateColumn,
-        countyColumn,
-        ...dataColumns.map((c) => c.name),
-    ]
+    const usedColumns: (string | undefined)[] = [idColumn, ...dataColumns.map((c) => c.name)]
     const freeColumns = columns.filter((c) => !usedColumns.includes(c))
     return freeColumns
 }
 
 const generateNextColumn = (state: UploaderState): Column | undefined => {
-    const { stateColumn, countyColumn, datasets, csv } = state
+    const { idColumn, datasets, csv } = state
     const dataColumns = generateDataColumns(datasets)
-    const freeColumns = findFreeColumns(
-        stateColumn,
-        countyColumn,
-        csv?.meta?.fields ?? [],
-        dataColumns
-    )
+    const freeColumns = findFreeColumns(idColumn, csv?.meta?.fields ?? [], dataColumns)
     if (freeColumns.length === 0) {
         return undefined
     }
@@ -117,8 +103,8 @@ const generateNextDataset = (state: UploaderState): Dataset | undefined => {
 
 const generateMetadata = (
     datasets: Dataset[],
-    stateColumn: string,
-    countyColumn: string,
+    geographyType: number,
+    idColumn: string,
     source: NewSource | DataSource,
     columns: string[] | undefined
 ): FormData | undefined => {
@@ -126,11 +112,11 @@ const generateMetadata = (
         return undefined
     }
     const dataColumns = generateDataColumns(datasets)
-    const freeColumns = findFreeColumns(stateColumn, countyColumn, columns, dataColumns)
+    const freeColumns = findFreeColumns(idColumn, columns, dataColumns)
     return {
         datasets,
-        stateColumn,
-        countyColumn,
+        geographyType,
+        idColumn,
         source,
         columns,
         freeColumns,
@@ -143,8 +129,7 @@ export const uploaderSlice = createSlice({
     reducers: {
         setCsv: (state, { payload }: { payload: Papa.ParseResult<any> }) => {
             state.csv = payload
-            state.stateColumn = findColumn(state.csv.meta.fields, 'state_id', 0) ?? ''
-            state.countyColumn = findColumn(state.csv.meta.fields, 'county_id', 1) ?? ''
+            state.idColumn = findColumn(state.csv.meta.fields, 'id', 0) ?? ''
             const dataset = generateNextDataset(state)
             if (dataset) {
                 state.datasets = [dataset]
@@ -156,11 +141,11 @@ export const uploaderSlice = createSlice({
                 state.datasets.push(dataset)
             }
         },
-        setStateColumn: (state, { payload }: { payload: string }) => {
-            state.stateColumn = payload
+        setGeographyType: (state, { payload }: { payload: number }) => {
+            state.geographyType = payload
         },
-        setCountyColumn: (state, { payload }: { payload: string }) => {
-            state.countyColumn = payload
+        setIdColumn: (state, { payload }: { payload: string }) => {
+            state.idColumn = payload
         },
         setSourceName: (state, { payload }: { payload: string }) => {
             state.source.name = payload
@@ -266,8 +251,8 @@ export const uploaderSlice = createSlice({
 export const {
     setCsv,
     createDataset,
-    setStateColumn,
-    setCountyColumn,
+    setGeographyType,
+    setIdColumn,
     setSourceName,
     setSourceLink,
     setSourceDescription,
@@ -290,8 +275,8 @@ export const selectDataColumns = createSelector(
 
 export const selectMetadata = createSelector(
     (state: RootState) => state.uploader.datasets,
-    (state: RootState) => state.uploader.stateColumn,
-    (state: RootState) => state.uploader.countyColumn,
+    (state: RootState) => state.uploader.geographyType,
+    (state: RootState) => state.uploader.idColumn,
     (state: RootState) => state.uploader.source,
     (state: RootState) => state.uploader.csv?.meta?.fields,
     generateMetadata

@@ -5,6 +5,7 @@ use sqlx::postgres::PgQueryResult;
 
 use crate::controller::data_controller::PercentileInfo;
 use crate::model::Data;
+use crate::model::FullData;
 use crate::model::NewData;
 use crate::model::PercentileData;
 use crate::model::SimpleData;
@@ -13,6 +14,44 @@ use super::SourceAndDate;
 use super::Table;
 
 impl<'c> Table<'c, Data> {
+    pub async fn first_duplicate(
+        &self,
+        data: &HashSet<NewData>,
+    ) -> Result<Option<FullData>, sqlx::Error> {
+        let mut ids: Vec<i32> = Vec::with_capacity(data.len());
+        let mut sources: Vec<i32> = Vec::with_capacity(data.len());
+        let mut datasets: Vec<i32> = Vec::with_capacity(data.len());
+        let mut start_dates: Vec<NaiveDate> = Vec::with_capacity(data.len());
+        let mut end_dates: Vec<NaiveDate> = Vec::with_capacity(data.len());
+
+        data.iter().for_each(|row| {
+            ids.push(row.id);
+            sources.push(row.source);
+            datasets.push(row.dataset);
+            start_dates.push(row.start_date);
+            end_dates.push(row.end_date);
+        });
+
+        sqlx::query_as!(
+            FullData,
+            "
+            SELECT *
+            FROM data
+            WHERE (id, source, dataset, start_date, end_date) IN (
+                SELECT * FROM UNNEST($1::int[], $2::int[], $3::int[], $4::date[], $5::date[])
+            )
+            LIMIT 1
+            ",
+            &ids,
+            &sources,
+            &datasets,
+            &start_dates,
+            &end_dates,
+        )
+        .fetch_optional(&*self.pool)
+        .await
+    }
+
     pub async fn by_dataset(
         &self,
         dataset: i32,
@@ -179,60 +218,51 @@ impl<'c> Table<'c, Data> {
         .fetch_all(&*self.pool)
         .await
     }
+
     pub async fn insert(&self, data: &HashSet<NewData>) -> Result<PgQueryResult, sqlx::Error> {
-        let mut county_ids: Vec<i16> = Vec::with_capacity(data.len());
-        let mut state_ids: Vec<i16> = Vec::with_capacity(data.len());
+        let mut ids: Vec<i32> = Vec::with_capacity(data.len());
         let mut sources: Vec<i32> = Vec::with_capacity(data.len());
         let mut datasets: Vec<i32> = Vec::with_capacity(data.len());
         let mut start_dates: Vec<NaiveDate> = Vec::with_capacity(data.len());
         let mut end_dates: Vec<NaiveDate> = Vec::with_capacity(data.len());
         let mut values: Vec<Option<f64>> = Vec::with_capacity(data.len());
+        let mut geography_types: Vec<i32> = Vec::with_capacity(data.len());
 
         data.iter().for_each(|row| {
-            county_ids.push(row.county_id);
-            state_ids.push(row.state_id);
+            ids.push(row.id);
             sources.push(row.source);
             datasets.push(row.dataset);
             start_dates.push(row.start_date);
             end_dates.push(row.end_date);
             values.push(row.value);
+            geography_types.push(row.geography_type);
         });
 
+        // https://github.com/launchbadge/sqlx/issues/294#issuecomment-886080306
         sqlx::query(
             "
             INSERT INTO
-            county_data (
-                state_id,
-                county_id,
+            data (
+                id,
                 source,
                 dataset,
                 start_date,
                 end_date,
-                value
+                value,
+                geography_type
             )
-            SELECT
-                new.*
+            SELECT *
             FROM
-                UNNEST ($1, $2, $3, $4, $5, $6, $7) AS new (
-                    state_id,
-                    county_id,
-                    source,
-                    dataset,
-                    start_date,
-                    end_date,
-                    value
-                )
-                JOIN county ON new.state_id = county.state
-                AND new.county_id = county.id
+            UNNEST ($1, $2, $3, $4, $5, $6, $7)
             ",
         )
-        .bind(county_ids)
-        .bind(state_ids)
+        .bind(ids)
         .bind(sources)
         .bind(datasets)
         .bind(start_dates)
         .bind(end_dates)
         .bind(values)
+        .bind(geography_types)
         .execute(&*self.pool)
         .await
     }

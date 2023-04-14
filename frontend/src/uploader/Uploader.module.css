@@ -12,12 +12,8 @@
     padding: 0.5em 1em 0 0;
 }
 
-.county-column {
+.id-column {
     background-color: yellow;
-}
-
-.state-column {
-    background-color: pink;
 }
 
 .data-column {
@@ -65,5 +61,13 @@
 }
 
 #submit {
+    margin-top: 1em;
+}
+
+.error {
+    background: rgb(255, 217, 217);
+    border: 3px solid rgb(214, 1, 1);
+    border-radius: 5px;
+    padding: 12px;
     margin-top: 1em;
 }

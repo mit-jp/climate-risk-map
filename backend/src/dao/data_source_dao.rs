@@ -13,6 +13,16 @@ impl<'c> Table<'c, DataSource> {
             .await
     }
 
+    pub async fn by_name(&self, name: &str) -> Result<Option<DataSource>, sqlx::Error> {
+        sqlx::query_as!(
+            DataSource,
+            "SELECT * FROM data_source WHERE name = $1",
+            name
+        )
+        .fetch_optional(&*self.pool)
+        .await
+    }
+
     pub async fn by_dataset(&self, id: i32) -> Result<Vec<DataSource>, sqlx::Error> {
         sqlx::query_as!(
             DataSource,

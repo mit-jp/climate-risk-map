@@ -22,3 +22,9 @@ log = "0.4"
 env_logger = "0.9"
 awmp = "0.8.1"
 derivative = "2.2.0"
+derive_more = { version = "0.99.17", default-features = false, features = [
+    "display",
+] }
+
+[dev-dependencies]
+assert_matches = "1.5"

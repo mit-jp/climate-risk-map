@@ -11,6 +11,7 @@ import {
     useGetStatesQuery,
     useGetTabsQuery,
 } from '../MapApi'
+import { stateId } from '../appSlice'
 import css from './ReportCard.module.css'
 
 function Percentile({ value }: { value: number }) {
@@ -91,8 +92,13 @@ function PercentileReport({
     )
 }
 
-const fipsCode = (county: County) =>
-    String(county.state).padStart(2, '0') + String(county.id).padStart(3, '0')
+/**
+ * County FIPS codes are 5 characters with 0s padded in the map,
+ * so 1234 -> "01234"
+ * @param county the county to get the FIPS code for
+ * @returns FIPS code for the county
+ */
+const fipsCode = (county: County) => String(county.id).padStart(5, '0')
 
 export default function ReportCard() {
     const params = useParams()
@@ -121,7 +127,7 @@ export default function ReportCard() {
                 loading={countyList.length === 0 && !states}
                 options={countyList}
                 getOptionLabel={(county) =>
-                    `${county.name}, ${states ? states[county.state].name : ''}`
+                    `${county.name}, ${states ? states[stateId(county.id)].name : ''}`
                 }
                 renderInput={(p) => <TextField {...p} label="County" />}
                 onChange={(_, county) => {
@@ -135,7 +141,7 @@ export default function ReportCard() {
             />
             {selectedRegion && states && categoryId !== undefined && (
                 <PercentileReport
-                    geoId={selectedRegion.state * 1000 + selectedRegion.id}
+                    geoId={selectedRegion.id}
                     category={categoryId}
                     geographyType={1}
                 />

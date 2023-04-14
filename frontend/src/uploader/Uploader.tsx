@@ -1,13 +1,18 @@
-import React, { FormEvent, useState } from 'react'
+import { LoadingButton } from '@mui/lab'
 import Papa from 'papaparse'
+import React, { FormEvent, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Button } from '@mui/material'
-import css from './Uploader.module.css'
-import { selectCsv, selectDataColumns, selectMetadata, setCsv } from './uploaderSlice'
+import {
+    UploadError,
+    useGetDataSourcesQuery,
+    useGetGeographyTypesQuery,
+    useUploadMutation,
+} from '../MapApi'
 import CsvPreview from './CsvPreview'
 import MetadataForm from './MetadataForm'
-import UploadData, { uploadDataFromForm, FormData } from './UploadData'
-import { useGetDataSourcesQuery, useUploadMutation } from '../MapApi'
+import UploadData, { FormData, uploadDataFromForm } from './UploadData'
+import css from './Uploader.module.css'
+import { selectCsv, selectDataColumns, selectMetadata, setCsv } from './uploaderSlice'
 
 function stopPropagation(e: React.DragEvent) {
     e.stopPropagation()
@@ -17,9 +22,7 @@ function stopPropagation(e: React.DragEvent) {
 const valid = (metadata: FormData, file: File, csv: Papa.ParseResult<any>) => {
     const validColumns = csv.meta?.fields ?? []
     return (
-        metadata.stateColumn !== metadata.countyColumn &&
-        validColumns.includes(metadata.stateColumn) &&
-        validColumns.includes(metadata.countyColumn) &&
+        validColumns.includes(metadata.idColumn) &&
         metadata.datasets.length > 0 &&
         (typeof metadata.source === 'number' ||
             (metadata.source.description.length > 0 &&
@@ -34,14 +37,89 @@ const valid = (metadata: FormData, file: File, csv: Papa.ParseResult<any>) => {
     )
 }
 
+const pretty = (any: object): string => JSON.stringify(any, null, 2)
+
+function Error({ e }: { e: UploadError }) {
+    const details = (e: UploadError) => {
+        switch (e.name) {
+            case 'InvalidCsv':
+                return <p>Invalid csv file: {e}</p>
+            case 'MissingColumn':
+                return (
+                    <p>
+                        Missing column {e.info.column} at row {e.info.row}:{pretty(e.info.record)}
+                    </p>
+                )
+            case 'GeoIdNotNumeric':
+                return (
+                    <p>
+                        Geo ID {e.info.geo_id} at row {e.info.row} is not valid
+                    </p>
+                )
+            case 'InvalidGeoIds':
+                return (
+                    <>
+                        <p>Geo IDs are invalid</p>
+                        <ul>
+                            {e.info.map((geoId) => (
+                                <li key={`${geoId.id} ${geoId.geography_type}`}>{pretty(geoId)}</li>
+                            ))}
+                        </ul>
+                    </>
+                )
+            case 'DuplicateDataInCsv':
+                return (
+                    <p>
+                        Duplicate data in csv at row {e.info.row}: {pretty(e.info.parsed_data)}
+                    </p>
+                )
+            case 'DuplicateDataInDb':
+                return <p>Duplicate data in database: {pretty(e.info)}</p>
+            case 'DuplicateDatasets':
+                return (
+                    <>
+                        <p>Duplicate dataset{e.info.length > 1 ? 's' : ''}</p>
+                        <ul>
+                            {e.info.map((dataset) => (
+                                <li key={`${dataset.short_name} ${dataset.name}`}>
+                                    name: {dataset.name}, short_name: {dataset.short_name}
+                                </li>
+                            ))}
+                        </ul>
+                    </>
+                )
+            case 'DuplicateDataSource':
+                return <p>Duplicate data source: {e.info}</p>
+            case 'DataSourceIncomplete':
+                return <p>Data source incomplete</p>
+            case 'DataSourceLinkInvalid':
+                return <p>Data source link is invalid: {e.info}</p>
+            case 'MissingMetadata':
+                return <p>Missing metadata</p>
+            case 'InvalidMetadata':
+                return <p>Invalid metadata: {e.info}</p>
+            case 'MissingFile':
+                return <p>Missing file</p>
+            case 'Internal':
+                return <p>Something went wrong on the server. Contact an admin.</p>
+            default: {
+                const exhaustiveCheck: never = e
+                return exhaustiveCheck
+            }
+        }
+    }
+    return <div className={css.error}>{details(e)}</div>
+}
+
 function Uploader() {
     const [file, setFile] = useState<File>()
     const dispatch = useDispatch()
     const dataColumns = useSelector(selectDataColumns)
     const csv = useSelector(selectCsv)
     const metadata = useSelector(selectMetadata)
-    const [upload] = useUploadMutation()
+    const [upload, { error, isLoading, isSuccess, isError }] = useUploadMutation()
     const { data: dataSources } = useGetDataSourcesQuery(undefined)
+    const { data: geographyTypes } = useGetGeographyTypesQuery(undefined)
 
     const handleFiles = (files: FileList) => {
         const loadedFile = files[0]
@@ -92,31 +170,34 @@ function Uploader() {
                     }}
                 />
                 {file && (!metadata || !dataSources) && <p>loading...</p>}
-                {metadata && dataSources && (
+                {metadata && dataSources && geographyTypes && (
                     <MetadataForm
                         freeColumns={metadata.freeColumns}
-                        stateColumn={metadata.stateColumn}
-                        countyColumn={metadata.countyColumn}
+                        geographyType={metadata.geographyType}
+                        idColumn={metadata.idColumn}
                         source={metadata.source}
                         datasets={metadata.datasets}
+                        geographyTypes={geographyTypes}
                         columns={metadata.columns}
                         dataSources={dataSources}
                     />
                 )}
                 {metadata && dataSources && (
-                    <Button variant="contained" id={css.submit} type="submit">
+                    <LoadingButton
+                        variant="contained"
+                        id={css.submit}
+                        type="submit"
+                        loading={isLoading}
+                    >
                         Submit
-                    </Button>
+                    </LoadingButton>
                 )}
+                {isSuccess && <p>Upload successful</p>}
+                {isError && error && <Error e={error as UploadError} />}
             </form>
 
             {csv && metadata && (
-                <CsvPreview
-                    csv={csv}
-                    stateColumn={metadata.stateColumn}
-                    countyColumn={metadata.countyColumn}
-                    dataColumns={dataColumns}
-                />
+                <CsvPreview csv={csv} idColumn={metadata.idColumn} dataColumns={dataColumns} />
             )}
         </div>
     )

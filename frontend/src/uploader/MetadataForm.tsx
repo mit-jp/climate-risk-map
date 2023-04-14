@@ -8,26 +8,26 @@ import {
     TextField,
 } from '@mui/material'
 import { useDispatch } from 'react-redux'
+import { GeographyType } from '../MapApi'
+import { DataSource } from '../MapVisualization'
 import DatasetEditor from './DatasetEditor'
+import NewSourceInput from './NewSourceInput'
+import { FormData } from './UploadData'
 import {
-    createDataset,
     Dataset,
-    setCountyColumn,
+    createDataset,
     setExistingSource,
-    setStateColumn,
+    setGeographyType,
+    setIdColumn,
     toggleExistingSource,
 } from './uploaderSlice'
-import { FormData } from './UploadData'
-import { DataSource } from '../MapVisualization'
-import NewSourceInput from './NewSourceInput'
 
 export const INPUT_MARGIN = { margin: '0.5em 0' }
 
 function getPossibleColumns(
     columns: string[],
     datasets: Dataset[],
-    stateColumn: string | undefined,
-    countyColumn: string | undefined,
+    idColumn: string | undefined,
     datasetId: string
 ): string[] {
     const otherDatasetColumns = datasets
@@ -35,48 +35,43 @@ function getPossibleColumns(
         .flatMap((dataset) => dataset.columns)
         .map((column) => column.name)
     return (
-        columns.filter(
-            (column) =>
-                column !== stateColumn &&
-                column !== countyColumn &&
-                !otherDatasetColumns.includes(column)
-        ) ?? []
+        columns.filter((column) => column !== idColumn && !otherDatasetColumns.includes(column)) ??
+        []
     )
 }
 
 export default function MetadataForm({
-    stateColumn,
-    countyColumn,
+    geographyType,
+    idColumn,
     source,
     datasets,
+    geographyTypes,
     columns,
     freeColumns,
     dataSources,
-}: FormData & { dataSources: DataSource[] }) {
+}: FormData & { dataSources: DataSource[]; geographyTypes: GeographyType[] }) {
     const dispatch = useDispatch()
 
     return (
         <>
-            <h2>Select state id column</h2>
+            <h2>Select geographic id column</h2>
             <Select
                 required
-                label="State id column"
-                onChange={(e) => dispatch(setStateColumn(e.target.value))}
-                value={stateColumn}
+                label="Geography type"
+                onChange={(e) => dispatch(setGeographyType(Number(e.target.value)))}
+                value={geographyType}
             >
-                {columns.map((column) => (
-                    <MenuItem value={column} key={column}>
-                        {column}
+                {geographyTypes.map((type) => (
+                    <MenuItem value={type.id} key={type.id}>
+                        {type.name}
                     </MenuItem>
                 ))}
             </Select>
-
-            <h2>Select county id column</h2>
             <Select
                 required
-                label="County id column"
-                onChange={(e) => dispatch(setCountyColumn(e.target.value))}
-                value={countyColumn}
+                label="Geographic id column"
+                onChange={(e) => dispatch(setIdColumn(e.target.value))}
+                value={idColumn}
             >
                 {columns.map((column) => (
                     <MenuItem value={column} key={column}>
@@ -118,13 +113,7 @@ export default function MetadataForm({
                 <DatasetEditor
                     dataset={dataset}
                     key={dataset.id}
-                    possibleColumns={getPossibleColumns(
-                        columns,
-                        datasets,
-                        stateColumn,
-                        countyColumn,
-                        dataset.id
-                    )}
+                    possibleColumns={getPossibleColumns(columns, datasets, idColumn, dataset.id)}
                     deletable={datasets.length > 1}
                     freeColumns={freeColumns}
                 />

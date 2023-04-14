@@ -1,3 +1,5 @@
+use std::fmt::{Display, Formatter};
+
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
@@ -7,6 +9,12 @@ pub struct DataSource {
     pub name: String,
     pub description: String,
     pub link: String,
+}
+
+impl Display for DataSource {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.name)
+    }
 }
 
 #[derive(Deserialize, Serialize)]
