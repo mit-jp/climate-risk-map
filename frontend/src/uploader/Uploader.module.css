@@ -1,5 +1,5 @@
 #csv-preview {
-    background-color: #eee;
+    border-top: 1px solid #ccc;
     overflow-x: auto;
     margin-top: 1em;
 }
@@ -13,11 +13,11 @@
 }
 
 .id-column {
-    background-color: yellow;
+    background-color: rgb(190, 221, 248);
 }
 
 .data-column {
-    background-color: #ccc;
+    background-color: rgb(190, 221, 248);
 }
 
 .dataset-editor {
@@ -64,10 +64,19 @@
     margin-top: 1em;
 }
 
-.error {
-    background: rgb(255, 217, 217);
-    border: 3px solid rgb(214, 1, 1);
-    border-radius: 5px;
+.error,
+.success {
     padding: 12px;
     margin-top: 1em;
+    border-radius: 5px;
+}
+
+.error {
+    background: rgb(255, 238, 238);
+    border: 3px solid rgb(214, 1, 1);
+}
+
+.success {
+    background-color: rgb(238, 238, 255);
+    border: 3px solid rgb(142, 142, 255);
 }

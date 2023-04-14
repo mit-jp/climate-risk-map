@@ -3,6 +3,7 @@ import Papa from 'papaparse'
 import React, { FormEvent, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
+    GeographyType,
     UploadError,
     useGetDataSourcesQuery,
     useGetGeographyTypesQuery,
@@ -39,7 +40,16 @@ const valid = (metadata: FormData, file: File, csv: Papa.ParseResult<any>) => {
 
 const pretty = (any: object): string => JSON.stringify(any, null, 2)
 
-function Error({ e }: { e: UploadError }) {
+function Error({
+    e,
+    geographyTypes,
+    geographyType,
+}: {
+    e: UploadError
+    geographyTypes?: GeographyType[]
+    geographyType?: number
+}) {
+    const idName = `${geographyTypes?.find((g) => g.id === geographyType)?.name} ID` ?? 'Geo ID'
     const details = (e: UploadError) => {
         switch (e.name) {
             case 'InvalidCsv':
@@ -53,16 +63,16 @@ function Error({ e }: { e: UploadError }) {
             case 'GeoIdNotNumeric':
                 return (
                     <p>
-                        Geo ID {e.info.geo_id} at row {e.info.row} is not valid
+                        {idName} {e.info.geo_id} at row {e.info.row} is not valid
                     </p>
                 )
             case 'InvalidGeoIds':
                 return (
                     <>
-                        <p>Geo IDs are invalid</p>
+                        <p>These {idName}s are invalid:</p>
                         <ul>
                             {e.info.map((geoId) => (
-                                <li key={`${geoId.id} ${geoId.geography_type}`}>{pretty(geoId)}</li>
+                                <li key={`${geoId.id} ${geoId.geography_type}`}>{geoId.id}</li>
                             ))}
                         </ul>
                     </>
@@ -70,7 +80,8 @@ function Error({ e }: { e: UploadError }) {
             case 'DuplicateDataInCsv':
                 return (
                     <p>
-                        Duplicate data in csv at row {e.info.row}: {pretty(e.info.parsed_data)}
+                        Row {e.info.row} has the same dataset, date, and {idName} as a previous row:
+                        {pretty(e.info.parsed_data)}.
                     </p>
                 )
             case 'DuplicateDataInDb':
@@ -192,8 +203,14 @@ function Uploader() {
                         Submit
                     </LoadingButton>
                 )}
-                {isSuccess && <p>Upload successful</p>}
-                {isError && error && <Error e={error as UploadError} />}
+                {isSuccess && <p className={css.success}>Upload successful</p>}
+                {isError && error && (
+                    <Error
+                        e={error as UploadError}
+                        geographyTypes={geographyTypes}
+                        geographyType={metadata?.geographyType}
+                    />
+                )}
             </form>
 
             {csv && metadata && (

@@ -23,6 +23,7 @@ export default function CsvPreview({
 
     return (
         <div id={css.csvPreview}>
+            <h2>Preview of the first ten rows</h2>
             <table>
                 <colgroup>
                     {csv.meta.fields?.map((column) => (
