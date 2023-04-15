@@ -220,7 +220,21 @@ function Uploader() {
                         Submit
                     </LoadingButton>
                 )}
-                {isSuccess && <p className={css.success}>Upload successful</p>}
+                {isSuccess && (
+                    <div className={css.success}>
+                        <p>Upload successful</p>
+                        <p>
+                            View your datasets in the <a href="/dataset-editor">dataset editor</a>
+                        </p>
+                        <p>
+                            Edit the data sources in the{' '}
+                            <a href="/data-source-editor">data source editor</a>
+                        </p>
+                        <p>
+                            Create maps in the <a href="/editor/-1">map editor</a>
+                        </p>
+                    </div>
+                )}
                 {isError && error && (
                     <Error
                         e={error as UploadError}
