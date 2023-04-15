@@ -19,7 +19,6 @@ pub type State = state::State;
 pub type County = county::County;
 pub type Data = data::Data;
 pub type NewData = data::NewData;
-pub type FullData = data::FullData;
 pub type SimpleData = data::SimpleData;
 pub type PercentileData = data::PercentileData;
 pub type SourceAndDate = data::SourceAndDate;

@@ -1,7 +1,5 @@
 use super::AppState;
-use crate::model::{
-    DataSource, Dataset, FullData, GeoId, NewData, ParsedData, Source, UploadMetadata,
-};
+use crate::model::{DataSource, Dataset, GeoId, NewData, ParsedData, Source, UploadMetadata};
 use actix_web::{
     http::{StatusCode, Uri},
     post, web, HttpResponse,
@@ -40,8 +38,6 @@ enum Error {
         row: usize,
         parsed_data: ParsedData,
     },
-    #[display(fmt = "Duplicate data in db: {_0:#?}")]
-    DuplicateDataInDb(FullData),
     #[display(fmt = "Duplicate datasets: {_0:#?}")]
     DuplicateDatasets(Vec<Dataset>),
     DuplicateDataSource(DataSource),
@@ -182,13 +178,11 @@ fn parse_csv(file: &File, metadata: &UploadMetadata) -> Result<HashSet<ParsedDat
     Ok(new_data)
 }
 
-struct Metadata {
-    dataset: i32,
-    geography_type: i32,
-}
-
 #[post("/upload")]
-async fn upload(mut parts: awmp::Parts, app_state: web::Data<AppState<'_>>) -> Result<&str, Error> {
+async fn upload(
+    mut parts: awmp::Parts,
+    app_state: web::Data<AppState<'_>>,
+) -> Result<String, Error> {
     let metadata: UploadMetadata = parts
         .texts
         .as_hash_map()
@@ -206,6 +200,30 @@ async fn upload(mut parts: awmp::Parts, app_state: web::Data<AppState<'_>>) -> R
         .reopen()?;
 
     let data = parse_csv(&file, &metadata)?;
+
+    let duplicate_datasets = app_state
+        .database
+        .dataset
+        .duplicates(&metadata.datasets)
+        .await?;
+
+    if !duplicate_datasets.is_empty() {
+        return Err(Error::DuplicateDatasets(duplicate_datasets));
+    }
+
+    let geo_ids = data
+        .iter()
+        .map(|row| GeoId {
+            id: row.id,
+            geography_type: metadata.geography_type,
+        })
+        .collect();
+
+    let invalid_ids = app_state.database.geo_id.get_invalid_ids(&geo_ids).await?;
+
+    if !invalid_ids.is_empty() {
+        return Err(Error::InvalidGeoIds(invalid_ids));
+    }
 
     let source_id = match metadata.source {
         Source::ExistingId(id) => id,
@@ -235,69 +253,30 @@ async fn upload(mut parts: awmp::Parts, app_state: web::Data<AppState<'_>>) -> R
                 .await?
         }
     };
-    log::info!("inserted source");
 
-    let mut column_to_metadata: HashMap<String, Metadata> = HashMap::new();
-
-    let duplicate_datasets = app_state
-        .database
-        .dataset
-        .duplicates(&metadata.datasets)
-        .await?;
-
-    if !duplicate_datasets.is_empty() {
-        return Err(Error::DuplicateDatasets(duplicate_datasets));
-    }
+    let mut column_to_dataset: HashMap<String, Dataset> = HashMap::new();
 
     for draft_dataset in &metadata.datasets {
         let created_dataset = app_state.database.dataset.create(draft_dataset).await?;
-        log::info!("inserted dataset");
+
         for column in &draft_dataset.columns {
-            column_to_metadata.insert(
-                column.name.clone(),
-                Metadata {
-                    dataset: created_dataset.id,
-                    geography_type: created_dataset.geography_type,
-                },
-            );
+            column_to_dataset.insert(column.name.clone(), created_dataset.clone());
         }
     }
-    log::info!("inserted all datasets");
 
     let data = data
         .into_iter()
         .map(|data| {
-            column_to_metadata.get(&data.dataset).map(|metadata| {
-                NewData::new(&data, metadata.dataset, source_id, metadata.geography_type)
-            })
+            column_to_dataset
+                .get(&data.dataset)
+                .map(|dataset| NewData::new(&data, dataset.id, source_id, dataset.geography_type))
         })
         .collect::<Option<HashSet<_>>>()
         .ok_or_else(|| Error::Internal("Could not match datasets to data".to_string()))?;
 
-    let geo_ids = data
-        .iter()
-        .map(|d| GeoId {
-            id: d.id,
-            geography_type: d.geography_type,
-        })
-        .collect();
-
-    let invalid_ids = app_state.database.geo_id.get_invalid_ids(&geo_ids).await?;
-
-    if !invalid_ids.is_empty() {
-        return Err(Error::InvalidGeoIds(invalid_ids));
-    }
-
-    let duplicate_data = app_state.database.data.first_duplicate(&data).await?;
-
-    if let Some(duplicate_data) = duplicate_data {
-        return Err(Error::DuplicateDataInDb(duplicate_data));
-    }
-
     let result = app_state.database.data.insert(&data).await?;
 
-    log::info!("inserted {} rows of data", result.rows_affected());
-    Ok("Uploaded")
+    Ok(format!("inserted {} rows of data", result.rows_affected()))
 }
 
 #[cfg(test)]
@@ -332,6 +311,7 @@ mod tests {
             }],
             id_column: "id".to_string(),
             date_column: "date".to_string(),
+            geography_type: 1,
         }
     }
 

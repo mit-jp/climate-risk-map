@@ -5,7 +5,6 @@ use sqlx::postgres::PgQueryResult;
 
 use crate::controller::data_controller::PercentileInfo;
 use crate::model::Data;
-use crate::model::FullData;
 use crate::model::NewData;
 use crate::model::PercentileData;
 use crate::model::SimpleData;
@@ -14,44 +13,6 @@ use super::SourceAndDate;
 use super::Table;
 
 impl<'c> Table<'c, Data> {
-    pub async fn first_duplicate(
-        &self,
-        data: &HashSet<NewData>,
-    ) -> Result<Option<FullData>, sqlx::Error> {
-        let mut ids: Vec<i32> = Vec::with_capacity(data.len());
-        let mut sources: Vec<i32> = Vec::with_capacity(data.len());
-        let mut datasets: Vec<i32> = Vec::with_capacity(data.len());
-        let mut start_dates: Vec<NaiveDate> = Vec::with_capacity(data.len());
-        let mut end_dates: Vec<NaiveDate> = Vec::with_capacity(data.len());
-
-        data.iter().for_each(|row| {
-            ids.push(row.id);
-            sources.push(row.source);
-            datasets.push(row.dataset);
-            start_dates.push(row.start_date);
-            end_dates.push(row.end_date);
-        });
-
-        sqlx::query_as!(
-            FullData,
-            "
-            SELECT *
-            FROM data
-            WHERE (id, source, dataset, start_date, end_date) IN (
-                SELECT * FROM UNNEST($1::int[], $2::int[], $3::int[], $4::date[], $5::date[])
-            )
-            LIMIT 1
-            ",
-            &ids,
-            &sources,
-            &datasets,
-            &start_dates,
-            &end_dates,
-        )
-        .fetch_optional(&*self.pool)
-        .await
-    }
-
     pub async fn by_dataset(
         &self,
         dataset: i32,

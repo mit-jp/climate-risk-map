@@ -144,18 +144,6 @@ export type UploadError =
           }
       }
     | {
-          name: 'DuplicateDataInDb'
-          info: {
-              id: number
-              source: number
-              start_date: string
-              end_date: string
-              value?: number
-              dataset: number
-              geography_type: number
-          }
-      }
-    | {
           name: 'DuplicateDatasets'
           info: [
               {

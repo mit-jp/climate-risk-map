@@ -27,6 +27,7 @@ pub struct NewDataset {
 pub struct UploadMetadata {
     pub id_column: String,
     pub date_column: String,
+    pub geography_type: i32,
     pub source: Source,
     pub datasets: Vec<NewDataset>,
 }
@@ -42,6 +43,7 @@ fn test_parse_metadata() {
     let metadata_string = r#"{
         "id_column": "id",
         "date_column": "date",
+        "geography_type": 1,
         "source": {
             "New": {
                 "name": "US Census Bureau",
@@ -80,6 +82,7 @@ fn test_parse_metadata() {
         UploadMetadata {
             id_column: "id".to_string(),
             date_column: "date".to_string(),
+            geography_type: 1,
             source: Source::New(NewDataSource {
                 name: "US Census Bureau".to_string(),
                 description: "Population estimates by the US Census Bureau".to_string(),

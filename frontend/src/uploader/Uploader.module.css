@@ -1,7 +1,6 @@
 #csv-preview {
-    border-top: 1px solid #ccc;
+    border: 1px solid #ccc;
     overflow-x: auto;
-    margin-top: 1em;
 }
 
 #csv-preview table {

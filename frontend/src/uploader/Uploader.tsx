@@ -84,8 +84,6 @@ function Error({
                         {pretty(e.info.parsed_data)}.
                     </p>
                 )
-            case 'DuplicateDataInDb':
-                return <p>Duplicate data in database: {pretty(e.info)}</p>
             case 'DuplicateDatasets':
                 return (
                     <>
@@ -188,12 +186,16 @@ function Uploader() {
                 />
                 {file && (!metadata || !dataSources) && <p>loading...</p>}
                 {csv && metadata && (
-                    <CsvPreview
-                        csv={csv}
-                        idColumn={metadata.idColumn}
-                        dateColumn={metadata.dateColumn}
-                        dataColumns={dataColumns}
-                    />
+                    <>
+                        <h2>Preview of the first ten rows</h2>
+
+                        <CsvPreview
+                            csv={csv}
+                            idColumn={metadata.idColumn}
+                            dateColumn={metadata.dateColumn}
+                            dataColumns={dataColumns}
+                        />
+                    </>
                 )}
                 {metadata && dataSources && geographyTypes && (
                     <MetadataForm
