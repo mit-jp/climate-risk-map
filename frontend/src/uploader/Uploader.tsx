@@ -30,10 +30,7 @@ const valid = (metadata: FormData, file: File, csv: Papa.ParseResult<any>) => {
                 metadata.source.link.length > 0 &&
                 metadata.source.name.length > 0)) &&
         metadata.datasets.every(
-            (d) =>
-                d.name.length > 0 &&
-                d.shortName.length > 0 &&
-                d.columns.every((c) => validColumns.includes(c.name))
+            (d) => d.name.length > 0 && d.columns.every((c) => validColumns.includes(c.name))
         )
     )
 }
@@ -98,7 +95,7 @@ function Error({
                     </>
                 )
             case 'DuplicateDataSource':
-                return <p>Duplicate data source: {e.info}</p>
+                return <p>Duplicate data source: {e.info.name}</p>
             case 'DataSourceIncomplete':
                 return <p>Data source incomplete</p>
             case 'DataSourceLinkInvalid':

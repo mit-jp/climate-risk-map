@@ -1,6 +1,7 @@
 use super::NewDataSource;
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use str_slug::slug;
 
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
 pub enum Source {
@@ -8,7 +9,7 @@ pub enum Source {
     New(NewDataSource),
 }
 
-#[derive(Deserialize, Serialize, Debug, PartialEq)]
+#[derive(Deserialize, Serialize, Debug, PartialEq, Clone)]
 pub struct Column {
     pub name: String,
 }
@@ -23,13 +24,34 @@ pub struct NewDataset {
     pub description: String,
 }
 
+impl NewDataset {
+    pub fn from(dataset: JsonDataset, geography_type: i32) -> Self {
+        NewDataset {
+            columns: dataset.columns,
+            short_name: slug(&dataset.name),
+            name: dataset.name,
+            units: dataset.units,
+            description: dataset.description,
+            geography_type,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+pub struct JsonDataset {
+    pub columns: Vec<Column>,
+    pub name: String,
+    pub units: String,
+    pub description: String,
+}
+
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
 pub struct UploadMetadata {
     pub id_column: String,
     pub date_column: String,
     pub geography_type: i32,
     pub source: Source,
-    pub datasets: Vec<NewDataset>,
+    pub datasets: Vec<JsonDataset>,
 }
 
 impl fmt::Display for UploadMetadata {
@@ -54,9 +76,7 @@ fn test_parse_metadata() {
         "datasets": [
             {
                 "name": "Population",
-                "short_name": "population",
                 "units": "people",
-                "geography_type": 1,
                 "description": "this is the description",
                 "columns": [
                     {
@@ -88,11 +108,9 @@ fn test_parse_metadata() {
                 description: "Population estimates by the US Census Bureau".to_string(),
                 link: "https://www.census.gov".to_string(),
             }),
-            datasets: vec![NewDataset {
+            datasets: vec![JsonDataset {
                 name: "Population".to_string(),
-                short_name: "population".to_string(),
                 units: "people".to_string(),
-                geography_type: 1,
                 description: "this is the description".to_string(),
                 columns: vec![
                     Column {

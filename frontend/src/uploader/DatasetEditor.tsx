@@ -1,9 +1,9 @@
-import { useDispatch } from 'react-redux'
-import { Button, Card, CardActions, CardContent, TextField } from '@mui/material'
 import { Delete } from '@mui/icons-material'
-import { Dataset, onDatasetChange, addColumn, deleteDataset } from './uploaderSlice'
-import css from './Uploader.module.css'
+import { Button, Card, CardActions, CardContent, TextField } from '@mui/material'
+import { useDispatch } from 'react-redux'
 import ColumnEditor from './ColumnEditor'
+import css from './Uploader.module.css'
+import { Dataset, addColumn, deleteDataset, onDatasetChange } from './uploaderSlice'
 
 const INPUT_MARGIN = { margin: '0.5em 0' }
 
@@ -49,15 +49,6 @@ export default function DatasetEditor({
                     value={dataset.name}
                     onChange={(e) =>
                         dispatch(onDatasetChange({ id: dataset.id, name: e.target.value }))
-                    }
-                />
-                <TextField
-                    required
-                    sx={INPUT_MARGIN}
-                    label="Short name"
-                    value={dataset.shortName}
-                    onChange={(e) =>
-                        dispatch(onDatasetChange({ id: dataset.id, shortName: e.target.value }))
                     }
                 />
                 <TextField

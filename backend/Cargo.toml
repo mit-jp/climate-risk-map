@@ -25,6 +25,7 @@ derivative = "2.2.0"
 derive_more = { version = "0.99.17", default-features = false, features = [
     "display",
 ] }
+str_slug = "0.1.3"
 
 [dev-dependencies]
 assert_matches = "1.5"

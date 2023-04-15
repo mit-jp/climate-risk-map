@@ -1,6 +1,5 @@
 import { createSelector, createSlice } from '@reduxjs/toolkit'
 import Papa from 'papaparse'
-import { convert as makeUrlFriendly } from 'url-slug'
 import { v4 as uuid } from 'uuid'
 import { DataSource } from '../MapVisualization'
 import { RootState } from '../store'
@@ -15,7 +14,6 @@ export interface Dataset {
     readonly name: string
     readonly units: string
     readonly description: string
-    readonly shortName: string
     readonly columns: Column[]
 }
 
@@ -24,7 +22,6 @@ export interface DatasetDiff {
     readonly name?: string
     readonly units?: string
     readonly description?: string
-    readonly shortName?: string
 }
 
 interface UploaderState {
@@ -105,7 +102,6 @@ const generateNextDataset = (state: UploaderState): Dataset | undefined => {
         name: column.name,
         units: '',
         description: '',
-        shortName: makeUrlFriendly(column.name, { separator: '_' }),
         columns: [column],
     }
 }
@@ -217,7 +213,6 @@ export const uploaderSlice = createSlice({
                     dataset.columns[columnIndex].name = newName
                     if (canChangeName) {
                         dataset.name = newName
-                        dataset.shortName = makeUrlFriendly(newName, { separator: '_' })
                     }
                 }
             }

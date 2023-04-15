@@ -7334,7 +7334,6 @@ __metadata:
     ts-node: ^10.4.0
     tslib: ^2.3.1
     typescript: ~4.3
-    url-slug: ^3.0.3
     uuid: ^8.3.2
     vite: ^2.9.13
     whatwg-fetch: ^3.6.2
@@ -18182,13 +18181,6 @@ __metadata:
     querystringify: ^2.1.1
     requires-port: ^1.0.0
   checksum: fbdba6b1d83336aca2216bbdc38ba658d9cfb8fc7f665eb8b17852de638ff7d1a162c198a8e4ed66001ddbf6c9888d41e4798912c62b4fd777a31657989f7bdf
-  languageName: node
-  linkType: hard
-
-"url-slug@npm:^3.0.3":
-  version: 3.0.4
-  resolution: "url-slug@npm:3.0.4"
-  checksum: 25d6eef5543afcad07ace1c72795085e8c9fdec117b7a7716341b87cc9350b945f432936834efdd235711965d3edc5c0e1bc5596513836c9bcf2b4742d724b0a
   languageName: node
   linkType: hard
 

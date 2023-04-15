@@ -1,5 +1,7 @@
 use super::AppState;
-use crate::model::{DataSource, Dataset, GeoId, NewData, ParsedData, Source, UploadMetadata};
+use crate::model::{
+    DataSource, Dataset, GeoId, NewData, NewDataset, ParsedData, Source, UploadMetadata,
+};
 use actix_web::{
     http::{StatusCode, Uri},
     post, web, HttpResponse,
@@ -200,11 +202,16 @@ async fn upload(
         .reopen()?;
 
     let data = parse_csv(&file, &metadata)?;
+    let datasets: Vec<NewDataset> = metadata
+        .datasets
+        .iter()
+        .map(|d| NewDataset::from(d.clone(), metadata.geography_type))
+        .collect();
 
     let duplicate_datasets = app_state
         .database
         .dataset
-        .duplicates(&metadata.datasets)
+        .find_duplicates(&datasets)
         .await?;
 
     if !duplicate_datasets.is_empty() {
@@ -256,7 +263,7 @@ async fn upload(
 
     let mut column_to_dataset: HashMap<String, Dataset> = HashMap::new();
 
-    for draft_dataset in &metadata.datasets {
+    for draft_dataset in &datasets {
         let created_dataset = app_state.database.dataset.create(draft_dataset).await?;
 
         for column in &draft_dataset.columns {
@@ -283,7 +290,7 @@ async fn upload(
 mod tests {
 
     use super::*;
-    use crate::model::{Column, NewDataSource, NewDataset};
+    use crate::model::{Column, JsonDataset, NewDataSource};
     use assert_matches::assert_matches;
     use chrono::NaiveDate;
 
@@ -294,7 +301,7 @@ mod tests {
                 link: "https://example.com".to_string(),
                 description: "description".to_string(),
             }),
-            datasets: vec![NewDataset {
+            datasets: vec![JsonDataset {
                 columns: vec![
                     Column {
                         name: "value1".to_string(),
@@ -303,10 +310,8 @@ mod tests {
                         name: "value2".to_string(),
                     },
                 ],
-                geography_type: 1,
                 description: "dataset description".to_string(),
                 name: "dataset name".to_string(),
-                short_name: "dataset short name".to_string(),
                 units: "units".to_string(),
             }],
             id_column: "id".to_string(),

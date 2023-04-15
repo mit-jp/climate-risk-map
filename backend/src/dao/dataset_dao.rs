@@ -7,7 +7,10 @@ use super::Table;
 use crate::model::NewDataset;
 
 impl<'c> Table<'c, Dataset> {
-    pub async fn duplicates(&self, datasets: &[NewDataset]) -> Result<Vec<Dataset>, sqlx::Error> {
+    pub async fn find_duplicates(
+        &self,
+        datasets: &[NewDataset],
+    ) -> Result<Vec<Dataset>, sqlx::Error> {
         sqlx::query_as!(
             Dataset,
             "

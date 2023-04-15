@@ -12,10 +12,8 @@ interface Column {
 }
 
 interface NewDataset {
-    readonly geography_type: number
     readonly columns: Column[]
     readonly name: string
-    readonly short_name: string
     readonly units: string
     readonly description: string
 }
@@ -48,10 +46,8 @@ export const uploadDataFromForm = (formData: FormData, file: File): UploadData =
         date_column: dateColumn,
         geography_type: geographyType,
         source: 'id' in source ? { ExistingId: source.id } : { New: source },
-        datasets: datasets.map(({ name, shortName, units, description, columns }) => ({
-            geography_type: formData.geographyType,
+        datasets: datasets.map(({ name, units, description, columns }) => ({
             name,
-            short_name: shortName,
             units,
             description,
             columns: columns.map((column) => ({

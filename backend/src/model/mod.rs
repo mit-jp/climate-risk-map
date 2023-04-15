@@ -37,6 +37,7 @@ pub type Subcategory = subcategory::Subcategory;
 pub type MapVisualizationCollection = map_visualization_collection::MapVisualizationCollection;
 pub type MapVisualizationCollectionId = map_visualization_collection::MapVisualizationCollectionId;
 pub type UploadMetadata = upload_metadata::UploadMetadata;
+pub type JsonDataset = upload_metadata::JsonDataset;
 pub type NewDataSource = data_source::NewDataSource;
 pub type Source = upload_metadata::Source;
 pub type NewDataset = upload_metadata::NewDataset;
