@@ -44,6 +44,7 @@ function DatasetOptions({ dataset }: { dataset: Dataset }) {
             }}
         >
             <TextField value={name} onChange={(e) => setName(e.target.value)} label="name" />
+            <TextField value={shortName} label="url name" disabled />
             <TextField
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -51,11 +52,6 @@ function DatasetOptions({ dataset }: { dataset: Dataset }) {
                 multiline
             />
             <TextField value={units} onChange={(e) => setUnits(e.target.value)} label="units" />
-            <TextField
-                value={shortName}
-                onChange={(e) => setShortName(e.target.value)}
-                label="short name"
-            />
             <LoadingButton
                 variant="contained"
                 type="submit"

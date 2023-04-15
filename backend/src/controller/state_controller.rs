@@ -11,7 +11,7 @@ pub fn init(cfg: &mut web::ServiceConfig) {
 }
 
 #[get("/state/{id}")]
-async fn get(id: web::Path<i16>, app_state: web::Data<AppState<'_>>) -> impl Responder {
+async fn get(id: web::Path<i32>, app_state: web::Data<AppState<'_>>) -> impl Responder {
     let state = app_state.database.state.by_id(id.into_inner()).await;
 
     match state {
@@ -20,7 +20,7 @@ async fn get(id: web::Path<i16>, app_state: web::Data<AppState<'_>>) -> impl Res
     }
 }
 
-fn states_to_map(states: Vec<State>) -> HashMap<i16, State> {
+fn states_to_map(states: Vec<State>) -> HashMap<i32, State> {
     states.into_iter().map(|state| (state.id, state)).collect()
 }
 

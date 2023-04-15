@@ -19,7 +19,8 @@ function EmptyMap({ map, transform }: { map: GeoMap; transform?: string }) {
         <g transform={transform} style={ZOOM_TRANSITION}>
             {borders.map((region) => (
                 <path
-                    key={map.region === 'USA' ? 'nation' : region.id}
+                    // some countries like N. Cyprus and Kosovo don't have an id, so use the name instead
+                    key={map.region === 'USA' ? 'nation' : region.id && region.properties?.name}
                     d={path(region)!}
                     stroke="white"
                     fill="#eee"

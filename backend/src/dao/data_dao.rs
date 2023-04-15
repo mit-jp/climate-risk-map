@@ -1,5 +1,11 @@
+use std::collections::HashSet;
+
+use chrono::NaiveDate;
+use sqlx::postgres::PgQueryResult;
+
 use crate::controller::data_controller::PercentileInfo;
 use crate::model::Data;
+use crate::model::NewData;
 use crate::model::PercentileData;
 use crate::model::SimpleData;
 
@@ -66,8 +72,8 @@ impl<'c> Table<'c, Data> {
             PercentileData,
             r#"
         SELECT
-            entry.dataset as "dataset!",
-            entry.dataset_name as "dataset_name!",
+            entry.dataset,
+            entry.dataset_name,
             entry.source as "source!",
             entry.start_date as "start_date!",
             entry.end_date as "end_date!",
@@ -171,6 +177,54 @@ impl<'c> Table<'c, Data> {
             info.geography_type
         )
         .fetch_all(&*self.pool)
+        .await
+    }
+
+    pub async fn insert(&self, data: &HashSet<NewData>) -> Result<PgQueryResult, sqlx::Error> {
+        let mut ids: Vec<i32> = Vec::with_capacity(data.len());
+        let mut sources: Vec<i32> = Vec::with_capacity(data.len());
+        let mut datasets: Vec<i32> = Vec::with_capacity(data.len());
+        let mut start_dates: Vec<NaiveDate> = Vec::with_capacity(data.len());
+        let mut end_dates: Vec<NaiveDate> = Vec::with_capacity(data.len());
+        let mut values: Vec<f64> = Vec::with_capacity(data.len());
+        let mut geography_types: Vec<i32> = Vec::with_capacity(data.len());
+
+        data.iter().for_each(|row| {
+            ids.push(row.id);
+            sources.push(row.source);
+            datasets.push(row.dataset);
+            start_dates.push(row.start_date);
+            end_dates.push(row.end_date);
+            values.push(row.value);
+            geography_types.push(row.geography_type);
+        });
+
+        // https://github.com/launchbadge/sqlx/issues/294#issuecomment-886080306
+        sqlx::query!(
+            "
+            INSERT INTO
+            data (
+                id,
+                source,
+                dataset,
+                start_date,
+                end_date,
+                value,
+                geography_type
+            )
+            SELECT *
+            FROM
+            UNNEST ($1::int[], $2::int[], $3::int[], $4::date[], $5::date[], $6::float[], $7::int[])
+            ",
+            &ids,
+            &sources,
+            &datasets,
+            &start_dates,
+            &end_dates,
+            &values,
+            &geography_types
+        )
+        .execute(&*self.pool)
         .await
     }
 }

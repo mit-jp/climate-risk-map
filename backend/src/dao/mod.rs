@@ -10,6 +10,8 @@ mod data_dao;
 mod data_source_dao;
 pub mod database;
 mod dataset_dao;
+mod geo_id_dao;
+mod geography_type_dao;
 mod map_visualization_collection_dao;
 mod map_visualization_dao;
 mod scale_type_dao;

@@ -1,3 +1,5 @@
+use crate::model::GeoId;
+use crate::model::GeographyType;
 use crate::model::MapVisualizationCollection;
 use crate::model::Subcategory;
 
@@ -42,6 +44,8 @@ pub struct Database<'c> {
     pub color_palette: Arc<Table<'c, ColorPalette>>,
     pub scale_type: Arc<Table<'c, ScaleType>>,
     pub subcategory: Arc<Table<'c, Subcategory>>,
+    pub geo_id: Arc<Table<'c, GeoId>>,
+    pub geography_type: Arc<Table<'c, GeographyType>>,
 }
 
 impl Database<'_> {
@@ -50,6 +54,8 @@ impl Database<'_> {
         let pool = Arc::new(pool);
 
         Database {
+            geography_type: Arc::from(Table::new(pool.clone())),
+            geo_id: Arc::from(Table::new(pool.clone())),
             state: Arc::from(Table::new(pool.clone())),
             county: Arc::from(Table::new(pool.clone())),
             data: Arc::from(Table::new(pool.clone())),

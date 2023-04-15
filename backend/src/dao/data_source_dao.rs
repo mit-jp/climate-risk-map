@@ -4,10 +4,27 @@ use crate::model::DataSourceDiff;
 
 use super::DataSource;
 use super::Table;
+use crate::model::NewDataSource;
 
 impl<'c> Table<'c, DataSource> {
+    pub async fn all(&self) -> Result<Vec<DataSource>, sqlx::Error> {
+        sqlx::query_as!(DataSource, "SELECT * FROM data_source ORDER BY id")
+            .fetch_all(&*self.pool)
+            .await
+    }
+
+    pub async fn by_name(&self, name: &str) -> Result<Option<DataSource>, sqlx::Error> {
+        sqlx::query_as!(
+            DataSource,
+            "SELECT * FROM data_source WHERE name = $1",
+            name
+        )
+        .fetch_optional(&*self.pool)
+        .await
+    }
+
     pub async fn by_dataset(&self, id: i32) -> Result<Vec<DataSource>, sqlx::Error> {
-        return sqlx::query_as!(
+        sqlx::query_as!(
             DataSource,
             "
             SELECT DISTINCT source as id, name, description, link
@@ -18,20 +35,23 @@ impl<'c> Table<'c, DataSource> {
             id
         )
         .fetch_all(&*self.pool)
-        .await;
+        .await
     }
 
-    pub async fn all(&self) -> Result<Vec<DataSource>, sqlx::Error> {
-        return sqlx::query_as!(
-            DataSource,
+    pub async fn create(&self, data_source: &NewDataSource) -> Result<i32, sqlx::Error> {
+        sqlx::query!(
             "
-            SELECT id, name, description, link
-            FROM data_source
-            ORDER BY id
-            "
+            INSERT INTO data_source (name, description, link)
+            VALUES ($1, $2, $3)
+            RETURNING id
+            ",
+            data_source.name,
+            data_source.description,
+            data_source.link,
         )
-        .fetch_all(&*self.pool)
-        .await;
+        .fetch_one(&*self.pool)
+        .await
+        .map(|row| row.id)
     }
 
     pub async fn update(&self, data_source: &DataSourceDiff) -> Result<PgQueryResult, sqlx::Error> {

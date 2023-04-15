@@ -13,6 +13,7 @@ import {
     fetchMapVisualizations,
 } from './MapVisualization'
 import { GeoId } from './appSlice'
+import UploadData from './uploader/UploadData'
 
 export type DatasetId = number
 export type TabId = number
@@ -50,7 +51,7 @@ export type DataSourcePatch = {
     description?: string
     link?: string
 }
-export type County = { id: number; name: string; state: number }
+export type County = { id: number; name: string }
 export type State = { id: number; name: string }
 export type PercentileQueryParams = {
     geoId: number
@@ -99,6 +100,79 @@ export type CsvRow = {
     id: number
     value: number
 }
+export type GeographyType = {
+    id: number
+    name: string
+}
+
+export type UploadError =
+    | {
+          name: 'MissingColumn'
+          info: {
+              column: string
+              row: number
+              record: Record<string, string>
+          }
+      }
+    | {
+          name: 'GeoIdNotNumeric'
+          info: {
+              geo_id: string
+              row: number
+          }
+      }
+    | {
+          name: 'InvalidGeoIds'
+          info: [
+              {
+                  id: number
+                  geography_type: number
+              }
+          ]
+      }
+    | {
+          name: 'DuplicateDataInCsv'
+          info: {
+              row: number
+              parsed_data: {
+                  dataset: string
+                  start_date: string
+                  end_date: string
+                  id: number
+                  value?: number
+              }
+          }
+      }
+    | {
+          name: 'DuplicateDatasets'
+          info: [
+              {
+                  id: number
+                  short_name: string
+                  name: string
+                  description: string
+                  geography_type: number
+                  units: string
+              }
+          ]
+      }
+    | {
+          name: 'DuplicateDataSource'
+          info: {
+              id: number
+              name: string
+              description: string
+              link: string
+          }
+      }
+    | { name: 'DataSourceIncomplete' }
+    | { name: 'DataSourceLinkInvalid'; info: string }
+    | { name: 'MissingMetadata' }
+    | { name: 'InvalidMetadata'; info: string }
+    | { name: 'MissingFile' }
+    | { name: 'Internal'; info: string }
+    | { name: 'InvalidYear'; info: { year: string; row: number } }
+    | { name: 'InvalidCsv'; info: string }
 
 const transformCountySummary = (csv: DSVParsedArray<CountyCsvRow>): Percentiles => {
     const countySummary: Percentiles = {}
@@ -314,6 +388,32 @@ export const mapApi = createApi({
                 queryFulfilled.catch(() => patchResult.undo())
             },
         }),
+        upload: builder.mutation<undefined, UploadData>({
+            queryFn: ({ file, ...metadata }) => {
+                const formData = new FormData()
+                formData.append('file', file)
+                formData.append('metadata', JSON.stringify(metadata))
+                return fetch('api/editor/upload', {
+                    method: 'POST',
+                    body: formData,
+                }).then(
+                    (response) => {
+                        if (response.ok) {
+                            return { data: undefined }
+                        }
+                        if (response.status === 400) {
+                            return response.json().then((error) => ({ error }))
+                        }
+                        return { error: new Error('Unknown error') }
+                    },
+                    (error) => ({ error })
+                )
+            },
+            invalidatesTags: ['Dataset'],
+        }),
+        getGeographyTypes: builder.query<GeographyType[], undefined>({
+            query: () => 'geography-type',
+        }),
     }),
 })
 
@@ -328,7 +428,6 @@ export const {
     useUpdateMapVisualizationMutation,
     useCreateMapVisualizationMutation,
     useGetDatasetsQuery,
-    useGetDataSourcesQuery,
     useGetCountiesQuery,
     useGetStatesQuery,
     useGetPercentilesQuery,
@@ -340,4 +439,7 @@ export const {
     useDeleteTabMutation,
     useUpdateDatasetMutation,
     useUpdateDataSourceMutation,
+    useUploadMutation,
+    useGetDataSourcesQuery,
+    useGetGeographyTypesQuery,
 } = mapApi

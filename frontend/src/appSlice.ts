@@ -37,8 +37,9 @@ export type GeoMap = {
 export type GeoId = number
 
 /**
- * The state id is the first two digits of the county id.
- * For example the state id for county 06037 is 06.
+ * The state id is the most significant two-digits of a 5-digit county id.
+ *
+ * Example: 12345 -> 12, 123 -> 0
  * See https://en.wikipedia.org/wiki/List_of_United_States_FIPS_codes_by_county
  *
  * @param countyId the county id (or FIPS code)
@@ -243,7 +244,7 @@ const generateMapTransform = (zoomTo: number | undefined, map: GeoMap | undefine
     // topoJson country id: "012", country id: 12
     // topoJson state id: "01", state id: 1
     const idLength = map.region === 'USA' ? 2 : 3
-    const zoomToId = '0'.repeat(idLength - zoomTo.toString().length) + zoomTo.toString()
+    const zoomToId = String(zoomTo).padStart(idLength, '0')
 
     const bounds = geoPath().bounds(features[zoomToId])
     const dx = bounds[1][0] - bounds[0][0]

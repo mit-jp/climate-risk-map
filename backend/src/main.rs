@@ -33,6 +33,7 @@ async fn main() -> std::io::Result<()> {
             .configure(controller::scale_type_controller::init)
             .configure(controller::subcategory_controller::init)
             .configure(controller::data_source_controller::init)
+            .configure(controller::geography_type_controller::init)
             .wrap(Logger::default())
     })
     .bind(config.app_url())?;
@@ -44,6 +45,7 @@ async fn main() -> std::io::Result<()> {
             .configure(controller::data_category_controller::init_editor)
             .configure(controller::dataset_controller::init_editor)
             .configure(controller::data_source_controller::init_editor)
+            .configure(controller::uploader_controller::init_editor)
             .wrap(Logger::default())
     })
     .bind(config.editor_url())?;

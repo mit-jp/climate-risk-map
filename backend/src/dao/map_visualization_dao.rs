@@ -93,6 +93,7 @@ impl<'c> Table<'c, MapVisualization> {
     pub async fn get(&self, id: i32) -> Result<MapVisualization, sqlx::Error> {
         select!(id).fetch_one(&*self.pool).await
     }
+
     pub async fn update(
         &self,
         patch: &MapVisualizationDaoPatch,

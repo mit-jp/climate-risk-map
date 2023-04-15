@@ -118,11 +118,11 @@ mod tests {
         let data = vec![
             SimpleData {
                 id: 123,
-                value: Some(3.0),
+                value: 3.0,
             },
             SimpleData {
                 id: 456,
-                value: Some(6.0),
+                value: 6.0,
             },
         ];
         let csv = data_to_csv(data).unwrap();

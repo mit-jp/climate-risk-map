@@ -141,7 +141,7 @@ jobs:
         working-directory: ${{ github.event.pull_request.head.sha }}/backend
 
       - name: deploy to server
-        uses: appleboy/scp-action@master
+        uses: appleboy/scp-action@v0.1.3
         with:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
@@ -181,7 +181,7 @@ jobs:
         working-directory: ${{ github.sha }}/backend
 
       - name: deploy to server
-        uses: appleboy/scp-action@master
+        uses: appleboy/scp-action@v0.1.3
         with:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}

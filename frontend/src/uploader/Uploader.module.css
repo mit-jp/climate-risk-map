@@ -1,11 +1,85 @@
 #csv-preview {
-    background-color: #eee;
+    border: 1px solid #ccc;
+    overflow-x: auto;
 }
 
-.county-column {
-    background-color: yellow;
+#csv-preview table {
+    border-collapse: collapse;
 }
 
-.state-column {
-    background-color: pink;
+#csv-preview table th {
+    padding: 0.5em 1em 0 0;
+}
+
+.id-column {
+    background-color: rgb(190, 221, 248);
+}
+
+.date-column {
+    background-color: rgb(255, 255, 182);
+}
+
+.data-column {
+    background-color: rgb(234, 247, 232);
+}
+
+.dataset-editor {
+    margin-bottom: 1em;
+}
+
+.dataset-editor label {
+    display: block;
+}
+
+.dataset-editor label.column-label {
+    display: inline;
+}
+
+.delete-button {
+    float: right;
+}
+
+#uploader {
+    padding: 1em;
+    min-height: 50vh;
+}
+
+#uploader form {
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+.column-editor {
+    margin: 0.5em 0;
+    display: flex;
+}
+
+.column-editor > * {
+    margin-right: 0.5em;
+}
+
+.column-editor > .column-select {
+    flex-grow: 2;
+}
+
+#submit {
+    margin-top: 1em;
+}
+
+.error,
+.success {
+    padding: 12px;
+    margin-top: 1em;
+    border-radius: 5px;
+}
+
+.error {
+    background: rgb(255, 238, 238);
+    border: 3px solid rgb(214, 1, 1);
+}
+
+.success {
+    background-color: rgb(238, 238, 255);
+    border: 3px solid rgb(142, 142, 255);
 }

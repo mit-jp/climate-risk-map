@@ -1,12 +1,14 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit'
 import appReducer from './appSlice'
 import editorReducer from './editor/editorSlice'
+import uploaderReducer from './uploader/uploaderSlice'
 import { mapApi } from './MapApi'
 
 export const store = configureStore({
     reducer: {
         app: appReducer,
         editor: editorReducer,
+        uploader: uploaderReducer,
         [mapApi.reducerPath]: mapApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
@@ -26,6 +28,12 @@ export const store = configureStore({
                 editor: {
                     ...state.editor,
                     map: state.editor.map ? '<Large map not displayed to save memory>' : undefined,
+                },
+                uploader: {
+                    ...state.uploader,
+                    csv: state.uploader.csv
+                        ? '<Large csv not displayed to save memory>'
+                        : undefined,
                 },
             }
         },
