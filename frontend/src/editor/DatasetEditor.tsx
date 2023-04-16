@@ -2,12 +2,13 @@ import { LoadingButton } from '@mui/lab'
 import { TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { Dataset } from '../Dataset'
-import { useGetDatasetsQuery, useUpdateDatasetMutation } from '../MapApi'
+import { useDeleteDatasetMutation, useGetDatasetsQuery, useUpdateDatasetMutation } from '../MapApi'
 import SelectorList, { EmptySelectorList } from '../SelectorList'
 import css from './DatasetEditor.module.css'
 
 function DatasetOptions({ dataset }: { dataset: Dataset }) {
     const [updateDataset, { isLoading }] = useUpdateDatasetMutation()
+    const [deleteDataset, { isLoading: isDeleting }] = useDeleteDatasetMutation()
     const [name, setName] = useState(dataset.name)
     const [description, setDescription] = useState(dataset.description)
     const [units, setUnits] = useState(dataset.units)
@@ -59,6 +60,15 @@ function DatasetOptions({ dataset }: { dataset: Dataset }) {
                 disabled={noDiff()}
             >
                 Save
+            </LoadingButton>
+            <LoadingButton
+                type="button"
+                variant="contained"
+                loading={isDeleting}
+                color="error"
+                onClick={() => deleteDataset(dataset.id)}
+            >
+                Delete
             </LoadingButton>
         </form>
     )

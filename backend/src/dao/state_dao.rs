@@ -1,10 +1,10 @@
-use super::State;
 use super::Table;
+use crate::model::geo_id;
 
-impl<'c> Table<'c, State> {
-    pub async fn by_id(&self, id: i32) -> Result<State, sqlx::Error> {
+impl<'c> Table<'c, geo_id::State> {
+    pub async fn by_id(&self, id: i32) -> Result<geo_id::State, sqlx::Error> {
         sqlx::query_as!(
-            State,
+            geo_id::State,
             "
             SELECT id, name
             FROM geo_id
@@ -17,9 +17,9 @@ impl<'c> Table<'c, State> {
         .await
     }
 
-    pub async fn all(&self) -> Result<Vec<State>, sqlx::Error> {
+    pub async fn all(&self) -> Result<Vec<geo_id::State>, sqlx::Error> {
         sqlx::query_as!(
-            State,
+            geo_id::State,
             "
             SELECT id, name
             FROM geo_id

@@ -1,5 +1,5 @@
-use super::ColorPalette;
 use super::Table;
+use crate::model::color_palette::ColorPalette;
 
 impl<'c> Table<'c, ColorPalette> {
     pub async fn all(&self) -> Result<Vec<ColorPalette>, sqlx::Error> {

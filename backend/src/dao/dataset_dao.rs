@@ -1,15 +1,11 @@
+use super::Table;
+use crate::model::dataset::{self, Dataset, New};
 use sqlx::postgres::PgQueryResult;
 
-use crate::model::DatasetDiff;
-
-use super::Dataset;
-use super::Table;
-use crate::model::NewDataset;
-
-impl<'c> Table<'c, Dataset> {
+impl<'c> Table<'c, dataset::Dataset> {
     pub async fn find_duplicates(
         &self,
-        datasets: &[NewDataset],
+        datasets: &[dataset::New],
     ) -> Result<Vec<Dataset>, sqlx::Error> {
         sqlx::query_as!(
             Dataset,
@@ -32,7 +28,7 @@ impl<'c> Table<'c, Dataset> {
         .await
     }
 
-    pub async fn update(&self, dataset: &DatasetDiff) -> Result<PgQueryResult, sqlx::Error> {
+    pub async fn update(&self, dataset: &dataset::Diff) -> Result<PgQueryResult, sqlx::Error> {
         // COALESCE values to update only if they are not None
         sqlx::query!(
             "
@@ -55,9 +51,9 @@ impl<'c> Table<'c, Dataset> {
         .await
     }
 
-    pub async fn by_id(&self, id: i32) -> Result<Dataset, sqlx::Error> {
+    pub async fn by_id(&self, id: i32) -> Result<dataset::Dataset, sqlx::Error> {
         sqlx::query_as!(
-            Dataset,
+            dataset::Dataset,
             "
             SELECT id, short_name, name, description, units, geography_type
             FROM dataset
@@ -69,9 +65,9 @@ impl<'c> Table<'c, Dataset> {
         .await
     }
 
-    pub async fn all(&self) -> Result<Vec<Dataset>, sqlx::Error> {
+    pub async fn all(&self) -> Result<Vec<dataset::Dataset>, sqlx::Error> {
         sqlx::query_as!(
-            Dataset,
+            dataset::Dataset,
             "
             SELECT id, short_name, name, description, units, geography_type
             FROM dataset
@@ -82,9 +78,9 @@ impl<'c> Table<'c, Dataset> {
         .await
     }
 
-    pub async fn create(&self, dataset: &NewDataset) -> Result<Dataset, sqlx::Error> {
+    pub async fn create(&self, dataset: &New) -> Result<dataset::Dataset, sqlx::Error> {
         sqlx::query_as!(
-            Dataset,
+            dataset::Dataset,
             "
             INSERT INTO dataset (short_name, name, description, units, geography_type)
             VALUES ($1, $2, $3, $4, $5)
@@ -98,5 +94,11 @@ impl<'c> Table<'c, Dataset> {
         )
         .fetch_one(&*self.pool)
         .await
+    }
+
+    pub async fn delete(&self, id: i32) -> Result<PgQueryResult, sqlx::Error> {
+        sqlx::query!("DELETE FROM dataset WHERE id = $1", id)
+            .execute(&*self.pool)
+            .await
     }
 }

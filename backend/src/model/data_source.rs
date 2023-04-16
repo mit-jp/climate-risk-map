@@ -18,7 +18,7 @@ impl Display for DataSource {
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct DataSourceDiff {
+pub struct Diff {
     pub id: i32,
     pub name: Option<String>,
     pub description: Option<String>,
@@ -26,7 +26,7 @@ pub struct DataSourceDiff {
 }
 
 #[derive(Deserialize, Serialize, FromRow, Debug, PartialEq)]
-pub struct NewDataSource {
+pub struct New {
     pub name: String,
     pub description: String,
     pub link: String,

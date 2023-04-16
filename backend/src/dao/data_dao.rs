@@ -1,25 +1,18 @@
-use std::collections::HashSet;
-
+use super::Table;
+use crate::controller::data_controller::PercentileInfo;
+use crate::model::data::{self, Data, New, Simple, SourceAndDate};
 use chrono::NaiveDate;
 use sqlx::postgres::PgQueryResult;
-
-use crate::controller::data_controller::PercentileInfo;
-use crate::model::Data;
-use crate::model::NewData;
-use crate::model::PercentileData;
-use crate::model::SimpleData;
-
-use super::SourceAndDate;
-use super::Table;
+use std::collections::HashSet;
 
 impl<'c> Table<'c, Data> {
     pub async fn by_dataset(
         &self,
         dataset: i32,
-        source_and_date: &SourceAndDate,
-    ) -> Result<Vec<SimpleData>, sqlx::Error> {
+        source_and_date: &data::SourceAndDate,
+    ) -> Result<Vec<Simple>, sqlx::Error> {
         sqlx::query_as!(
-            SimpleData,
+            Simple,
             "
             SELECT id, value
             FROM data
@@ -36,13 +29,14 @@ impl<'c> Table<'c, Data> {
         .fetch_all(&*self.pool)
         .await
     }
+
     pub async fn by_map_visualization(
         &self,
         map_visualization: i32,
-        source_and_date: SourceAndDate,
-    ) -> Result<Vec<SimpleData>, sqlx::Error> {
+        source_and_date: &SourceAndDate,
+    ) -> Result<Vec<Simple>, sqlx::Error> {
         sqlx::query_as!(
-            SimpleData,
+            Simple,
             "
             SELECT data.id, data.value
             FROM data, map_visualization
@@ -67,9 +61,9 @@ impl<'c> Table<'c, Data> {
     pub async fn percentile(
         &self,
         info: PercentileInfo,
-    ) -> Result<Vec<PercentileData>, sqlx::Error> {
+    ) -> Result<Vec<data::Percentile>, sqlx::Error> {
         sqlx::query_as!(
-            PercentileData,
+            data::Percentile,
             r#"
         SELECT
             entry.dataset,
@@ -180,7 +174,7 @@ impl<'c> Table<'c, Data> {
         .await
     }
 
-    pub async fn insert(&self, data: &HashSet<NewData>) -> Result<PgQueryResult, sqlx::Error> {
+    pub async fn insert(&self, data: &HashSet<New>) -> Result<PgQueryResult, sqlx::Error> {
         let mut ids: Vec<i32> = Vec::with_capacity(data.len());
         let mut sources: Vec<i32> = Vec::with_capacity(data.len());
         let mut datasets: Vec<i32> = Vec::with_capacity(data.len());
@@ -226,5 +220,11 @@ impl<'c> Table<'c, Data> {
         )
         .execute(&*self.pool)
         .await
+    }
+
+    pub async fn delete_by_dataset(&self, dataset: i32) -> Result<PgQueryResult, sqlx::Error> {
+        sqlx::query!("DELETE FROM data WHERE dataset = $1", dataset)
+            .execute(&*self.pool)
+            .await
     }
 }

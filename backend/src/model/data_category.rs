@@ -10,7 +10,7 @@ pub struct DataCategory {
 }
 
 #[derive(FromRow, Deserialize, Serialize)]
-pub struct DataCategoryCreation {
+pub struct New {
     pub name: String,
     pub normalized: bool,
 }

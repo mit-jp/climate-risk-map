@@ -1,6 +1,6 @@
-use super::{AppState, MapVisualizationModel};
-use crate::model::{
-    MapVisualization, MapVisualizationDaoPatch, MapVisualizationError, MapVisualizationPatch,
+use crate::{
+    model::map_visualization::{Error, Json, JsonPatch, MapVisualization, Patch},
+    AppState,
 };
 use actix_web::{get, patch, post, web, HttpResponse, Responder};
 use futures::future::try_join;
@@ -27,7 +27,7 @@ pub struct MapVisualizationOptions {
 async fn get_map_visualization_model(
     map_visualization: MapVisualization,
     app_state: &web::Data<AppState<'_>>,
-) -> Result<MapVisualizationModel, sqlx::Error> {
+) -> Result<Json, sqlx::Error> {
     let sources_and_dates = app_state
         .database
         .source_and_date
@@ -41,17 +41,13 @@ async fn get_map_visualization_model(
         Err(e) => Err(e),
         Ok((source_and_dates, data_sources)) => {
             if data_sources.is_empty() {
-                return Err(sqlx::Error::Decode(Box::new(MapVisualizationError {
+                return Err(sqlx::Error::Decode(Box::new(Error {
                     message: format!(
                         "No sources and dates found for map visualization {map_visualization:#?}",
                     ),
                 })));
             }
-            Ok(MapVisualizationModel::new(
-                map_visualization,
-                source_and_dates,
-                data_sources,
-            ))
+            Ok(Json::new(map_visualization, source_and_dates, data_sources))
         }
     }
 }
@@ -98,10 +94,8 @@ async fn get_all(
             HttpResponse::NotFound().finish()
         }
         Ok(map_visualizations) => {
-            let mut map_visualizations_by_category: HashMap<
-                i32,
-                HashMap<i32, MapVisualizationModel>,
-            > = HashMap::new();
+            let mut map_visualizations_by_category: HashMap<i32, HashMap<i32, Json>> =
+                HashMap::new();
             for map_visualization in map_visualizations {
                 let data_tab = map_visualization.data_tab;
                 let map_visualization_model =
@@ -123,14 +117,11 @@ async fn get_all(
 }
 
 #[patch("/map-visualization")]
-async fn patch(
-    patch: web::Json<MapVisualizationPatch>,
-    app_state: web::Data<AppState<'_>>,
-) -> impl Responder {
+async fn patch(patch: web::Json<JsonPatch>, app_state: web::Data<AppState<'_>>) -> impl Responder {
     let result = app_state
         .database
         .map_visualization
-        .update(&MapVisualizationDaoPatch::new(patch.into_inner()))
+        .update(&Patch::new(patch.into_inner()))
         .await;
     match result {
         Err(_) => HttpResponse::InternalServerError().finish(),
@@ -140,10 +131,10 @@ async fn patch(
 
 #[post("/map-visualization")]
 async fn create(
-    map_model: web::Json<MapVisualizationPatch>,
+    map_model: web::Json<JsonPatch>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
-    let map = MapVisualizationDaoPatch::new(map_model.into_inner());
+    let map = Patch::new(map_model.into_inner());
     let result = app_state.database.map_visualization.create(&map).await;
     match result {
         Err(_) => HttpResponse::InternalServerError().finish(),

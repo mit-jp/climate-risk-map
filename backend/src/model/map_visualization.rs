@@ -1,30 +1,22 @@
-use super::DataSource;
-use super::SourceAndDate;
-use crate::model::ColorPalette;
-use crate::model::ScaleType;
+use super::color_palette::ColorPalette;
+use super::data::SourceAndDate;
+use super::data_source;
+use super::scale_type;
 use chrono::NaiveDate;
+use derive_more::Display;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use std::collections::HashMap;
-use std::error::Error;
-use std::fmt::Display;
-use std::fmt::Formatter;
 
-#[derive(Debug)]
-pub struct MapVisualizationError {
+#[derive(Debug, Display)]
+pub struct Error {
     pub message: String,
 }
 
-impl Display for MapVisualizationError {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.message)
-    }
-}
-
-impl Error for MapVisualizationError {}
+impl std::error::Error for Error {}
 
 #[derive(FromRow, Deserialize, Serialize)]
-pub struct MapVisualizationDaoPatch {
+pub struct Patch {
     pub id: i32,
     pub dataset: i32,
     pub map_type: i32,
@@ -49,9 +41,9 @@ pub struct MapVisualizationDaoPatch {
     pub bubble_color: String,
 }
 
-impl MapVisualizationDaoPatch {
-    pub fn new(patch: MapVisualizationPatch) -> MapVisualizationDaoPatch {
-        MapVisualizationDaoPatch {
+impl Patch {
+    pub fn new(patch: JsonPatch) -> Patch {
+        Patch {
             id: patch.id,
             dataset: patch.dataset,
             map_type: patch.map_type,
@@ -79,7 +71,7 @@ impl MapVisualizationDaoPatch {
 }
 
 #[derive(FromRow, Deserialize, Serialize)]
-pub struct MapVisualizationPatch {
+pub struct JsonPatch {
     pub id: i32,
     pub dataset: i32,
     pub map_type: i32,
@@ -90,7 +82,7 @@ pub struct MapVisualizationPatch {
     pub color_palette: ColorPalette,
     pub reverse_scale: bool,
     pub invert_normalized: bool,
-    pub scale_type: ScaleType,
+    pub scale_type: scale_type::Type,
     pub color_domain: Vec<f64>,
     pub show_pdf: bool,
     pub pdf_domain: Vec<f64>,
@@ -139,7 +131,7 @@ pub struct MapVisualization {
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct MapVisualizationModel {
+pub struct Json {
     pub id: i32,
     pub dataset: i32,
     pub map_type: i32,
@@ -153,10 +145,10 @@ pub struct MapVisualizationModel {
     pub color_palette: ColorPalette,
     pub reverse_scale: bool,
     pub invert_normalized: bool,
-    pub scale_type: ScaleType,
+    pub scale_type: scale_type::Type,
     pub color_domain: Vec<f64>,
     pub date_ranges_by_source: HashMap<i32, Vec<DateRange>>,
-    pub sources: HashMap<i32, DataSource>,
+    pub sources: HashMap<i32, data_source::DataSource>,
     pub show_pdf: bool,
     pub pdf_domain: Vec<f64>,
     pub default_date_range: Option<DateRange>,
@@ -170,12 +162,12 @@ pub struct MapVisualizationModel {
     pub bubble_color: String,
 }
 
-impl MapVisualizationModel {
+impl Json {
     pub fn new(
         map_visualization: MapVisualization,
         source_and_dates: Vec<SourceAndDate>,
-        data_sources: Vec<DataSource>,
-    ) -> MapVisualizationModel {
+        data_sources: Vec<data_source::DataSource>,
+    ) -> Json {
         let mut date_ranges_by_source = HashMap::new();
         for source_and_date in source_and_dates {
             let date_range = DateRange::from(&source_and_date);
@@ -194,7 +186,7 @@ impl MapVisualizationModel {
             }),
             _ => Option::None,
         };
-        MapVisualizationModel {
+        Json {
             id: map_visualization.id,
             dataset: map_visualization.dataset,
             map_type: map_visualization.map_type,
@@ -211,7 +203,7 @@ impl MapVisualizationModel {
             },
             reverse_scale: map_visualization.reverse_scale,
             invert_normalized: map_visualization.invert_normalized,
-            scale_type: ScaleType {
+            scale_type: scale_type::Type {
                 id: map_visualization.scale_type_id,
                 name: map_visualization.scale_type_name,
             },
@@ -220,7 +212,7 @@ impl MapVisualizationModel {
             sources: data_sources
                 .into_iter()
                 .map(|data_source| (data_source.id, data_source))
-                .collect::<HashMap<i32, DataSource>>(),
+                .collect::<HashMap<i32, data_source::DataSource>>(),
             show_pdf: map_visualization.show_pdf,
             pdf_domain: map_visualization.pdf_domain,
             default_date_range,
@@ -257,7 +249,13 @@ mod tests {
 
     use super::*;
 
-    fn get_models(source_ids: Vec<i32>) -> (MapVisualization, Vec<SourceAndDate>, Vec<DataSource>) {
+    fn get_models(
+        source_ids: Vec<i32>,
+    ) -> (
+        MapVisualization,
+        Vec<SourceAndDate>,
+        Vec<data_source::DataSource>,
+    ) {
         (
             MapVisualization {
                 id: 1,
@@ -311,7 +309,7 @@ mod tests {
                 .collect(),
             source_ids
                 .iter()
-                .map(|&id| DataSource {
+                .map(|&id| data_source::DataSource {
                     id,
                     name: id.to_string(),
                     description: id.to_string(),
@@ -327,7 +325,7 @@ mod tests {
         let (map_visualization, source_and_dates, data_sources) = get_models(vec![source_id]);
 
         let expected_date_range = DateRange::from(source_and_dates.first().unwrap());
-        let result = MapVisualizationModel::new(map_visualization, source_and_dates, data_sources);
+        let result = Json::new(map_visualization, source_and_dates, data_sources);
 
         assert_eq!(
             result.date_ranges_by_source[&source_id][0],
@@ -338,7 +336,7 @@ mod tests {
     #[test]
     fn no_default_source_carries_through() {
         let (map_visualization, source_and_dates, data_sources) = get_models(vec![1, 2]);
-        let result = MapVisualizationModel::new(map_visualization, source_and_dates, data_sources);
+        let result = Json::new(map_visualization, source_and_dates, data_sources);
 
         assert_eq!(result.default_source, None)
     }
@@ -352,7 +350,7 @@ mod tests {
             default_start_date: NaiveDate::from_ymd_opt(2019, 4, 4),
             ..map_visualization
         };
-        let result = MapVisualizationModel::new(map_visualization, source_and_dates, data_sources);
+        let result = Json::new(map_visualization, source_and_dates, data_sources);
 
         assert_eq!(result.default_source, Some(4));
         assert_eq!(
@@ -367,7 +365,7 @@ mod tests {
     #[test]
     fn it_handles_no_sources() {
         let (map_visualization, source_and_dates, data_sources) = get_models(vec![]);
-        let result = MapVisualizationModel::new(map_visualization, source_and_dates, data_sources);
+        let result = Json::new(map_visualization, source_and_dates, data_sources);
 
         assert_eq!(result.default_source, None)
     }
@@ -379,7 +377,7 @@ mod tests {
             default_source: Some(3),
             ..map_visualization
         };
-        let result = MapVisualizationModel::new(map_visualization, source_and_dates, data_sources);
+        let result = Json::new(map_visualization, source_and_dates, data_sources);
 
         assert_eq!(result.default_date_range, None)
     }

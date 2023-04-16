@@ -414,6 +414,13 @@ export const mapApi = createApi({
         getGeographyTypes: builder.query<GeographyType[], undefined>({
             query: () => 'geography-type',
         }),
+        deleteDataset: builder.mutation<undefined, number>({
+            query: (datasetId) => ({
+                url: `editor/dataset/${datasetId}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: () => ['Dataset', 'MapVisualization'],
+        }),
     }),
 })
 
@@ -442,4 +449,5 @@ export const {
     useUploadMutation,
     useGetDataSourcesQuery,
     useGetGeographyTypesQuery,
+    useDeleteDatasetMutation,
 } = mapApi

@@ -1,5 +1,5 @@
-use super::County;
 use super::Table;
+use crate::model::geo_id::County;
 
 impl<'c> Table<'c, County> {
     pub async fn all(&self) -> Result<Vec<County>, sqlx::Error> {

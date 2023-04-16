@@ -1,4 +1,4 @@
-use crate::model::Subcategory;
+use crate::model::subcategory::Subcategory;
 
 use super::Table;
 

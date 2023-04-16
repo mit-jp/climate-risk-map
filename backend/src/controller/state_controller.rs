@@ -1,9 +1,8 @@
-use std::collections::HashMap;
-
-use crate::model::State;
+use crate::model::geo_id::State;
 
 use super::AppState;
 use actix_web::{get, web, HttpResponse, Responder};
+use std::collections::HashMap;
 
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get_all);

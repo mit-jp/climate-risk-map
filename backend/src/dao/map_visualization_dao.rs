@@ -1,5 +1,5 @@
 use super::Table;
-use super::{MapVisualization, MapVisualizationDaoPatch};
+use crate::model::map_visualization::{MapVisualization, Patch};
 use sqlx::postgres::PgQueryResult;
 
 macro_rules! select {
@@ -90,14 +90,12 @@ impl<'c> Table<'c, MapVisualization> {
                 .await
         }
     }
+
     pub async fn get(&self, id: i32) -> Result<MapVisualization, sqlx::Error> {
         select!(id).fetch_one(&*self.pool).await
     }
 
-    pub async fn update(
-        &self,
-        patch: &MapVisualizationDaoPatch,
-    ) -> Result<PgQueryResult, sqlx::Error> {
+    pub async fn update(&self, patch: &Patch) -> Result<PgQueryResult, sqlx::Error> {
         sqlx::query!(
             "UPDATE map_visualization
             SET dataset = $1,
@@ -147,10 +145,7 @@ impl<'c> Table<'c, MapVisualization> {
         .await
     }
 
-    pub async fn create(
-        &self,
-        map: &MapVisualizationDaoPatch,
-    ) -> Result<PgQueryResult, sqlx::Error> {
+    pub async fn create(&self, map: &Patch) -> Result<PgQueryResult, sqlx::Error> {
         sqlx::query!(
             "INSERT INTO map_visualization (
                 dataset,
@@ -218,5 +213,11 @@ impl<'c> Table<'c, MapVisualization> {
         )
         .execute(&*self.pool)
         .await
+    }
+
+    pub async fn delete_by_dataset(&self, dataset_id: i32) -> Result<PgQueryResult, sqlx::Error> {
+        sqlx::query!("DELETE FROM map_visualization WHERE id = $1", dataset_id)
+            .execute(&*self.pool)
+            .await
     }
 }
