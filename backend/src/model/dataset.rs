@@ -25,7 +25,7 @@ pub struct Diff {
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
-pub struct New {
+pub struct Creator {
     pub columns: Vec<Column>,
     pub name: String,
     pub short_name: String,
@@ -34,9 +34,9 @@ pub struct New {
     pub description: String,
 }
 
-impl New {
+impl Creator {
     pub fn from(dataset: Json, geography_type: i32) -> Self {
-        New {
+        Creator {
             columns: dataset.columns,
             short_name: slug(&dataset.name),
             name: dataset.name,

@@ -28,7 +28,7 @@ pub struct Data {
 
 #[derive(Derivative)]
 #[derivative(Eq, PartialEq, Hash, Debug)]
-pub struct New {
+pub struct Creator {
     pub id: i32,
     pub geography_type: i32,
     pub source: i32,
@@ -39,9 +39,9 @@ pub struct New {
     pub value: f64,
 }
 
-impl New {
-    pub fn new(data: &Parsed, dataset: i32, source: i32, geography_type: i32) -> New {
-        New {
+impl Creator {
+    pub fn new(data: &Parsed, dataset: i32, source: i32, geography_type: i32) -> Creator {
+        Creator {
             id: data.id,
             start_date: data.start_date,
             end_date: data.end_date,

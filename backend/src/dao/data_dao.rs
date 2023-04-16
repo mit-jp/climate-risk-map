@@ -1,6 +1,6 @@
 use super::Table;
 use crate::controller::data_controller::PercentileInfo;
-use crate::model::data::{self, Data, New, Simple, SourceAndDate};
+use crate::model::data::{self, Creator, Data, Simple, SourceAndDate};
 use chrono::NaiveDate;
 use sqlx::postgres::PgQueryResult;
 use std::collections::HashSet;
@@ -174,7 +174,7 @@ impl<'c> Table<'c, Data> {
         .await
     }
 
-    pub async fn insert(&self, data: &HashSet<New>) -> Result<PgQueryResult, sqlx::Error> {
+    pub async fn insert(&self, data: &HashSet<Creator>) -> Result<PgQueryResult, sqlx::Error> {
         let mut ids: Vec<i32> = Vec::with_capacity(data.len());
         let mut sources: Vec<i32> = Vec::with_capacity(data.len());
         let mut datasets: Vec<i32> = Vec::with_capacity(data.len());

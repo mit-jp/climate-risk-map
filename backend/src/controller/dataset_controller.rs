@@ -2,7 +2,7 @@ use super::AppState;
 use crate::model::dataset::Diff;
 use actix_web::{delete, get, patch, web, HttpResponse, Responder};
 use derive_more::Display;
-use log::{error, info};
+use log::error;
 
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get_all);

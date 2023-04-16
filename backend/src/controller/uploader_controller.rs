@@ -207,10 +207,10 @@ async fn upload(
         .reopen()?;
 
     let data = parse_csv(&file, &metadata)?;
-    let datasets: Vec<dataset::New> = metadata
+    let datasets: Vec<dataset::Creator> = metadata
         .datasets
         .iter()
-        .map(|d| dataset::New::from(d.clone(), metadata.geography_type))
+        .map(|d| dataset::Creator::from(d.clone(), metadata.geography_type))
         .collect();
 
     let duplicate_datasets: Vec<Dataset> = app_state
@@ -279,9 +279,9 @@ async fn upload(
     let data = data
         .into_iter()
         .map(|data| {
-            column_to_dataset
-                .get(&data.dataset)
-                .map(|dataset| data::New::new(&data, dataset.id, source_id, dataset.geography_type))
+            column_to_dataset.get(&data.dataset).map(|dataset| {
+                data::Creator::new(&data, dataset.id, source_id, dataset.geography_type)
+            })
         })
         .collect::<Option<HashSet<_>>>()
         .ok_or_else(|| Error::Internal("Could not match datasets to data".to_string()))?;
@@ -301,7 +301,7 @@ mod tests {
 
     fn metadata() -> UploadMetadata {
         UploadMetadata {
-            source: Source::New(data_source::New {
+            source: Source::New(data_source::Creator {
                 name: "name".to_string(),
                 link: "https://example.com".to_string(),
                 description: "description".to_string(),

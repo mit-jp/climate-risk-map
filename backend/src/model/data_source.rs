@@ -26,7 +26,7 @@ pub struct Diff {
 }
 
 #[derive(Deserialize, Serialize, FromRow, Debug, PartialEq)]
-pub struct New {
+pub struct Creator {
     pub name: String,
     pub description: String,
     pub link: String,

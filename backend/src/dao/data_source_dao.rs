@@ -34,7 +34,7 @@ impl<'c> Table<'c, DataSource> {
         .await
     }
 
-    pub async fn create(&self, data_source: &data_source::New) -> Result<i32, sqlx::Error> {
+    pub async fn create(&self, data_source: &data_source::Creator) -> Result<i32, sqlx::Error> {
         sqlx::query!(
             "
             INSERT INTO data_source (name, description, link)

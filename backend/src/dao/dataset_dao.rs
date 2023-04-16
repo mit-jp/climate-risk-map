@@ -1,11 +1,11 @@
 use super::Table;
-use crate::model::dataset::{self, Dataset, New};
+use crate::model::dataset::{self, Creator, Dataset};
 use sqlx::postgres::PgQueryResult;
 
 impl<'c> Table<'c, dataset::Dataset> {
     pub async fn find_duplicates(
         &self,
-        datasets: &[dataset::New],
+        datasets: &[dataset::Creator],
     ) -> Result<Vec<Dataset>, sqlx::Error> {
         sqlx::query_as!(
             Dataset,
@@ -78,7 +78,7 @@ impl<'c> Table<'c, dataset::Dataset> {
         .await
     }
 
-    pub async fn create(&self, dataset: &New) -> Result<dataset::Dataset, sqlx::Error> {
+    pub async fn create(&self, dataset: &Creator) -> Result<dataset::Dataset, sqlx::Error> {
         sqlx::query_as!(
             dataset::Dataset,
             "

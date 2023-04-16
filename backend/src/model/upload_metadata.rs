@@ -6,7 +6,7 @@ use super::{data_source, dataset};
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
 pub enum Source {
     ExistingId(i32),
-    New(data_source::New),
+    New(data_source::Creator),
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Clone)]
@@ -72,7 +72,7 @@ fn test_parse_metadata() {
             id_column: "id".to_string(),
             date_column: "date".to_string(),
             geography_type: 1,
-            source: Source::New(data_source::New {
+            source: Source::New(data_source::Creator {
                 name: "US Census Bureau".to_string(),
                 description: "Population estimates by the US Census Bureau".to_string(),
                 link: "https://www.census.gov".to_string(),
