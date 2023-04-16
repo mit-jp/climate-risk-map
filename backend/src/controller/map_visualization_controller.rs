@@ -2,7 +2,7 @@ use crate::{
     model::map_visualization::{Error, Json, JsonPatch, MapVisualization, Patch},
     AppState,
 };
-use actix_web::{get, patch, post, web, HttpResponse, Responder};
+use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
 use futures::future::try_join;
 use log::error;
 use serde::Deserialize;
@@ -17,6 +17,7 @@ pub fn init(cfg: &mut web::ServiceConfig) {
 pub fn init_editor(cfg: &mut web::ServiceConfig) {
     cfg.service(patch);
     cfg.service(create);
+    cfg.service(delete);
 }
 
 #[derive(Deserialize, Debug)]
@@ -166,6 +167,19 @@ async fn create(
 ) -> impl Responder {
     let map = Patch::new(map_model.into_inner());
     let result = app_state.database.map_visualization.create(&map).await;
+    match result {
+        Err(_) => HttpResponse::InternalServerError().finish(),
+        Ok(_) => HttpResponse::Ok().finish(),
+    }
+}
+
+#[delete("/map-visualization/{id}")]
+async fn delete(id: web::Path<i32>, app_state: web::Data<AppState<'_>>) -> impl Responder {
+    let result = app_state
+        .database
+        .map_visualization
+        .delete(id.into_inner())
+        .await;
     match result {
         Err(_) => HttpResponse::InternalServerError().finish(),
         Ok(_) => HttpResponse::Ok().finish(),

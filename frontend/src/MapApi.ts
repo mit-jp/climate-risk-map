@@ -313,6 +313,13 @@ export const mapApi = createApi({
             }),
             invalidatesTags: [{ type: 'MapVisualization', id: 'ALL' }],
         }),
+        deleteMapVisualization: builder.mutation<undefined, number>({
+            query: (id) => ({
+                url: `editor/map-visualization/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: [{ type: 'MapVisualization', id: 'ALL' }],
+        }),
         getDatasets: builder.query<Dataset[], undefined>({
             query: () => 'dataset',
             providesTags: ['Dataset'],
@@ -463,4 +470,5 @@ export const {
     useGetGeographyTypesQuery,
     useDeleteDatasetMutation,
     useGetMapVisualizationsByDatasetQuery,
+    useDeleteMapVisualizationMutation,
 } = mapApi
