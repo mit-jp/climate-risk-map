@@ -11,6 +11,7 @@ use std::collections::HashMap;
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get);
     cfg.service(get_all);
+    cfg.service(get_by_dataset);
 }
 
 pub fn init_editor(cfg: &mut web::ServiceConfig) {
@@ -78,6 +79,45 @@ async fn get(app_state: web::Data<AppState<'_>>, id: web::Path<i32>) -> impl Res
     }
 }
 
+#[get("/dataset/{id}/map-visualization")]
+async fn get_by_dataset(app_state: web::Data<AppState<'_>>, id: web::Path<i32>) -> impl Responder {
+    let map_visualizations = app_state
+        .database
+        .map_visualization
+        .get_by_dataset(id.into_inner())
+        .await;
+    match map_visualizations {
+        Err(_) => HttpResponse::InternalServerError().finish(),
+        Ok(map_visualizations) => {
+            let maps_by_tab = by_tab(&app_state, map_visualizations).await;
+            match maps_by_tab {
+                Err(e) => {
+                    error!("{}", e);
+                    HttpResponse::InternalServerError().finish()
+                }
+                Ok(maps_by_tab) => HttpResponse::Ok().json(maps_by_tab),
+            }
+        }
+    }
+}
+
+async fn by_tab(
+    app_state: &web::Data<AppState<'_>>,
+    map_visualizations: Vec<MapVisualization>,
+) -> Result<HashMap<i32, HashMap<i32, Json>>, sqlx::Error> {
+    let mut map_visualizations_by_category: HashMap<i32, HashMap<i32, Json>> = HashMap::new();
+    for map_visualization in map_visualizations {
+        let data_tab = map_visualization.data_tab;
+        let map_visualization_model =
+            get_map_visualization_model(map_visualization, app_state).await?;
+        let map_visualizations_for_category = map_visualizations_by_category
+            .entry(data_tab.unwrap_or(-1)) // store uncategorized map visualizations in category -1
+            .or_insert_with(HashMap::new);
+        map_visualizations_for_category.insert(map_visualization_model.id, map_visualization_model);
+    }
+    Ok(map_visualizations_by_category)
+}
+
 #[get("/map-visualization")]
 async fn get_all(
     app_state: web::Data<AppState<'_>>,
@@ -94,24 +134,14 @@ async fn get_all(
             HttpResponse::NotFound().finish()
         }
         Ok(map_visualizations) => {
-            let mut map_visualizations_by_category: HashMap<i32, HashMap<i32, Json>> =
-                HashMap::new();
-            for map_visualization in map_visualizations {
-                let data_tab = map_visualization.data_tab;
-                let map_visualization_model =
-                    get_map_visualization_model(map_visualization, &app_state).await;
-                if let Err(e) = map_visualization_model {
+            let maps_by_tab = by_tab(&app_state, map_visualizations).await;
+            match maps_by_tab {
+                Err(e) => {
                     error!("{}", e);
-                    return HttpResponse::InternalServerError().finish();
+                    HttpResponse::InternalServerError().finish()
                 }
-                let map_visualization_model = map_visualization_model.unwrap();
-                let map_visualizations_for_category = map_visualizations_by_category
-                    .entry(data_tab.unwrap_or(-1)) // store uncategorized map visualizations in category -1
-                    .or_insert_with(HashMap::new);
-                map_visualizations_for_category
-                    .insert(map_visualization_model.id, map_visualization_model);
+                Ok(maps_by_tab) => HttpResponse::Ok().json(maps_by_tab),
             }
-            HttpResponse::Ok().json(map_visualizations_by_category)
         }
     }
 }

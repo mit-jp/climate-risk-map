@@ -4,21 +4,24 @@ use sqlx::postgres::PgQueryResult;
 
 macro_rules! select {
     () => {
-        select!("JOIN", ,)
+        select!("JOIN",,,)
     };
     (include_drafts) => {
-        select!("LEFT JOIN", ,)
+        select!("LEFT JOIN",,,)
     };
     (geography_type=$geography_type:expr) => {
-        select!("JOIN", geography_type=$geography_type,)
+        select!("JOIN", geography_type=$geography_type,,)
     };
     (geography_type=$geography_type:expr, include_drafts) => {
-        select!("LEFT JOIN", geography_type=$geography_type,)
+        select!("LEFT JOIN", geography_type=$geography_type,,)
+    };
+    (dataset=$dataset:expr) => {
+        select!("JOIN",,dataset=$dataset,)
     };
     ($id:ident) => {
-        select!("LEFT JOIN", ,$id)
+        select!("LEFT JOIN",,,id=$id)
     };
-    ($join_type:expr, $(geography_type=$geography_type:expr)?, $($id:expr)?) => {
+    ($join_type:expr, $(geography_type=$geography_type:expr)?, $(dataset=$dataset:expr)?, $(id=$id:expr)?) => {
         sqlx::query_as!(
             MapVisualization,
             r#"
@@ -66,6 +69,7 @@ macro_rules! select {
             + " map_visualization_collection ON map.id = map_visualization_collection.map_visualization"
             $( + " WHERE dataset.geography_type = $1", $geography_type)?
             $( + " WHERE map.id = $1", $id)?
+            $( + " WHERE map.dataset = $1", $dataset)?
         )
     };
 }
@@ -219,5 +223,12 @@ impl<'c> Table<'c, MapVisualization> {
         sqlx::query!("DELETE FROM map_visualization WHERE id = $1", dataset_id)
             .execute(&*self.pool)
             .await
+    }
+
+    pub async fn get_by_dataset(
+        &self,
+        dataset_id: i32,
+    ) -> Result<Vec<MapVisualization>, sqlx::Error> {
+        select!(dataset = dataset_id).fetch_all(&*self.pool).await
     }
 }

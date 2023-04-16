@@ -225,11 +225,28 @@ export const fetchMapVisualization = async (id: number): Promise<MapVisualizatio
     return jsonToMapVisualization(rawJson)
 }
 
+type RawJson = Record<TabId, Record<MapVisualizationId, MapVisualizationJson>>
+type MapVisualizationsByTab = Record<TabId, Record<MapVisualizationId, MapVisualization>>
+
+const transform = (rawJson: RawJson): Record<number, Record<number, MapVisualization>> =>
+    Object.entries(rawJson).reduce((accumulator, [tabId, mapVisualizationJsons]) => {
+        const mapVisualizations = Object.entries(mapVisualizationJsons).reduce(
+            // eslint-disable-next-line @typescript-eslint/no-shadow
+            (accumulator, [id, mapVisualizationJson]) => {
+                accumulator[parseInt(id, 10)] = jsonToMapVisualization(mapVisualizationJson)
+                return accumulator
+            },
+            {} as Record<MapVisualizationId, MapVisualization>
+        )
+        accumulator[parseInt(tabId, 10)!] = mapVisualizations
+        return accumulator
+    }, {} as MapVisualizationsByTab)
+
 export const fetchMapVisualizations = async (props: {
     includeDrafts?: boolean
     geographyType?: GeographyType
-}): Promise<Record<TabId, Record<MapVisualizationId, MapVisualization>>> => {
-    const rawJson = await loadJson<{ [key: number]: { [key: number]: MapVisualizationJson } }>(
+}): Promise<MapVisualizationsByTab> => {
+    const rawJson = await loadJson<RawJson>(
         `/api/map-visualization?include_drafts=${props.includeDrafts ?? false}${
             props.geographyType !== undefined ? `&geography_type=${props.geographyType}` : ''
         }`
@@ -237,20 +254,15 @@ export const fetchMapVisualizations = async (props: {
     if (rawJson === undefined) {
         return Promise.reject(new Error('Failed to fetch map visualizations'))
     }
-    const mapVisualizationsByTab = Object.entries(rawJson).reduce(
-        (accumulator, [tabId, mapVisualizationJsons]) => {
-            const mapVisualizations = Object.entries(mapVisualizationJsons).reduce(
-                // eslint-disable-next-line @typescript-eslint/no-shadow
-                (accumulator, [id, mapVisualizationJson]) => {
-                    accumulator[parseInt(id, 10)] = jsonToMapVisualization(mapVisualizationJson)
-                    return accumulator
-                },
-                {} as Record<MapVisualizationId, MapVisualization>
-            )
-            accumulator[parseInt(tabId, 10)!] = mapVisualizations
-            return accumulator
-        },
-        {} as Record<TabId, Record<MapVisualizationId, MapVisualization>>
-    )
-    return mapVisualizationsByTab
+    return transform(rawJson)
+}
+
+export const fetchMapVisualizationsByDataset = async (
+    dataset: number
+): Promise<MapVisualizationsByTab> => {
+    const rawJson = await loadJson<RawJson>(`/api/dataset/${dataset}/map-visualization`)
+    if (rawJson === undefined) {
+        return Promise.reject(new Error('Failed to fetch map visualizations'))
+    }
+    return transform(rawJson)
 }
