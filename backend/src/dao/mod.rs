@@ -1,8 +1,3 @@
-use super::model::{
-    ColorPalette, County, Data, DataCategory, DataSource, Dataset, MapVisualization,
-    MapVisualizationDaoPatch, ScaleType, SourceAndDate, State,
-};
-
 mod color_palette_dao;
 mod county_dao;
 mod data_category_dao;

@@ -1,10 +1,6 @@
-use sqlx::postgres::PgQueryResult;
-
-use crate::model::DataSourceDiff;
-
-use super::DataSource;
 use super::Table;
-use crate::model::NewDataSource;
+use crate::model::data_source::{self, DataSource};
+use sqlx::postgres::PgQueryResult;
 
 impl<'c> Table<'c, DataSource> {
     pub async fn all(&self) -> Result<Vec<DataSource>, sqlx::Error> {
@@ -38,7 +34,7 @@ impl<'c> Table<'c, DataSource> {
         .await
     }
 
-    pub async fn create(&self, data_source: &NewDataSource) -> Result<i32, sqlx::Error> {
+    pub async fn create(&self, data_source: &data_source::Creator) -> Result<i32, sqlx::Error> {
         sqlx::query!(
             "
             INSERT INTO data_source (name, description, link)
@@ -54,7 +50,10 @@ impl<'c> Table<'c, DataSource> {
         .map(|row| row.id)
     }
 
-    pub async fn update(&self, data_source: &DataSourceDiff) -> Result<PgQueryResult, sqlx::Error> {
+    pub async fn update(
+        &self,
+        data_source: &data_source::Diff,
+    ) -> Result<PgQueryResult, sqlx::Error> {
         return sqlx::query!(
             "
             UPDATE data_source
@@ -70,5 +69,11 @@ impl<'c> Table<'c, DataSource> {
         )
         .execute(&*self.pool)
         .await;
+    }
+
+    pub async fn delete(&self, id: i32) -> Result<PgQueryResult, sqlx::Error> {
+        sqlx::query!("DELETE FROM data_source WHERE id = $1", id)
+            .execute(&*self.pool)
+            .await
     }
 }

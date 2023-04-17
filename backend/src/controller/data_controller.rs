@@ -1,5 +1,6 @@
 use super::AppState;
-use super::SourceAndDate;
+use crate::model::data::SourceAndDate;
+use actix_web::delete;
 use actix_web::{get, web, HttpResponse, Responder};
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
@@ -9,6 +10,10 @@ pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get_by_dataset);
     cfg.service(get_percentiles);
     cfg.service(get_by_map_visualization);
+}
+
+pub fn init_editor(cfg: &mut web::ServiceConfig) {
+    cfg.service(delete);
 }
 
 pub fn data_to_csv<S: Serialize>(data: Vec<S>) -> Result<String, Box<dyn Error>> {
@@ -73,7 +78,7 @@ async fn get_by_map_visualization(
         .data
         .by_map_visualization(
             map_visualization.into_inner(),
-            SourceAndDate {
+            &SourceAndDate {
                 source: info.source,
                 start_date: info.start_date,
                 end_date: info.end_date,
@@ -108,19 +113,33 @@ async fn get_percentiles(
     }
 }
 
+#[delete("/dataset/{dataset}/data")]
+async fn delete(app_state: web::Data<AppState<'_>>, dataset: web::Path<i32>) -> impl Responder {
+    let result = app_state
+        .database
+        .data
+        .delete_by_dataset(dataset.into_inner())
+        .await;
+
+    match result {
+        Ok(_) => HttpResponse::Ok().finish(),
+        Err(_) => HttpResponse::NotFound().finish(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::model::SimpleData;
+    use crate::model::data::Simple;
 
     #[test]
     fn it_converts_data_to_csv() {
         let data = vec![
-            SimpleData {
+            Simple {
                 id: 123,
                 value: 3.0,
             },
-            SimpleData {
+            Simple {
                 id: 456,
                 value: 6.0,
             },

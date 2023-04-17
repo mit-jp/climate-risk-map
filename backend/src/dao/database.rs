@@ -1,12 +1,14 @@
-use crate::model::GeoId;
-use crate::model::GeographyType;
-use crate::model::MapVisualizationCollection;
-use crate::model::Subcategory;
-
-use super::{
-    ColorPalette, County, Data, DataCategory, DataSource, Dataset, MapVisualization, ScaleType,
-    SourceAndDate, State,
-};
+use crate::model::color_palette::ColorPalette;
+use crate::model::data::{Data, SourceAndDate};
+use crate::model::data_category::DataCategory;
+use crate::model::data_source::DataSource;
+use crate::model::dataset::Dataset;
+use crate::model::geo_id::{County, GeoId, State};
+use crate::model::geography_type;
+use crate::model::map_visualization::MapVisualization;
+use crate::model::map_visualization_collection::Collection;
+use crate::model::scale_type;
+use crate::model::subcategory::Subcategory;
 use sqlx::postgres::PgRow;
 use sqlx::{FromRow, PgPool};
 use std::sync::Arc;
@@ -37,15 +39,15 @@ pub struct Database<'c> {
     pub data: Arc<Table<'c, Data>>,
     pub dataset: Arc<Table<'c, Dataset>>,
     pub map_visualization: Arc<Table<'c, MapVisualization>>,
-    pub map_visualization_collection: Arc<Table<'c, MapVisualizationCollection>>,
+    pub map_visualization_collection: Arc<Table<'c, Collection>>,
     pub data_category: Arc<Table<'c, DataCategory>>,
     pub source_and_date: Arc<Table<'c, SourceAndDate>>,
     pub data_source: Arc<Table<'c, DataSource>>,
     pub color_palette: Arc<Table<'c, ColorPalette>>,
-    pub scale_type: Arc<Table<'c, ScaleType>>,
+    pub scale_type: Arc<Table<'c, scale_type::Type>>,
     pub subcategory: Arc<Table<'c, Subcategory>>,
     pub geo_id: Arc<Table<'c, GeoId>>,
-    pub geography_type: Arc<Table<'c, GeographyType>>,
+    pub geography_type: Arc<Table<'c, geography_type::Type>>,
 }
 
 impl Database<'_> {

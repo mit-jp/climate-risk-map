@@ -1,13 +1,74 @@
 import { LoadingButton } from '@mui/lab'
-import { TextField } from '@mui/material'
+import { Button, TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { Dataset } from '../Dataset'
-import { useGetDatasetsQuery, useUpdateDatasetMutation } from '../MapApi'
+import {
+    Tab,
+    useDeleteDatasetMutation,
+    useGetDatasetsQuery,
+    useGetMapVisualizationsByDatasetQuery,
+    useGetTabsQuery,
+    useUnpublishMapVisualizationMutation,
+    useUpdateDatasetMutation,
+} from '../MapApi'
+import { MapVisualization } from '../MapVisualization'
 import SelectorList, { EmptySelectorList } from '../SelectorList'
 import css from './DatasetEditor.module.css'
 
+function MapVisualizations({
+    mapVisualizations,
+    tabs,
+}: {
+    mapVisualizations: Record<number, Record<number, MapVisualization>>
+    tabs: Tab[]
+}) {
+    const [unpublish] = useUnpublishMapVisualizationMutation()
+    const tabName = (tabs: Tab[], tabId: number) => tabs.find((t) => t.id === tabId)?.name
+
+    return (
+        <div className={css.mapVisualizations}>
+            <p>
+                You cannot delete a dataset while published maps exist. Unpublish these if you want
+                to delete the dataset:
+            </p>
+            <ul>
+                {Object.entries(mapVisualizations).map(([tabId, mapVisualizations]) =>
+                    Object.values(mapVisualizations).map((mapVisualization) => (
+                        <li key={`${tabId} ${mapVisualization.id}`}>
+                            <p>
+                                <a href={`/editor/${tabId}`} target="_blank" rel="noreferrer">
+                                    {tabName(tabs, Number(tabId))}
+                                </a>
+                                {' > '}
+                                {mapVisualization.displayName}
+                            </p>
+                            <Button
+                                className={css.publishButton}
+                                onClick={() => {
+                                    const id = {
+                                        map_visualization: mapVisualization.id,
+                                        category: Number(tabId),
+                                    }
+                                    unpublish(id)
+                                }}
+                                variant="contained"
+                                color="error"
+                            >
+                                Unpublish
+                            </Button>
+                        </li>
+                    ))
+                )}
+            </ul>
+        </div>
+    )
+}
+
 function DatasetOptions({ dataset }: { dataset: Dataset }) {
+    const { data: mapVisualizations } = useGetMapVisualizationsByDatasetQuery(dataset.id)
+    const { data: tabs } = useGetTabsQuery(false)
     const [updateDataset, { isLoading }] = useUpdateDatasetMutation()
+    const [deleteDataset, { isLoading: isDeleting }] = useDeleteDatasetMutation()
     const [name, setName] = useState(dataset.name)
     const [description, setDescription] = useState(dataset.description)
     const [units, setUnits] = useState(dataset.units)
@@ -60,6 +121,20 @@ function DatasetOptions({ dataset }: { dataset: Dataset }) {
             >
                 Save
             </LoadingButton>
+            <LoadingButton
+                type="button"
+                variant="contained"
+                loading={isDeleting}
+                color="error"
+                onClick={() => deleteDataset(dataset.id)}
+                disabled={!mapVisualizations || !tabs || Object.keys(mapVisualizations).length > 0}
+            >
+                Delete
+            </LoadingButton>
+            {(!mapVisualizations || !tabs) && <p>loading maps...</p>}
+            {tabs && mapVisualizations && Object.keys(mapVisualizations).length > 0 && (
+                <MapVisualizations mapVisualizations={mapVisualizations} tabs={tabs} />
+            )}
         </form>
     )
 }

@@ -1,7 +1,6 @@
-use sqlx::postgres::PgQueryResult;
-
-use super::DataCategory;
 use super::Table;
+use crate::model::data_category::DataCategory;
+use sqlx::postgres::PgQueryResult;
 
 impl<'c> Table<'c, DataCategory> {
     pub async fn all(&self) -> Result<Vec<DataCategory>, sqlx::Error> {

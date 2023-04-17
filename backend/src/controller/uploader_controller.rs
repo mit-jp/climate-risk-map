@@ -1,7 +1,12 @@
-use super::AppState;
 use crate::model::{
-    DataSource, Dataset, GeoId, NewData, NewDataset, ParsedData, Source, UploadMetadata,
+    data,
+    data_source::DataSource,
+    dataset::{self, Dataset},
+    geo_id::GeoId,
+    upload_metadata::{Source, UploadMetadata},
 };
+
+use super::AppState;
 use actix_web::{
     http::{StatusCode, Uri},
     post, web, HttpResponse,
@@ -38,7 +43,7 @@ enum Error {
     #[display(fmt = "Duplicate data in csv row {}", row)]
     DuplicateDataInCsv {
         row: usize,
-        parsed_data: ParsedData,
+        parsed_data: data::Parsed,
     },
     #[display(fmt = "Duplicate datasets: {_0:#?}")]
     DuplicateDatasets(Vec<Dataset>),
@@ -88,8 +93,8 @@ pub fn init_editor(cfg: &mut web::ServiceConfig) {
     cfg.service(upload);
 }
 
-fn parse_csv(file: &File, metadata: &UploadMetadata) -> Result<HashSet<ParsedData>, Error> {
-    let mut new_data: HashSet<ParsedData> = HashSet::new();
+fn parse_csv(file: &File, metadata: &UploadMetadata) -> Result<HashSet<data::Parsed>, Error> {
+    let mut new_data: HashSet<data::Parsed> = HashSet::new();
     let mut reader = csv::Reader::from_reader(file);
     for (i, result) in reader.deserialize().enumerate() {
         let record: HashMap<String, String> = result?;
@@ -152,7 +157,7 @@ fn parse_csv(file: &File, metadata: &UploadMetadata) -> Result<HashSet<ParsedDat
                 if let Ok(value) = value {
                     // ignore empty values or values that can't parse to float
                     // assume those are intentionally empty in the csv (no measured value)
-                    let parsed_data = ParsedData {
+                    let parsed_data = data::Parsed {
                         start_date,
                         end_date,
                         dataset: column.name.clone(),
@@ -163,7 +168,7 @@ fn parse_csv(file: &File, metadata: &UploadMetadata) -> Result<HashSet<ParsedDat
 
                     if !inserted {
                         return Err(Error::DuplicateDataInCsv {
-                            parsed_data: ParsedData {
+                            parsed_data: data::Parsed {
                                 start_date,
                                 end_date,
                                 dataset: column.name.clone(),
@@ -202,13 +207,13 @@ async fn upload(
         .reopen()?;
 
     let data = parse_csv(&file, &metadata)?;
-    let datasets: Vec<NewDataset> = metadata
+    let datasets: Vec<dataset::Creator> = metadata
         .datasets
         .iter()
-        .map(|d| NewDataset::from(d.clone(), metadata.geography_type))
+        .map(|d| dataset::Creator::from(d.clone(), metadata.geography_type))
         .collect();
 
-    let duplicate_datasets = app_state
+    let duplicate_datasets: Vec<Dataset> = app_state
         .database
         .dataset
         .find_duplicates(&datasets)
@@ -274,9 +279,9 @@ async fn upload(
     let data = data
         .into_iter()
         .map(|data| {
-            column_to_dataset
-                .get(&data.dataset)
-                .map(|dataset| NewData::new(&data, dataset.id, source_id, dataset.geography_type))
+            column_to_dataset.get(&data.dataset).map(|dataset| {
+                data::Creator::new(&data, dataset.id, source_id, dataset.geography_type)
+            })
         })
         .collect::<Option<HashSet<_>>>()
         .ok_or_else(|| Error::Internal("Could not match datasets to data".to_string()))?;
@@ -290,18 +295,18 @@ async fn upload(
 mod tests {
 
     use super::*;
-    use crate::model::{Column, JsonDataset, NewDataSource};
+    use crate::model::{data_source, upload_metadata::Column};
     use assert_matches::assert_matches;
     use chrono::NaiveDate;
 
     fn metadata() -> UploadMetadata {
         UploadMetadata {
-            source: Source::New(NewDataSource {
+            source: Source::New(data_source::Creator {
                 name: "name".to_string(),
                 link: "https://example.com".to_string(),
                 description: "description".to_string(),
             }),
-            datasets: vec![JsonDataset {
+            datasets: vec![dataset::Json {
                 columns: vec![
                     Column {
                         name: "value1".to_string(),
@@ -388,42 +393,42 @@ mod tests {
         let file = File::open("src/controller/test_data/valid_data.csv").unwrap();
         let received = parse_csv(&file, &metadata).unwrap();
         let expected = HashSet::from([
-            ParsedData {
+            data::Parsed {
                 dataset: "value1".to_string(),
                 start_date: NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
                 end_date: NaiveDate::from_ymd_opt(2020, 12, 31).unwrap(),
                 id: 1,
                 value: 11.0,
             },
-            ParsedData {
+            data::Parsed {
                 dataset: "value1".to_string(),
                 start_date: NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
                 end_date: NaiveDate::from_ymd_opt(2020, 12, 31).unwrap(),
                 id: 3,
                 value: 13.0,
             },
-            ParsedData {
+            data::Parsed {
                 dataset: "value2".to_string(),
                 start_date: NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
                 end_date: NaiveDate::from_ymd_opt(2020, 12, 31).unwrap(),
                 id: 1,
                 value: 21.0,
             },
-            ParsedData {
+            data::Parsed {
                 dataset: "value2".to_string(),
                 start_date: NaiveDate::from_ymd_opt(2020, 1, 1).unwrap(),
                 end_date: NaiveDate::from_ymd_opt(2020, 12, 31).unwrap(),
                 id: 3,
                 value: 23.0,
             },
-            ParsedData {
+            data::Parsed {
                 dataset: "value2".to_string(),
                 start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
                 end_date: NaiveDate::from_ymd_opt(2022, 12, 31).unwrap(),
                 id: 5,
                 value: 25.0,
             },
-            ParsedData {
+            data::Parsed {
                 dataset: "value1".to_string(),
                 start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
                 end_date: NaiveDate::from_ymd_opt(2022, 12, 31).unwrap(),

@@ -1,7 +1,7 @@
 use super::AppState;
-use crate::model::DataCategory;
 use crate::{
-    controller::map_visualization_controller::MapVisualizationOptions, model::DataCategoryCreation,
+    controller::map_visualization_controller::MapVisualizationOptions,
+    model::data_category::{Creator, DataCategory},
 };
 use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
 use log::error;
@@ -42,18 +42,22 @@ async fn get_all(
 #[post("/data-category")]
 async fn create(
     app_state: web::Data<AppState<'_>>,
-    info: web::Json<DataCategoryCreation>,
+    new_data_category: web::Json<Creator>,
 ) -> impl Responder {
     let last_order = app_state.database.data_category.last_order().await;
 
-    let info = DataCategory {
+    let data_category = DataCategory {
         order: last_order.unwrap_or(0) + 1,
         id: 0,
-        name: info.name.clone(),
-        normalized: info.normalized,
+        name: new_data_category.name.clone(),
+        normalized: new_data_category.normalized,
     };
 
-    let result = app_state.database.data_category.create(&info).await;
+    let result = app_state
+        .database
+        .data_category
+        .create(&data_category)
+        .await;
 
     match result {
         Err(e) => {

@@ -1,8 +1,8 @@
-use super::{AppState, MapVisualizationModel};
-use crate::model::{
-    MapVisualization, MapVisualizationDaoPatch, MapVisualizationError, MapVisualizationPatch,
+use crate::{
+    model::map_visualization::{Error, Json, JsonPatch, MapVisualization, Patch},
+    AppState,
 };
-use actix_web::{get, patch, post, web, HttpResponse, Responder};
+use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
 use futures::future::try_join;
 use log::error;
 use serde::Deserialize;
@@ -11,11 +11,13 @@ use std::collections::HashMap;
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get);
     cfg.service(get_all);
+    cfg.service(get_by_dataset);
 }
 
 pub fn init_editor(cfg: &mut web::ServiceConfig) {
     cfg.service(patch);
     cfg.service(create);
+    cfg.service(delete);
 }
 
 #[derive(Deserialize, Debug)]
@@ -27,7 +29,7 @@ pub struct MapVisualizationOptions {
 async fn get_map_visualization_model(
     map_visualization: MapVisualization,
     app_state: &web::Data<AppState<'_>>,
-) -> Result<MapVisualizationModel, sqlx::Error> {
+) -> Result<Json, sqlx::Error> {
     let sources_and_dates = app_state
         .database
         .source_and_date
@@ -41,17 +43,13 @@ async fn get_map_visualization_model(
         Err(e) => Err(e),
         Ok((source_and_dates, data_sources)) => {
             if data_sources.is_empty() {
-                return Err(sqlx::Error::Decode(Box::new(MapVisualizationError {
+                return Err(sqlx::Error::Decode(Box::new(Error {
                     message: format!(
                         "No sources and dates found for map visualization {map_visualization:#?}",
                     ),
                 })));
             }
-            Ok(MapVisualizationModel::new(
-                map_visualization,
-                source_and_dates,
-                data_sources,
-            ))
+            Ok(Json::new(map_visualization, source_and_dates, data_sources))
         }
     }
 }
@@ -82,6 +80,45 @@ async fn get(app_state: web::Data<AppState<'_>>, id: web::Path<i32>) -> impl Res
     }
 }
 
+#[get("/dataset/{id}/map-visualization")]
+async fn get_by_dataset(app_state: web::Data<AppState<'_>>, id: web::Path<i32>) -> impl Responder {
+    let map_visualizations = app_state
+        .database
+        .map_visualization
+        .get_by_dataset(id.into_inner())
+        .await;
+    match map_visualizations {
+        Err(_) => HttpResponse::InternalServerError().finish(),
+        Ok(map_visualizations) => {
+            let maps_by_tab = by_tab(&app_state, map_visualizations).await;
+            match maps_by_tab {
+                Err(e) => {
+                    error!("{}", e);
+                    HttpResponse::InternalServerError().finish()
+                }
+                Ok(maps_by_tab) => HttpResponse::Ok().json(maps_by_tab),
+            }
+        }
+    }
+}
+
+async fn by_tab(
+    app_state: &web::Data<AppState<'_>>,
+    map_visualizations: Vec<MapVisualization>,
+) -> Result<HashMap<i32, HashMap<i32, Json>>, sqlx::Error> {
+    let mut map_visualizations_by_category: HashMap<i32, HashMap<i32, Json>> = HashMap::new();
+    for map_visualization in map_visualizations {
+        let data_tab = map_visualization.data_tab;
+        let map_visualization_model =
+            get_map_visualization_model(map_visualization, app_state).await?;
+        let map_visualizations_for_category = map_visualizations_by_category
+            .entry(data_tab.unwrap_or(-1)) // store uncategorized map visualizations in category -1
+            .or_insert_with(HashMap::new);
+        map_visualizations_for_category.insert(map_visualization_model.id, map_visualization_model);
+    }
+    Ok(map_visualizations_by_category)
+}
+
 #[get("/map-visualization")]
 async fn get_all(
     app_state: web::Data<AppState<'_>>,
@@ -98,39 +135,24 @@ async fn get_all(
             HttpResponse::NotFound().finish()
         }
         Ok(map_visualizations) => {
-            let mut map_visualizations_by_category: HashMap<
-                i32,
-                HashMap<i32, MapVisualizationModel>,
-            > = HashMap::new();
-            for map_visualization in map_visualizations {
-                let data_tab = map_visualization.data_tab;
-                let map_visualization_model =
-                    get_map_visualization_model(map_visualization, &app_state).await;
-                if let Err(e) = map_visualization_model {
+            let maps_by_tab = by_tab(&app_state, map_visualizations).await;
+            match maps_by_tab {
+                Err(e) => {
                     error!("{}", e);
-                    return HttpResponse::InternalServerError().finish();
+                    HttpResponse::InternalServerError().finish()
                 }
-                let map_visualization_model = map_visualization_model.unwrap();
-                let map_visualizations_for_category = map_visualizations_by_category
-                    .entry(data_tab.unwrap_or(-1)) // store uncategorized map visualizations in category -1
-                    .or_insert_with(HashMap::new);
-                map_visualizations_for_category
-                    .insert(map_visualization_model.id, map_visualization_model);
+                Ok(maps_by_tab) => HttpResponse::Ok().json(maps_by_tab),
             }
-            HttpResponse::Ok().json(map_visualizations_by_category)
         }
     }
 }
 
 #[patch("/map-visualization")]
-async fn patch(
-    patch: web::Json<MapVisualizationPatch>,
-    app_state: web::Data<AppState<'_>>,
-) -> impl Responder {
+async fn patch(patch: web::Json<JsonPatch>, app_state: web::Data<AppState<'_>>) -> impl Responder {
     let result = app_state
         .database
         .map_visualization
-        .update(&MapVisualizationDaoPatch::new(patch.into_inner()))
+        .update(&Patch::new(patch.into_inner()))
         .await;
     match result {
         Err(_) => HttpResponse::InternalServerError().finish(),
@@ -140,11 +162,24 @@ async fn patch(
 
 #[post("/map-visualization")]
 async fn create(
-    map_model: web::Json<MapVisualizationPatch>,
+    map_model: web::Json<JsonPatch>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
-    let map = MapVisualizationDaoPatch::new(map_model.into_inner());
+    let map = Patch::new(map_model.into_inner());
     let result = app_state.database.map_visualization.create(&map).await;
+    match result {
+        Err(_) => HttpResponse::InternalServerError().finish(),
+        Ok(_) => HttpResponse::Ok().finish(),
+    }
+}
+
+#[delete("/map-visualization/{id}")]
+async fn delete(id: web::Path<i32>, app_state: web::Data<AppState<'_>>) -> impl Responder {
+    let result = app_state
+        .database
+        .map_visualization
+        .delete(id.into_inner())
+        .await;
     match result {
         Err(_) => HttpResponse::InternalServerError().finish(),
         Ok(_) => HttpResponse::Ok().finish(),

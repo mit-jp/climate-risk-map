@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
 #[derive(Debug, FromRow, Serialize)]
-pub struct PercentileData {
+pub struct Percentile {
     pub dataset: i32,
     pub dataset_name: String,
     pub source: i32,
@@ -28,7 +28,7 @@ pub struct Data {
 
 #[derive(Derivative)]
 #[derivative(Eq, PartialEq, Hash, Debug)]
-pub struct NewData {
+pub struct Creator {
     pub id: i32,
     pub geography_type: i32,
     pub source: i32,
@@ -39,9 +39,9 @@ pub struct NewData {
     pub value: f64,
 }
 
-impl NewData {
-    pub fn new(data: &ParsedData, dataset: i32, source: i32, geography_type: i32) -> NewData {
-        NewData {
+impl Creator {
+    pub fn new(data: &Parsed, dataset: i32, source: i32, geography_type: i32) -> Creator {
+        Creator {
             id: data.id,
             start_date: data.start_date,
             end_date: data.end_date,
@@ -55,7 +55,7 @@ impl NewData {
 
 #[derive(Derivative, Serialize)]
 #[derivative(Eq, PartialEq, Hash, Debug)]
-pub struct ParsedData {
+pub struct Parsed {
     pub dataset: String,
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
@@ -65,9 +65,17 @@ pub struct ParsedData {
 }
 
 #[derive(FromRow, Deserialize, Serialize)]
-pub struct SimpleData {
+pub struct Simple {
     pub id: i32,
     pub value: f64,
+}
+
+#[derive(Deserialize)]
+pub struct DeleteInfo {
+    pub dataset: i32,
+    pub source: i32,
+    pub start_date: NaiveDate,
+    pub end_date: NaiveDate,
 }
 
 #[derive(FromRow, Deserialize, Serialize)]

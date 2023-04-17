@@ -1,12 +1,12 @@
-use super::NewDataSource;
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use str_slug::slug;
+
+use super::{data_source, dataset};
 
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
 pub enum Source {
     ExistingId(i32),
-    New(NewDataSource),
+    New(data_source::Creator),
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq, Clone)]
@@ -15,43 +15,12 @@ pub struct Column {
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
-pub struct NewDataset {
-    pub columns: Vec<Column>,
-    pub name: String,
-    pub short_name: String,
-    pub units: String,
-    pub geography_type: i32,
-    pub description: String,
-}
-
-impl NewDataset {
-    pub fn from(dataset: JsonDataset, geography_type: i32) -> Self {
-        NewDataset {
-            columns: dataset.columns,
-            short_name: slug(&dataset.name),
-            name: dataset.name,
-            units: dataset.units,
-            description: dataset.description,
-            geography_type,
-        }
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
-pub struct JsonDataset {
-    pub columns: Vec<Column>,
-    pub name: String,
-    pub units: String,
-    pub description: String,
-}
-
-#[derive(Deserialize, Serialize, Debug, PartialEq)]
 pub struct UploadMetadata {
     pub id_column: String,
     pub date_column: String,
     pub geography_type: i32,
     pub source: Source,
-    pub datasets: Vec<JsonDataset>,
+    pub datasets: Vec<dataset::Json>,
 }
 
 impl fmt::Display for UploadMetadata {
@@ -103,12 +72,12 @@ fn test_parse_metadata() {
             id_column: "id".to_string(),
             date_column: "date".to_string(),
             geography_type: 1,
-            source: Source::New(NewDataSource {
+            source: Source::New(data_source::Creator {
                 name: "US Census Bureau".to_string(),
                 description: "Population estimates by the US Census Bureau".to_string(),
                 link: "https://www.census.gov".to_string(),
             }),
-            datasets: vec![JsonDataset {
+            datasets: vec![dataset::Json {
                 name: "Population".to_string(),
                 units: "people".to_string(),
                 description: "this is the description".to_string(),

@@ -6,6 +6,7 @@ import EmptyMap from '../EmptyMap'
 import FullMap from '../FullMap'
 import {
     Tab,
+    useDeleteMapVisualizationMutation,
     useGetDataQuery,
     useGetDatasetsQuery,
     usePublishMapVisualizationMutation,
@@ -36,6 +37,7 @@ function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Pr
         () => (selection ? getDataQueryParams(selection) : undefined),
         [selection]
     )
+    const [deleteMap] = useDeleteMapVisualizationMutation()
     const [publish] = usePublishMapVisualizationMutation()
     const [unpublish] = useUnpublishMapVisualizationMutation()
     const { data: datasets } = useGetDatasetsQuery(undefined)
@@ -95,32 +97,45 @@ function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Pr
             {selection && (
                 <>
                     <EditorMapDescription selectedMap={selection} />
-                    {isDraft && (
-                        <Select
-                            value={publishTo}
-                            onChange={(event) => setPublishTo(event.target.value as number)}
+                    <div className={css.publishArea}>
+                        {isDraft && (
+                            <Select
+                                value={publishTo}
+                                onChange={(event) => setPublishTo(event.target.value as number)}
+                            >
+                                {tabs.map(({ id, name }) => (
+                                    <MenuItem key={id} value={id}>
+                                        {name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        )}
+                        <Button
+                            className={css.publishButton}
+                            onClick={() => {
+                                const id = {
+                                    map_visualization: selection.id,
+                                    category: isDraft ? publishTo : tab.id,
+                                }
+                                isDraft ? publish(id) : unpublish(id)
+                            }}
+                            variant="contained"
+                            color={isDraft ? 'secondary' : 'error'}
                         >
-                            {tabs.map(({ id, name }) => (
-                                <MenuItem key={id} value={id}>
-                                    {name}
-                                </MenuItem>
-                            ))}
-                        </Select>
+                            {isDraft ? 'Publish' : 'Unpublish'}
+                        </Button>
+                    </div>
+
+                    {isDraft && (
+                        <Button
+                            className={css.deleteButton}
+                            onClick={() => deleteMap(selection.id)}
+                            variant="contained"
+                            color="error"
+                        >
+                            Delete
+                        </Button>
                     )}
-                    <Button
-                        className={css.publishButton}
-                        onClick={() => {
-                            const id = {
-                                map_visualization: selection.id,
-                                category: isDraft ? publishTo : tab.id,
-                            }
-                            isDraft ? publish(id) : unpublish(id)
-                        }}
-                        variant="contained"
-                        color={isDraft ? 'secondary' : 'error'}
-                    >
-                        {isDraft ? 'Publish' : 'Unpublish'}
-                    </Button>
                 </>
             )}
         </div>

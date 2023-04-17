@@ -70,3 +70,9 @@
 .delete-tab:hover {
     background-color: #f5b0b0;
 }
+
+.publish-area {
+    display: flex;
+    align-items: center;
+    margin: 1em 0;
+}

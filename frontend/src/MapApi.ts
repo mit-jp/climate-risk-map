@@ -11,6 +11,7 @@ import {
     applyPatch,
     fetchMapVisualization,
     fetchMapVisualizations,
+    fetchMapVisualizationsByDataset,
 } from './MapVisualization'
 import { GeoId } from './appSlice'
 import UploadData from './uploader/UploadData'
@@ -267,9 +268,20 @@ export const mapApi = createApi({
                       ]
                     : [{ type: 'MapVisualization', id: 'ALL' }],
         }),
+        getMapVisualizationsByDataset: builder.query<
+            Record<TabId, Record<MapVisualizationId, MapVisualization>>,
+            number
+        >({
+            queryFn: (dataset) =>
+                fetchMapVisualizationsByDataset(dataset).then(
+                    (data) => ({ data }),
+                    (error) => ({ error })
+                ),
+            providesTags: [{ type: 'MapVisualization', id: 'ALL' }],
+        }),
         getTabs: builder.query<Tab[], boolean>({
             query: (includeDrafts) => `data-category?include_drafts=${includeDrafts}`,
-            providesTags: () => ['Tab'],
+            providesTags: ['Tab'],
         }),
         getColorPalettes: builder.query<ColorPalette[], undefined>({
             query: () => 'color-palette',
@@ -301,6 +313,13 @@ export const mapApi = createApi({
             }),
             invalidatesTags: [{ type: 'MapVisualization', id: 'ALL' }],
         }),
+        deleteMapVisualization: builder.mutation<undefined, number>({
+            query: (id) => ({
+                url: `editor/map-visualization/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: [{ type: 'MapVisualization', id: 'ALL' }],
+        }),
         getDatasets: builder.query<Dataset[], undefined>({
             query: () => 'dataset',
             providesTags: ['Dataset'],
@@ -311,7 +330,7 @@ export const mapApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
-            invalidatesTags: () => ['Dataset', 'MapVisualization'],
+            invalidatesTags: ['Dataset', 'MapVisualization'],
         }),
         getDataSources: builder.query<DataSource[], undefined>({
             query: () => 'data-source',
@@ -323,7 +342,7 @@ export const mapApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
-            invalidatesTags: () => ['DataSource', 'MapVisualization'],
+            invalidatesTags: ['DataSource', 'MapVisualization'],
         }),
         getSubcategories: builder.query<Subcategory[], undefined>({
             query: () => 'subcategory',
@@ -353,7 +372,7 @@ export const mapApi = createApi({
                 method: 'PATCH',
                 body: patch,
             }),
-            invalidatesTags: () => ['Tab'],
+            invalidatesTags: ['Tab'],
             async onQueryStarted(patch, { dispatch, queryFulfilled }) {
                 const patchResult = dispatch(
                     mapApi.util.updateQueryData('getTabs', true, (draft) =>
@@ -369,14 +388,14 @@ export const mapApi = createApi({
                 method: 'POST',
                 body: tab,
             }),
-            invalidatesTags: () => ['Tab'],
+            invalidatesTags: ['Tab'],
         }),
         deleteTab: builder.mutation<undefined, number>({
             query: (tabId) => ({
                 url: `editor/data-category/${tabId}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: () => ['Tab'],
+            invalidatesTags: ['Tab'],
             async onQueryStarted(tabId, { dispatch, queryFulfilled }) {
                 const patchResult = dispatch(
                     mapApi.util.updateQueryData('getTabs', true, (draft) => {
@@ -414,6 +433,13 @@ export const mapApi = createApi({
         getGeographyTypes: builder.query<GeographyType[], undefined>({
             query: () => 'geography-type',
         }),
+        deleteDataset: builder.mutation<undefined, number>({
+            query: (datasetId) => ({
+                url: `editor/dataset/${datasetId}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Dataset', 'MapVisualization'],
+        }),
     }),
 })
 
@@ -442,4 +468,7 @@ export const {
     useUploadMutation,
     useGetDataSourcesQuery,
     useGetGeographyTypesQuery,
+    useDeleteDatasetMutation,
+    useGetMapVisualizationsByDatasetQuery,
+    useDeleteMapVisualizationMutation,
 } = mapApi

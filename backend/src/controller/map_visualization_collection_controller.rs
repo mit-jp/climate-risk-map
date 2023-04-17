@@ -2,7 +2,7 @@ use actix_web::{delete, post, web, HttpResponse, Responder};
 use log::error;
 
 use crate::{
-    model::{MapVisualizationCollection, MapVisualizationCollectionId},
+    model::map_visualization_collection::{Collection, Id},
     AppState,
 };
 
@@ -12,10 +12,7 @@ pub fn init_editor(cfg: &mut web::ServiceConfig) {
 }
 
 #[delete("/map-visualization-collection")]
-async fn delete(
-    app_state: web::Data<AppState<'_>>,
-    json: web::Json<MapVisualizationCollectionId>,
-) -> impl Responder {
+async fn delete(app_state: web::Data<AppState<'_>>, json: web::Json<Id>) -> impl Responder {
     let result = app_state
         .database
         .map_visualization_collection
@@ -31,10 +28,7 @@ async fn delete(
 }
 
 #[post("/map-visualization-collection")]
-async fn create(
-    app_state: web::Data<AppState<'_>>,
-    json: web::Json<MapVisualizationCollectionId>,
-) -> impl Responder {
+async fn create(app_state: web::Data<AppState<'_>>, json: web::Json<Id>) -> impl Responder {
     let order = app_state
         .database
         .map_visualization_collection
@@ -50,7 +44,7 @@ async fn create(
     let result = app_state
         .database
         .map_visualization_collection
-        .create(MapVisualizationCollection {
+        .create(Collection {
             order: order + 1,
             category: json.category,
             map_visualization: json.map_visualization,

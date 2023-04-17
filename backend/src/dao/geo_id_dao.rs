@@ -1,8 +1,7 @@
-use std::collections::HashSet;
-
-use crate::model::GeoId;
+use crate::model::geo_id::GeoId;
 
 use super::Table;
+use std::collections::HashSet;
 
 impl<'c> Table<'c, GeoId> {
     pub async fn get_invalid_ids(

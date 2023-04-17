@@ -12,3 +12,19 @@
 .dataset-options > * {
     margin: 1em !important;
 }
+
+.map-visualizations ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.map-visualizations li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5em;
+}
+
+.map-visualizations li p {
+    margin-right: 1em;
+}

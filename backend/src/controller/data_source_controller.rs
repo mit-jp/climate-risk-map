@@ -1,7 +1,7 @@
-use crate::model::DataSourceDiff;
+use crate::model::data_source::Diff;
 
 use super::AppState;
-use actix_web::{get, patch, web, HttpResponse, Responder};
+use actix_web::{delete, get, patch, web, HttpResponse, Responder};
 
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get_all);
@@ -9,12 +9,13 @@ pub fn init(cfg: &mut web::ServiceConfig) {
 
 pub fn init_editor(cfg: &mut web::ServiceConfig) {
     cfg.service(update);
+    cfg.service(delete);
 }
 
 #[patch("/data-source")]
 async fn update(
     app_state: web::Data<AppState<'_>>,
-    data_source: web::Json<DataSourceDiff>,
+    data_source: web::Json<Diff>,
 ) -> impl Responder {
     let result = app_state.database.data_source.update(&data_source).await;
 
@@ -31,5 +32,15 @@ async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
     match data_sources {
         Err(_) => HttpResponse::NotFound().finish(),
         Ok(data_sources) => HttpResponse::Ok().json(data_sources),
+    }
+}
+
+#[delete("/data-source/{id}")]
+async fn delete(id: web::Path<i32>, app_state: web::Data<AppState<'_>>) -> impl Responder {
+    let result = app_state.database.data_source.delete(id.into_inner()).await;
+
+    match result {
+        Err(_) => HttpResponse::NotFound().finish(),
+        Ok(_) => HttpResponse::Ok().finish(),
     }
 }
