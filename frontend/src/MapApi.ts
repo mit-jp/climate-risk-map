@@ -305,11 +305,10 @@ export const mapApi = createApi({
                 queryFulfilled.catch(() => patchResult.undo())
             },
         }),
-        createMapVisualization: builder.mutation<MapVisualization, MapVisualizationPatch>({
-            query: (map) => ({
+        createMapVisualization: builder.mutation<MapVisualization, undefined>({
+            query: () => ({
                 url: 'editor/map-visualization',
                 method: 'POST',
-                body: map,
             }),
             invalidatesTags: [{ type: 'MapVisualization', id: 'ALL' }],
         }),
@@ -440,6 +439,13 @@ export const mapApi = createApi({
             }),
             invalidatesTags: ['Dataset', 'MapVisualization'],
         }),
+        deleteDataSource: builder.mutation<undefined, number>({
+            query: (dataSourceId) => ({
+                url: `editor/data-source/${dataSourceId}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['DataSource'],
+        }),
     }),
 })
 
@@ -471,4 +477,5 @@ export const {
     useDeleteDatasetMutation,
     useGetMapVisualizationsByDatasetQuery,
     useDeleteMapVisualizationMutation,
+    useDeleteDataSourceMutation,
 } = mapApi
