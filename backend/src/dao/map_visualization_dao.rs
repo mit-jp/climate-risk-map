@@ -1,5 +1,5 @@
 use super::Table;
-use crate::model::map_visualization::{MapVisualization, Patch};
+use crate::model::map_visualization::{Creator, MapVisualization, Patch};
 use sqlx::postgres::PgQueryResult;
 
 macro_rules! select {
@@ -149,71 +149,18 @@ impl<'c> Table<'c, MapVisualization> {
         .await
     }
 
-    pub async fn create(&self, map: &Patch) -> Result<PgQueryResult, sqlx::Error> {
+    pub async fn create(&self, map: &Creator) -> Result<PgQueryResult, sqlx::Error> {
         sqlx::query!(
-            "INSERT INTO map_visualization (
-                dataset,
-                map_type,
-                subcategory,
-                name,
-                legend_ticks,
-                color_palette,
-                reverse_scale,
-                invert_normalized,
-                scale_type,
-                show_pdf,
-                default_start_date,
-                default_end_date,
-                default_source,
-                formatter_type,
-                legend_formatter_type,
-                decimals,
-                legend_decimals,
-                color_domain,
-                pdf_domain,
-                bubble_color
-            )
-            VALUES (
-                $1,
-                $2,
-                $3,
-                $4,
-                $5,
-                $6,
-                $7,
-                $8,
-                $9,
-                $10,
-                $11,
-                $12,
-                $13,
-                $14,
-                $15,
-                $16,
-                $17,
-                $18,
-                $19,
-                $20)",
+            "
+            INSERT INTO map_visualization
+            (dataset, map_type, color_palette, scale_type, formatter_type)
+            VALUES ($1, $2, $3, $4, $5)
+            ",
             map.dataset,
             map.map_type,
-            map.subcategory,
-            map.name,
-            map.legend_ticks,
-            map.color_palette_id,
-            map.reverse_scale,
-            map.invert_normalized,
+            map.color_palette,
             map.scale_type,
-            map.show_pdf,
-            map.default_start_date,
-            map.default_end_date,
-            map.default_source,
             map.formatter_type,
-            map.legend_formatter_type,
-            map.decimals,
-            map.legend_decimals,
-            &map.color_domain,
-            &map.pdf_domain,
-            map.bubble_color,
         )
         .execute(&*self.pool)
         .await

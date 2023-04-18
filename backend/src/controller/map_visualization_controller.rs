@@ -1,5 +1,5 @@
 use crate::{
-    model::map_visualization::{Error, Json, JsonPatch, MapVisualization, Patch},
+    model::map_visualization::{Creator, Error, Json, JsonPatch, MapVisualization, Patch},
     AppState,
 };
 use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
@@ -161,15 +161,33 @@ async fn patch(patch: web::Json<JsonPatch>, app_state: web::Data<AppState<'_>>) 
 }
 
 #[post("/map-visualization")]
-async fn create(
-    map_model: web::Json<JsonPatch>,
-    app_state: web::Data<AppState<'_>>,
-) -> impl Responder {
-    let map = Patch::new(map_model.into_inner());
-    let result = app_state.database.map_visualization.create(&map).await;
-    match result {
-        Err(_) => HttpResponse::InternalServerError().finish(),
-        Ok(_) => HttpResponse::Ok().finish(),
+async fn create(app_state: web::Data<AppState<'_>>) -> impl Responder {
+    let dataset = app_state.database.dataset.first().await;
+    match dataset {
+        Err(e) => {
+            error!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        }
+        Ok(dataset) => {
+            let result = app_state
+                .database
+                .map_visualization
+                .create(&Creator {
+                    dataset: dataset.id,
+                    map_type: 1,
+                    color_palette: 1,
+                    scale_type: 2,
+                    formatter_type: 3,
+                })
+                .await;
+            match result {
+                Err(e) => {
+                    error!("{}", e);
+                    HttpResponse::InternalServerError().finish()
+                }
+                Ok(_) => HttpResponse::Ok().finish(),
+            }
+        }
     }
 }
 

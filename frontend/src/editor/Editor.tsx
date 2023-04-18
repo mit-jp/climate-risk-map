@@ -13,7 +13,6 @@ import {
     useGetMapVisualizationsQuery,
     useGetTabsQuery,
 } from '../MapApi'
-import { MapVisualizationPatch } from '../MapVisualization'
 import SelectorList, { EmptySelectorList } from '../SelectorList'
 import { TopoJson } from '../TopoJson'
 import { Region } from '../appSlice'
@@ -28,23 +27,6 @@ import {
     setMap,
     setTab,
 } from './editorSlice'
-
-const NEW_MAP: MapVisualizationPatch = {
-    id: -1,
-    dataset: 1,
-    map_type: 1,
-    color_palette: { id: 1, name: 'Blues' },
-    reverse_scale: false,
-    invert_normalized: false,
-    scale_type: { id: 2, name: 'Sequential' },
-    color_domain: [],
-    show_pdf: true,
-    pdf_domain: [],
-    formatter_type: 3,
-    decimals: 1,
-    geography_type: 1,
-    bubble_color: '#000000',
-}
 
 export const isDrafts = (tab: Tab | undefined) => tab?.id === -1
 
@@ -124,7 +106,7 @@ function Editor() {
                     {isDrafts(tab) && (
                         <Button
                             id={editorCss.createMap}
-                            onClick={() => createMap(NEW_MAP)}
+                            onClick={() => createMap(undefined)}
                             variant="contained"
                         >
                             Create new map

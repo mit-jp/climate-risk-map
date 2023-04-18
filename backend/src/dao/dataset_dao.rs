@@ -78,6 +78,20 @@ impl<'c> Table<'c, dataset::Dataset> {
         .await
     }
 
+    pub async fn first(&self) -> Result<dataset::Dataset, sqlx::Error> {
+        sqlx::query_as!(
+            dataset::Dataset,
+            "
+            SELECT id, short_name, name, description, units, geography_type
+            FROM dataset
+            ORDER BY id
+            LIMIT 1
+            "
+        )
+        .fetch_one(&*self.pool)
+        .await
+    }
+
     pub async fn create(&self, dataset: &Creator) -> Result<dataset::Dataset, sqlx::Error> {
         sqlx::query_as!(
             dataset::Dataset,

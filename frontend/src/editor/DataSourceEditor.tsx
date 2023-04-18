@@ -1,7 +1,12 @@
 import { LoadingButton } from '@mui/lab'
 import { TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
-import { DataSource, useGetDataSourcesQuery, useUpdateDataSourceMutation } from '../MapApi'
+import {
+    DataSource,
+    useDeleteDataSourceMutation,
+    useGetDataSourcesQuery,
+    useUpdateDataSourceMutation,
+} from '../MapApi'
 import SelectorList, { EmptySelectorList } from '../SelectorList'
 import css from './DatasetEditor.module.css'
 
@@ -10,6 +15,7 @@ function DataSourceOptions({ dataSource }: { dataSource: DataSource }) {
     const [name, setName] = useState(dataSource.name)
     const [description, setDescription] = useState(dataSource.description)
     const [link, setLink] = useState(dataSource.link)
+    const [deleteDataSource, { isLoading: isDeleting }] = useDeleteDataSourceMutation()
 
     useEffect(() => {
         setName(dataSource.name)
@@ -58,6 +64,15 @@ function DataSourceOptions({ dataSource }: { dataSource: DataSource }) {
                 disabled={noDiff()}
             >
                 Save
+            </LoadingButton>
+            <LoadingButton
+                variant="contained"
+                type="button"
+                loading={isDeleting}
+                onClick={() => deleteDataSource(dataSource.id)}
+                color="error"
+            >
+                Delete
             </LoadingButton>
         </form>
     )

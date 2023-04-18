@@ -227,4 +227,10 @@ impl<'c> Table<'c, Data> {
             .execute(&*self.pool)
             .await
     }
+
+    pub async fn delete_by_source(&self, source: i32) -> Result<PgQueryResult, sqlx::Error> {
+        sqlx::query!("DELETE FROM data WHERE source = $1", source)
+            .execute(&*self.pool)
+            .await
+    }
 }
