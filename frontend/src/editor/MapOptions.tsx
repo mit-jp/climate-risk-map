@@ -206,7 +206,14 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                     InputLabelProps={{
                         shrink: true,
                     }}
-                    value={mapVisualization.decimals}
+                    value={mapVisualization.legend_decimals ?? mapVisualization.decimals}
+                    onChange={(e) => {
+                        let legendDecimals: number | undefined = parseInt(e.target.value, 10)
+                        if (Number.isNaN(legendDecimals)) {
+                            legendDecimals = undefined
+                        }
+                        updateMap({ ...mapVisualization, legend_decimals: legendDecimals })
+                    }}
                 />
 
                 <FormControlLabel
