@@ -15,6 +15,14 @@ pub struct Error {
 
 impl std::error::Error for Error {}
 
+pub struct Creator {
+    pub dataset: i32,
+    pub map_type: i32,
+    pub color_palette: i32,
+    pub scale_type: i32,
+    pub formatter_type: i32,
+}
+
 #[derive(FromRow, Deserialize, Serialize)]
 pub struct Patch {
     pub id: i32,

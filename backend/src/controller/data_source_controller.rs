@@ -37,10 +37,18 @@ async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
 
 #[delete("/data-source/{id}")]
 async fn delete(id: web::Path<i32>, app_state: web::Data<AppState<'_>>) -> impl Responder {
-    let result = app_state.database.data_source.delete(id.into_inner()).await;
+    let id = id.into_inner();
+    let result = app_state.database.data.delete_by_source(id).await;
 
     match result {
         Err(_) => HttpResponse::NotFound().finish(),
-        Ok(_) => HttpResponse::Ok().finish(),
+        Ok(_) => {
+            let result = app_state.database.data_source.delete(id).await;
+
+            match result {
+                Err(_) => HttpResponse::NotFound().finish(),
+                Ok(_) => HttpResponse::Ok().finish(),
+            }
+        }
     }
 }
