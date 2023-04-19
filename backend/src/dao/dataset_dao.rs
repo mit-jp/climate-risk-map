@@ -5,7 +5,7 @@ use sqlx::postgres::PgQueryResult;
 impl<'c> Table<'c, dataset::Dataset> {
     pub async fn find_duplicates(
         &self,
-        datasets: &[dataset::Creator],
+        datasets: &[&dataset::Creator],
     ) -> Result<Vec<Dataset>, sqlx::Error> {
         sqlx::query_as!(
             Dataset,
@@ -52,17 +52,9 @@ impl<'c> Table<'c, dataset::Dataset> {
     }
 
     pub async fn by_id(&self, id: i32) -> Result<dataset::Dataset, sqlx::Error> {
-        sqlx::query_as!(
-            dataset::Dataset,
-            "
-            SELECT id, short_name, name, description, units, geography_type
-            FROM dataset
-            WHERE id = $1
-            ",
-            id
-        )
-        .fetch_one(&*self.pool)
-        .await
+        sqlx::query_as!(dataset::Dataset, "SELECT * FROM dataset WHERE id = $1", id)
+            .fetch_one(&*self.pool)
+            .await
     }
 
     pub async fn all(&self) -> Result<Vec<dataset::Dataset>, sqlx::Error> {

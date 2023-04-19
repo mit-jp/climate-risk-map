@@ -12,10 +12,9 @@ import { GeographyType } from '../MapApi'
 import { DataSource } from '../MapVisualization'
 import DatasetEditor from './DatasetEditor'
 import NewSourceInput from './NewSourceInput'
-import { FormData } from './UploadData'
+import { FormData, UploadDataset } from './UploadData'
 import css from './Uploader.module.css'
 import {
-    Dataset,
     createDataset,
     setDateColumn,
     setExistingSource,
@@ -28,15 +27,14 @@ export const INPUT_MARGIN = { margin: '0.5em 0' }
 
 function getPossibleColumns(
     columns: string[],
-    datasets: Dataset[],
+    datasets: UploadDataset[],
     idColumn: string | undefined,
     dateColumn: string | undefined,
-    datasetId: string
+    datasetUuid: string
 ): string[] {
     const otherDatasetColumns = datasets
-        .filter((dataset) => dataset.id !== datasetId)
-        .flatMap((dataset) => dataset.columns)
-        .map((column) => column.name)
+        .filter((dataset) => dataset.uuid !== datasetUuid)
+        .map((dataset) => dataset.column)
     return (
         columns.filter(
             (column) =>
@@ -140,16 +138,15 @@ export default function MetadataForm({
             {datasets.map((dataset) => (
                 <DatasetEditor
                     dataset={dataset}
-                    key={dataset.id}
+                    key={dataset.uuid}
                     possibleColumns={getPossibleColumns(
                         columns,
                         datasets,
                         idColumn,
                         dateColumn,
-                        dataset.id
+                        dataset.uuid
                     )}
                     deletable={datasets.length > 1}
-                    freeColumns={freeColumns}
                 />
             ))}
 

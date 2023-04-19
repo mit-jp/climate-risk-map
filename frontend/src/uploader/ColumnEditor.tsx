@@ -1,21 +1,16 @@
-import { Delete } from '@mui/icons-material'
-import { Button, MenuItem, Select } from '@mui/material'
+import { MenuItem, Select } from '@mui/material'
 import { useDispatch } from 'react-redux'
 import css from './Uploader.module.css'
-import { Column, removeColumn, selectColumn } from './uploaderSlice'
+import { selectColumn } from './uploaderSlice'
 
 export default function ColumnEditor({
     column,
     possibleColumns,
-    datasetId,
-    canDelete,
-    canChangeName,
+    datasetUuid,
 }: {
-    column: Column
+    column: string
     possibleColumns: string[]
-    datasetId: string
-    canDelete: boolean
-    canChangeName: boolean
+    datasetUuid: string
 }) {
     const dispatch = useDispatch()
     return (
@@ -23,16 +18,9 @@ export default function ColumnEditor({
             <Select
                 required
                 className={css.columnSelect}
-                value={column.name}
+                value={column}
                 onChange={(e) =>
-                    dispatch(
-                        selectColumn({
-                            datasetId,
-                            oldName: column.name,
-                            newName: e.target.value,
-                            canChangeName,
-                        })
-                    )
+                    dispatch(selectColumn({ uuid: datasetUuid, newName: e.target.value }))
                 }
             >
                 {possibleColumns.map((columnChoice) => {
@@ -43,15 +31,6 @@ export default function ColumnEditor({
                     )
                 })}
             </Select>
-
-            {canDelete && (
-                <Button
-                    onClick={() => dispatch(removeColumn({ datasetId, column: column.name }))}
-                    startIcon={<Delete />}
-                >
-                    remove
-                </Button>
-            )}
         </div>
     )
 }

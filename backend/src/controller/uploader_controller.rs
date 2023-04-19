@@ -94,8 +94,17 @@ pub fn init_editor(cfg: &mut web::ServiceConfig) {
 }
 
 fn parse_csv(file: &File, metadata: &UploadMetadata) -> Result<HashSet<data::Parsed>, Error> {
-    let mut new_data: HashSet<data::Parsed> = HashSet::new();
     let mut reader = csv::Reader::from_reader(file);
+    let mut new_data: HashSet<data::Parsed> = HashSet::new();
+    let mut data_columns: HashSet<String> = metadata.new_datasets.keys().cloned().collect();
+    data_columns.extend(
+        metadata
+            .existing_datasets
+            .keys()
+            .cloned()
+            .collect::<HashSet<String>>(),
+    );
+
     for (i, result) in reader.deserialize().enumerate() {
         let record: HashMap<String, String> = result?;
         let id_str = match record.get(&metadata.id_column) {
@@ -141,43 +150,41 @@ fn parse_csv(file: &File, metadata: &UploadMetadata) -> Result<HashSet<data::Par
                 row: i,
             })?;
 
-        for dataset in &metadata.datasets {
-            for column in &dataset.columns {
-                let value = match record.get(&column.name) {
-                    None => {
-                        return Err(Error::MissingColumn {
-                            record,
-                            column: column.name.clone(),
-                            row: i,
-                        })
-                    }
-                    Some(value) => value,
+        for column in &data_columns {
+            let value = match record.get(column) {
+                None => {
+                    return Err(Error::MissingColumn {
+                        record,
+                        column: column.clone(),
+                        row: i,
+                    })
+                }
+                Some(value) => value,
+            };
+            let value = value.parse::<f64>();
+            if let Ok(value) = value {
+                // ignore empty values or values that can't parse to float
+                // assume those are intentionally empty in the csv (no measured value)
+                let parsed_data = data::Parsed {
+                    start_date,
+                    end_date,
+                    dataset: column.clone(),
+                    id,
+                    value,
                 };
-                let value = value.parse::<f64>();
-                if let Ok(value) = value {
-                    // ignore empty values or values that can't parse to float
-                    // assume those are intentionally empty in the csv (no measured value)
-                    let parsed_data = data::Parsed {
-                        start_date,
-                        end_date,
-                        dataset: column.name.clone(),
-                        id,
-                        value,
-                    };
-                    let inserted = new_data.insert(parsed_data);
+                let inserted = new_data.insert(parsed_data);
 
-                    if !inserted {
-                        return Err(Error::DuplicateDataInCsv {
-                            parsed_data: data::Parsed {
-                                start_date,
-                                end_date,
-                                dataset: column.name.clone(),
-                                id,
-                                value,
-                            },
-                            row: i,
-                        });
-                    }
+                if !inserted {
+                    return Err(Error::DuplicateDataInCsv {
+                        parsed_data: data::Parsed {
+                            start_date,
+                            end_date,
+                            dataset: column.clone(),
+                            id,
+                            value,
+                        },
+                        row: i,
+                    });
                 }
             }
         }
@@ -207,16 +214,21 @@ async fn upload(
         .reopen()?;
 
     let data = parse_csv(&file, &metadata)?;
-    let datasets: Vec<dataset::Creator> = metadata
-        .datasets
+    let new_datasets: HashMap<_, _> = metadata
+        .new_datasets
         .iter()
-        .map(|d| dataset::Creator::from(d.clone(), metadata.geography_type))
+        .map(|(column, dataset)| {
+            (
+                column,
+                dataset::Creator::from(dataset, metadata.geography_type),
+            )
+        })
         .collect();
 
     let duplicate_datasets: Vec<Dataset> = app_state
         .database
         .dataset
-        .find_duplicates(&datasets)
+        .find_duplicates(&new_datasets.values().collect::<Vec<_>>())
         .await?;
 
     if !duplicate_datasets.is_empty() {
@@ -235,6 +247,12 @@ async fn upload(
 
     if !invalid_ids.is_empty() {
         return Err(Error::InvalidGeoIds(invalid_ids));
+    }
+
+    let mut datasets = HashMap::new();
+    for (column, id) in metadata.existing_datasets {
+        let dataset = app_state.database.dataset.by_id(id).await?;
+        datasets.insert(column, dataset);
     }
 
     let source_id = match metadata.source {
@@ -266,20 +284,17 @@ async fn upload(
         }
     };
 
-    let mut column_to_dataset: HashMap<String, Dataset> = HashMap::new();
-
-    for draft_dataset in &datasets {
-        let created_dataset = app_state.database.dataset.create(draft_dataset).await?;
-
-        for column in &draft_dataset.columns {
-            column_to_dataset.insert(column.name.clone(), created_dataset.clone());
-        }
+    for (column, draft_dataset) in new_datasets {
+        datasets.insert(
+            column.clone(),
+            app_state.database.dataset.create(&draft_dataset).await?,
+        );
     }
 
     let data = data
         .into_iter()
         .map(|data| {
-            column_to_dataset.get(&data.dataset).map(|dataset| {
+            datasets.get(&data.dataset).map(|dataset| {
                 data::Creator::new(&data, dataset.id, source_id, dataset.geography_type)
             })
         })
@@ -295,7 +310,7 @@ async fn upload(
 mod tests {
 
     use super::*;
-    use crate::model::{data_source, upload_metadata::Column};
+    use crate::model::{data_source, dataset::PartialCreator};
     use assert_matches::assert_matches;
     use chrono::NaiveDate;
 
@@ -306,19 +321,15 @@ mod tests {
                 link: "https://example.com".to_string(),
                 description: "description".to_string(),
             }),
-            datasets: vec![dataset::Json {
-                columns: vec![
-                    Column {
-                        name: "value1".to_string(),
-                    },
-                    Column {
-                        name: "value2".to_string(),
-                    },
-                ],
-                description: "dataset description".to_string(),
-                name: "dataset name".to_string(),
-                units: "units".to_string(),
-            }],
+            new_datasets: HashMap::from([(
+                "value1".to_string(),
+                PartialCreator {
+                    description: "dataset description".to_string(),
+                    name: "dataset name".to_string(),
+                    units: "units".to_string(),
+                },
+            )]),
+            existing_datasets: HashMap::from([("value2".to_string(), 1)]),
             id_column: "id".to_string(),
             date_column: "date".to_string(),
             geography_type: 1,

@@ -1,5 +1,4 @@
 import { DataSource } from '../MapVisualization'
-import { Dataset } from './uploaderSlice'
 
 export interface NewSource {
     readonly name: string
@@ -7,15 +6,18 @@ export interface NewSource {
     readonly link: string
 }
 
-interface Column {
-    readonly name: string
-}
-
-interface NewDataset {
-    readonly columns: Column[]
+export interface NewDataset {
+    readonly uuid: string
+    readonly column: string
     readonly name: string
     readonly units: string
     readonly description: string
+}
+
+export interface ExistingDataset {
+    readonly uuid: string
+    readonly column: string
+    readonly id: number
 }
 
 export default interface UploadData {
@@ -24,15 +26,18 @@ export default interface UploadData {
     readonly geography_type: number
     readonly date_column: string
     readonly source: { ExistingId: number } | { New: NewSource }
-    readonly datasets: NewDataset[]
+    readonly existing_datasets: Record<string, ExistingDataset>
+    readonly new_datasets: Record<string, NewDataset>
 }
+
+export type UploadDataset = NewDataset | ExistingDataset
 
 export interface FormData {
     geographyType: number
     idColumn: string
     dateColumn: string
     source: NewSource | DataSource
-    datasets: Dataset[]
+    datasets: UploadDataset[]
     columns: string[]
     freeColumns: string[]
 }
@@ -46,13 +51,15 @@ export const uploadDataFromForm = (formData: FormData, file: File): UploadData =
         date_column: dateColumn,
         geography_type: geographyType,
         source: 'id' in source ? { ExistingId: source.id } : { New: source },
-        datasets: datasets.map(({ name, units, description, columns }) => ({
-            name,
-            units,
-            description,
-            columns: columns.map((column) => ({
-                name: column.name,
-            })),
-        })),
+        existing_datasets: Object.fromEntries(
+            Object.entries(datasets)
+                .filter(([, d]) => 'id' in d)
+                .map(([column, d]) => [column, d as ExistingDataset])
+        ),
+        new_datasets: Object.fromEntries(
+            Object.entries(datasets)
+                .filter(([, d]) => 'name' in d)
+                .map(([column, d]) => [column, d as NewDataset])
+        ),
     }
 }

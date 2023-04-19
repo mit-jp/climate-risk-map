@@ -24,13 +24,14 @@ const valid = (metadata: FormData, file: File, csv: Papa.ParseResult<any>) => {
     const validColumns = csv.meta?.fields ?? []
     return (
         validColumns.includes(metadata.idColumn) &&
-        metadata.datasets.length > 0 &&
+        Object.keys(metadata.datasets).length > 0 &&
         (typeof metadata.source === 'number' ||
             (metadata.source.description.length > 0 &&
                 metadata.source.link.length > 0 &&
                 metadata.source.name.length > 0)) &&
-        metadata.datasets.every(
-            (d) => d.name.length > 0 && d.columns.every((c) => validColumns.includes(c.name))
+        Object.entries(metadata.datasets).every(
+            (column, dataset) =>
+                (!('name' in dataset) || dataset.name.length > 0) && validColumns.includes(column)
         )
     )
 }

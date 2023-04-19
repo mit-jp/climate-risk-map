@@ -1,17 +1,11 @@
+use super::{data_source, dataset::PartialCreator};
 use serde::{Deserialize, Serialize};
-use std::fmt;
-
-use super::{data_source, dataset};
+use std::{collections::HashMap, fmt};
 
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
 pub enum Source {
     ExistingId(i32),
     New(data_source::Creator),
-}
-
-#[derive(Deserialize, Serialize, Debug, PartialEq, Clone)]
-pub struct Column {
-    pub name: String,
 }
 
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
@@ -20,7 +14,8 @@ pub struct UploadMetadata {
     pub date_column: String,
     pub geography_type: i32,
     pub source: Source,
-    pub datasets: Vec<dataset::Json>,
+    pub existing_datasets: HashMap<String, i32>,
+    pub new_datasets: HashMap<String, PartialCreator>,
 }
 
 impl fmt::Display for UploadMetadata {
@@ -29,67 +24,63 @@ impl fmt::Display for UploadMetadata {
     }
 }
 
-#[test]
-fn test_parse_metadata() {
-    let metadata_string = r#"{
-        "id_column": "id",
-        "date_column": "date",
-        "geography_type": 1,
-        "source": {
-            "New": {
-                "name": "US Census Bureau",
-                "description": "Population estimates by the US Census Bureau",
-                "link": "https://www.census.gov"
-            }
-        },
-        "datasets": [
-            {
-                "name": "Population",
-                "units": "people",
-                "description": "this is the description",
-                "columns": [
-                    {
-                        "name": "POPESTIMATE2010",
-                        "start_date": "2010-01-01",
-                        "end_date": "2010-12-31"
-                    },
-                    {
-                        "name": "POPESTIMATE2011",
-                        "start_date": "2011-01-01",
-                        "end_date": "2011-12-31"
-                    }
-                ]
-            }
-        ]
-    }"#;
-    let metadata: UploadMetadata = match serde_json::from_str(metadata_string) {
-        Ok(m) => m,
-        Err(e) => panic!("{}", e),
+#[cfg(test)]
+mod test {
+    use crate::model::{
+        data_source, dataset,
+        upload_metadata::{Source, UploadMetadata},
     };
-    assert_eq!(
-        metadata,
-        UploadMetadata {
-            id_column: "id".to_string(),
-            date_column: "date".to_string(),
-            geography_type: 1,
-            source: Source::New(data_source::Creator {
-                name: "US Census Bureau".to_string(),
-                description: "Population estimates by the US Census Bureau".to_string(),
-                link: "https://www.census.gov".to_string(),
-            }),
-            datasets: vec![dataset::Json {
-                name: "Population".to_string(),
-                units: "people".to_string(),
-                description: "this is the description".to_string(),
-                columns: vec![
-                    Column {
-                        name: "POPESTIMATE2010".to_string(),
-                    },
-                    Column {
-                        name: "POPESTIMATE2011".to_string(),
-                    },
-                ],
-            }],
-        }
-    )
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_parse_metadata() {
+        let metadata_string = r#"{
+            "id_column": "id",
+            "date_column": "date",
+            "geography_type": 1,
+            "source": {
+                "New": {
+                    "name": "US Census Bureau",
+                    "description": "Population estimates by the US Census Bureau",
+                    "link": "https://www.census.gov"
+                }
+            },
+            "existing_datasets": {
+                "ExistingDataset": 1
+            },
+            "new_datasets": {
+                "NewDataset": {
+                    "name": "New dataset",
+                    "units": "this is the units",
+                    "description": "this is the description"
+                }
+            }
+        }"#;
+        let metadata: UploadMetadata = match serde_json::from_str(metadata_string) {
+            Ok(m) => m,
+            Err(e) => panic!("{}", e),
+        };
+        assert_eq!(
+            metadata,
+            UploadMetadata {
+                id_column: "id".to_string(),
+                date_column: "date".to_string(),
+                geography_type: 1,
+                source: Source::New(data_source::Creator {
+                    name: "US Census Bureau".to_string(),
+                    description: "Population estimates by the US Census Bureau".to_string(),
+                    link: "https://www.census.gov".to_string(),
+                }),
+                existing_datasets: HashMap::from([("ExistingDataset".to_string(), 1),]),
+                new_datasets: HashMap::from([(
+                    "NewDataset".to_string(),
+                    dataset::PartialCreator {
+                        name: "New dataset".to_string(),
+                        units: "this is the units".to_string(),
+                        description: "this is the description".to_string(),
+                    }
+                )])
+            }
+        )
+    }
 }
