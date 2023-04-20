@@ -9,6 +9,7 @@ import Header from './Header'
 import css from './Home.module.css'
 import { useGetMapVisualizationsQuery, useGetTabsQuery } from './MapApi'
 import MapWrapper from './MapWrapper'
+import mapCss from './MapWrapper.module.css'
 import Navigation from './Navigation'
 import { TopoJson } from './TopoJson'
 import { OverlayName, Region, selectSelectedTab, setMap, setOverlay, setTab } from './appSlice'
@@ -79,15 +80,15 @@ function Home() {
                 <EmptyNavigation />
             )}
             {isNormalized && (
-                <div id={css.siteOverview}>
+                <aside className={css.siteOverview}>
                     <p>
                         You can select multiple metrics and adjust their relative importance to view
                         the combined impact. To see additional and supporting data, select the other
                         categories.
                     </p>
-                </div>
+                </aside>
             )}
-            <div id={css.content}>
+            <main className={css.content}>
                 {tabs && mapVisualizations && tab ? (
                     <DataSelector
                         isNormalized={isNormalized}
@@ -102,9 +103,9 @@ function Home() {
                         allMapVisualizations={mapVisualizations[tab.id] ?? {}}
                     />
                 ) : (
-                    <p>No Map</p>
+                    <p className={mapCss.map}>No Map</p>
                 )}
-            </div>
+            </main>
         </>
     )
 }
