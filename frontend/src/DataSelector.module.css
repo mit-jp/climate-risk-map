@@ -49,3 +49,10 @@ input.data-group:checked + label {
     align-self: center;
     font-size: 0.875rem;
 }
+
+/* no min width if screen is small */
+@media (max-width: 600px) {
+    #data-selector {
+        min-width: auto;
+    }
+}

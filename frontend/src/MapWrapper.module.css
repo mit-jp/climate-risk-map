@@ -1,5 +1,12 @@
 /* prevent the empty map from shrinking which makes loads look smoother */
 .map {
-    min-width: 500px;
+    min-width: 400px;
     width: 100%;
+}
+
+/* no min width if screen is small */
+@media (max-width: 600px) {
+    .map {
+        min-width: auto;
+    }
 }

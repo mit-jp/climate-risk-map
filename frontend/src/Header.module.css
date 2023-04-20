@@ -1,30 +1,53 @@
-#header {
+.header {
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-#header h1 {
+.header h1 {
     font-weight: 500;
     color: #11598d;
     font-family: 'Merriweather', serif;
 }
 
-#title {
+.title {
     display: flex;
     align-items: center;
     flex-grow: 1;
 }
 
-#title-and-subtitle {
+.title-and-subtitle {
     margin-left: 40px;
 }
 
-#joint-program-logo {
+.joint-program-logo {
     height: 100px;
     margin: 0 1em;
 }
 
-#mit-logo {
+.mit-logo {
     margin: 0 1em;
+}
+
+/* stack vertically on mobile */
+@media (max-width: 600px) {
+    .header {
+        align-items: flex-start;
+    }
+    .header h1 {
+        margin: 0;
+    }
+
+    .header p {
+        margin: 0;
+    }
+
+    .title-and-subtitle {
+        margin: 0.5em 1em;
+    }
+
+    .joint-program-logo,
+    .mit-logo {
+        display: none;
+    }
 }
