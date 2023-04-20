@@ -1,10 +1,10 @@
 use super::AppState;
+use crate::controller::csv_converter;
 use crate::model::data::SourceAndDate;
 use actix_web::delete;
 use actix_web::{get, web, HttpResponse, Responder};
 use chrono::NaiveDate;
-use serde::{Deserialize, Serialize};
-use std::error::Error;
+use serde::Deserialize;
 
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get_by_dataset);
@@ -14,15 +14,6 @@ pub fn init(cfg: &mut web::ServiceConfig) {
 
 pub fn init_editor(cfg: &mut web::ServiceConfig) {
     cfg.service(delete);
-}
-
-pub fn data_to_csv<S: Serialize>(data: Vec<S>) -> Result<String, Box<dyn Error>> {
-    let mut writer = csv::Writer::from_writer(vec![]);
-    for d in data {
-        writer.serialize(d)?;
-    }
-    let serialized_data = writer.into_inner()?;
-    Ok(String::from_utf8(serialized_data)?)
 }
 
 #[derive(Deserialize, Debug)]
@@ -59,7 +50,7 @@ async fn get_by_dataset(
         .await;
 
     match data {
-        Ok(data) => match data_to_csv(data) {
+        Ok(data) => match csv_converter::convert(data) {
             Ok(csv) => HttpResponse::Ok().content_type("text/csv").body(csv),
             Err(_) => HttpResponse::NotFound().finish(),
         },
@@ -87,7 +78,7 @@ async fn get_by_map_visualization(
         .await;
     match result {
         Ok(result) => {
-            let csv = data_to_csv(result);
+            let csv = csv_converter::convert(result);
             match csv {
                 Ok(csv) => HttpResponse::Ok().content_type("text/csv").body(csv),
                 Err(_) => HttpResponse::NotFound().finish(),
@@ -105,7 +96,7 @@ async fn get_percentiles(
     let data = app_state.database.data.percentile(info.into_inner()).await;
 
     match data {
-        Ok(data) => match data_to_csv(data) {
+        Ok(data) => match csv_converter::convert(data) {
             Ok(csv) => HttpResponse::Ok().content_type("text/csv").body(csv),
             Err(_) => HttpResponse::NotFound().finish(),
         },
@@ -124,27 +115,5 @@ async fn delete(app_state: web::Data<AppState<'_>>, dataset: web::Path<i32>) -> 
     match result {
         Ok(_) => HttpResponse::Ok().finish(),
         Err(_) => HttpResponse::NotFound().finish(),
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::model::data::Simple;
-
-    #[test]
-    fn it_converts_data_to_csv() {
-        let data = vec![
-            Simple {
-                id: 123,
-                value: 3.0,
-            },
-            Simple {
-                id: 456,
-                value: 6.0,
-            },
-        ];
-        let csv = data_to_csv(data).unwrap();
-        assert_eq!(csv, "id,value\n123,3.0\n456,6.0\n");
     }
 }

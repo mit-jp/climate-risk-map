@@ -34,6 +34,7 @@ async fn main() -> std::io::Result<()> {
             .configure(controller::subcategory_controller::init)
             .configure(controller::data_source_controller::init)
             .configure(controller::geography_type_controller::init)
+            .configure(controller::geo_id_controller::init)
             .wrap(Logger::default())
     })
     .bind(config.app_url())?;

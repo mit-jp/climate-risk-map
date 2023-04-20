@@ -2,6 +2,13 @@ use derive_more::Display;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
+#[derive(Serialize)]
+pub struct Named {
+    pub id: i32,
+    pub name: String,
+    pub geography_type: String,
+}
+
 #[derive(FromRow, PartialEq, Eq, Hash, Debug, Display, Serialize)]
 #[display(fmt = "GeoId(id: {id}, geography_type: {geography_type})")]
 pub struct GeoId {

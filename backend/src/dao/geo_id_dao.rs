@@ -1,9 +1,26 @@
-use crate::model::geo_id::GeoId;
+use crate::model::geo_id::{self, GeoId};
 
 use super::Table;
 use std::collections::HashSet;
 
 impl<'c> Table<'c, GeoId> {
+    pub async fn all(&self) -> Result<Vec<geo_id::Named>, sqlx::Error> {
+        sqlx::query_as!(
+            geo_id::Named,
+            "
+            SELECT
+                geo_id.name,
+                geo_id.id,
+                geography_type.name as geography_type
+            FROM geo_id, geography_type
+            WHERE geo_id.geography_type = geography_type.id
+            ORDER BY geography_type, geo_id.name
+            "
+        )
+        .fetch_all(&*self.pool)
+        .await
+    }
+
     pub async fn get_invalid_ids(
         &self,
         geo_ids: &HashSet<GeoId>,
