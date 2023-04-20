@@ -3,19 +3,17 @@ import { Button, Card, CardActions, CardContent, TextField } from '@mui/material
 import { useDispatch } from 'react-redux'
 import ColumnEditor from './ColumnEditor'
 import css from './Uploader.module.css'
-import { Dataset, addColumn, deleteDataset, onDatasetChange } from './uploaderSlice'
+import { Dataset, deleteDataset, onDatasetChange } from './uploaderSlice'
 
 const INPUT_MARGIN = { margin: '0.5em 0' }
 
 export default function DatasetEditor({
     dataset,
     possibleColumns,
-    freeColumns,
     deletable,
 }: {
     dataset: Dataset
     possibleColumns: string[]
-    freeColumns: string[]
     deletable: boolean
 }) {
     const dispatch = useDispatch()
@@ -23,24 +21,13 @@ export default function DatasetEditor({
     return (
         <Card className={css.datasetEditor}>
             <CardContent>
-                <h3>Column{dataset.columns.length > 1 ? 's' : ''}</h3>
+                <h3>Column</h3>
                 <div>
-                    {dataset.columns.map((column) => (
-                        <ColumnEditor
-                            column={column}
-                            possibleColumns={possibleColumns}
-                            key={column.name}
-                            datasetId={dataset.id}
-                            canDelete={dataset.columns.length > 1}
-                            canChangeName={dataset.columns.length === 1}
-                        />
-                    ))}
-                    <Button
-                        onClick={() => dispatch(addColumn(dataset.id))}
-                        disabled={freeColumns.length === 0}
-                    >
-                        Add column
-                    </Button>
+                    <ColumnEditor
+                        column={dataset.column}
+                        possibleColumns={possibleColumns}
+                        datasetId={dataset.id}
+                    />
                 </div>
                 <TextField
                     required

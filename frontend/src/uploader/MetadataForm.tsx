@@ -35,8 +35,8 @@ function getPossibleColumns(
 ): string[] {
     const otherDatasetColumns = datasets
         .filter((dataset) => dataset.id !== datasetId)
-        .flatMap((dataset) => dataset.columns)
-        .map((column) => column.name)
+        .map((dataset) => dataset.column)
+
     return (
         columns.filter(
             (column) =>
@@ -149,7 +149,6 @@ export default function MetadataForm({
                         dataset.id
                     )}
                     deletable={datasets.length > 1}
-                    freeColumns={freeColumns}
                 />
             ))}
 

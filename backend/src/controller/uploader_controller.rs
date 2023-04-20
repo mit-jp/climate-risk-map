@@ -142,42 +142,40 @@ fn parse_csv(file: &File, metadata: &UploadMetadata) -> Result<HashSet<data::Par
             })?;
 
         for dataset in &metadata.datasets {
-            for column in &dataset.columns {
-                let value = match record.get(&column.name) {
-                    None => {
-                        return Err(Error::MissingColumn {
-                            record,
-                            column: column.name.clone(),
-                            row: i,
-                        })
-                    }
-                    Some(value) => value,
+            let value = match record.get(&dataset.column) {
+                None => {
+                    return Err(Error::MissingColumn {
+                        record,
+                        column: dataset.column.clone(),
+                        row: i,
+                    })
+                }
+                Some(value) => value,
+            };
+            let value = value.parse::<f64>();
+            if let Ok(value) = value {
+                // ignore empty values or values that can't parse to float
+                // assume those are intentionally empty in the csv (no measured value)
+                let parsed_data = data::Parsed {
+                    start_date,
+                    end_date,
+                    dataset: dataset.column.clone(),
+                    id,
+                    value,
                 };
-                let value = value.parse::<f64>();
-                if let Ok(value) = value {
-                    // ignore empty values or values that can't parse to float
-                    // assume those are intentionally empty in the csv (no measured value)
-                    let parsed_data = data::Parsed {
-                        start_date,
-                        end_date,
-                        dataset: column.name.clone(),
-                        id,
-                        value,
-                    };
-                    let inserted = new_data.insert(parsed_data);
+                let inserted = new_data.insert(parsed_data);
 
-                    if !inserted {
-                        return Err(Error::DuplicateDataInCsv {
-                            parsed_data: data::Parsed {
-                                start_date,
-                                end_date,
-                                dataset: column.name.clone(),
-                                id,
-                                value,
-                            },
-                            row: i,
-                        });
-                    }
+                if !inserted {
+                    return Err(Error::DuplicateDataInCsv {
+                        parsed_data: data::Parsed {
+                            start_date,
+                            end_date,
+                            dataset: dataset.column.clone(),
+                            id,
+                            value,
+                        },
+                        row: i,
+                    });
                 }
             }
         }
@@ -270,10 +268,7 @@ async fn upload(
 
     for draft_dataset in &datasets {
         let created_dataset = app_state.database.dataset.create(draft_dataset).await?;
-
-        for column in &draft_dataset.columns {
-            column_to_dataset.insert(column.name.clone(), created_dataset.clone());
-        }
+        column_to_dataset.insert(draft_dataset.column.clone(), created_dataset.clone());
     }
 
     let data = data
@@ -295,7 +290,7 @@ async fn upload(
 mod tests {
 
     use super::*;
-    use crate::model::{data_source, upload_metadata::Column};
+    use crate::model::data_source;
     use assert_matches::assert_matches;
     use chrono::NaiveDate;
 
@@ -306,19 +301,20 @@ mod tests {
                 link: "https://example.com".to_string(),
                 description: "description".to_string(),
             }),
-            datasets: vec![dataset::Json {
-                columns: vec![
-                    Column {
-                        name: "value1".to_string(),
-                    },
-                    Column {
-                        name: "value2".to_string(),
-                    },
-                ],
-                description: "dataset description".to_string(),
-                name: "dataset name".to_string(),
-                units: "units".to_string(),
-            }],
+            datasets: vec![
+                dataset::Json {
+                    column: "value1".to_string(),
+                    description: "dataset description".to_string(),
+                    name: "dataset name".to_string(),
+                    units: "units".to_string(),
+                },
+                dataset::Json {
+                    column: "value2".to_string(),
+                    description: "dataset 2 description".to_string(),
+                    name: "dataset 2 name".to_string(),
+                    units: "units 2".to_string(),
+                },
+            ],
             id_column: "id".to_string(),
             date_column: "date".to_string(),
             geography_type: 1,

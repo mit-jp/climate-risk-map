@@ -29,9 +29,7 @@ const valid = (metadata: FormData, file: File, csv: Papa.ParseResult<any>) => {
             (metadata.source.description.length > 0 &&
                 metadata.source.link.length > 0 &&
                 metadata.source.name.length > 0)) &&
-        metadata.datasets.every(
-            (d) => d.name.length > 0 && d.columns.every((c) => validColumns.includes(c.name))
-        )
+        metadata.datasets.every((d) => d.name.length > 0 && validColumns.includes(d.column))
     )
 }
 
