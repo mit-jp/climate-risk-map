@@ -5,16 +5,12 @@ import { DataSource } from '../MapVisualization'
 import { RootState } from '../store'
 import { FormData, NewSource } from './UploadData'
 
-export interface Column {
-    readonly name: string
-}
-
 export interface Dataset {
     readonly id: string
     readonly name: string
     readonly units: string
     readonly description: string
-    readonly columns: Column[]
+    readonly column: string
 }
 
 export interface DatasetDiff {
@@ -60,36 +56,30 @@ const findColumn = (
     }
     return undefined
 }
-const generateDataColumns = (datasets: Dataset[]) => datasets.flatMap((d) => d.columns)
+const generateDataColumns = (datasets: Dataset[]) => datasets.map((d) => d.column)
 
 const findFreeColumns = (
     idColumn: string,
     dateColumn: string,
     columns: string[],
-    dataColumns: Column[]
+    dataColumns: string[]
 ): string[] => {
     if (columns.length === 0) {
         return []
     }
-    const usedColumns: (string | undefined)[] = [
-        idColumn,
-        dateColumn,
-        ...dataColumns.map((c) => c.name),
-    ]
+    const usedColumns: (string | undefined)[] = [idColumn, dateColumn, ...dataColumns]
     const freeColumns = columns.filter((c) => !usedColumns.includes(c))
     return freeColumns
 }
 
-const generateNextColumn = (state: UploaderState): Column | undefined => {
+const generateNextColumn = (state: UploaderState): string | undefined => {
     const { idColumn, dateColumn, datasets, csv } = state
     const dataColumns = generateDataColumns(datasets)
     const freeColumns = findFreeColumns(idColumn, dateColumn, csv?.meta?.fields ?? [], dataColumns)
     if (freeColumns.length === 0) {
         return undefined
     }
-    return {
-        name: freeColumns[0],
-    }
+    return freeColumns[0]
 }
 
 const generateNextDataset = (state: UploaderState): Dataset | undefined => {
@@ -99,10 +89,10 @@ const generateNextDataset = (state: UploaderState): Dataset | undefined => {
     }
     return {
         id: uuid(),
-        name: column.name,
+        name: column,
         units: '',
         description: '',
-        columns: [column],
+        column,
     }
 }
 
@@ -181,56 +171,18 @@ export const uploaderSlice = createSlice({
                 Object.assign(dataset, payload)
             }
         },
-        addColumn: (state, { payload }: { payload: string }) => {
-            const newColumn = generateNextColumn(state)
-            if (!newColumn) {
-                return
-            }
-            const dataset = state.datasets.find((d) => d.id === payload)
-
-            if (dataset) {
-                dataset.columns.push(newColumn)
-            }
-        },
-        selectColumn: (
-            state,
-            {
-                payload,
-            }: {
-                payload: {
-                    datasetId: string
-                    oldName: string
-                    newName: string
-                    canChangeName: boolean
-                }
-            }
-        ) => {
-            const { datasetId, oldName, newName, canChangeName } = payload
+        selectColumn: (state, { payload }: { payload: { datasetId: string; column: string } }) => {
+            const { datasetId, column } = payload
             const dataset = state.datasets.find((d) => d.id === datasetId)
             if (dataset) {
-                const columnIndex = dataset.columns.findIndex((c) => c.name === oldName)
-                if (columnIndex !== -1) {
-                    dataset.columns[columnIndex].name = newName
-                    if (canChangeName) {
-                        dataset.name = newName
-                    }
-                }
+                dataset.column = column
+                dataset.name = column
             }
         },
         deleteDataset: (state, { payload }: { payload: string }) => {
             const datasetIndex = state.datasets.findIndex((d) => d.id === payload)
             if (datasetIndex !== -1) {
                 state.datasets.splice(datasetIndex, 1)
-            }
-        },
-        removeColumn: (state, { payload }: { payload: { datasetId: string; column: string } }) => {
-            const { datasetId, column } = payload
-            const dataset = state.datasets.find((d) => d.id === datasetId)
-            if (dataset) {
-                const columnIndex = dataset.columns.findIndex((c) => c.name === column)
-                if (columnIndex !== -1) {
-                    dataset.columns.splice(columnIndex, 1)
-                }
             }
         },
         toggleExistingSource: (state, { payload }: { payload: DataSource | undefined }) => {
@@ -250,10 +202,8 @@ export const {
     setSourceDescription,
     setExistingSource,
     onDatasetChange,
-    addColumn,
     selectColumn,
     deleteDataset,
-    removeColumn,
     toggleExistingSource,
 } = uploaderSlice.actions
 

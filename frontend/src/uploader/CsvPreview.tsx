@@ -1,6 +1,5 @@
 import Papa from 'papaparse'
 import css from './Uploader.module.css'
-import { Column } from './uploaderSlice'
 
 export default function CsvPreview({
     csv,
@@ -11,7 +10,7 @@ export default function CsvPreview({
     csv: Papa.ParseResult<any>
     idColumn?: string
     dateColumn?: string
-    dataColumns?: Column[]
+    dataColumns?: string[]
 }) {
     const getClassName = (column: string): string | undefined => {
         if (column === idColumn) {
@@ -20,7 +19,7 @@ export default function CsvPreview({
         if (column === dateColumn) {
             return css.dateColumn
         }
-        if (dataColumns.map((c) => c.name).includes(column)) {
+        if (dataColumns.includes(column)) {
             return css.dataColumn
         }
         return undefined

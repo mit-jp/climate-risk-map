@@ -7,12 +7,8 @@ export interface NewSource {
     readonly link: string
 }
 
-interface Column {
-    readonly name: string
-}
-
 interface NewDataset {
-    readonly columns: Column[]
+    readonly column: string
     readonly name: string
     readonly units: string
     readonly description: string
@@ -46,13 +42,11 @@ export const uploadDataFromForm = (formData: FormData, file: File): UploadData =
         date_column: dateColumn,
         geography_type: geographyType,
         source: 'id' in source ? { ExistingId: source.id } : { New: source },
-        datasets: datasets.map(({ name, units, description, columns }) => ({
+        datasets: datasets.map(({ name, units, description, column }) => ({
             name,
             units,
             description,
-            columns: columns.map((column) => ({
-                name: column.name,
-            })),
+            column,
         })),
     }
 }

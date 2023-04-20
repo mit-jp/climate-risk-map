@@ -2,8 +2,6 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use str_slug::slug;
 
-use super::upload_metadata::Column;
-
 #[derive(FromRow, Deserialize, Serialize, Debug, Clone)]
 pub struct Dataset {
     pub id: i32,
@@ -26,7 +24,7 @@ pub struct Diff {
 
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
 pub struct Creator {
-    pub columns: Vec<Column>,
+    pub column: String,
     pub name: String,
     pub short_name: String,
     pub units: String,
@@ -37,7 +35,7 @@ pub struct Creator {
 impl Creator {
     pub fn from(dataset: Json, geography_type: i32) -> Self {
         Creator {
-            columns: dataset.columns,
+            column: dataset.column,
             short_name: slug(&dataset.name),
             name: dataset.name,
             units: dataset.units,
@@ -49,7 +47,7 @@ impl Creator {
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Json {
-    pub columns: Vec<Column>,
+    pub column: String,
     pub name: String,
     pub units: String,
     pub description: String,

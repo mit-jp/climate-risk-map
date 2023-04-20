@@ -47,18 +47,7 @@ fn test_parse_metadata() {
                 "name": "Population",
                 "units": "people",
                 "description": "this is the description",
-                "columns": [
-                    {
-                        "name": "POPESTIMATE2010",
-                        "start_date": "2010-01-01",
-                        "end_date": "2010-12-31"
-                    },
-                    {
-                        "name": "POPESTIMATE2011",
-                        "start_date": "2011-01-01",
-                        "end_date": "2011-12-31"
-                    }
-                ]
+                "column": "POPESTIMATE"
             }
         ]
     }"#;
@@ -81,14 +70,7 @@ fn test_parse_metadata() {
                 name: "Population".to_string(),
                 units: "people".to_string(),
                 description: "this is the description".to_string(),
-                columns: vec![
-                    Column {
-                        name: "POPESTIMATE2010".to_string(),
-                    },
-                    Column {
-                        name: "POPESTIMATE2011".to_string(),
-                    },
-                ],
+                column: "POPESTIMATE".to_string(),
             }],
         }
     )
