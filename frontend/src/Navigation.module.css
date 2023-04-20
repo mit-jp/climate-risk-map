@@ -72,3 +72,10 @@ button.create-tab:disabled {
     cursor: not-allowed;
     background: #ffffff !important;
 }
+
+/* do not pad region nav so much on small screen sizes */
+@media (max-width: 600px) {
+    .region-nav {
+        margin-left: 1em;
+    }
+}

@@ -11,6 +11,7 @@
     background-color: #fff;
     color: #777;
     cursor: pointer;
+    text-align: start;
 }
 
 .data-description button:hover,
