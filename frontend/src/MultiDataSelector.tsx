@@ -13,7 +13,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { MapSelection } from './DataSelector'
 import css from './DataSelector.module.css'
 import { useGetSubcategoriesQuery } from './MapApi'
-import { MapVisualization, MapVisualizationId } from './MapVisualization'
+import {
+    MapVisualization,
+    MapVisualizationId,
+    getDefaultDateRange,
+    getDefaultSource,
+} from './MapVisualization'
 import { changeWeight, selectSelections, setMapSelections } from './appSlice'
 import { RootState, store } from './store'
 
@@ -91,13 +96,10 @@ function MultiDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisua
         const { checked } = event.target
         let changedSelections
         if (checked) {
-            const source =
-                map.default_source ?? map.sources[parseInt(Object.keys(map.sources)[0], 10)].id
-            const dateRange = map.default_date_range ?? map.date_ranges_by_source[source][0]
             changedSelections = selectionMap.set(map.id, {
                 mapVisualization: map.id,
-                dataSource: source,
-                dateRange,
+                dataSource: getDefaultSource(map),
+                dateRange: getDefaultDateRange(map),
             })
         } else {
             changedSelections = selectionMap.delete(map.id)

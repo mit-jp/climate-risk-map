@@ -142,7 +142,7 @@ export const appSlice = createSlice({
                 if (mapVisualization.default_date_range) {
                     selection.dateRange = mapVisualization.default_date_range
                 } else {
-                    selection.dateRange = possibleDates[possibleDates.length - 1]
+                    selection.dateRange = possibleDates.at(-1)!
                 }
             }
 

@@ -192,7 +192,7 @@ export const getDefaultSource = (mapVisualization: MapVisualization) =>
 
 export const getDefaultDateRange = (mapVisualization: MapVisualization) =>
     mapVisualization.default_date_range ??
-    mapVisualization.date_ranges_by_source[getDefaultSource(mapVisualization)][0]
+    mapVisualization.date_ranges_by_source[getDefaultSource(mapVisualization)].at(-1)!
 
 export const getDataQueryParams = (mapVisualization: MapVisualization): DataQueryParams[] => {
     const source = getDefaultSource(mapVisualization)
