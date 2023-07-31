@@ -1,10 +1,9 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import { visualizer } from 'rollup-plugin-visualizer'
 import eslintPlugin from '@nabla/vite-plugin-eslint'
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
 
 export default defineConfig({
-    plugins: [react(), visualizer(), eslintPlugin()],
+    plugins: [react(), eslintPlugin()],
     build: { outDir: './build' },
     server: {
         proxy: {
