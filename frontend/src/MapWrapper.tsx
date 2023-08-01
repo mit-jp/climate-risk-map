@@ -1,18 +1,16 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { useMemo, useRef } from 'react'
 import { useSelector } from 'react-redux'
+import CanvasMap from './CanvasMap'
 import DataDescription from './DataDescription'
 import DataProcessor from './DataProcessor'
 import DataSourceDescription from './DataSourceDescription'
-import EmptyMap from './EmptyMap'
-import FullMap from './FullMap'
 import { DataQueryParams, useGetDataQuery } from './MapApi'
 import MapControls from './MapControls'
 import MapTitle, { EmptyMapTitle } from './MapTitle'
 import MapTooltip from './MapTooltip'
 import { MapVisualization, MapVisualizationId } from './MapVisualization'
 import css from './MapWrapper.module.css'
-import Overlays from './Overlays'
 import { selectMapTransform, selectSelections, stateId } from './appSlice'
 import { RootState } from './store'
 
@@ -79,29 +77,9 @@ function MapWrapper({
                 ) : (
                     <EmptyMapTitle />
                 )}
-                <svg
-                    id="map-svg"
-                    version="1.1"
-                    baseProfile="full"
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlnsXlink="http://www.w3.org/1999/xlink"
-                    viewBox="0, 0, 1175, 610"
-                >
-                    {processedData ? (
-                        <FullMap
-                            ref={mapRef}
-                            map={map}
-                            selectedMapVisualizations={maps}
-                            data={processedData}
-                            detailedView={detailedView}
-                            isNormalized={isNormalized}
-                            transform={transform}
-                        />
-                    ) : (
-                        <EmptyMap map={map} transform={transform} />
-                    )}
-                    <Overlays />
-                </svg>
+                {processedData && map?.region === 'USA' && map?.topoJson && (
+                    <CanvasMap data={processedData} selection={maps[0]} us={map.topoJson} />
+                )}
                 {map && (
                     <MapControls data={processedData} isNormalized={isNormalized} maps={maps} />
                 )}
