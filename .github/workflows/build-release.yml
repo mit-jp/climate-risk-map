@@ -88,9 +88,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
-          node-version: "16"
+          node-version: "20"
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -108,7 +108,7 @@ jobs:
 
       - name: 🔨 Build
         run: |
-          yarn install --frozen-lockfile
+          yarn install --immutable
           yarn lint
           yarn build
         working-directory: frontend
