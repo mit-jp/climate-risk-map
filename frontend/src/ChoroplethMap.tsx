@@ -11,7 +11,6 @@ import { getDomain } from './DataProcessor'
 import { getLegendFormatter } from './Formatter'
 import Legend from './Legend'
 import { MapType, MapVisualization } from './MapVisualization'
-import { ZOOM_TRANSITION } from './MapWrapper'
 import ProbabilityDensity from './ProbabilityDensity'
 import StateMap from './StateMap'
 import { TopoJson } from './TopoJson'
@@ -88,7 +87,7 @@ function ChoroplethMap(
 
     return (
         <>
-            <g id={css.counties} transform={transform} style={ZOOM_TRANSITION} ref={ref}>
+            <g id={css.counties} transform={transform} ref={ref}>
                 {borders.map((region) => (
                     <path
                         key={region.id}

@@ -1,12 +1,11 @@
+import { geoPath } from 'd3'
+import type { Feature, GeoJsonProperties, Geometry } from 'geojson'
 import { useSelector } from 'react-redux'
 import { feature } from 'topojson-client'
 import type { GeometryCollection } from 'topojson-specification'
-import type { GeoJsonProperties, Feature, Geometry } from 'geojson'
-import { geoPath } from 'd3'
-import { RootState } from './store'
 import { TopoJson } from './TopoJson'
 import { OverlayName, selectMapTransform } from './appSlice'
-import { ZOOM_TRANSITION } from './MapWrapper'
+import { RootState } from './store'
 
 const linePath = geoPath()
 const pointPath = geoPath().pointRadius(1)
@@ -82,12 +81,7 @@ function Overlays() {
                 .filter(([, overlay]) => overlay.shouldShow && overlay.topoJson)
                 .map(([name, overlay]) => [name, overlay.topoJson] as [OverlayName, TopoJson])
                 .map(([name, topoJson]) => (
-                    <g
-                        id={name.replaceAll(' ', '-')}
-                        key={name}
-                        transform={transform}
-                        style={ZOOM_TRANSITION}
-                    >
+                    <g id={name.replaceAll(' ', '-')} key={name} transform={transform}>
                         {generatePaths(name, topoJson)}
                     </g>
                 ))}
