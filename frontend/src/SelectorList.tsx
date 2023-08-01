@@ -19,7 +19,7 @@ function SelectorList<Item, Id extends Key>({
             {items.map((item) => (
                 <div key={id(item)}>
                     <input
-                        className={css.dataGroup}
+                        className={css.input}
                         id={id(item).toString()}
                         checked={selectedId === id(item)}
                         type="radio"
@@ -27,7 +27,7 @@ function SelectorList<Item, Id extends Key>({
                         onChange={() => onClick(item)}
                         name="dataGroup"
                     />
-                    <label className={css.dataGroup} htmlFor={id(item).toString()}>
+                    <label className={css.label} htmlFor={id(item).toString()}>
                         {label(item)}
                     </label>
                 </div>
