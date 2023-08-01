@@ -16,8 +16,6 @@ import Overlays from './Overlays'
 import { selectMapTransform, selectSelections, stateId } from './appSlice'
 import { RootState } from './store'
 
-export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
-
 function MapWrapper({
     allMapVisualizations,
     isNormalized,
