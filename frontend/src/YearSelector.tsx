@@ -10,7 +10,7 @@ type Props = {
     id: string
 }
 
-const readable = (interval: Interval) => {
+export const readable = (interval: Interval) => {
     if (interval.length('year') < 2) {
         return interval.start.year.toString()
     }
