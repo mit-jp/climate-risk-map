@@ -17,12 +17,12 @@ type UsaMapProps = {
     data: Map<GeoId, number> | undefined
     width: number
     height: number
+    normalize?: boolean
 }
 
 const MISSING_DATA_COLOR = '#ccc'
 
-/** Use a canvas d3 renderer instead of drawing everything in an svg */
-export function UsaMap({ us, mapSpec, data, width, height }: UsaMapProps) {
+export function UsaMap({ us, mapSpec, data, width, height, normalize = false }: UsaMapProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     useEffect(() => {
         const canvas = select(canvasRef.current)
@@ -42,7 +42,7 @@ export function UsaMap({ us, mapSpec, data, width, height }: UsaMapProps) {
             data: Map<GeoId, number>
         ) => {
             const counties = getCounties(us)
-            const colorScale = Color(false, true, mapSpec, getDomain(data))
+            const colorScale = Color(normalize, true, mapSpec, getDomain(data))
             counties.forEach((county) => {
                 const value = data.get(Number(county.id))
                 context.beginPath()
@@ -80,9 +80,17 @@ type WorldMapProps = {
     data: Map<GeoId, number> | undefined
     width: number
     height: number
+    normalize?: boolean
 }
 
-export function WorldMap({ world, mapSpec, data, width, height }: WorldMapProps) {
+export function WorldMap({
+    world,
+    mapSpec,
+    data,
+    width,
+    height,
+    normalize = false,
+}: WorldMapProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     useEffect(() => {
         const canvas = select(canvasRef.current)
@@ -102,7 +110,7 @@ export function WorldMap({ world, mapSpec, data, width, height }: WorldMapProps)
             data: Map<GeoId, number>
         ) => {
             const countries = getCountries(world)
-            const colorScale = Color(false, true, mapSpec, getDomain(data))
+            const colorScale = Color(normalize, true, mapSpec, getDomain(data))
             countries.forEach((country) => {
                 const value = data.get(Number(country.id))
                 context.beginPath()
