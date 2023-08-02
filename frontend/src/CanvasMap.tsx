@@ -17,19 +17,17 @@ type Props = {
 export default function CanvasMap({ us, selection, data }: Props) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     useEffect(() => {
-        // draw map via d3 on canvasRef
-        const width = 975
-        const height = 610
-        const canvas = select(canvasRef.current).attr('width', width).attr('height', height)
+        const canvas = select(canvasRef.current)
         const context = canvas.node()?.getContext('2d')
         if (context == null) {
             return
         }
-        const path = geoPath(null, context)
+        const path = geoPath().context(context)
         context.canvas.style.maxWidth = '100%'
         context.lineJoin = 'round'
         context.lineCap = 'round'
 
+        // Counties
         context.beginPath()
         path(
             topojson.mesh(
@@ -42,17 +40,19 @@ export default function CanvasMap({ us, selection, data }: Props) {
         context.strokeStyle = '#aaa'
         context.stroke()
 
+        // States
         context.beginPath()
         path(topojson.mesh(us, us.objects.states, (a, b) => a !== b))
         context.lineWidth = 0.5
         context.strokeStyle = '#000'
         context.stroke()
 
+        // Nation
         context.beginPath()
         path(topojson.feature(us, us.objects.nation))
         context.lineWidth = 1
         context.strokeStyle = '#000'
         context.stroke()
     }, [data, selection, us])
-    return <canvas ref={canvasRef} />
+    return <canvas ref={canvasRef} width={975} height={610} />
 }
