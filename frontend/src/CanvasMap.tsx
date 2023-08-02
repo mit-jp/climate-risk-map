@@ -22,6 +22,7 @@ type UsaMapProps = {
 }
 
 const MISSING_DATA_COLOR = '#ccc'
+const EMPTY_MAP_COLOR = '#eee'
 
 const makeRegionToRadius =
     (valueToRadius: ScalePower<number, number, never>, data: Map<GeoId, number>) =>
@@ -34,6 +35,7 @@ function makeOpaque(colorString: string, opacity: number) {
     const color = d3Color(colorString)?.rgb()
     return color ? `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})` : null
 }
+const dpi = window.devicePixelRatio || 1
 export function UsaMap({
     us,
     mapSpec,
@@ -94,8 +96,14 @@ export function UsaMap({
             })
         }
 
-        // Data
+        // Nation
+        context.beginPath()
+        path(topojson.feature(us, us.objects.nation))
+        context.fillStyle = EMPTY_MAP_COLOR
+        context.fill()
+
         if (mapSpec && data) {
+            //  Counties
             switch (mapSpec.map_type) {
                 case MapType.Choropleth:
                     drawChoropleth(us, mapSpec, data)
@@ -106,21 +114,14 @@ export function UsaMap({
                 default:
                     throw new Error(`Unknown map type: ${mapSpec.map_type}`)
             }
+
+            // States
+            context.beginPath()
+            path(topojson.mesh(us, us.objects.states as GeometryCollection, (a, b) => a !== b))
+            context.lineWidth = 1
+            context.strokeStyle = '#fff'
+            context.stroke()
         }
-
-        // States
-        context.beginPath()
-        path(topojson.mesh(us, us.objects.states as GeometryCollection, (a, b) => a !== b))
-        context.lineWidth = 0.5
-        context.strokeStyle = '#000'
-        context.stroke()
-
-        // Nation
-        context.beginPath()
-        path(topojson.feature(us, us.objects.nation))
-        context.lineWidth = 1
-        context.strokeStyle = '#000'
-        context.stroke()
     }, [data, mapSpec, us, width, height, normalize, detailedView])
     return <canvas ref={canvasRef} width={width} height={height} />
 }
@@ -151,6 +152,7 @@ export function WorldMap({
         if (context == null) {
             return
         }
+        context.setTransform(dpi, 0, 0, dpi, 0, 0)
         context.clearRect(0, 0, width, height)
         const path = geoPath().context(context)
         context.canvas.style.maxWidth = '100%'
@@ -189,5 +191,5 @@ export function WorldMap({
             drawEmptyWorldMap(world)
         }
     }, [data, mapSpec, world, width, height, normalize, detailedView])
-    return <canvas ref={canvasRef} width={width} height={height} />
+    return <canvas ref={canvasRef} width={width * dpi} height={height * dpi} />
 }
