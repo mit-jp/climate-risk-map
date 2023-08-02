@@ -1,13 +1,13 @@
-import { geoPath, select } from 'd3'
+import { ScalePower, color as d3Color, geoPath, scaleSqrt, select } from 'd3'
+import type { Feature, GeoJsonProperties, Geometry } from 'geojson'
 import { Map } from 'immutable'
 import { useEffect, useRef } from 'react'
 import * as topojson from 'topojson-client'
 import type { GeometryCollection } from 'topojson-specification'
-import { MapVisualization } from './MapVisualization'
-
 import { USACounties as getCounties, countries as getCountries } from './ChoroplethMap'
 import Color from './Color'
 import { getDomain } from './DataProcessor'
+import { MapType, MapVisualization } from './MapVisualization'
 import { TopoJson } from './TopoJson'
 import { GeoId } from './appSlice'
 
@@ -22,6 +22,17 @@ type UsaMapProps = {
 
 const MISSING_DATA_COLOR = '#ccc'
 
+const makeRegionToRadius =
+    (valueToRadius: ScalePower<number, number, never>, data: Map<GeoId, number>) =>
+    (county: Feature<Geometry, GeoJsonProperties>) => {
+        const value = data.get(Number(county.id)) ?? 0
+        return valueToRadius(value)
+    }
+
+function makeOpaque(colorString: string, opacity: number) {
+    const color = d3Color(colorString)?.rgb()
+    return color ? `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})` : null
+}
 export function UsaMap({ us, mapSpec, data, width, height, normalize = false }: UsaMapProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     useEffect(() => {
@@ -36,7 +47,7 @@ export function UsaMap({ us, mapSpec, data, width, height, normalize = false }: 
         context.lineJoin = 'round'
         context.lineCap = 'round'
 
-        const drawCountyMap = (
+        const drawChoropleth = (
             us: TopoJson,
             mapSpec: MapVisualization,
             data: Map<GeoId, number>
@@ -52,9 +63,40 @@ export function UsaMap({ us, mapSpec, data, width, height, normalize = false }: 
             })
         }
 
-        // Counties
+        const drawBubbles = (us: TopoJson, mapSpec: MapVisualization, data: Map<GeoId, number>) => {
+            const { max } = getDomain(data)
+            const valueToRadius = scaleSqrt([0, max], [0, 40])
+            const regionToRadius = makeRegionToRadius(valueToRadius, data)
+            const counties = getCounties(us)
+            counties.forEach((county) => {
+                context.beginPath()
+                context.arc(
+                    path.centroid(county)[0],
+                    path.centroid(county)[1],
+                    regionToRadius(county),
+                    0,
+                    2 * Math.PI
+                )
+                context.fillStyle = makeOpaque(mapSpec.bubble_color, 0.5) ?? MISSING_DATA_COLOR
+                context.fill()
+                context.strokeStyle = 'rgba(225,225,225,0.5)'
+                context.lineWidth = 1
+                context.stroke()
+            })
+        }
+
+        // Data
         if (mapSpec && data) {
-            drawCountyMap(us, mapSpec, data)
+            switch (mapSpec.map_type) {
+                case MapType.Choropleth:
+                    drawChoropleth(us, mapSpec, data)
+                    break
+                case MapType.Bubble:
+                    drawBubbles(us, mapSpec, data)
+                    break
+                default:
+                    throw new Error(`Unknown map type: ${mapSpec.map_type}`)
+            }
         }
 
         // States
@@ -70,7 +112,7 @@ export function UsaMap({ us, mapSpec, data, width, height, normalize = false }: 
         context.lineWidth = 1
         context.strokeStyle = '#000'
         context.stroke()
-    }, [data, mapSpec, us, width, height])
+    }, [data, mapSpec, us, width, height, normalize])
     return <canvas ref={canvasRef} width={width} height={height} />
 }
 
@@ -135,6 +177,6 @@ export function WorldMap({
         } else {
             drawEmptyWorldMap(world)
         }
-    }, [data, mapSpec, world, width, height])
+    }, [data, mapSpec, world, width, height, normalize])
     return <canvas ref={canvasRef} width={width} height={height} />
 }
