@@ -1,7 +1,7 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { useMemo, useRef } from 'react'
 import { useSelector } from 'react-redux'
-import CanvasMap from './CanvasMap'
+import { UsaMap, WorldMap } from './CanvasMap'
 import DataDescription from './DataDescription'
 import DataProcessor from './DataProcessor'
 import DataSourceDescription from './DataSourceDescription'
@@ -15,7 +15,8 @@ import { selectMapTransform, selectSelections, stateId } from './appSlice'
 import { RootState } from './store'
 
 export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
-
+const MAP_WIDTH = 975
+const MAP_HEIGHT = 610
 function MapWrapper({
     allMapVisualizations,
     isNormalized,
@@ -78,12 +79,21 @@ function MapWrapper({
                     <EmptyMapTitle />
                 )}
                 {map?.region === 'USA' && map?.topoJson && (
-                    <CanvasMap
+                    <UsaMap
                         data={processedData}
-                        selection={maps[0]}
+                        mapSpec={maps[0]}
                         us={map.topoJson}
-                        width={975}
-                        height={610}
+                        width={MAP_WIDTH}
+                        height={MAP_HEIGHT}
+                    />
+                )}
+                {map?.region === 'World' && map?.topoJson && (
+                    <WorldMap
+                        data={processedData}
+                        mapSpec={maps[0]}
+                        world={map.topoJson}
+                        width={MAP_WIDTH}
+                        height={MAP_HEIGHT}
                     />
                 )}
                 {map && (

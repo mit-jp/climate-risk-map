@@ -1,18 +1,19 @@
 import { geoPath, select } from 'd3'
-import type { FeatureCollection, GeoJsonProperties, Geometry } from 'geojson'
 import { Map } from 'immutable'
 import { useEffect, useRef } from 'react'
 import * as topojson from 'topojson-client'
+import type { GeometryCollection } from 'topojson-specification'
 import { MapVisualization } from './MapVisualization'
 
+import { USACounties as getCounties, countries as getCountries } from './ChoroplethMap'
 import Color from './Color'
 import { getDomain } from './DataProcessor'
 import { TopoJson } from './TopoJson'
 import { GeoId } from './appSlice'
 
-type Props = {
+type UsaMapProps = {
     us: TopoJson
-    selection: MapVisualization | undefined
+    mapSpec: MapVisualization | undefined
     data: Map<GeoId, number> | undefined
     width: number
     height: number
@@ -21,7 +22,7 @@ type Props = {
 const MISSING_DATA_COLOR = '#ccc'
 
 /** Use a canvas d3 renderer instead of drawing everything in an svg */
-export default function CanvasMap({ us, selection, data, width, height }: Props) {
+export function UsaMap({ us, mapSpec, data, width, height }: UsaMapProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     useEffect(() => {
         const canvas = select(canvasRef.current)
@@ -40,12 +41,7 @@ export default function CanvasMap({ us, selection, data, width, height }: Props)
             mapSpec: MapVisualization,
             data: Map<GeoId, number>
         ) => {
-            const counties = (
-                topojson.feature(us, us.objects.counties) as FeatureCollection<
-                    Geometry,
-                    GeoJsonProperties
-                >
-            ).features
+            const counties = getCounties(us)
             const colorScale = Color(false, true, mapSpec, getDomain(data))
             counties.forEach((county) => {
                 const value = data.get(Number(county.id))
@@ -57,13 +53,13 @@ export default function CanvasMap({ us, selection, data, width, height }: Props)
         }
 
         // Counties
-        if (selection && data) {
-            drawCountyMap(us, selection, data)
+        if (mapSpec && data) {
+            drawCountyMap(us, mapSpec, data)
         }
 
         // States
         context.beginPath()
-        path(topojson.mesh(us, us.objects.states, (a, b) => a !== b))
+        path(topojson.mesh(us, us.objects.states as GeometryCollection, (a, b) => a !== b))
         context.lineWidth = 0.5
         context.strokeStyle = '#000'
         context.stroke()
@@ -74,6 +70,63 @@ export default function CanvasMap({ us, selection, data, width, height }: Props)
         context.lineWidth = 1
         context.strokeStyle = '#000'
         context.stroke()
-    }, [data, selection, us, width, height])
+    }, [data, mapSpec, us, width, height])
+    return <canvas ref={canvasRef} width={width} height={height} />
+}
+
+type WorldMapProps = {
+    world: TopoJson
+    mapSpec: MapVisualization | undefined
+    data: Map<GeoId, number> | undefined
+    width: number
+    height: number
+}
+
+export function WorldMap({ world, mapSpec, data, width, height }: WorldMapProps) {
+    const canvasRef = useRef<HTMLCanvasElement>(null)
+    useEffect(() => {
+        const canvas = select(canvasRef.current)
+        const context = canvas.node()?.getContext('2d')
+        if (context == null) {
+            return
+        }
+        context.clearRect(0, 0, width, height)
+        const path = geoPath().context(context)
+        context.canvas.style.maxWidth = '100%'
+        context.lineJoin = 'round'
+        context.lineCap = 'round'
+
+        const drawWorldMap = (
+            world: TopoJson,
+            mapSpec: MapVisualization,
+            data: Map<GeoId, number>
+        ) => {
+            const countries = getCountries(world)
+            const colorScale = Color(false, true, mapSpec, getDomain(data))
+            countries.forEach((country) => {
+                const value = data.get(Number(country.id))
+                context.beginPath()
+                path(country)
+                context.fillStyle = value != null ? colorScale(value) : MISSING_DATA_COLOR
+                context.fill()
+            })
+        }
+
+        const drawEmptyWorldMap = (world: TopoJson) => {
+            const countries = getCountries(world)
+            countries.forEach((country) => {
+                context.beginPath()
+                path(country)
+                context.fillStyle = MISSING_DATA_COLOR
+                context.fill()
+            })
+        }
+
+        if (mapSpec && data) {
+            drawWorldMap(world, mapSpec, data)
+        } else {
+            drawEmptyWorldMap(world)
+        }
+    }, [data, mapSpec, world, width, height])
     return <canvas ref={canvasRef} width={width} height={height} />
 }
