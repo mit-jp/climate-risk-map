@@ -86,6 +86,7 @@ function MapWrapper({
                         width={MAP_WIDTH}
                         height={MAP_HEIGHT}
                         normalize={isNormalized}
+                        detailedView={detailedView}
                     />
                 )}
                 {map?.region === 'World' && map?.topoJson && (
@@ -96,6 +97,7 @@ function MapWrapper({
                         width={MAP_WIDTH}
                         height={MAP_HEIGHT}
                         normalize={isNormalized}
+                        detailedView={detailedView}
                     />
                 )}
                 {map && (

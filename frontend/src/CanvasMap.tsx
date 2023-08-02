@@ -18,6 +18,7 @@ type UsaMapProps = {
     width: number
     height: number
     normalize?: boolean
+    detailedView?: boolean
 }
 
 const MISSING_DATA_COLOR = '#ccc'
@@ -33,7 +34,15 @@ function makeOpaque(colorString: string, opacity: number) {
     const color = d3Color(colorString)?.rgb()
     return color ? `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})` : null
 }
-export function UsaMap({ us, mapSpec, data, width, height, normalize = false }: UsaMapProps) {
+export function UsaMap({
+    us,
+    mapSpec,
+    data,
+    width,
+    height,
+    normalize = false,
+    detailedView = false,
+}: UsaMapProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     useEffect(() => {
         const canvas = select(canvasRef.current)
@@ -53,7 +62,7 @@ export function UsaMap({ us, mapSpec, data, width, height, normalize = false }: 
             data: Map<GeoId, number>
         ) => {
             const counties = getCounties(us)
-            const colorScale = Color(normalize, true, mapSpec, getDomain(data))
+            const colorScale = Color(normalize, detailedView, mapSpec, getDomain(data))
             counties.forEach((county) => {
                 const value = data.get(Number(county.id))
                 context.beginPath()
@@ -112,7 +121,7 @@ export function UsaMap({ us, mapSpec, data, width, height, normalize = false }: 
         context.lineWidth = 1
         context.strokeStyle = '#000'
         context.stroke()
-    }, [data, mapSpec, us, width, height, normalize])
+    }, [data, mapSpec, us, width, height, normalize, detailedView])
     return <canvas ref={canvasRef} width={width} height={height} />
 }
 
@@ -123,6 +132,7 @@ type WorldMapProps = {
     width: number
     height: number
     normalize?: boolean
+    detailedView?: boolean
 }
 
 export function WorldMap({
@@ -132,6 +142,7 @@ export function WorldMap({
     width,
     height,
     normalize = false,
+    detailedView = false,
 }: WorldMapProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     useEffect(() => {
@@ -152,7 +163,7 @@ export function WorldMap({
             data: Map<GeoId, number>
         ) => {
             const countries = getCountries(world)
-            const colorScale = Color(normalize, true, mapSpec, getDomain(data))
+            const colorScale = Color(normalize, detailedView, mapSpec, getDomain(data))
             countries.forEach((country) => {
                 const value = data.get(Number(country.id))
                 context.beginPath()
@@ -177,6 +188,6 @@ export function WorldMap({
         } else {
             drawEmptyWorldMap(world)
         }
-    }, [data, mapSpec, world, width, height, normalize])
+    }, [data, mapSpec, world, width, height, normalize, detailedView])
     return <canvas ref={canvasRef} width={width} height={height} />
 }
