@@ -13,13 +13,15 @@ import { GeoId } from './appSlice'
 type Props = {
     us: TopoJson
     selection: MapVisualization | undefined
-    data: Map<GeoId, number>
+    data: Map<GeoId, number> | undefined
+    width: number
+    height: number
 }
 
 const MISSING_DATA_COLOR = '#ccc'
 
 /** Use a canvas d3 renderer instead of drawing everything in an svg */
-export default function CanvasMap({ us, selection, data }: Props) {
+export default function CanvasMap({ us, selection, data, width, height }: Props) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     useEffect(() => {
         const canvas = select(canvasRef.current)
@@ -27,12 +29,17 @@ export default function CanvasMap({ us, selection, data }: Props) {
         if (context == null) {
             return
         }
+        context.clearRect(0, 0, width, height)
         const path = geoPath().context(context)
         context.canvas.style.maxWidth = '100%'
         context.lineJoin = 'round'
         context.lineCap = 'round'
 
-        const drawFullMap = (us: TopoJson, mapSpec: MapVisualization, data: Map<GeoId, number>) => {
+        const drawCountyMap = (
+            us: TopoJson,
+            mapSpec: MapVisualization,
+            data: Map<GeoId, number>
+        ) => {
             const counties = (
                 topojson.feature(us, us.objects.counties) as FeatureCollection<
                     Geometry,
@@ -49,22 +56,10 @@ export default function CanvasMap({ us, selection, data }: Props) {
             })
         }
 
-        const drawEmptyMap = (us: TopoJson) => {
-            context.beginPath()
-            path(
-                topojson.mesh(
-                    us,
-                    us.objects.counties,
-                    (a, b) => a !== b && ((a.id / 1000) | 0) === ((b.id / 1000) | 0)
-                )
-            )
-            context.lineWidth = 0.5
-            context.strokeStyle = '#aaa'
-            context.stroke()
-        }
-
         // Counties
-        selection == null ? drawEmptyMap(us) : drawFullMap(us, selection, data)
+        if (selection && data) {
+            drawCountyMap(us, selection, data)
+        }
 
         // States
         context.beginPath()
@@ -79,6 +74,6 @@ export default function CanvasMap({ us, selection, data }: Props) {
         context.lineWidth = 1
         context.strokeStyle = '#000'
         context.stroke()
-    }, [data, selection, us])
-    return <canvas ref={canvasRef} width={975} height={610} />
+    }, [data, selection, us, width, height])
+    return <canvas ref={canvasRef} width={width} height={height} />
 }

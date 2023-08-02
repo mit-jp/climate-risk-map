@@ -77,8 +77,14 @@ function MapWrapper({
                 ) : (
                     <EmptyMapTitle />
                 )}
-                {processedData && map?.region === 'USA' && map?.topoJson && (
-                    <CanvasMap data={processedData} selection={maps[0]} us={map.topoJson} />
+                {map?.region === 'USA' && map?.topoJson && (
+                    <CanvasMap
+                        data={processedData}
+                        selection={maps[0]}
+                        us={map.topoJson}
+                        width={975}
+                        height={610}
+                    />
                 )}
                 {map && (
                     <MapControls data={processedData} isNormalized={isNormalized} maps={maps} />
