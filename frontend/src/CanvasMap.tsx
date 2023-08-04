@@ -60,7 +60,6 @@ export function UsaMap({
         }
         context.clearRect(0, 0, width, height)
         const path = geoPath().context(context)
-        context.canvas.style.maxWidth = '100%'
         context.lineJoin = 'round'
         context.lineCap = 'round'
 
@@ -154,21 +153,27 @@ export function UsaMap({
                 return
             }
             let found = results[0]
+            let county = counties[found]
             // flatbush always returns an array of indexes and sometimes the good one is not the first one
             // let's search our result for the polygon that is under our mouse coordinates
             // https://observablehq.com/@luissevillano/using-flatbush-for-faster-hover-events-in-canvas-maps
             results.forEach((idx) => {
-                const feature = counties[idx]
-                if (geoContains(feature, [x, y])) {
+                county = counties[idx]
+                if (geoContains(county, [x, y])) {
                     found = idx
                 }
             })
-            setValue(data?.get(Number(counties[found].id)))
-
-            // Clear the canvas
-            context.clearRect(0, 0, canvas.width, canvas.height)
+            setValue(data?.get(Number(county.id)))
 
             // Draw the highlight over the currently hovered county
+            context.clearRect(0, 0, width, height)
+            const path = geoPath().context(context)
+            context.lineJoin = 'round'
+            context.lineCap = 'round'
+            context.beginPath()
+            path(county)
+            context.fillStyle = '#000'
+            context.fill()
         }
     }
     return (
