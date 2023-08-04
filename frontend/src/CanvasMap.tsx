@@ -1,9 +1,11 @@
-import { ScalePower, color as d3Color, geoPath, scaleSqrt, select } from 'd3'
+import { ScalePower, color as d3Color, geoContains, geoPath, scaleSqrt, select } from 'd3'
+import Flatbush from 'flatbush'
 import type { Feature, GeoJsonProperties, Geometry } from 'geojson'
 import { Map } from 'immutable'
-import { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import * as topojson from 'topojson-client'
 import type { GeometryCollection } from 'topojson-specification'
+import css from './CanvasMap.module.css'
 import { USACounties as getCounties, countries as getCountries } from './ChoroplethMap'
 import Color from './Color'
 import { getDomain } from './DataProcessor'
@@ -45,9 +47,13 @@ export function UsaMap({
     normalize = false,
     detailedView = false,
 }: UsaMapProps) {
-    const canvasRef = useRef<HTMLCanvasElement>(null)
+    const mapCanvasRef = useRef<HTMLCanvasElement>(null)
+    const highlightCanvasRef = useRef<HTMLCanvasElement>(null)
+    const indexRef = useRef<Flatbush | null>(null)
+    const counties = getCounties(us)
+    const [value, setValue] = useState<number | undefined>()
     useEffect(() => {
-        const canvas = select(canvasRef.current)
+        const canvas = select(mapCanvasRef.current)
         const context = canvas.node()?.getContext('2d')
         if (context == null) {
             return
@@ -63,22 +69,29 @@ export function UsaMap({
             mapSpec: MapVisualization,
             data: Map<GeoId, number>
         ) => {
-            const counties = getCounties(us)
+            indexRef.current = new Flatbush(counties.length)
             const colorScale = Color(normalize, detailedView, mapSpec, getDomain(data))
             counties.forEach((county) => {
+                const bounds = path.bounds(county)
+                indexRef.current?.add(
+                    Math.floor(bounds[0][0]),
+                    Math.floor(bounds[0][1]),
+                    Math.ceil(bounds[1][0]),
+                    Math.ceil(bounds[1][1])
+                )
                 const value = data.get(Number(county.id))
                 context.beginPath()
                 path(county)
                 context.fillStyle = value != null ? colorScale(value) : MISSING_DATA_COLOR
                 context.fill()
             })
+            indexRef.current.finish()
         }
 
         const drawBubbles = (us: TopoJson, mapSpec: MapVisualization, data: Map<GeoId, number>) => {
             const { max } = getDomain(data)
             const valueToRadius = scaleSqrt([0, max], [0, 40])
             const regionToRadius = makeRegionToRadius(valueToRadius, data)
-            const counties = getCounties(us)
             counties.forEach((county) => {
                 context.beginPath()
                 context.arc(
@@ -122,8 +135,62 @@ export function UsaMap({
             context.strokeStyle = '#fff'
             context.stroke()
         }
-    }, [data, mapSpec, us, width, height, normalize, detailedView])
-    return <canvas ref={canvasRef} width={width} height={height} />
+    }, [data, mapSpec, us, width, height, normalize, detailedView, counties])
+    const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        const canvas = highlightCanvasRef.current
+        const context = canvas?.getContext('2d')
+        if (canvas && context) {
+            // Get the scaling factor
+            const rect = canvas.getBoundingClientRect()
+            const scaleX = canvas.width / rect.width
+            const scaleY = canvas.height / rect.height
+
+            // Translate mouse coordinates to canvas coordinates
+            const x = (event.clientX - rect.left) * scaleX
+            const y = (event.clientY - rect.top) * scaleY
+
+            const results = indexRef.current?.search(x, y, x, y)
+            if (!results || results.length === 0) {
+                return
+            }
+            let found = results[0]
+            // flatbush always returns an array of indexes and sometimes the good one is not the first one
+            // let's search our result for the polygon that is under our mouse coordinates
+            // https://observablehq.com/@luissevillano/using-flatbush-for-faster-hover-events-in-canvas-maps
+            results.forEach((idx) => {
+                const feature = counties[idx]
+                if (geoContains(feature, [x, y])) {
+                    found = idx
+                }
+            })
+            setValue(data?.get(Number(counties[found].id)))
+
+            // Clear the canvas
+            context.clearRect(0, 0, canvas.width, canvas.height)
+
+            // Draw the highlight over the currently hovered county
+        }
+    }
+    return (
+        <>
+            <p>Value: {value}</p>
+            <div className={css.container}>
+                <canvas
+                    className={css.map}
+                    ref={mapCanvasRef}
+                    width={width}
+                    height={height}
+                    onMouseMove={handleMouseMove}
+                />
+                <canvas
+                    className={css.highlight}
+                    ref={highlightCanvasRef}
+                    width={width}
+                    height={height}
+                />
+            </div>
+        </>
+    )
 }
 
 type WorldMapProps = {

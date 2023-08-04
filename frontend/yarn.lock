@@ -3236,6 +3236,7 @@ __metadata:
     eslint-plugin-react-hooks: ^4.3.0
     eslint-plugin-testing-library: ^5.0.3
     file-saver: ^2.0.5
+    flatbush: ^4.2.0
     gh-pages: ^3.1.0
     identity-obj-proxy: ^3.0.0
     immutable: ^4.0.0-rc.12
@@ -4848,6 +4849,22 @@ __metadata:
     flatted: ^3.1.0
     rimraf: ^3.0.2
   checksum: 4fdd10ecbcbf7d520f9040dd1340eb5dfe951e6f0ecf2252edeec03ee68d989ec8b9a20f4434270e71bcfd57800dc09b3344fca3966b2eb8f613072c7d9a2365
+  languageName: node
+  linkType: hard
+
+"flatbush@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "flatbush@npm:4.2.0"
+  dependencies:
+    flatqueue: ^2.0.3
+  checksum: a67d2ce4c45070c3cf4ac8d25d64b9a846e457133637b6f48296cc8741c63a61fa307bde8e678514c0a8c6e6675f051958bade53bdacd603ad9a665bf6cba91a
+  languageName: node
+  linkType: hard
+
+"flatqueue@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "flatqueue@npm:2.0.3"
+  checksum: 8b56dee4211cf295459f67ceb84dd68b97ab5c91ea427cca5624a3e6dab4f1222d28843a0738d79ba7e2a10e918bb3d570fd221acc5dbd2c66d89e8eddde899d
   languageName: node
   linkType: hard
 

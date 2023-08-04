@@ -1,0 +1,15 @@
+.container {
+    position: relative;
+}
+.map {
+    z-index: 1;
+}
+.highlight {
+    z-index: 2;
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: fit-content;
+}
