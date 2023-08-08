@@ -12,7 +12,7 @@ import MapWrapper from './MapWrapper'
 import mapCss from './MapWrapper.module.css'
 import Navigation from './Navigation'
 import { TopoJson } from './TopoJson'
-import { OverlayName, Region, selectSelectedTab, setMap, setOverlay, setTab } from './appSlice'
+import { OverlayName, selectSelectedTab, setOverlay, setTab } from './appSlice'
 import { RootState } from './store'
 
 type TopoJsonFile =
@@ -35,8 +35,6 @@ const overlayToFile: OverlayMap = {
     'Critical water habitats': 'critical-habitats-topo.json',
     'Endangered species': 'endangered-species-topo.json',
 }
-const usaFile: { name: TopoJsonFile; region: Region } = { name: 'usa.json', region: 'USA' }
-const worldFile: { name: TopoJsonFile; region: Region } = { name: 'world.json', region: 'World' }
 
 function Home() {
     const dispatch = useDispatch()
@@ -54,11 +52,6 @@ function Home() {
             : []
 
     useEffect(() => {
-        const file = region === 'USA' ? usaFile : worldFile
-        json<TopoJson>(file.name).then((topoJson) => {
-            dispatch(setMap(topoJson ? { topoJson, region } : undefined))
-        })
-
         Object.entries(overlayToFile).forEach(([name, file]) => {
             json<TopoJson>(file).then((topoJson) =>
                 dispatch(setOverlay({ name: name as OverlayName, topoJson }))

@@ -10,7 +10,12 @@ import { getDefaultSelection, MapSpec, MapSpecId, MapType } from './MapVisualiza
 import { State } from './States'
 import { RootState } from './store'
 import { TopoJson } from './TopoJson'
+import usa from './usa.json'
 import { WaterwayValue } from './WaterwayType'
+import world from './world.json'
+
+const World = world as unknown as TopoJson
+const Usa = usa as unknown as TopoJson
 
 export type TransmissionLineType =
     | 'Level 2 (230kV-344kV)'
@@ -25,10 +30,6 @@ export type OverlayName =
     | 'Endangered species'
 export type Overlay = { topoJson?: TopoJson; shouldShow: boolean }
 export type Region = 'USA' | 'World'
-export type GeoMap = {
-    topoJson: TopoJson
-    region: Region
-}
 export type GeoId = number
 
 /**
@@ -44,7 +45,6 @@ export const stateId = (countyId: number): State => Math.floor(countyId / 1000) 
 
 interface AppState {
     readonly region: Region
-    readonly map?: GeoMap
     readonly mapTransform?: string
     readonly overlays: Record<OverlayName, Overlay>
     readonly mapSelections: Record<Region, Record<TabId, MapSelection[]>>
@@ -81,9 +81,6 @@ export const appSlice = createSlice({
     name: 'app',
     initialState,
     reducers: {
-        setMap: (state, action: PayloadAction<GeoMap | undefined>) => {
-            state.map = action.payload
-        },
         setOverlay: (
             state,
             { payload }: PayloadAction<{ name: OverlayName; topoJson?: TopoJson }>
@@ -195,7 +192,6 @@ export const appSlice = createSlice({
 })
 
 export const {
-    setMap,
     setShowOverlay,
     setOverlay,
     setDetailedView,
@@ -214,25 +210,25 @@ export const {
 // Accessors that return a new object every time, or run for a long time.
 // Do not use these as they will always force a re-render, or take too long to re-render.
 // Instead use the selectors that use them.
-const generateMapTransform = (zoomTo: number | undefined, map: GeoMap | undefined) => {
-    if (zoomTo === undefined || map === undefined) {
+const generateMapTransform = (zoomTo: number | undefined, region: Region) => {
+    if (zoomTo === undefined) {
         return undefined
     }
-    const objects =
-        map.region === 'USA' ? map.topoJson.objects.states : map.topoJson.objects.countries
-    const features = feature(
-        map.topoJson,
-        objects as GeometryCollection<GeoJsonProperties>
-    ).features.reduce((accumulator, currentValue) => {
-        accumulator[currentValue.id as string] = currentValue
-        return accumulator
-    }, {} as Record<string, Feature<Geometry, GeoJsonProperties>>)
+    const map = region === 'USA' ? Usa : World
+    const objects = region === 'USA' ? map.objects.states : map.objects.countries
+    const features = feature(map, objects as GeometryCollection<GeoJsonProperties>).features.reduce(
+        (accumulator, currentValue) => {
+            accumulator[currentValue.id as string] = currentValue
+            return accumulator
+        },
+        {} as Record<string, Feature<Geometry, GeoJsonProperties>>
+    )
     const width = 900
     const height = 610
     // pad number id by 0s to match topojson
     // topoJson country id: "012", country id: 12
     // topoJson state id: "01", state id: 1
-    const idLength = map.region === 'USA' ? 2 : 3
+    const idLength = region === 'USA' ? 2 : 3
     const zoomToId = String(zoomTo).padStart(idLength, '0')
 
     const bounds = geoPath().bounds(features[zoomToId])
@@ -262,7 +258,7 @@ export const selectSelections = (state: RootState) => {
 
 export const selectMapTransform = createSelector(
     (state: RootState) => state.app.zoomTo,
-    (state: RootState) => state.app.map,
+    (state: RootState) => state.app.region,
     generateMapTransform
 )
 

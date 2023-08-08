@@ -2,10 +2,10 @@ import { screen } from '@testing-library/react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import jsonFile from '../public/usa.json'
 import Home from './Home'
 import { MapVisualizationJson } from './MapVisualization'
 import { render } from './test-utils'
+import jsonFile from './usa.json'
 
 const MAP_VISUALIZATIONS: { [key: string]: { [key: string]: MapVisualizationJson } } = {
     '9': {

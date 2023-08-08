@@ -13,9 +13,9 @@ import type { Feature, GeoJsonProperties, Geometry } from 'geojson'
 import { Map } from 'immutable'
 import React, { useEffect, useRef, useState } from 'react'
 import * as topojson from 'topojson-client'
+import { feature } from 'topojson-client'
 import type { GeometryCollection } from 'topojson-specification'
 import css from './CanvasMap.module.css'
-import { USACounties as getCounties, countries as getCountries } from './ChoroplethMap'
 import Color from './Color'
 import { getDomain } from './DataProcessor'
 import { GeographyType, MapSpec, MapType } from './MapVisualization'
@@ -25,12 +25,18 @@ import usaRaw from './usa.json'
 import worldRaw from './world.json'
 
 const USA = usaRaw as unknown as TopoJson
-const COUNTIES = getCounties(USA)
+const COUNTIES = feature(
+    USA,
+    USA.objects.counties as GeometryCollection<GeoJsonProperties>
+).features
 const STATE_PATH = topojson.mesh(USA, USA.objects.states as GeometryCollection, (a, b) => a !== b)
 const NATION_PATH = topojson.feature(USA, USA.objects.nation)
 
 const WORLD = worldRaw as unknown as TopoJson
-const NATIONS = getCountries(WORLD)
+const NATIONS = feature(
+    WORLD,
+    WORLD.objects.countries as GeometryCollection<GeoJsonProperties>
+).features
 
 const MISSING_DATA_COLOR = '#ccc'
 const EMPTY_MAP_COLOR = '#eee'

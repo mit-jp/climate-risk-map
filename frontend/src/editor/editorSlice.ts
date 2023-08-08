@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { GeoMap } from '../appSlice'
 import { mapApi, Tab } from '../MapApi'
 import { MapSpec, MapSpecId } from '../MapVisualization'
 import { RootState } from '../store'
@@ -7,7 +6,6 @@ import { RootState } from '../store'
 interface EditorState {
     readonly selectedTab?: Tab
     readonly selectedMapSpecByTab: Record<number, MapSpecId>
-    readonly map?: GeoMap
 }
 
 const initialState: EditorState = { selectedMapSpecByTab: {} }

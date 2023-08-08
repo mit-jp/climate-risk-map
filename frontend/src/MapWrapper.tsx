@@ -15,8 +15,6 @@ import { selectMapTransform, selectSelections, stateId } from './appSlice'
 import { RootState } from './store'
 
 export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
-const MAP_WIDTH = 975
-const MAP_HEIGHT = 610
 function MapWrapper({
     allMapVisualizations,
     isNormalized,
@@ -24,14 +22,13 @@ function MapWrapper({
     allMapVisualizations: Record<MapSpecId, MapSpec>
     isNormalized: boolean
 }) {
-    const map = useSelector((state: RootState) => state.app.map)
     const detailedView = useSelector((state: RootState) => state.app.detailedView)
     const zoomTo = useSelector((rootState: RootState) => rootState.app.zoomTo)
     const dataWeights = useSelector((rootState: RootState) => rootState.app.dataWeights)
     const transform = useSelector(selectMapTransform)
     const selections = useSelector(selectSelections)
     const region = useSelector((rootState: RootState) => rootState.app.region)
-    const maps = useMemo(() => {
+    const mapSpecs = useMemo(() => {
         return selections
             .map((selection) => selection.mapVisualization)
             .map((id) => allMapVisualizations[id])
@@ -53,7 +50,7 @@ function MapWrapper({
             data
                 ? DataProcessor({
                       data,
-                      params: maps.map((map) => ({
+                      params: mapSpecs.map((map) => ({
                           mapId: map.id,
                           weight: dataWeights[map.id],
                           invertNormalized: map.invert_normalized,
@@ -62,54 +59,49 @@ function MapWrapper({
                       filter: zoomTo && region ? (geoId) => stateId(geoId) === zoomTo : undefined,
                   })
                 : undefined,
-        [data, maps, dataWeights, zoomTo, isNormalized, region]
+        [data, mapSpecs, dataWeights, zoomTo, isNormalized, region]
     )
     const dataSource =
-        maps[0] && selections[0] ? maps[0].sources[selections[0].dataSource] : undefined
+        mapSpecs[0] && selections[0] ? mapSpecs[0].sources[selections[0].dataSource] : undefined
 
-    if (map === undefined) {
-        return <p>Loading</p>
-    }
     return (
         <>
             <div className={css.map}>
-                {maps.length > 0 ? (
-                    <MapTitle selectedMapVisualizations={maps} isNormalized={isNormalized} />
+                {mapSpecs.length > 0 ? (
+                    <MapTitle selectedMapVisualizations={mapSpecs} isNormalized={isNormalized} />
                 ) : (
                     <EmptyMapTitle />
                 )}
-                {map?.region === 'USA' && map?.topoJson && (
+                {region === 'USA' && (
                     <UsaMap
                         data={processedData}
-                        mapSpec={maps[0]}
-                        map={map.topoJson}
+                        mapSpec={mapSpecs[0]}
                         normalize={isNormalized}
                         detailedView={detailedView}
                     />
                 )}
-                {map?.region === 'World' && map?.topoJson && (
+                {region === 'World' && (
                     <WorldMap
                         data={processedData}
-                        mapSpec={maps[0]}
-                        world={map.topoJson}
-                        width={MAP_WIDTH}
-                        height={MAP_HEIGHT}
+                        mapSpec={mapSpecs[0]}
                         normalize={isNormalized}
                         detailedView={detailedView}
                     />
                 )}
-                {map && (
-                    <MapControls data={processedData} isNormalized={isNormalized} maps={maps} />
-                )}
-                {maps[0] && (
-                    <DataDescription name={maps[0].displayName} description={maps[0].description} />
+
+                <MapControls data={processedData} isNormalized={isNormalized} maps={mapSpecs} />
+                {mapSpecs[0] && (
+                    <DataDescription
+                        name={mapSpecs[0].displayName}
+                        description={mapSpecs[0].description}
+                    />
                 )}
                 {dataSource && <DataSourceDescription dataSource={dataSource} />}
             </div>
             <MapTooltip
                 data={processedData}
                 mapRef={mapRef}
-                selectedMap={maps[0]}
+                selectedMap={mapSpecs[0]}
                 isNormalized={isNormalized}
             />
         </>

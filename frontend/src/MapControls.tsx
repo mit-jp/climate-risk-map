@@ -15,7 +15,7 @@ import { Fragment } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import counties from './Counties'
-import { getLegendTitle } from './FullMap'
+import { getUnitString } from './Formatter'
 import css from './MapControls.module.css'
 import { MapSpec } from './MapVisualization'
 import nations from './Nations'
@@ -34,6 +34,19 @@ import {
     stateId,
 } from './appSlice'
 import { RootState } from './store'
+
+export const getLegendTitle = (selectedMaps: MapSpec[], isNormalized: boolean) => {
+    const dataDefinition = selectedMaps[0]
+    const unitString = getUnitString({ units: dataDefinition.units, isNormalized })
+
+    if (isNormalized) {
+        if (selectedMaps.some((value) => value.subcategory === 1)) {
+            return selectedMaps.length > 1 ? 'Combined Relative Risk' : 'Relative Risk'
+        }
+        return 'Scaled Value'
+    }
+    return unitString
+}
 
 const getFilename = (selectedMaps: MapSpec[], isNormalized: boolean) => {
     const unitString = getLegendTitle(selectedMaps, isNormalized)
