@@ -1,4 +1,13 @@
-import { ScalePower, color as d3Color, geoContains, geoPath, scaleSqrt, select } from 'd3'
+import {
+    GeoPath,
+    GeoPermissibleObjects,
+    ScalePower,
+    color as d3Color,
+    geoContains,
+    geoPath,
+    scaleSqrt,
+    select,
+} from 'd3'
 import Flatbush from 'flatbush'
 import type { Feature, GeoJsonProperties, Geometry } from 'geojson'
 import { Map } from 'immutable'
@@ -12,16 +21,6 @@ import { getDomain } from './DataProcessor'
 import { MapType, MapVisualization } from './MapVisualization'
 import { TopoJson } from './TopoJson'
 import { GeoId } from './appSlice'
-
-type UsaMapProps = {
-    us: TopoJson
-    mapSpec: MapVisualization | undefined
-    data: Map<GeoId, number> | undefined
-    width: number
-    height: number
-    normalize?: boolean
-    detailedView?: boolean
-}
 
 const MISSING_DATA_COLOR = '#ccc'
 const EMPTY_MAP_COLOR = '#eee'
@@ -38,144 +37,97 @@ function makeOpaque(colorString: string, opacity: number) {
     return color ? `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})` : null
 }
 const dpi = window.devicePixelRatio || 1
-export function UsaMap({
-    us,
-    mapSpec,
+
+export function GenericMap({
+    draw,
+    width = 975,
+    height = 610,
+    features,
     data,
-    width,
-    height,
-    normalize = false,
-    detailedView = false,
-}: UsaMapProps) {
+}: {
+    draw: (drawPath: GeoPath<any, GeoPermissibleObjects>, context: CanvasRenderingContext2D) => void
+    width?: number
+    height?: number
+    features?: Feature<Geometry, GeoJsonProperties>[]
+    data?: Map<GeoId, number>
+}) {
     const mapCanvasRef = useRef<HTMLCanvasElement>(null)
     const highlightCanvasRef = useRef<HTMLCanvasElement>(null)
-    const indexRef = useRef<Flatbush | null>(null)
-    const counties = getCounties(us)
     const [value, setValue] = useState<number | undefined>()
+
     useEffect(() => {
-        const canvas = select(mapCanvasRef.current)
-        const context = canvas.node()?.getContext('2d')
-        if (context == null) {
-            return
-        }
+        const context = select(mapCanvasRef.current).node()?.getContext('2d')
+        if (context == null) return
+
         context.clearRect(0, 0, width, height)
-        const path = geoPath().context(context)
+        const drawPath = geoPath().context(context)
         context.lineJoin = 'round'
         context.lineCap = 'round'
 
-        const drawChoropleth = (
-            us: TopoJson,
-            mapSpec: MapVisualization,
-            data: Map<GeoId, number>
-        ) => {
-            indexRef.current = new Flatbush(counties.length)
-            const colorScale = Color(normalize, detailedView, mapSpec, getDomain(data))
-            counties.forEach((county) => {
-                const bounds = path.bounds(county)
+        draw(drawPath, context)
+    }, [draw, height, width])
+
+    // Create a spatial index for the features
+    const indexRef = useRef<Flatbush | null>(null)
+    useEffect(() => {
+        if (features) {
+            indexRef.current = new Flatbush(features.length)
+            features.forEach((feature) => {
+                const bounds = geoPath().bounds(feature)
                 indexRef.current?.add(
                     Math.floor(bounds[0][0]),
                     Math.floor(bounds[0][1]),
                     Math.ceil(bounds[1][0]),
                     Math.ceil(bounds[1][1])
                 )
-                const value = data.get(Number(county.id))
-                context.beginPath()
-                path(county)
-                context.fillStyle = value != null ? colorScale(value) : MISSING_DATA_COLOR
-                context.fill()
             })
             indexRef.current.finish()
         }
+    }, [features])
 
-        const drawBubbles = (us: TopoJson, mapSpec: MapVisualization, data: Map<GeoId, number>) => {
-            const { max } = getDomain(data)
-            const valueToRadius = scaleSqrt([0, max], [0, 40])
-            const regionToRadius = makeRegionToRadius(valueToRadius, data)
-            counties.forEach((county) => {
-                context.beginPath()
-                context.arc(
-                    path.centroid(county)[0],
-                    path.centroid(county)[1],
-                    regionToRadius(county),
-                    0,
-                    2 * Math.PI
-                )
-                context.fillStyle = makeOpaque(mapSpec.bubble_color, 0.5) ?? MISSING_DATA_COLOR
-                context.fill()
-                context.strokeStyle = 'rgba(225,225,225,0.5)'
-                context.lineWidth = 1
-                context.stroke()
-            })
-        }
-
-        // Nation
-        context.beginPath()
-        path(topojson.feature(us, us.objects.nation))
-        context.fillStyle = EMPTY_MAP_COLOR
-        context.fill()
-
-        if (mapSpec && data) {
-            //  Counties
-            switch (mapSpec.map_type) {
-                case MapType.Choropleth:
-                    drawChoropleth(us, mapSpec, data)
-                    break
-                case MapType.Bubble:
-                    drawBubbles(us, mapSpec, data)
-                    break
-                default:
-                    throw new Error(`Unknown map type: ${mapSpec.map_type}`)
-            }
-
-            // States
-            context.beginPath()
-            path(topojson.mesh(us, us.objects.states as GeometryCollection, (a, b) => a !== b))
-            context.lineWidth = 1
-            context.strokeStyle = '#fff'
-            context.stroke()
-        }
-    }, [data, mapSpec, us, width, height, normalize, detailedView, counties])
     const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+        if (!features) return
         const canvas = highlightCanvasRef.current
         const context = canvas?.getContext('2d')
-        if (canvas && context) {
-            // Get the scaling factor
-            const rect = canvas.getBoundingClientRect()
-            const scaleX = canvas.width / rect.width
-            const scaleY = canvas.height / rect.height
+        if (!canvas || !context) return
 
-            // Translate mouse coordinates to canvas coordinates
-            const x = (event.clientX - rect.left) * scaleX
-            const y = (event.clientY - rect.top) * scaleY
+        // Get the scaling factor
+        const rect = canvas.getBoundingClientRect()
+        const scaleX = canvas.width / rect.width
+        const scaleY = canvas.height / rect.height
 
-            const results = indexRef.current?.search(x, y, x, y)
-            if (!results || results.length === 0) {
-                return
-            }
-            let found = results[0]
-            let county = counties[found]
-            // flatbush always returns an array of indexes and sometimes the good one is not the first one
-            // let's search our result for the polygon that is under our mouse coordinates
-            // https://observablehq.com/@luissevillano/using-flatbush-for-faster-hover-events-in-canvas-maps
-            results.forEach((idx) => {
-                county = counties[idx]
-                if (geoContains(county, [x, y])) {
-                    found = idx
-                }
-            })
-            setValue(data?.get(Number(county.id)))
+        // Translate mouse coordinates to canvas coordinates
+        const x = (event.clientX - rect.left) * scaleX
+        const y = (event.clientY - rect.top) * scaleY
 
-            // Draw the highlight over the currently hovered county
-            context.clearRect(0, 0, width, height)
-            const path = geoPath().context(context)
-            context.lineJoin = 'round'
-            context.lineCap = 'round'
-            context.beginPath()
-            path(county)
-            context.fillStyle = 'rgba(225,225,225,0.5)'
-            context.fill()
+        const results = indexRef.current?.search(x, y, x, y)
+        if (!results || results.length === 0) {
+            return
         }
+        let found = results[0]
+        let feature = features[found]
+        // flatbush always returns an array of indexes and sometimes the good one is not the first one
+        // let's search our result for the polygon that is under our mouse coordinates
+        // https://observablehq.com/@luissevillano/using-flatbush-for-faster-hover-events-in-canvas-maps
+        results.forEach((idx) => {
+            feature = features[idx]
+            if (geoContains(feature, [x, y])) {
+                found = idx
+            }
+        })
+        setValue(data?.get(Number(feature.id)))
+
+        // Draw the highlight over the currently hovered feature
+        context.clearRect(0, 0, width, height)
+        const drawPath = geoPath().context(context)
+        context.lineJoin = 'round'
+        context.lineCap = 'round'
+        context.beginPath()
+        drawPath(feature)
+        context.fillStyle = 'rgba(225,225,225,0.5)'
+        context.fill()
     }
+
     return (
         <>
             <p>Value: {value}</p>
@@ -187,15 +139,94 @@ export function UsaMap({
                     height={height}
                     onMouseMove={handleMouseMove}
                 />
-                <canvas
-                    className={css.highlight}
-                    ref={highlightCanvasRef}
-                    width={width}
-                    height={height}
-                />
+                {features && (
+                    <canvas
+                        className={css.highlight}
+                        ref={highlightCanvasRef}
+                        width={width}
+                        height={height}
+                    />
+                )}
             </div>
         </>
     )
+}
+
+export function UsaMap({
+    map,
+    mapSpec,
+    data,
+    normalize = false,
+    detailedView = true,
+}: {
+    map: TopoJson
+    mapSpec: MapVisualization | undefined
+    data: Map<GeoId, number> | undefined
+    normalize?: boolean
+    detailedView?: boolean
+}) {
+    const counties = getCounties(map)
+
+    const draw = (
+        drawPath: GeoPath<any, GeoPermissibleObjects>,
+        context: CanvasRenderingContext2D
+    ) => {
+        // Nation
+        context.beginPath()
+        drawPath(topojson.feature(map, map.objects.nation))
+        context.fillStyle = EMPTY_MAP_COLOR
+        context.fill()
+
+        if (mapSpec && data) {
+            //  Counties
+            switch (mapSpec.map_type) {
+                case MapType.Choropleth: {
+                    const colorScale = Color(normalize, detailedView, mapSpec, getDomain(data))
+                    counties.forEach((county) => {
+                        const value = data.get(Number(county.id))
+                        context.beginPath()
+                        drawPath(county)
+                        context.fillStyle = value != null ? colorScale(value) : MISSING_DATA_COLOR
+                        context.fill()
+                    })
+                    break
+                }
+                case MapType.Bubble: {
+                    const { max } = getDomain(data)
+                    const valueToRadius = scaleSqrt([0, max], [0, 40])
+                    const regionToRadius = makeRegionToRadius(valueToRadius, data)
+                    counties.forEach((county) => {
+                        context.beginPath()
+                        context.arc(
+                            drawPath.centroid(county)[0],
+                            drawPath.centroid(county)[1],
+                            regionToRadius(county),
+                            0,
+                            2 * Math.PI
+                        )
+                        context.fillStyle =
+                            makeOpaque(mapSpec.bubble_color, 0.5) ?? MISSING_DATA_COLOR
+                        context.fill()
+                        context.strokeStyle = 'rgba(225,225,225,0.5)'
+                        context.lineWidth = 1
+                        context.stroke()
+                    })
+                    break
+                }
+                default:
+                    throw new Error(`Unknown map type: ${mapSpec.map_type}`)
+            }
+        }
+
+        // States
+        context.beginPath()
+        drawPath(topojson.mesh(map, map.objects.states as GeometryCollection, (a, b) => a !== b))
+        context.lineWidth = 1
+        context.strokeStyle = '#fff'
+        context.stroke()
+    }
+
+    return <GenericMap features={counties} data={data} draw={draw} />
 }
 
 type WorldMapProps = {

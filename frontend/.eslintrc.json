@@ -41,7 +41,7 @@
             "error",
             {
                 "props": true,
-                "ignorePropertyModificationsFor": ["state", "accumulator"]
+                "ignorePropertyModificationsFor": ["state", "accumulator", "context"]
             }
         ],
         "no-unused-expressions": [

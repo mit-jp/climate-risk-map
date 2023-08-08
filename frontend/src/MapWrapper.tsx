@@ -82,9 +82,7 @@ function MapWrapper({
                     <UsaMap
                         data={processedData}
                         mapSpec={maps[0]}
-                        us={map.topoJson}
-                        width={MAP_WIDTH}
-                        height={MAP_HEIGHT}
+                        map={map.topoJson}
                         normalize={isNormalized}
                         detailedView={detailedView}
                     />
