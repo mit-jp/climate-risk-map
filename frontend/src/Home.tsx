@@ -7,7 +7,7 @@ import EmptyDataSelector from './EmptyDataSelector'
 import EmptyNavigation from './EmptyNavigation'
 import Header from './Header'
 import css from './Home.module.css'
-import { useGetMapVisualizationsQuery, useGetTabsQuery } from './MapApi'
+import { useGetMapSpecsQuery, useGetTabsQuery } from './MapApi'
 import MapWrapper from './MapWrapper'
 import mapCss from './MapWrapper.module.css'
 import Navigation from './Navigation'
@@ -43,7 +43,7 @@ function Home() {
     const region = useSelector((state: RootState) => state.app.region)
     const { data: tabs } = useGetTabsQuery(false)
     const tab = useSelector(selectSelectedTab)
-    const { data: mapVisualizations } = useGetMapVisualizationsQuery({
+    const { data: mapVisualizations } = useGetMapSpecsQuery({
         geographyType: region === 'USA' ? 1 : 2,
     })
 

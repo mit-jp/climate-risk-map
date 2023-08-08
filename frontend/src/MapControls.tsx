@@ -17,7 +17,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import counties from './Counties'
 import { getLegendTitle } from './FullMap'
 import css from './MapControls.module.css'
-import { MapVisualization } from './MapVisualization'
+import { MapSpec } from './MapVisualization'
 import nations from './Nations'
 import states from './States'
 import waterwayTypes, { WaterwayValue } from './WaterwayType'
@@ -35,7 +35,7 @@ import {
 } from './appSlice'
 import { RootState } from './store'
 
-const getFilename = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
+const getFilename = (selectedMaps: MapSpec[], isNormalized: boolean) => {
     const unitString = getLegendTitle(selectedMaps, isNormalized)
     if (unitString === 'Mean of selected data') {
         return unitString
@@ -136,7 +136,7 @@ function OverlayCheckBoxes({ overlays }: { overlays: Record<OverlayName, Overlay
 type Props = {
     data: Map<GeoId, number> | undefined
     isNormalized: boolean
-    maps: MapVisualization[]
+    maps: MapSpec[]
 }
 
 function MapControls({ data, isNormalized, maps }: Props) {

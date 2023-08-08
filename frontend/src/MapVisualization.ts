@@ -3,7 +3,7 @@ import { DateTime, Interval } from 'luxon'
 import { MapSelection } from './DataSelector'
 import { DataQueryParams, TabId } from './MapApi'
 
-export type MapVisualizationId = number
+export type MapSpecId = number
 export type ScaleTypeName =
     | 'Diverging'
     | 'Sequential'
@@ -37,7 +37,7 @@ export enum GeographyType {
 }
 
 export interface MapVisualizationPatch {
-    id: MapVisualizationId
+    id: MapSpecId
     dataset: number
     map_type: MapType
     subcategory?: number
@@ -61,8 +61,8 @@ export interface MapVisualizationPatch {
     bubble_color: string
 }
 
-export interface MapVisualization {
-    id: MapVisualizationId
+export interface MapSpec {
+    id: MapSpecId
     dataset: number
     map_type: MapType
     subcategory?: number
@@ -94,7 +94,7 @@ export interface MapVisualization {
 }
 
 export interface MapVisualizationJson {
-    id: MapVisualizationId
+    id: MapSpecId
     dataset: number
     map_type: MapType
     subcategory: number | null
@@ -124,7 +124,7 @@ export interface MapVisualizationJson {
     bubble_color: string
 }
 
-export const applyPatch = (draft: MapVisualization, patch: MapVisualizationPatch) => {
+export const applyPatch = (draft: MapSpec, patch: MapVisualizationPatch) => {
     Object.assign(draft, patch)
     if (patch.default_end_date && patch.default_start_date) {
         // eslint-disable-next-line no-param-reassign
@@ -138,7 +138,7 @@ export const applyPatch = (draft: MapVisualization, patch: MapVisualizationPatch
 const intervalFromJson = (json: { start_date: string; end_date: string }) =>
     Interval.fromISO(`${json.start_date}/${json.end_date}`)
 
-export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualization => {
+export const jsonToMapVisualization = (json: MapVisualizationJson): MapSpec => {
     const dateRangesBySource = Object.entries(json.date_ranges_by_source)
         .map(
             ([sourceId, dateRanges]) =>
@@ -186,15 +186,15 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
     }
 }
 
-export const getDefaultSource = (mapVisualization: MapVisualization) =>
+export const getDefaultSource = (mapVisualization: MapSpec) =>
     mapVisualization.default_source ??
     Object.keys(mapVisualization.date_ranges_by_source).map((key) => parseInt(key, 10))[0]
 
-export const getDefaultDateRange = (mapVisualization: MapVisualization) =>
+export const getDefaultDateRange = (mapVisualization: MapSpec) =>
     mapVisualization.default_date_range ??
     mapVisualization.date_ranges_by_source[getDefaultSource(mapVisualization)].at(-1)!
 
-export const getDataQueryParams = (mapVisualization: MapVisualization): DataQueryParams[] => {
+export const getDataQueryParams = (mapVisualization: MapSpec): DataQueryParams[] => {
     const source = getDefaultSource(mapVisualization)
     const dateRange = getDefaultDateRange(mapVisualization)
     return [
@@ -207,7 +207,7 @@ export const getDataQueryParams = (mapVisualization: MapVisualization): DataQuer
     ]
 }
 
-export const getDefaultSelection = (mapVisualization: MapVisualization): MapSelection => {
+export const getDefaultSelection = (mapVisualization: MapSpec): MapSelection => {
     const dataSource = getDefaultSource(mapVisualization)
     const dateRange = getDefaultDateRange(mapVisualization)
     return {
@@ -217,7 +217,7 @@ export const getDefaultSelection = (mapVisualization: MapVisualization): MapSele
     }
 }
 
-export const fetchMapVisualization = async (id: number): Promise<MapVisualization> => {
+export const fetchMapVisualization = async (id: number): Promise<MapSpec> => {
     const rawJson = await loadJson<MapVisualizationJson>(`/api/map-visualization/${id}`)
     if (rawJson === undefined) {
         return Promise.reject(new Error('Failed to fetch map visualization'))
@@ -225,10 +225,10 @@ export const fetchMapVisualization = async (id: number): Promise<MapVisualizatio
     return jsonToMapVisualization(rawJson)
 }
 
-type RawJson = Record<TabId, Record<MapVisualizationId, MapVisualizationJson>>
-type MapVisualizationsByTab = Record<TabId, Record<MapVisualizationId, MapVisualization>>
+type RawJson = Record<TabId, Record<MapSpecId, MapVisualizationJson>>
+type MapVisualizationsByTab = Record<TabId, Record<MapSpecId, MapSpec>>
 
-const transform = (rawJson: RawJson): Record<number, Record<number, MapVisualization>> =>
+const transform = (rawJson: RawJson): Record<number, Record<number, MapSpec>> =>
     Object.entries(rawJson).reduce((accumulator, [tabId, mapVisualizationJsons]) => {
         const mapVisualizations = Object.entries(mapVisualizationJsons).reduce(
             // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -236,7 +236,7 @@ const transform = (rawJson: RawJson): Record<number, Record<number, MapVisualiza
                 accumulator[parseInt(id, 10)] = jsonToMapVisualization(mapVisualizationJson)
                 return accumulator
             },
-            {} as Record<MapVisualizationId, MapVisualization>
+            {} as Record<MapSpecId, MapSpec>
         )
         accumulator[parseInt(tabId, 10)!] = mapVisualizations
         return accumulator

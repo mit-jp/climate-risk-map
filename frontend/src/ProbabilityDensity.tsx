@@ -1,25 +1,25 @@
-import { useEffect, useRef } from 'react'
 import {
-    scaleLinear,
-    extent,
-    bin as createBins,
-    select,
-    mean,
-    max,
+    Bin,
     axisBottom,
     axisLeft,
-    line,
+    bin as createBins,
     curveBasis,
-    Bin,
+    extent,
+    line,
+    max,
+    mean,
     median,
+    scaleLinear,
+    select,
 } from 'd3'
+import { useEffect, useRef } from 'react'
 import Color from './Color'
-import { MapVisualization } from './MapVisualization'
+import { MapSpec } from './MapVisualization'
 
 const margin = { top: 20, right: 30, bottom: 30, left: 40 }
 type Props = {
     data: number[] | undefined
-    map: MapVisualization | undefined
+    map: MapSpec | undefined
     shouldNormalize: boolean
     xRange?: [number, number] | undefined | []
     width?: number

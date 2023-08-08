@@ -1,16 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { GeoMap } from '../appSlice'
 import { mapApi, Tab } from '../MapApi'
-import { MapVisualization, MapVisualizationId } from '../MapVisualization'
+import { MapSpec, MapSpecId } from '../MapVisualization'
 import { RootState } from '../store'
 
 interface EditorState {
     readonly selectedTab?: Tab
-    readonly selectedMapVisualizationByTab: Record<number, MapVisualizationId>
+    readonly selectedMapSpecByTab: Record<number, MapSpecId>
     readonly map?: GeoMap
 }
 
-const initialState: EditorState = { selectedMapVisualizationByTab: {} }
+const initialState: EditorState = { selectedMapSpecByTab: {} }
 
 export const editorSlice = createSlice({
     name: 'editor',
@@ -19,12 +19,9 @@ export const editorSlice = createSlice({
         setTab(state, { payload }: PayloadAction<Tab>) {
             state.selectedTab = payload
         },
-        setMap(state, { payload }: PayloadAction<GeoMap>) {
-            state.map = payload
-        },
-        clickMapVisualization(state, { payload }: PayloadAction<MapVisualization>) {
+        clickMapSpec(state, { payload }: PayloadAction<MapSpec>) {
             if (state.selectedTab) {
-                state.selectedMapVisualizationByTab[state.selectedTab.id] = payload.id
+                state.selectedMapSpecByTab[state.selectedTab.id] = payload.id
             }
         },
     },
@@ -33,37 +30,31 @@ export const editorSlice = createSlice({
             const firstTab = actions.payload[0]
             state.selectedTab = firstTab
         })
-        builder.addMatcher(
-            mapApi.endpoints.getMapVisualizations.matchFulfilled,
-            (state, actions) => {
-                Object.entries(actions.payload).forEach(([tabId, mapVisualizations]) => {
-                    const tab = Number(tabId)
-                    // set the first map visualization as the selected one if there's not
-                    // already one selected or the selection no longer exists
-                    if (
-                        state.selectedMapVisualizationByTab[tab] === undefined ||
-                        !mapVisualizations[state.selectedMapVisualizationByTab[tab]]
-                    ) {
-                        state.selectedMapVisualizationByTab[tab] =
-                            Object.values(mapVisualizations)[0].id
-                    }
-                })
-            }
-        )
+        builder.addMatcher(mapApi.endpoints.getMapSpecs.matchFulfilled, (state, actions) => {
+            Object.entries(actions.payload).forEach(([tabId, mapSpec]) => {
+                const tab = Number(tabId)
+                // set the first map spec as the selected one if there's not
+                // already one selected or the selection no longer exists
+                if (
+                    state.selectedMapSpecByTab[tab] === undefined ||
+                    !mapSpec[state.selectedMapSpecByTab[tab]]
+                ) {
+                    state.selectedMapSpecByTab[tab] = Object.values(mapSpec)[0].id
+                }
+            })
+        })
     },
 })
 
-export const { setTab, setMap, clickMapVisualization } = editorSlice.actions
+export const { setTab, clickMapSpec } = editorSlice.actions
 
-export const selectSelectedTabAndMapVisualization = (state: RootState) => {
+export const selectSelectedTabAndMapSpec = (state: RootState) => {
     const { selectedTab } = state.editor
-    const selectedMapVisualizationId =
-        selectedTab !== undefined
-            ? state.editor.selectedMapVisualizationByTab[selectedTab.id]
-            : undefined
+    const selectedMapSpecId =
+        selectedTab !== undefined ? state.editor.selectedMapSpecByTab[selectedTab.id] : undefined
     return {
         selectedTab,
-        selectedMapVisualizationId,
+        selectedMapSpecId,
     }
 }
 

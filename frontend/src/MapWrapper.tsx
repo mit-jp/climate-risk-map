@@ -9,7 +9,7 @@ import { DataQueryParams, useGetDataQuery } from './MapApi'
 import MapControls from './MapControls'
 import MapTitle, { EmptyMapTitle } from './MapTitle'
 import MapTooltip from './MapTooltip'
-import { MapVisualization, MapVisualizationId } from './MapVisualization'
+import { MapSpec, MapSpecId } from './MapVisualization'
 import css from './MapWrapper.module.css'
 import { selectMapTransform, selectSelections, stateId } from './appSlice'
 import { RootState } from './store'
@@ -21,7 +21,7 @@ function MapWrapper({
     allMapVisualizations,
     isNormalized,
 }: {
-    allMapVisualizations: Record<MapVisualizationId, MapVisualization>
+    allMapVisualizations: Record<MapSpecId, MapSpec>
     isNormalized: boolean
 }) {
     const map = useSelector((state: RootState) => state.app.map)

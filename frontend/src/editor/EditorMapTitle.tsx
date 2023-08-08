@@ -1,15 +1,15 @@
-import { TextField } from '@mui/material'
 import { LoadingButton } from '@mui/lab'
+import { TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
-import { useUpdateMapVisualizationMutation } from '../MapApi'
-import { MapVisualization } from '../MapVisualization'
+import { useUpdateMapSpecMutation } from '../MapApi'
+import { MapSpec } from '../MapVisualization'
 import css from './Editor.module.css'
 
-type Props = { mapVisualization: MapVisualization }
+type Props = { mapVisualization: MapSpec }
 
 function EditorMapTitle({ mapVisualization }: Props) {
     const [title, setTitle] = useState(mapVisualization.name ?? '')
-    const [updateMap, { isLoading }] = useUpdateMapVisualizationMutation()
+    const [updateMap, { isLoading }] = useUpdateMapSpecMutation()
     const currentTitle = mapVisualization.name ?? ''
     useEffect(() => {
         setTitle(currentTitle)

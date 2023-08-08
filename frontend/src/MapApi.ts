@@ -4,8 +4,8 @@ import { Map } from 'immutable'
 import { Dataset, DatasetPatch } from './Dataset'
 import {
     ColorPalette,
-    MapVisualization,
-    MapVisualizationId,
+    MapSpec,
+    MapSpecId,
     MapVisualizationPatch,
     ScaleType,
     applyPatch,
@@ -19,7 +19,7 @@ import UploadData from './uploader/UploadData'
 export type DatasetId = number
 export type TabId = number
 export type Data = Record<GeoId, number | null>
-export type DataByMapVisualization = Record<MapVisualizationId, Data>
+export type DataByMapVisualization = Record<MapSpecId, Data>
 export type DataQueryParams = {
     mapVisualization: number
     source: number
@@ -240,7 +240,7 @@ export const mapApi = createApi({
                     )
             },
         }),
-        getMapVisualization: builder.query<MapVisualization, number>({
+        getMapSpec: builder.query<MapSpec, number>({
             queryFn: (id) =>
                 fetchMapVisualization(id).then(
                     (data) => ({ data }),
@@ -248,8 +248,8 @@ export const mapApi = createApi({
                 ),
             providesTags: (_result, _error, id) => [{ type: 'MapVisualization', id }],
         }),
-        getMapVisualizations: builder.query<
-            Record<TabId, Record<MapVisualizationId, MapVisualization>>,
+        getMapSpecs: builder.query<
+            Record<TabId, Record<MapSpecId, MapSpec>>,
             MapVisualizationQueryParams
         >({
             queryFn: (params) =>
@@ -268,10 +268,7 @@ export const mapApi = createApi({
                       ]
                     : [{ type: 'MapVisualization', id: 'ALL' }],
         }),
-        getMapVisualizationsByDataset: builder.query<
-            Record<TabId, Record<MapVisualizationId, MapVisualization>>,
-            number
-        >({
+        getMapSpecsByDataset: builder.query<Record<TabId, Record<MapSpecId, MapSpec>>, number>({
             queryFn: (dataset) =>
                 fetchMapVisualizationsByDataset(dataset).then(
                     (data) => ({ data }),
@@ -289,7 +286,7 @@ export const mapApi = createApi({
         getScaleTypes: builder.query<ScaleType[], undefined>({
             query: () => 'scale-type',
         }),
-        updateMapVisualization: builder.mutation<MapVisualization, MapVisualizationPatch>({
+        updateMapSpec: builder.mutation<MapSpec, MapVisualizationPatch>({
             query: (patch) => ({
                 url: 'editor/map-visualization',
                 method: 'PATCH',
@@ -298,21 +295,21 @@ export const mapApi = createApi({
             invalidatesTags: (_result, _error, { id }) => [{ type: 'MapVisualization', id }],
             async onQueryStarted(patch, { dispatch, queryFulfilled }) {
                 const patchResult = dispatch(
-                    mapApi.util.updateQueryData('getMapVisualization', patch.id, (draft) =>
+                    mapApi.util.updateQueryData('getMapSpec', patch.id, (draft) =>
                         applyPatch(draft, patch)
                     )
                 )
                 queryFulfilled.catch(() => patchResult.undo())
             },
         }),
-        createMapVisualization: builder.mutation<MapVisualization, undefined>({
+        createMapSpec: builder.mutation<MapSpec, undefined>({
             query: () => ({
                 url: 'editor/map-visualization',
                 method: 'POST',
             }),
             invalidatesTags: [{ type: 'MapVisualization', id: 'ALL' }],
         }),
-        deleteMapVisualization: builder.mutation<undefined, number>({
+        deleteMapSpec: builder.mutation<undefined, number>({
             query: (id) => ({
                 url: `editor/map-visualization/${id}`,
                 method: 'DELETE',
@@ -347,7 +344,7 @@ export const mapApi = createApi({
             query: () => 'subcategory',
             providesTags: ['Subcategory'],
         }),
-        publishMapVisualization: builder.mutation<MapVisualization, MapVisualizationCollectionId>({
+        publishMapSpec: builder.mutation<MapSpec, MapVisualizationCollectionId>({
             query: (id) => ({
                 url: `editor/map-visualization-collection`,
                 method: 'POST',
@@ -355,16 +352,14 @@ export const mapApi = createApi({
             }),
             invalidatesTags: [{ type: 'MapVisualization', id: 'ALL' }],
         }),
-        unpublishMapVisualization: builder.mutation<MapVisualization, MapVisualizationCollectionId>(
-            {
-                query: (id) => ({
-                    url: `editor/map-visualization-collection`,
-                    method: 'DELETE',
-                    body: id,
-                }),
-                invalidatesTags: [{ type: 'MapVisualization', id: 'ALL' }],
-            }
-        ),
+        unpublishMapSpec: builder.mutation<MapSpec, MapVisualizationCollectionId>({
+            query: (id) => ({
+                url: `editor/map-visualization-collection`,
+                method: 'DELETE',
+                body: id,
+            }),
+            invalidatesTags: [{ type: 'MapVisualization', id: 'ALL' }],
+        }),
         updateTab: builder.mutation<undefined, Tab>({
             query: (patch) => ({
                 url: 'editor/data-category',
@@ -452,20 +447,20 @@ export const mapApi = createApi({
 export const {
     useLazyGetDataQuery,
     useGetDataQuery,
-    useGetMapVisualizationsQuery,
+    useGetMapSpecsQuery,
     useGetTabsQuery,
     useGetColorPalettesQuery,
     useGetScaleTypesQuery,
-    useGetMapVisualizationQuery,
-    useUpdateMapVisualizationMutation,
-    useCreateMapVisualizationMutation,
+    useGetMapSpecQuery,
+    useUpdateMapSpecMutation,
+    useCreateMapSpecMutation,
     useGetDatasetsQuery,
     useGetCountiesQuery,
     useGetStatesQuery,
     useGetPercentilesQuery,
     useGetSubcategoriesQuery,
-    useUnpublishMapVisualizationMutation,
-    usePublishMapVisualizationMutation,
+    useUnpublishMapSpecMutation,
+    usePublishMapSpecMutation,
     useUpdateTabMutation,
     useCreateTabMutation,
     useDeleteTabMutation,
@@ -475,7 +470,7 @@ export const {
     useGetDataSourcesQuery,
     useGetGeographyTypesQuery,
     useDeleteDatasetMutation,
-    useGetMapVisualizationsByDatasetQuery,
-    useDeleteMapVisualizationMutation,
+    useGetMapSpecsByDatasetQuery,
+    useDeleteMapSpecMutation,
     useDeleteDataSourceMutation,
 } = mapApi

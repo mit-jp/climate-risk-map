@@ -6,12 +6,12 @@ import {
     Tab,
     useDeleteDatasetMutation,
     useGetDatasetsQuery,
-    useGetMapVisualizationsByDatasetQuery,
+    useGetMapSpecsByDatasetQuery,
     useGetTabsQuery,
-    useUnpublishMapVisualizationMutation,
+    useUnpublishMapSpecMutation,
     useUpdateDatasetMutation,
 } from '../MapApi'
-import { MapVisualization } from '../MapVisualization'
+import { MapSpec } from '../MapVisualization'
 import SelectorList, { EmptySelectorList } from '../SelectorList'
 import css from './DatasetEditor.module.css'
 
@@ -19,10 +19,10 @@ function MapVisualizations({
     mapVisualizations,
     tabs,
 }: {
-    mapVisualizations: Record<number, Record<number, MapVisualization>>
+    mapVisualizations: Record<number, Record<number, MapSpec>>
     tabs: Tab[]
 }) {
-    const [unpublish] = useUnpublishMapVisualizationMutation()
+    const [unpublish] = useUnpublishMapSpecMutation()
     const tabName = (tabs: Tab[], tabId: number) => tabs.find((t) => t.id === tabId)?.name
 
     return (
@@ -65,7 +65,7 @@ function MapVisualizations({
 }
 
 function DatasetOptions({ dataset }: { dataset: Dataset }) {
-    const { data: mapVisualizations } = useGetMapVisualizationsByDatasetQuery(dataset.id)
+    const { data: mapVisualizations } = useGetMapSpecsByDatasetQuery(dataset.id)
     const { data: tabs } = useGetTabsQuery(false)
     const [updateDataset, { isLoading }] = useUpdateDatasetMutation()
     const [deleteDataset, { isLoading: isDeleting }] = useDeleteDatasetMutation()

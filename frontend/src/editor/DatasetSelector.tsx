@@ -1,16 +1,16 @@
 import { Autocomplete, TextField } from '@mui/material'
 import { Dataset } from '../Dataset'
-import { useUpdateMapVisualizationMutation } from '../MapApi'
-import { MapVisualization } from '../MapVisualization'
+import { useUpdateMapSpecMutation } from '../MapApi'
+import { MapSpec } from '../MapVisualization'
 
 export default function DatasetSelector({
     mapVisualization,
     datasets,
 }: {
-    mapVisualization: MapVisualization
+    mapVisualization: MapSpec
     datasets: Dataset[]
 }) {
-    const [updateMap] = useUpdateMapVisualizationMutation()
+    const [updateMap] = useUpdateMapSpecMutation()
 
     return (
         <Autocomplete

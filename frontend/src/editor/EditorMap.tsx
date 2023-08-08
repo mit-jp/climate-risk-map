@@ -1,21 +1,19 @@
 import { Button, MenuItem, Select } from '@mui/material'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { useMemo, useRef, useState } from 'react'
+import CanvasMap from '../CanvasMap'
 import DataProcessor from '../DataProcessor'
-import EmptyMap from '../EmptyMap'
-import FullMap from '../FullMap'
 import {
     Tab,
-    useDeleteMapVisualizationMutation,
+    useDeleteMapSpecMutation,
     useGetDataQuery,
     useGetDatasetsQuery,
-    usePublishMapVisualizationMutation,
-    useUnpublishMapVisualizationMutation,
+    usePublishMapSpecMutation,
+    useUnpublishMapSpecMutation,
 } from '../MapApi'
 import { EmptyMapTitle } from '../MapTitle'
 import MapTooltip from '../MapTooltip'
-import { MapVisualization, getDataQueryParams } from '../MapVisualization'
-import { GeoMap } from '../appSlice'
+import { MapSpec, getDataQueryParams } from '../MapVisualization'
 import DatasetSelector from './DatasetSelector'
 import { isDrafts } from './Editor'
 import css from './Editor.module.css'
@@ -24,79 +22,70 @@ import EditorMapTitle from './EditorMapTitle'
 import EmptyDatasetSelector from './EmptyDatasetSelector'
 
 type Props = {
-    map: GeoMap
-    selection: MapVisualization | undefined
+    mapSpec: MapSpec | undefined
     detailedView: boolean
     isNormalized: boolean
     tab: Tab
     tabs: Tab[]
 }
 
-function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Props) {
+function EditorMap({ mapSpec, detailedView, isNormalized, tab, tabs }: Props) {
     const queryParams = useMemo(
-        () => (selection ? getDataQueryParams(selection) : undefined),
-        [selection]
+        () => (mapSpec ? getDataQueryParams(mapSpec) : undefined),
+        [mapSpec]
     )
-    const [deleteMap] = useDeleteMapVisualizationMutation()
-    const [publish] = usePublishMapVisualizationMutation()
-    const [unpublish] = useUnpublishMapVisualizationMutation()
+    const [deleteMap] = useDeleteMapSpecMutation()
+    const [publish] = usePublishMapSpecMutation()
+    const [unpublish] = useUnpublishMapSpecMutation()
     const { data: datasets } = useGetDatasetsQuery(undefined)
     const { data } = useGetDataQuery(queryParams ?? skipToken)
     const [publishTo, setPublishTo] = useState(tabs[0].id)
     const processedData = useMemo(
         () =>
-            data && selection
+            data && mapSpec
                 ? DataProcessor({
                       data,
                       params: [
                           {
-                              mapId: selection.id,
-                              invertNormalized: selection.invert_normalized,
+                              mapId: mapSpec.id,
+                              invertNormalized: mapSpec.invert_normalized,
                           },
                       ],
                       normalize: isNormalized,
                   })
                 : undefined,
-        [data, selection, isNormalized]
+        [data, mapSpec, isNormalized]
     )
     const mapRef = useRef(null)
     const isDraft = isDrafts(tab)
 
     return (
         <div id={css.map}>
-            {selection && datasets ? (
-                <DatasetSelector mapVisualization={selection} datasets={datasets} />
+            {mapSpec && datasets ? (
+                <DatasetSelector mapVisualization={mapSpec} datasets={datasets} />
             ) : (
                 <EmptyDatasetSelector />
             )}
-            {selection ? (
-                <EditorMapTitle mapVisualization={selection} key={selection.id} />
+            {mapSpec ? (
+                <EditorMapTitle mapVisualization={mapSpec} key={mapSpec.id} />
             ) : (
                 <EmptyMapTitle />
             )}
-            <svg viewBox="0, 0, 1175, 610">
-                {processedData && selection ? (
-                    <FullMap
-                        map={map}
-                        selectedMapVisualizations={[selection]}
-                        data={processedData}
-                        detailedView={detailedView}
-                        isNormalized={isNormalized}
-                        ref={mapRef}
-                    />
-                ) : (
-                    <EmptyMap map={map} />
-                )}
-            </svg>
+            <CanvasMap
+                mapSpec={mapSpec}
+                data={processedData}
+                normalize={isNormalized}
+                detailedView={detailedView}
+            />
             <MapTooltip
                 data={processedData}
                 mapRef={mapRef}
-                selectedMap={selection}
+                selectedMap={mapSpec}
                 isNormalized={isNormalized}
             />
-            {selection && (
+            {mapSpec && (
                 <>
-                    <EditorMapDescription selectedMap={selection} />
+                    <EditorMapDescription selectedMap={mapSpec} />
                     <div className={css.publishArea}>
                         {isDraft && (
                             <Select
@@ -114,7 +103,7 @@ function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Pr
                             className={css.publishButton}
                             onClick={() => {
                                 const id = {
-                                    map_visualization: selection.id,
+                                    map_visualization: mapSpec.id,
                                     category: isDraft ? publishTo : tab.id,
                                 }
                                 isDraft ? publish(id) : unpublish(id)
@@ -129,7 +118,7 @@ function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Pr
                     {isDraft && (
                         <Button
                             className={css.deleteButton}
-                            onClick={() => deleteMap(selection.id)}
+                            onClick={() => deleteMap(mapSpec.id)}
                             variant="contained"
                             color="error"
                         >

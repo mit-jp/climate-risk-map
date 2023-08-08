@@ -2,9 +2,9 @@ import { LoadingButton } from '@mui/lab'
 import { TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useUpdateDatasetMutation } from '../MapApi'
-import { MapVisualization } from '../MapVisualization'
+import { MapSpec } from '../MapVisualization'
 
-function EditorMapDescription({ selectedMap }: { selectedMap: MapVisualization }) {
+function EditorMapDescription({ selectedMap }: { selectedMap: MapSpec }) {
     const [updateDataset, { isLoading }] = useUpdateDatasetMutation()
     const [description, setDescription] = useState(selectedMap.description)
 

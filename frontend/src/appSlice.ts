@@ -6,12 +6,7 @@ import { feature } from 'topojson-client'
 import type { GeometryCollection } from 'topojson-specification'
 import { MapSelection } from './DataSelector'
 import { mapApi, Tab, TabId } from './MapApi'
-import {
-    getDefaultSelection,
-    MapType,
-    MapVisualization,
-    MapVisualizationId,
-} from './MapVisualization'
+import { getDefaultSelection, MapSpec, MapSpecId, MapType } from './MapVisualization'
 import { State } from './States'
 import { RootState } from './store'
 import { TopoJson } from './TopoJson'
@@ -53,7 +48,7 @@ interface AppState {
     readonly mapTransform?: string
     readonly overlays: Record<OverlayName, Overlay>
     readonly mapSelections: Record<Region, Record<TabId, MapSelection[]>>
-    readonly dataWeights: Record<MapVisualizationId, number>
+    readonly dataWeights: Record<MapSpecId, number>
     readonly tab: Tab | undefined
     readonly zoomTo: number | undefined
     readonly county: number | undefined
@@ -109,7 +104,7 @@ export const appSlice = createSlice({
         },
         changeWeight: (
             state,
-            action: PayloadAction<{ mapVisualizationId: MapVisualizationId; weight: number }>
+            action: PayloadAction<{ mapVisualizationId: MapSpecId; weight: number }>
         ) => {
             const { mapVisualizationId, weight } = action.payload
             state.dataWeights[mapVisualizationId] = weight
@@ -126,7 +121,7 @@ export const appSlice = createSlice({
             }
             state.mapSelections[state.region][state.tab.id][0].dataSource = action.payload
         },
-        changeMapSelection: (state, action: PayloadAction<MapVisualization>) => {
+        changeMapSelection: (state, action: PayloadAction<MapSpec>) => {
             if (state.tab === undefined) {
                 return
             }
@@ -188,19 +183,14 @@ export const appSlice = createSlice({
             const firstTab = actions.payload[0]
             state.tab = firstTab
         })
-        builder.addMatcher(
-            mapApi.endpoints.getMapVisualizations.matchFulfilled,
-            (state, actions) => {
-                Object.entries(actions.payload).forEach(([tabId, mapVisualizations]) => {
-                    const firstMap = Object.values(mapVisualizations).reduce((a, b) =>
-                        a.order < b.order ? a : b
-                    )
-                    state.mapSelections[state.region][Number(tabId)] = [
-                        getDefaultSelection(firstMap),
-                    ]
-                })
-            }
-        )
+        builder.addMatcher(mapApi.endpoints.getMapSpecs.matchFulfilled, (state, actions) => {
+            Object.entries(actions.payload).forEach(([tabId, mapVisualizations]) => {
+                const firstMap = Object.values(mapVisualizations).reduce((a, b) =>
+                    a.order < b.order ? a : b
+                )
+                state.mapSelections[state.region][Number(tabId)] = [getDefaultSelection(firstMap)]
+            })
+        })
     },
 })
 

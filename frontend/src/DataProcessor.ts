@@ -1,7 +1,7 @@
 import { scaleSequentialQuantile, sum } from 'd3'
 import { Map, Set } from 'immutable'
 import { Data2 } from './MapApi'
-import { MapVisualizationId } from './MapVisualization'
+import { MapSpecId } from './MapVisualization'
 import { GeoId } from './appSlice'
 
 export type ProcessedData = Map<string, number | undefined>
@@ -64,7 +64,7 @@ const DataProcessor = ({
     filter = () => true,
     normalize = false,
 }: {
-    data: Map<MapVisualizationId, Data2>
+    data: Map<MapSpecId, Data2>
     params: Params[]
     filter?: (geoId: GeoId) => boolean
     normalize?: boolean

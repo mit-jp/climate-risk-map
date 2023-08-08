@@ -1,17 +1,17 @@
-import * as scales from 'd3-scale-chromatic'
 import {
-    scaleSequential,
-    scaleThreshold,
-    schemeRdYlBu,
-    interpolateRdYlBu,
+    ScaleDiverging,
     ScaleSequential,
     ScaleThreshold,
-    ScaleDiverging,
+    interpolateRdYlBu,
     scaleDiverging,
     scaleDivergingSymlog,
+    scaleSequential,
     scaleSequentialSqrt,
+    scaleThreshold,
+    schemeRdYlBu,
 } from 'd3'
-import { MapVisualization } from './MapVisualization'
+import * as scales from 'd3-scale-chromatic'
+import { MapSpec } from './MapVisualization'
 
 export type ColorScheme =
     | ScaleSequential<string, never>
@@ -25,7 +25,7 @@ export const redBlue = scaleThreshold<number, string, never>(
 )
 
 const colorScheme = (
-    map: MapVisualization,
+    map: MapSpec,
     trueDomain: { min: number; median: number; max: number }
 ): ColorScheme => {
     const colorPalette = map.color_palette.name
@@ -61,7 +61,7 @@ const colorScheme = (
 const Color = (
     shouldNormalize: boolean,
     continuous: boolean,
-    map: MapVisualization,
+    map: MapSpec,
     trueDomain: { min: number; median: number; max: number }
 ): ColorScheme => {
     if (shouldNormalize) {

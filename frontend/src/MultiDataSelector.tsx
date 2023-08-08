@@ -13,12 +13,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { MapSelection } from './DataSelector'
 import css from './DataSelector.module.css'
 import { useGetSubcategoriesQuery } from './MapApi'
-import {
-    MapVisualization,
-    MapVisualizationId,
-    getDefaultDateRange,
-    getDefaultSource,
-} from './MapVisualization'
+import { MapSpec, MapSpecId, getDefaultDateRange, getDefaultSource } from './MapVisualization'
 import { changeWeight, selectSelections, setMapSelections } from './appSlice'
 import { RootState, store } from './store'
 
@@ -32,11 +27,11 @@ const marks = [
 ]
 
 const checkBox = (
-    map: MapVisualization,
-    shouldBeChecked: (mapId: MapVisualizationId) => boolean,
+    map: MapSpec,
+    shouldBeChecked: (mapId: MapSpecId) => boolean,
     onSelectionToggled: (event: ChangeEvent<HTMLInputElement>) => void,
     selections: MapSelection[],
-    dataWeights: Record<MapVisualizationId, number>,
+    dataWeights: Record<MapSpecId, number>,
     dispatch: typeof store.dispatch
 ) => {
     return (
@@ -84,7 +79,7 @@ const checkBox = (
     )
 }
 
-function MultiDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisualization> }) {
+function MultiDataSelector({ maps }: { maps: Record<MapSpecId, MapSpec> }) {
     const dispatch = useDispatch()
     const dataWeights = useSelector((state: RootState) => state.app.dataWeights)
     const selections = useSelector(selectSelections)
@@ -107,11 +102,11 @@ function MultiDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisua
         dispatch(setMapSelections(Array.from(changedSelections.values())))
     }
 
-    const shouldBeChecked = (mapId: MapVisualizationId) => {
+    const shouldBeChecked = (mapId: MapSpecId) => {
         return selectionMap.has(mapId)
     }
 
-    const getDataList = (dataFilter: (map: MapVisualization) => boolean) =>
+    const getDataList = (dataFilter: (map: MapSpec) => boolean) =>
         Object.values(maps)
             .sort((a, b) => a.order - b.order)
             .filter((map) => dataFilter(map))

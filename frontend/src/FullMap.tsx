@@ -3,10 +3,10 @@ import { ForwardedRef, forwardRef } from 'react'
 import BubbleMap from './BubbleMap'
 import ChoroplethMap from './ChoroplethMap'
 import { getUnitString } from './Formatter'
-import { MapType, MapVisualization } from './MapVisualization'
+import { MapSpec, MapType } from './MapVisualization'
 import { GeoId, GeoMap } from './appSlice'
 
-export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
+export const getLegendTitle = (selectedMaps: MapSpec[], isNormalized: boolean) => {
     const dataDefinition = selectedMaps[0]
     const unitString = getUnitString({ units: dataDefinition.units, isNormalized })
 
@@ -25,7 +25,7 @@ export enum Aggregation {
 }
 type Props = {
     map: GeoMap
-    selectedMapVisualizations: MapVisualization[]
+    selectedMapVisualizations: MapSpec[]
     data: Map<GeoId, number>
     detailedView: boolean
     isNormalized: boolean

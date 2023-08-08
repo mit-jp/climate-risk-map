@@ -2,12 +2,12 @@ import { ChangeEvent } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import css from './DataSelector.module.css'
 import DataSourceSelector from './DatasetSelector'
-import { MapVisualization, MapVisualizationId } from './MapVisualization'
+import { MapSpec, MapSpecId } from './MapVisualization'
 import YearSelector, { readable } from './YearSelector'
 import { changeDataSource, changeDateRange, changeMapSelection, selectSelections } from './appSlice'
 import { RootState } from './store'
 
-function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisualization> }) {
+function SingleDataSelector({ maps }: { maps: Record<MapSpecId, MapSpec> }) {
     const selection = useSelector((state: RootState) =>
         selectSelections(state).length > 0 ? selectSelections(state)[0] : undefined
     )
@@ -23,17 +23,17 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
         dispatch(changeMapSelection(maps[mapVisualizationId]))
     }
 
-    const shouldShowYearSelector = (map: MapVisualization) =>
+    const shouldShowYearSelector = (map: MapSpec) =>
         selection !== undefined &&
         selection.mapVisualization === map.id &&
         map.date_ranges_by_source[selection.dataSource].length > 1
 
-    const shouldShowYearLabel = (map: MapVisualization) =>
+    const shouldShowYearLabel = (map: MapSpec) =>
         selection !== undefined &&
         selection.mapVisualization === map.id &&
         map.date_ranges_by_source[selection.dataSource].length === 1
 
-    const shouldShowDatasets = (map: MapVisualization) =>
+    const shouldShowDatasets = (map: MapSpec) =>
         selection !== undefined &&
         selection.mapVisualization === map.id &&
         Object.keys(map.sources).length > 1

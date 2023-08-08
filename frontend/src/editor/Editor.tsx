@@ -1,65 +1,41 @@
 import { Button } from '@mui/material'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import { json } from 'd3'
-import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import EmptyNavigation from '../EmptyNavigation'
 import {
     Tab,
-    useCreateMapVisualizationMutation,
+    useCreateMapSpecMutation,
     useDeleteTabMutation,
-    useGetMapVisualizationQuery,
-    useGetMapVisualizationsQuery,
+    useGetMapSpecQuery,
+    useGetMapSpecsQuery,
     useGetTabsQuery,
 } from '../MapApi'
 import SelectorList, { EmptySelectorList } from '../SelectorList'
-import { TopoJson } from '../TopoJson'
-import { Region } from '../appSlice'
-import { RootState } from '../store'
 import editorCss from './Editor.module.css'
 import EditorMap from './EditorMap'
 import EditorNavigation from './EditorNavigation'
 import MapOptions, { EmptyMapOptions } from './MapOptions'
-import {
-    clickMapVisualization,
-    selectSelectedTabAndMapVisualization,
-    setMap,
-    setTab,
-} from './editorSlice'
+import { clickMapSpec, selectSelectedTabAndMapSpec, setTab } from './editorSlice'
 
 export const isDrafts = (tab: Tab | undefined) => tab?.id === -1
 
 function Editor() {
     const dispatch = useDispatch()
-    const { data: allMapVisualizations } = useGetMapVisualizationsQuery({ includeDrafts: true })
+    const { data: allMapSpecs } = useGetMapSpecsQuery({ includeDrafts: true })
     const { data: tabs } = useGetTabsQuery(true)
-    const [createMap] = useCreateMapVisualizationMutation()
+    const [createMap] = useCreateMapSpecMutation()
     const [deleteTab] = useDeleteTabMutation()
 
-    const { selectedTab: tab, selectedMapVisualizationId: maybeMapId } = useSelector(
-        selectSelectedTabAndMapVisualization
+    const { selectedTab: tab, selectedMapSpecId: maybeMapSpecId } = useSelector(
+        selectSelectedTabAndMapSpec
     )
     const maps =
-        allMapVisualizations && tab !== undefined
-            ? Object.values(allMapVisualizations[tab.id] ?? []).sort((a, b) => a.order - b.order)
+        allMapSpecs && tab !== undefined
+            ? Object.values(allMapSpecs[tab.id] ?? []).sort((a, b) => a.order - b.order)
             : undefined
-    const mapId = maps?.find((m) => m.id === maybeMapId) ? maybeMapId : undefined
-    const { data: selectedMapVisualization, isUninitialized } = useGetMapVisualizationQuery(
-        mapId ?? skipToken
-    )
-    const map = useSelector((state: RootState) => state.editor.map)
-
-    useEffect(() => {
-        const region: Region = selectedMapVisualization?.geography_type === 2 ? 'World' : 'USA'
-        const file = region === 'USA' ? '/usa.json' : '/world.json'
-        json<TopoJson>(file).then((topoJson) => {
-            if (topoJson) {
-                dispatch(setMap({ topoJson, region }))
-            }
-        })
-    }, [dispatch, selectedMapVisualization])
-
+    const mapId = maps?.find((m) => m.id === maybeMapSpecId) ? maybeMapSpecId : undefined
+    const { data: mapSpec, isUninitialized } = useGetMapSpecQuery(mapId ?? skipToken)
     const isNormalized = tab?.normalized ?? false
 
     return (
@@ -75,12 +51,12 @@ function Editor() {
                 <EmptyNavigation />
             )}
             <div id={editorCss.editor}>
-                <div id={editorCss.mapVisualizationList}>
+                <div id={editorCss.mapSpecList}>
                     {maps && maps.length > 0 ? (
                         <SelectorList
                             items={maps}
                             selectedId={mapId}
-                            onClick={(clickedMap) => dispatch(clickMapVisualization(clickedMap))}
+                            onClick={(clickedMap) => dispatch(clickMapSpec(clickedMap))}
                             id={(map) => map.id}
                             label={(map) => map.displayName}
                         />
@@ -113,18 +89,17 @@ function Editor() {
                         </Button>
                     )}
                 </div>
-                {map && tab && tabs && (
+                {tab && tabs && (
                     <EditorMap
-                        map={map}
-                        selection={isUninitialized ? undefined : selectedMapVisualization}
+                        mapSpec={isUninitialized ? undefined : mapSpec}
                         detailedView
                         isNormalized={isNormalized}
                         tab={tab}
                         tabs={tabs.filter((tab) => !isDrafts(tab))}
                     />
                 )}
-                {!isUninitialized && selectedMapVisualization && !isNormalized ? (
-                    <MapOptions mapVisualization={selectedMapVisualization} />
+                {!isUninitialized && mapSpec && !isNormalized ? (
+                    <MapOptions mapSpec={mapSpec} />
                 ) : (
                     <EmptyMapOptions />
                 )}

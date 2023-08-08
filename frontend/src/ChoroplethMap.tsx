@@ -10,7 +10,7 @@ import Color from './Color'
 import { getDomain } from './DataProcessor'
 import { getLegendFormatter } from './Formatter'
 import Legend from './Legend'
-import { MapType, MapVisualization } from './MapVisualization'
+import { MapSpec, MapType } from './MapVisualization'
 import ProbabilityDensity from './ProbabilityDensity'
 import StateMap from './StateMap'
 import { TopoJson } from './TopoJson'
@@ -18,10 +18,10 @@ import { GeoId, GeoMap, clickMap } from './appSlice'
 
 const MISSING_DATA_COLOR = '#ccc'
 
-const getLegendTicks = (selectedMaps: MapVisualization[], isNormalized: boolean) =>
+const getLegendTicks = (selectedMaps: MapSpec[], isNormalized: boolean) =>
     isNormalized ? undefined : selectedMaps[0].legend_ticks
 
-function shouldShowPdf(selectedMaps: MapVisualization[], isNormalized: boolean) {
+function shouldShowPdf(selectedMaps: MapSpec[], isNormalized: boolean) {
     const firstSelection = selectedMaps[0]
     if (selectedMaps[0] !== undefined && selectedMaps[0].show_pdf === false) {
         return false
@@ -32,7 +32,7 @@ function shouldShowPdf(selectedMaps: MapVisualization[], isNormalized: boolean) 
     return firstSelection !== undefined && firstSelection.map_type === MapType.Choropleth
 }
 
-function getPdfDomain(selectedMaps: MapVisualization[]) {
+function getPdfDomain(selectedMaps: MapSpec[]) {
     const firstSelection = selectedMaps[0]
     if (firstSelection === undefined) {
         return undefined
@@ -50,7 +50,7 @@ export const countries = (map: TopoJson) =>
 
 type Props = {
     map: GeoMap
-    selectedMapVisualizations: MapVisualization[]
+    selectedMapVisualizations: MapSpec[]
     data: Map<GeoId, number>
     detailedView: boolean
     legendTitle: string

@@ -1,9 +1,9 @@
-import { IconButton, styled, Tooltip, TooltipProps, tooltipClasses } from '@mui/material'
 import { Info } from '@mui/icons-material'
-import { MapVisualization } from './MapVisualization'
+import { IconButton, Tooltip, TooltipProps, styled, tooltipClasses } from '@mui/material'
 import css from './MapTitle.module.css'
+import { MapSpec } from './MapVisualization'
 
-const getTitle = (selectedMaps: MapVisualization[]) => {
+const getTitle = (selectedMaps: MapSpec[]) => {
     if (selectedMaps.length > 1) {
         return 'Combined data'
     }
@@ -14,7 +14,7 @@ const getTitle = (selectedMaps: MapVisualization[]) => {
 }
 
 type Props = {
-    selectedMapVisualizations: MapVisualization[]
+    selectedMapVisualizations: MapSpec[]
     isNormalized: boolean
 }
 

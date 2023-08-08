@@ -3,7 +3,7 @@ import { RefObject, useEffect, useState } from 'react'
 import counties from './Counties'
 import css from './CountyTooltip.module.css'
 import { formatData } from './Formatter'
-import { MapVisualization } from './MapVisualization'
+import { MapSpec } from './MapVisualization'
 import nations from './Nations'
 import states from './States'
 import { GeoId, stateId } from './appSlice'
@@ -12,7 +12,7 @@ type TooltipHover = { x: number; y: number; id: number }
 type Props = {
     data: Map<GeoId, number> | undefined
     mapRef: RefObject<SVGGElement>
-    selectedMap: MapVisualization | undefined
+    selectedMap: MapSpec | undefined
     isNormalized: boolean
 }
 

@@ -18,9 +18,19 @@ import css from './CanvasMap.module.css'
 import { USACounties as getCounties, countries as getCountries } from './ChoroplethMap'
 import Color from './Color'
 import { getDomain } from './DataProcessor'
-import { MapType, MapVisualization } from './MapVisualization'
+import { GeographyType, MapSpec, MapType } from './MapVisualization'
 import { TopoJson } from './TopoJson'
 import { GeoId } from './appSlice'
+import usaRaw from './usa.json'
+import worldRaw from './world.json'
+
+const USA = usaRaw as unknown as TopoJson
+const COUNTIES = getCounties(USA)
+const STATE_PATH = topojson.mesh(USA, USA.objects.states as GeometryCollection, (a, b) => a !== b)
+const NATION_PATH = topojson.feature(USA, USA.objects.nation)
+
+const WORLD = worldRaw as unknown as TopoJson
+const NATIONS = getCountries(WORLD)
 
 const MISSING_DATA_COLOR = '#ccc'
 const EMPTY_MAP_COLOR = '#eee'
@@ -152,27 +162,23 @@ export function GenericMap({
 }
 
 export function UsaMap({
-    map,
     mapSpec,
     data,
     normalize = false,
     detailedView = true,
 }: {
-    map: TopoJson
-    mapSpec: MapVisualization | undefined
+    mapSpec: MapSpec | undefined
     data: Map<GeoId, number> | undefined
     normalize?: boolean
     detailedView?: boolean
 }) {
-    const counties = getCounties(map)
-
     const draw = (
         drawPath: GeoPath<any, GeoPermissibleObjects>,
         context: CanvasRenderingContext2D
     ) => {
         // Nation
         context.beginPath()
-        drawPath(topojson.feature(map, map.objects.nation))
+        drawPath(NATION_PATH)
         context.fillStyle = EMPTY_MAP_COLOR
         context.fill()
 
@@ -181,7 +187,7 @@ export function UsaMap({
             switch (mapSpec.map_type) {
                 case MapType.Choropleth: {
                     const colorScale = Color(normalize, detailedView, mapSpec, getDomain(data))
-                    counties.forEach((county) => {
+                    COUNTIES.forEach((county) => {
                         const value = data.get(Number(county.id))
                         context.beginPath()
                         drawPath(county)
@@ -194,7 +200,7 @@ export function UsaMap({
                     const { max } = getDomain(data)
                     const valueToRadius = scaleSqrt([0, max], [0, 40])
                     const regionToRadius = makeRegionToRadius(valueToRadius, data)
-                    counties.forEach((county) => {
+                    COUNTIES.forEach((county) => {
                         context.beginPath()
                         context.arc(
                             drawPath.centroid(county)[0],
@@ -219,38 +225,35 @@ export function UsaMap({
 
         // States
         context.beginPath()
-        drawPath(topojson.mesh(map, map.objects.states as GeometryCollection, (a, b) => a !== b))
+        drawPath(STATE_PATH)
         context.lineWidth = 1
         context.strokeStyle = '#fff'
         context.stroke()
     }
 
-    return <GenericMap features={counties} data={data} draw={draw} />
+    return <GenericMap features={COUNTIES} data={data} draw={draw} />
 }
 
 type WorldMapProps = {
-    world: TopoJson
-    mapSpec: MapVisualization | undefined
+    mapSpec: MapSpec | undefined
     data: Map<GeoId, number> | undefined
     normalize?: boolean
     detailedView?: boolean
 }
 
 export function WorldMap({
-    world,
     mapSpec,
     data,
     normalize = false,
     detailedView = false,
 }: WorldMapProps) {
-    const countries = getCountries(world)
     const draw = (
         drawPath: GeoPath<any, GeoPermissibleObjects>,
         context: CanvasRenderingContext2D
     ) => {
         if (mapSpec && data) {
             const colorScale = Color(normalize, detailedView, mapSpec, getDomain(data))
-            countries.forEach((country) => {
+            NATIONS.forEach((country) => {
                 const value = data.get(Number(country.id))
                 context.beginPath()
                 drawPath(country)
@@ -258,7 +261,7 @@ export function WorldMap({
                 context.fill()
             })
         } else {
-            countries.forEach((country) => {
+            NATIONS.forEach((country) => {
                 context.beginPath()
                 drawPath(country)
                 context.fillStyle = MISSING_DATA_COLOR
@@ -266,5 +269,40 @@ export function WorldMap({
             })
         }
     }
-    return <GenericMap draw={draw} features={countries} data={data} />
+    return <GenericMap draw={draw} features={NATIONS} data={data} />
+}
+
+type Props = {
+    mapSpec: MapSpec | undefined
+    data: Map<GeoId, number> | undefined
+    normalize?: boolean
+    detailedView?: boolean
+}
+
+export default function CanvasMap({ mapSpec, data, normalize, detailedView }: Props) {
+    if (!mapSpec) {
+        return null
+    }
+    switch (mapSpec.geography_type) {
+        case GeographyType.World:
+            return (
+                <WorldMap
+                    mapSpec={mapSpec}
+                    data={data}
+                    detailedView={detailedView}
+                    normalize={normalize}
+                />
+            )
+        case GeographyType.USA:
+            return (
+                <UsaMap
+                    mapSpec={mapSpec}
+                    data={data}
+                    detailedView={detailedView}
+                    normalize={normalize}
+                />
+            )
+        default:
+            return <p>map type {mapSpec.geography_type} is unsupported</p>
+    }
 }

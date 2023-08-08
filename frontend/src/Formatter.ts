@@ -1,5 +1,5 @@
 import { format } from 'd3'
-import { FormatterType, MapVisualization } from './MapVisualization'
+import { FormatterType, MapSpec } from './MapVisualization'
 
 type FormatterParams = {
     type: FormatterType
@@ -64,10 +64,7 @@ export const formatData = (value: number | undefined, params: FormatterParams) =
     return formatter(value) + getUnitString(params)
 }
 
-export const getLegendFormatter = (
-    selectedMaps: MapVisualization[],
-    isNormalized: boolean
-): Formatter => {
+export const getLegendFormatter = (selectedMaps: MapSpec[], isNormalized: boolean): Formatter => {
     const firstMap = selectedMaps[0]
     const type = firstMap.legend_formatter_type ?? firstMap.formatter_type
     const decimals = firstMap.legend_decimals ?? firstMap.decimals

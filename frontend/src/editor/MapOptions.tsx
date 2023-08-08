@@ -13,17 +13,17 @@ import { useState } from 'react'
 import {
     useGetColorPalettesQuery,
     useGetScaleTypesQuery,
-    useUpdateMapVisualizationMutation,
+    useUpdateMapSpecMutation,
 } from '../MapApi'
-import { FormatterType, MapType, MapVisualization } from '../MapVisualization'
+import { FormatterType, MapSpec, MapType } from '../MapVisualization'
 import css from './Editor.module.css'
 
 const INPUT_MARGIN = { margin: '0.5em 0' }
 
-function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }) {
+function MapOptions({ mapSpec: mapVisualization }: { mapSpec: MapSpec }) {
     const { data: colorPalettes } = useGetColorPalettesQuery(undefined)
     const { data: scales } = useGetScaleTypesQuery(undefined)
-    const [updateMap] = useUpdateMapVisualizationMutation()
+    const [updateMap] = useUpdateMapSpecMutation()
     const [customLegendFormat, setCustomLegendFormat] = useState<boolean>(false)
 
     return (
