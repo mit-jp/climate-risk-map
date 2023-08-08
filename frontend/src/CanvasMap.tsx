@@ -36,7 +36,6 @@ function makeOpaque(colorString: string, opacity: number) {
     const color = d3Color(colorString)?.rgb()
     return color ? `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})` : null
 }
-const dpi = window.devicePixelRatio || 1
 
 export function GenericMap({
     draw,
@@ -48,8 +47,8 @@ export function GenericMap({
     draw: (drawPath: GeoPath<any, GeoPermissibleObjects>, context: CanvasRenderingContext2D) => void
     width?: number
     height?: number
-    features?: Feature<Geometry, GeoJsonProperties>[]
-    data?: Map<GeoId, number>
+    features: Feature<Geometry, GeoJsonProperties>[]
+    data: Map<GeoId, number> | undefined
 }) {
     const mapCanvasRef = useRef<HTMLCanvasElement>(null)
     const highlightCanvasRef = useRef<HTMLCanvasElement>(null)
@@ -177,8 +176,8 @@ export function UsaMap({
         context.fillStyle = EMPTY_MAP_COLOR
         context.fill()
 
+        //  Counties
         if (mapSpec && data) {
-            //  Counties
             switch (mapSpec.map_type) {
                 case MapType.Choropleth: {
                     const colorScale = Color(normalize, detailedView, mapSpec, getDomain(data))
@@ -233,8 +232,6 @@ type WorldMapProps = {
     world: TopoJson
     mapSpec: MapVisualization | undefined
     data: Map<GeoId, number> | undefined
-    width: number
-    height: number
     normalize?: boolean
     detailedView?: boolean
 }
@@ -243,56 +240,31 @@ export function WorldMap({
     world,
     mapSpec,
     data,
-    width,
-    height,
     normalize = false,
     detailedView = false,
 }: WorldMapProps) {
-    const canvasRef = useRef<HTMLCanvasElement>(null)
-    useEffect(() => {
-        const canvas = select(canvasRef.current)
-        const context = canvas.node()?.getContext('2d')
-        if (context == null) {
-            return
-        }
-        context.setTransform(dpi, 0, 0, dpi, 0, 0)
-        context.clearRect(0, 0, width, height)
-        const path = geoPath().context(context)
-        context.canvas.style.maxWidth = '100%'
-        context.lineJoin = 'round'
-        context.lineCap = 'round'
-
-        const drawWorldMap = (
-            world: TopoJson,
-            mapSpec: MapVisualization,
-            data: Map<GeoId, number>
-        ) => {
-            const countries = getCountries(world)
+    const countries = getCountries(world)
+    const draw = (
+        drawPath: GeoPath<any, GeoPermissibleObjects>,
+        context: CanvasRenderingContext2D
+    ) => {
+        if (mapSpec && data) {
             const colorScale = Color(normalize, detailedView, mapSpec, getDomain(data))
             countries.forEach((country) => {
                 const value = data.get(Number(country.id))
                 context.beginPath()
-                path(country)
+                drawPath(country)
                 context.fillStyle = value != null ? colorScale(value) : MISSING_DATA_COLOR
                 context.fill()
             })
-        }
-
-        const drawEmptyWorldMap = (world: TopoJson) => {
-            const countries = getCountries(world)
+        } else {
             countries.forEach((country) => {
                 context.beginPath()
-                path(country)
+                drawPath(country)
                 context.fillStyle = MISSING_DATA_COLOR
                 context.fill()
             })
         }
-
-        if (mapSpec && data) {
-            drawWorldMap(world, mapSpec, data)
-        } else {
-            drawEmptyWorldMap(world)
-        }
-    }, [data, mapSpec, world, width, height, normalize, detailedView])
-    return <canvas ref={canvasRef} width={width * dpi} height={height * dpi} />
+    }
+    return <GenericMap draw={draw} features={countries} data={data} />
 }
