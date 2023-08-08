@@ -172,7 +172,7 @@ export function UsaMap({
             context.lineCap = 'round'
             context.beginPath()
             path(county)
-            context.fillStyle = '#000'
+            context.fillStyle = 'rgba(225,225,225,0.5)'
             context.fill()
         }
     }
