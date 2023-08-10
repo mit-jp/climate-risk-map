@@ -11,7 +11,8 @@ import {
 import Flatbush from 'flatbush'
 import type { Feature, GeoJsonProperties, Geometry } from 'geojson'
 import { Map } from 'immutable'
-import React, { useEffect, useRef, useState } from 'react'
+import { MouseEvent, useEffect, useRef, useState } from 'react'
+import { useDispatch } from 'react-redux'
 import * as topojson from 'topojson-client'
 import { feature } from 'topojson-client'
 import type { GeometryCollection } from 'topojson-specification'
@@ -20,7 +21,7 @@ import Color from './Color'
 import { getDomain } from './DataProcessor'
 import { GeographyType, MapSpec, MapType } from './MapVisualization'
 import { TopoJson } from './TopoJson'
-import { GeoId } from './appSlice'
+import { GeoId, clickMap } from './appSlice'
 import usaRaw from './usa.json'
 import worldRaw from './world.json'
 
@@ -59,28 +60,51 @@ export function GenericMap({
     height = 610,
     features,
     data,
+    transform,
 }: {
     draw: (drawPath: GeoPath<any, GeoPermissibleObjects>, context: CanvasRenderingContext2D) => void
     width?: number
     height?: number
     features: Feature<Geometry, GeoJsonProperties>[]
     data: Map<GeoId, number> | undefined
+    transform?: { scale: number; translate: [number, number] }
 }) {
     const mapCanvasRef = useRef<HTMLCanvasElement>(null)
     const highlightCanvasRef = useRef<HTMLCanvasElement>(null)
     const [value, setValue] = useState<number | undefined>()
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+        const context = highlightCanvasRef.current?.getContext('2d')
+        if (!context) return
+        context.clearRect(0, 0, width, height)
+        if (transform) {
+            context.translate(transform.translate[0], transform.translate[1])
+            context.scale(transform.scale, transform.scale)
+        } else {
+            context.resetTransform()
+        }
+    }, [transform, width, height])
 
     useEffect(() => {
         const context = select(mapCanvasRef.current).node()?.getContext('2d')
         if (context == null) return
 
         context.clearRect(0, 0, width, height)
+
+        if (transform) {
+            context.translate(transform.translate[0], transform.translate[1])
+            context.scale(transform.scale, transform.scale)
+        } else {
+            context.resetTransform()
+        }
+
         const drawPath = geoPath().context(context)
         context.lineJoin = 'round'
         context.lineCap = 'round'
 
         draw(drawPath, context)
-    }, [draw, height, width])
+    }, [draw, height, width, transform])
 
     // Create a spatial index for the features
     const indexRef = useRef<Flatbush | null>(null)
@@ -100,24 +124,33 @@ export function GenericMap({
         }
     }, [features])
 
-    const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-        if (!features) return
+    const hoverInfo = (event: MouseEvent<HTMLCanvasElement>) => {
+        if (!features) return null
         const canvas = highlightCanvasRef.current
         const context = canvas?.getContext('2d')
-        if (!canvas || !context) return
+        if (!canvas || !context) return null
 
         // Get the scaling factor
         const rect = canvas.getBoundingClientRect()
-        const scaleX = canvas.width / rect.width
-        const scaleY = canvas.height / rect.height
+        let scaleX = canvas.width / rect.width
+        let scaleY = canvas.height / rect.height
+        let translateX = -rect.left
+        let translateY = -rect.top
+
+        if (transform) {
+            scaleX /= transform.scale
+            scaleY /= transform.scale
+            translateX -= transform.translate[0]
+            translateY -= transform.translate[1]
+        }
 
         // Translate mouse coordinates to canvas coordinates
-        const x = (event.clientX - rect.left) * scaleX
-        const y = (event.clientY - rect.top) * scaleY
+        const x = (event.clientX + translateX) * scaleX
+        const y = (event.clientY + translateY) * scaleY
 
         const results = indexRef.current?.search(x, y, x, y)
         if (!results || results.length === 0) {
-            return
+            return null
         }
         let found = results[0]
         let feature = features[found]
@@ -130,6 +163,16 @@ export function GenericMap({
                 found = idx
             }
         })
+        feature = features[found]
+
+        return { feature, context }
+    }
+
+    const handleMouseMove = (event: MouseEvent<HTMLCanvasElement>) => {
+        const info = hoverInfo(event)
+        if (!info) return
+
+        const { feature, context } = info
         setValue(data?.get(Number(feature.id)))
 
         // Draw the highlight over the currently hovered feature
@@ -143,6 +186,11 @@ export function GenericMap({
         context.fill()
     }
 
+    const handleClick = (event: MouseEvent<HTMLCanvasElement>) => {
+        const info = hoverInfo(event)
+        if (info) dispatch(clickMap(Number(info.feature.id)))
+    }
+
     return (
         <>
             <p>Value: {value}</p>
@@ -153,6 +201,7 @@ export function GenericMap({
                     width={width}
                     height={height}
                     onMouseMove={handleMouseMove}
+                    onClick={handleClick}
                 />
                 {features && (
                     <canvas
@@ -172,11 +221,13 @@ export function UsaMap({
     data,
     normalize = false,
     detailedView = true,
+    transform,
 }: {
     mapSpec: MapSpec | undefined
     data: Map<GeoId, number> | undefined
     normalize?: boolean
     detailedView?: boolean
+    transform?: { scale: number; translate: [number, number] }
 }) {
     const draw = (
         drawPath: GeoPath<any, GeoPermissibleObjects>,
@@ -237,7 +288,7 @@ export function UsaMap({
         context.stroke()
     }
 
-    return <GenericMap features={COUNTIES} data={data} draw={draw} />
+    return <GenericMap features={COUNTIES} data={data} draw={draw} transform={transform} />
 }
 
 type WorldMapProps = {
@@ -245,6 +296,7 @@ type WorldMapProps = {
     data: Map<GeoId, number> | undefined
     normalize?: boolean
     detailedView?: boolean
+    transform?: { scale: number; translate: [number, number] }
 }
 
 export function WorldMap({
@@ -252,6 +304,7 @@ export function WorldMap({
     data,
     normalize = false,
     detailedView = false,
+    transform,
 }: WorldMapProps) {
     const draw = (
         drawPath: GeoPath<any, GeoPermissibleObjects>,
@@ -275,7 +328,7 @@ export function WorldMap({
             })
         }
     }
-    return <GenericMap draw={draw} features={NATIONS} data={data} />
+    return <GenericMap draw={draw} features={NATIONS} data={data} transform={transform} />
 }
 
 type Props = {

@@ -78,6 +78,7 @@ function MapWrapper({
                         mapSpec={mapSpecs[0]}
                         normalize={isNormalized}
                         detailedView={detailedView}
+                        transform={transform}
                     />
                 )}
                 {region === 'World' && (
@@ -86,6 +87,7 @@ function MapWrapper({
                         mapSpec={mapSpecs[0]}
                         normalize={isNormalized}
                         detailedView={detailedView}
+                        transform={transform}
                     />
                 )}
 
