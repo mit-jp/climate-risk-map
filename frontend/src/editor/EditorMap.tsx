@@ -1,6 +1,6 @@
 import { Button, MenuItem, Select } from '@mui/material'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import CanvasMap from '../CanvasMap'
 import DataProcessor from '../DataProcessor'
 import {
@@ -12,7 +12,6 @@ import {
     useUnpublishMapSpecMutation,
 } from '../MapApi'
 import { EmptyMapTitle } from '../MapTitle'
-import MapTooltip from '../MapTooltip'
 import { MapSpec, getDataQueryParams } from '../MapVisualization'
 import DatasetSelector from './DatasetSelector'
 import { isDrafts } from './Editor'
@@ -56,7 +55,6 @@ function EditorMap({ mapSpec, detailedView, isNormalized, tab, tabs }: Props) {
                 : undefined,
         [data, mapSpec, isNormalized]
     )
-    const mapRef = useRef(null)
     const isDraft = isDrafts(tab)
 
     return (
@@ -77,12 +75,7 @@ function EditorMap({ mapSpec, detailedView, isNormalized, tab, tabs }: Props) {
                 normalize={isNormalized}
                 detailedView={detailedView}
             />
-            <MapTooltip
-                data={processedData}
-                mapRef={mapRef}
-                selectedMap={mapSpec}
-                isNormalized={isNormalized}
-            />
+
             {mapSpec && (
                 <>
                     <EditorMapDescription selectedMap={mapSpec} />

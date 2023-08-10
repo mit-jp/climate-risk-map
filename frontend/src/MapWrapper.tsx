@@ -1,5 +1,5 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { UsaMap, WorldMap } from './CanvasMap'
 import DataDescription from './DataDescription'
@@ -8,7 +8,6 @@ import DataSourceDescription from './DataSourceDescription'
 import { DataQueryParams, useGetDataQuery } from './MapApi'
 import MapControls from './MapControls'
 import MapTitle, { EmptyMapTitle } from './MapTitle'
-import MapTooltip from './MapTooltip'
 import { MapSpec, MapSpecId } from './MapVisualization'
 import css from './MapWrapper.module.css'
 import { selectMapTransform, selectSelections, stateId } from './appSlice'
@@ -44,7 +43,6 @@ function MapWrapper({
               }))
             : undefined
     const { data } = useGetDataQuery(queryParams ?? skipToken)
-    const mapRef = useRef<SVGGElement>(null)
     const processedData = useMemo(
         () =>
             data
@@ -65,48 +63,40 @@ function MapWrapper({
         mapSpecs[0] && selections[0] ? mapSpecs[0].sources[selections[0].dataSource] : undefined
 
     return (
-        <>
-            <div className={css.map}>
-                {mapSpecs.length > 0 ? (
-                    <MapTitle selectedMapVisualizations={mapSpecs} isNormalized={isNormalized} />
-                ) : (
-                    <EmptyMapTitle />
-                )}
-                {region === 'USA' && (
-                    <UsaMap
-                        data={processedData}
-                        mapSpec={mapSpecs[0]}
-                        normalize={isNormalized}
-                        detailedView={detailedView}
-                        transform={transform}
-                    />
-                )}
-                {region === 'World' && (
-                    <WorldMap
-                        data={processedData}
-                        mapSpec={mapSpecs[0]}
-                        normalize={isNormalized}
-                        detailedView={detailedView}
-                        transform={transform}
-                    />
-                )}
+        <div className={css.map}>
+            {mapSpecs.length > 0 ? (
+                <MapTitle selectedMapVisualizations={mapSpecs} isNormalized={isNormalized} />
+            ) : (
+                <EmptyMapTitle />
+            )}
+            {region === 'USA' && (
+                <UsaMap
+                    data={processedData}
+                    mapSpec={mapSpecs[0]}
+                    normalize={isNormalized}
+                    detailedView={detailedView}
+                    transform={transform}
+                />
+            )}
+            {region === 'World' && (
+                <WorldMap
+                    data={processedData}
+                    mapSpec={mapSpecs[0]}
+                    normalize={isNormalized}
+                    detailedView={detailedView}
+                    transform={transform}
+                />
+            )}
 
-                <MapControls data={processedData} isNormalized={isNormalized} maps={mapSpecs} />
-                {mapSpecs[0] && (
-                    <DataDescription
-                        name={mapSpecs[0].displayName}
-                        description={mapSpecs[0].description}
-                    />
-                )}
-                {dataSource && <DataSourceDescription dataSource={dataSource} />}
-            </div>
-            <MapTooltip
-                data={processedData}
-                mapRef={mapRef}
-                selectedMap={mapSpecs[0]}
-                isNormalized={isNormalized}
-            />
-        </>
+            <MapControls data={processedData} isNormalized={isNormalized} maps={mapSpecs} />
+            {mapSpecs[0] && (
+                <DataDescription
+                    name={mapSpecs[0].displayName}
+                    description={mapSpecs[0].description}
+                />
+            )}
+            {dataSource && <DataSourceDescription dataSource={dataSource} />}
+        </div>
     )
 }
 

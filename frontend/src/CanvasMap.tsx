@@ -18,10 +18,15 @@ import { feature } from 'topojson-client'
 import type { GeometryCollection } from 'topojson-specification'
 import css from './CanvasMap.module.css'
 import Color from './Color'
+import counties from './Counties'
+import tooltipCss from './CountyTooltip.module.css'
 import { getDomain } from './DataProcessor'
+import { formatData } from './Formatter'
 import { GeographyType, MapSpec, MapType } from './MapVisualization'
+import nations from './Nations'
+import states from './States'
 import { TopoJson } from './TopoJson'
-import { GeoId, clickMap } from './appSlice'
+import { GeoId, clickMap, stateId } from './appSlice'
 import usaRaw from './usa.json'
 import worldRaw from './world.json'
 
@@ -54,8 +59,50 @@ function makeOpaque(colorString: string, opacity: number) {
     return color ? `rgba(${color.r}, ${color.g}, ${color.b}, ${opacity})` : null
 }
 
+function geoName(id: number, geoType: GeographyType): string | undefined {
+    switch (geoType) {
+        case GeographyType.UsaCounty: {
+            const county = counties.get(id)
+            const state = states.get(stateId(id))
+            return county && state ? `${county}, ${state}` : undefined
+        }
+        case GeographyType.World:
+            return nations.get(id) ?? undefined
+        case GeographyType.UsaState:
+            return states.get(id) ?? undefined
+        default:
+            throw new Error(`Unknown geography type ${geoType}`)
+    }
+}
+
+function format({
+    id,
+    value,
+    mapSpec,
+    geoType,
+    normalize,
+}: {
+    id: number
+    value: number | undefined
+    mapSpec: MapSpec
+    geoType: GeographyType
+    normalize: boolean
+}): string {
+    let text = ''
+    if (!mapSpec) return text
+    const name = geoName(id, geoType) ?? '---'
+    text = `${name}: ${formatData(value, {
+        type: mapSpec.formatter_type,
+        decimals: mapSpec.decimals,
+        units: mapSpec.units,
+        isNormalized: normalize,
+    })}`
+    return text
+}
+
 export function GenericMap({
     draw,
+    format = ({ value }) => value?.toLocaleString() || 'No data',
     width = 975,
     height = 610,
     features,
@@ -63,6 +110,7 @@ export function GenericMap({
     transform,
 }: {
     draw: (drawPath: GeoPath<any, GeoPermissibleObjects>, context: CanvasRenderingContext2D) => void
+    format?: ({ id, value }: { id: number; value: number | undefined }) => string
     width?: number
     height?: number
     features: Feature<Geometry, GeoJsonProperties>[]
@@ -72,6 +120,8 @@ export function GenericMap({
     const mapCanvasRef = useRef<HTMLCanvasElement>(null)
     const highlightCanvasRef = useRef<HTMLCanvasElement>(null)
     const [value, setValue] = useState<number | undefined>()
+    const [id, setId] = useState<number | undefined>()
+    const [hover, setHover] = useState<{ x: number; y: number } | undefined>()
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -150,7 +200,7 @@ export function GenericMap({
 
         const results = indexRef.current?.search(x, y, x, y)
         if (!results || results.length === 0) {
-            return null
+            return { feature: null, context }
         }
         let found = results[0]
         let feature = features[found]
@@ -173,10 +223,21 @@ export function GenericMap({
         if (!info) return
 
         const { feature, context } = info
-        setValue(data?.get(Number(feature.id)))
+        context.clearRect(0, 0, width, height)
+
+        if (feature == null) {
+            setValue(undefined)
+            setId(undefined)
+            setHover(undefined)
+            return
+        }
+
+        const value = data?.get(Number(feature.id))
+        setValue(value)
+        setId(Number(feature.id))
+        setHover({ x: event.clientX + 10, y: event.clientY - 25 })
 
         // Draw the highlight over the currently hovered feature
-        context.clearRect(0, 0, width, height)
         const drawPath = geoPath().context(context)
         context.lineJoin = 'round'
         context.lineCap = 'round'
@@ -189,14 +250,8 @@ export function GenericMap({
         context.stroke()
     }
 
-    const handleClick = (event: MouseEvent<HTMLCanvasElement>) => {
-        const info = hoverInfo(event)
-        if (info) dispatch(clickMap(Number(info.feature.id)))
-    }
-
     return (
         <>
-            <p>Value: {value}</p>
             <div className={css.container}>
                 <canvas
                     className={css.map}
@@ -204,7 +259,9 @@ export function GenericMap({
                     width={width}
                     height={height}
                     onMouseMove={handleMouseMove}
-                    onClick={handleClick}
+                    onClick={() => {
+                        if (id != null) dispatch(clickMap(id))
+                    }}
                 />
                 {features && (
                     <canvas
@@ -215,6 +272,11 @@ export function GenericMap({
                     />
                 )}
             </div>
+            {id !== undefined && (
+                <div id={tooltipCss.tooltip} style={{ left: hover?.x, top: hover?.y }}>
+                    {format({ id, value })}
+                </div>
+            )}
         </>
     )
 }
@@ -291,7 +353,26 @@ export function UsaMap({
         context.stroke()
     }
 
-    return <GenericMap features={COUNTIES} data={data} draw={draw} transform={transform} />
+    const handleFormat = mapSpec
+        ? ({ id, value }: { id: number; value: number | undefined }) =>
+              format({
+                  id,
+                  value,
+                  mapSpec,
+                  geoType: GeographyType.UsaCounty,
+                  normalize,
+              })
+        : undefined
+
+    return (
+        <GenericMap
+            features={COUNTIES}
+            data={data}
+            draw={draw}
+            transform={transform}
+            format={handleFormat}
+        />
+    )
 }
 
 type WorldMapProps = {
@@ -331,7 +412,25 @@ export function WorldMap({
             })
         }
     }
-    return <GenericMap draw={draw} features={NATIONS} data={data} transform={transform} />
+    const handleFormat = mapSpec
+        ? ({ id, value }: { id: number; value: number | undefined }) =>
+              format({
+                  id,
+                  value,
+                  mapSpec,
+                  geoType: GeographyType.World,
+                  normalize,
+              })
+        : undefined
+    return (
+        <GenericMap
+            draw={draw}
+            features={NATIONS}
+            data={data}
+            transform={transform}
+            format={handleFormat}
+        />
+    )
 }
 
 type Props = {
@@ -355,7 +454,7 @@ export default function CanvasMap({ mapSpec, data, normalize, detailedView }: Pr
                     normalize={normalize}
                 />
             )
-        case GeographyType.USA:
+        case GeographyType.UsaCounty:
             return (
                 <UsaMap
                     mapSpec={mapSpec}
