@@ -180,10 +180,13 @@ export function GenericMap({
         const drawPath = geoPath().context(context)
         context.lineJoin = 'round'
         context.lineCap = 'round'
+        context.lineWidth = 0.5
+        context.fillStyle = 'rgba(225,225,225,0.5)'
+        context.strokeStyle = 'rgba(0,0,0,0.5)'
         context.beginPath()
         drawPath(feature)
-        context.fillStyle = 'rgba(225,225,225,0.5)'
         context.fill()
+        context.stroke()
     }
 
     const handleClick = (event: MouseEvent<HTMLCanvasElement>) => {
