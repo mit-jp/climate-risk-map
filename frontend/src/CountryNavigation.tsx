@@ -1,4 +1,4 @@
-import { ToggleButton, ToggleButtonGroup } from '@mui/material'
+import { Select, MenuItem, SelectChangeEvent, InputLabel, FormControl } from '@mui/material'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
@@ -25,23 +25,41 @@ export default function RegionNavigation() {
 
     return (
         <nav className={css.regionNav}>
-            <ToggleButtonGroup
-                value={region}
-                exclusive
-                onChange={(_, region: Region) => {
-                    if (region != null) {
-                        onChange(region)
-                    }
-                }}
-                aria-label="geography type"
-            >
-                <ToggleButton value="World" aria-label="world">
-                    World
-                </ToggleButton>
-                <ToggleButton value="USA" aria-label="usa">
-                    USA
-                </ToggleButton>
-            </ToggleButtonGroup>
+            <FormControl>
+                <InputLabel
+                    id="region-label"
+                    disableAnimation
+                    style={{ color: '#000', fontWeight: 'bold' }}
+                >
+                    Region
+                </InputLabel>
+                <Select
+                    label="Region"
+                    value={region}
+                    onChange={(event: SelectChangeEvent) => {
+                        if (region != null) {
+                            onChange(event.target.value as Region)
+                        }
+                    }}
+                    MenuProps={{
+                        disableScrollLock: true,
+                    }}
+                    aria-label="geography type"
+                    sx={{
+                        color: 'black',
+                        fontWeight: 'bold',
+                    }}
+                    style={{ backgroundColor: '#d9dee4' }}
+                    autoWidth
+                >
+                    <MenuItem value="World" aria-label="world">
+                        World
+                    </MenuItem>
+                    <MenuItem value="USA" aria-label="usa">
+                        USA
+                    </MenuItem>
+                </Select>
+            </FormControl>
         </nav>
     )
 }

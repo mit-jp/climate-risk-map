@@ -1,19 +1,29 @@
 import { Autocomplete, TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { redBlue } from '../Color'
+import { redBlueReportCard } from '../Color'
 import { formatData } from '../Formatter'
 import {
     County,
     PercentileRow,
     useGetCountiesQuery,
     useGetPercentilesQuery,
+    useGetStatePercentilesQuery,
     useGetStatesQuery,
     useGetTabsQuery,
 } from '../MapApi'
 import { stateId } from '../appSlice'
 import css from './ReportCard.module.css'
 
+let showStatePercentiles = false
+let StatePercentileData: PercentileRow[]
+
+// gets the PercentileRow with the given name in StatePercentileData
+function GetStatePercentileData(name: String) {
+    return StatePercentileData.find((row) => row.name === name)
+}
+
+// generates the numerical percent value visual and percentile bar visual for the given value
 function Percentile({ value }: { value: number }) {
     return (
         <>
@@ -26,28 +36,42 @@ function Percentile({ value }: { value: number }) {
             <td className={css.percentileBarColumn}>
                 <div
                     className={css.percentileBar}
-                    style={{ width: `${value * 100}%`, background: redBlue(value) }}
+                    style={{ width: `${value * 100}%`, background: redBlueReportCard(value) }}
                 />
             </td>
         </>
     )
 }
 
+// generates an empty space for null data
 function EmptyPercentile() {
     return <td colSpan={2} />
 }
 
+// generates a row of data in the table including the metric name, percentile visual, and raw value
 function SingleMetric({ data }: { data: PercentileRow }) {
     return (
         <tr className={css.countyMetric}>
-            <td>{data.name}</td>
+            <td className={css.metricColumn} width="25%">
+                {data.name}
+            </td>
             {data.percentRank == null ? (
                 <EmptyPercentile />
             ) : (
                 <Percentile value={data.percentRank} />
             )}
 
-            <td>
+            {showStatePercentiles &&
+                StatePercentileData &&
+                GetStatePercentileData(data.name) === undefined && <EmptyPercentile />}
+
+            {showStatePercentiles &&
+                StatePercentileData &&
+                GetStatePercentileData(data.name) !== undefined && (
+                    <Percentile value={GetStatePercentileData(data.name)!.percentRank} />
+                )}
+
+            <td className={css.rawValColumn}>
                 {formatData(data.value, {
                     type: data.formatter_type,
                     decimals: data.decimals,
@@ -59,6 +83,7 @@ function SingleMetric({ data }: { data: PercentileRow }) {
     )
 }
 
+// generates the table which contains the Report Card for the given county and data category
 function PercentileReport({
     category,
     geoId,
@@ -73,12 +98,25 @@ function PercentileReport({
         category,
         geographyType,
     })
+    const { data: countySummaryByState } = useGetStatePercentilesQuery({
+        geoId,
+        category,
+        geographyType,
+    })
+
+    // if enabled, display the state-level percentile data
+    if (showStatePercentiles && countySummaryByState) {
+        StatePercentileData = Object.entries(countySummaryByState)
+            .flat(1)
+            .filter((e) => !(typeof e === 'string')) as PercentileRow[]
+    }
     return (
         <table className={css.countyMetrics}>
             <thead>
                 <tr>
                     <td>Metric</td>
                     <td colSpan={2}>National Percentile</td>
+                    {showStatePercentiles && <td colSpan={2}>State Percentile</td>}
                     <td>Value</td>
                 </tr>
             </thead>
@@ -101,6 +139,11 @@ function PercentileReport({
 const fipsCode = (county: County) => String(county.id).padStart(5, '0')
 
 export default function ReportCard() {
+    const [checked, setChecked] = useState(false)
+    const handleChange = () => {
+        setChecked(!checked)
+        showStatePercentiles = !showStatePercentiles
+    }
     const params = useParams()
     const { data: counties } = useGetCountiesQuery(undefined)
     const { data: states } = useGetStatesQuery(undefined)
@@ -139,6 +182,12 @@ export default function ReportCard() {
                 }}
                 value={selectedRegion}
             />
+            <div>
+                <label>
+                    <input type="checkbox" checked={checked} onChange={handleChange} />
+                    Display state-level percentile data
+                </label>
+            </div>
             {selectedRegion && states && categoryId !== undefined && (
                 <PercentileReport
                     geoId={selectedRegion.id}

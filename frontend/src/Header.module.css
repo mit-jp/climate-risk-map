@@ -5,9 +5,17 @@
 }
 
 .header h1 {
-    font-weight: 500;
+    font-size: 40pt;
+    font-weight: 1000;
     color: #11598d;
-    font-family: 'Merriweather', serif;
+    font-family: 'Tahoma', sans-serif;
+    margin-top: .25em;
+}
+
+.header p {
+    font-size: larger;
+    margin-top: -1.75em;
+    margin-bottom: 2em;
 }
 
 .title {
@@ -36,10 +44,12 @@
     }
     .header h1 {
         margin: 0;
+        font-size: 30pt;
     }
 
     .header p {
         margin: 0;
+        font-size: medium;
     }
 
     .title-and-subtitle {

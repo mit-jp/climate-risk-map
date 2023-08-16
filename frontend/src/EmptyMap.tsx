@@ -2,6 +2,7 @@ import { geoPath } from 'd3'
 import type { GeoJsonProperties } from 'geojson'
 import { feature } from 'topojson-client'
 import type { GeometryCollection } from 'topojson-specification'
+import { ZOOM_TRANSITION } from './MapWrapper'
 import { GeoMap } from './appSlice'
 
 const path = geoPath()
@@ -15,7 +16,7 @@ function EmptyMap({ map, transform }: { map: GeoMap; transform?: string }) {
     ).features
 
     return (
-        <g transform={transform}>
+        <g transform={transform} style={ZOOM_TRANSITION}>
             {borders.map((region) => (
                 <path
                     // some countries like N. Cyprus and Kosovo don't have an id, so use the name instead

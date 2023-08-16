@@ -9,6 +9,7 @@ use serde::Deserialize;
 pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(get_by_dataset);
     cfg.service(get_percentiles);
+    cfg.service(get_state_percentiles);
     cfg.service(get_by_map_visualization);
 }
 
@@ -94,6 +95,22 @@ async fn get_percentiles(
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
     let data = app_state.database.data.percentile(info.into_inner()).await;
+
+    match data {
+        Ok(data) => match csv_converter::convert(data) {
+            Ok(csv) => HttpResponse::Ok().content_type("text/csv").body(csv),
+            Err(_) => HttpResponse::NotFound().finish(),
+        },
+        Err(_) => HttpResponse::NotFound().finish(),
+    }
+}
+
+#[get("/state_percentile")]
+async fn get_state_percentiles(
+    info: web::Query<PercentileInfo>,
+    app_state: web::Data<AppState<'_>>,
+) -> impl Responder {
+    let data = app_state.database.data.state_percentile(info.into_inner()).await;
 
     match data {
         Ok(data) => match csv_converter::convert(data) {

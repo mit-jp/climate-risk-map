@@ -166,7 +166,12 @@ export const appSlice = createSlice({
         },
         clickMap: (state, { payload }: PayloadAction<number>) => {
             if (state.region === 'USA') {
-                if (state.zoomTo) {
+                if (
+                    // Zooms out if the currently selected county is clicked,
+                    // or if the "Zoom Out" button is clicked (which is the -1 placeholder value)
+                    (state.county && state.county === payload) ||
+                    payload === -1
+                ) {
                     state.zoomTo = undefined
                     state.county = undefined
                 } else {
@@ -181,6 +186,15 @@ export const appSlice = createSlice({
             state.region = payload
             state.zoomTo = undefined
             state.county = undefined
+            // removes overlays when switching regions
+            state.overlays = {
+                Highways: { shouldShow: false },
+                'Major railroads': { shouldShow: false },
+                'Transmission lines': { shouldShow: false },
+                'Marine highways': { shouldShow: false },
+                'Critical water habitats': { shouldShow: false },
+                'Endangered species': { shouldShow: false },
+            }
         },
     },
     extraReducers: (builder) => {

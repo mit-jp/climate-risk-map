@@ -1,6 +1,6 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { useMemo, useRef } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import DataDescription from './DataDescription'
 import DataProcessor from './DataProcessor'
 import DataSourceDescription from './DataSourceDescription'
@@ -13,7 +13,7 @@ import MapTooltip from './MapTooltip'
 import { MapVisualization, MapVisualizationId } from './MapVisualization'
 import css from './MapWrapper.module.css'
 import Overlays from './Overlays'
-import { selectMapTransform, selectSelections, stateId } from './appSlice'
+import { clickMap, selectMapTransform, selectSelections, stateId } from './appSlice'
 import { RootState } from './store'
 
 export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
@@ -25,6 +25,7 @@ function MapWrapper({
     allMapVisualizations: Record<MapVisualizationId, MapVisualization>
     isNormalized: boolean
 }) {
+    const dispatch = useDispatch()
     const map = useSelector((state: RootState) => state.app.map)
     const detailedView = useSelector((state: RootState) => state.app.detailedView)
     const zoomTo = useSelector((rootState: RootState) => rootState.app.zoomTo)
@@ -60,7 +61,10 @@ function MapWrapper({
                           invertNormalized: map.invert_normalized,
                       })),
                       normalize: isNormalized,
-                      filter: zoomTo && region ? (geoId) => stateId(geoId) === zoomTo : undefined,
+                      filter:
+                          zoomTo && region !== 'World'
+                              ? (geoId) => stateId(geoId) === zoomTo
+                              : undefined,
                   })
                 : undefined,
         [data, maps, dataWeights, zoomTo, isNormalized, region]
@@ -71,6 +75,7 @@ function MapWrapper({
     if (map === undefined) {
         return <p>Loading</p>
     }
+    // rectangle ("rect") below is made so that the user can zoom out by clicking on the map background
     return (
         <>
             <div className={css.map}>
@@ -87,6 +92,14 @@ function MapWrapper({
                     xmlnsXlink="http://www.w3.org/1999/xlink"
                     viewBox="0, 0, 1175, 610"
                 >
+                    <rect
+                        x="0"
+                        y="0"
+                        width="1175"
+                        height="610"
+                        fill="white"
+                        onClick={() => dispatch(clickMap(Number(-1)))}
+                    />
                     {processedData ? (
                         <FullMap
                             ref={mapRef}

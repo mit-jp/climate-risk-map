@@ -174,7 +174,7 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                     value={mapVisualization.decimals ?? ''}
                     onChange={(e) => {
                         const decimals = parseInt(e.target.value, 10)
-                        if (Number.isInteger(decimals)) {
+                        if (Number.isInteger(decimals) && decimals >= 0) {
                             updateMap({ ...mapVisualization, decimals })
                         }
                     }}

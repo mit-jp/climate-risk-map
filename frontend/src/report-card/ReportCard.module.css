@@ -11,12 +11,20 @@ h1 {
     font-weight: bold;
 }
 
+.county-metrics thead td {
+    padding-left: .25em;
+}
+
 .county-metrics tr:hover {
     background: #f2f2f2;
 }
 
 .county-metrics td{
-    padding:1em;
+    padding: 0em;
+}
+
+.county-metrics td + td {
+    border-left: 2px solid #ddd;
 }
 
 .report-card {
@@ -35,9 +43,21 @@ h1 {
 
 .county-metrics .percentile-bar-column {
     padding-left: 0;
+    border-left-style: hidden!important;
+    padding-right: .5em;
+    width: 15%
 }
 
 .county-metrics .percentile-column {
     width: 2em;
     padding-right: .5em;
+    padding-left: .25em;
+}
+
+.county-metrics .raw-val-column {
+    padding-left: .25em; 
+}
+
+.county-metrics .metric-column {
+    padding-left: .25em; 
 }
