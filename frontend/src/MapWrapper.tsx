@@ -62,7 +62,7 @@ function MapWrapper({
                       })),
                       normalize: isNormalized,
                       filter:
-                          zoomTo && region !== 'World'
+                          zoomTo && region === 'USA'
                               ? (geoId) => stateId(geoId) === zoomTo
                               : undefined,
                   })
@@ -99,6 +99,7 @@ function MapWrapper({
                         height="610"
                         fill="white"
                         onClick={() => dispatch(clickMap(Number(-1)))}
+                        style={{ opacity: 0 }}
                     />
                     {processedData ? (
                         <FullMap
