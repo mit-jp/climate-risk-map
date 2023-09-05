@@ -179,7 +179,9 @@ export const appSlice = createSlice({
                     state.county = payload
                 }
             } else {
-                state.zoomTo = state.zoomTo === undefined ? payload : undefined
+                // For the World map, zooms out if the currently selected country is clicked,
+                // or if the "Zoom Out" button is clicked
+                state.zoomTo = state.zoomTo === payload || payload === -1 ? undefined : payload
             }
         },
         selectRegion: (state, { payload }: PayloadAction<Region>) => {
