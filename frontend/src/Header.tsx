@@ -7,10 +7,10 @@ function Header() {
         <header className={css.header}>
             <div className={css.title}>
                 <div className={css.titleAndSubtitle}>
-                    <h1>STRESS Tool</h1>
+                    <h1>STRESS Platform</h1>
                     <p>
-                        System for the Triage of Risks from Environmental and Socio-Economic
-                        Stressors.
+                        <b>S</b>ystem for the <b>T</b>riage of <b>R</b>isks from <b>E</b>
+                        nvironmental and <b>S</b>ocio-economic <b>S</b>tressors
                     </p>
                 </div>
             </div>

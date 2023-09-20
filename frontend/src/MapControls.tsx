@@ -13,7 +13,7 @@ import { saveAs } from 'file-saver'
 import { Map } from 'immutable'
 import { Fragment } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import counties from './Counties'
 import { getLegendTitle } from './FullMap'
 import css from './MapControls.module.css'
@@ -27,6 +27,7 @@ import {
     OverlayName,
     Region,
     TransmissionLineType,
+    clickMap,
     setDetailedView,
     setShowOverlay,
     setTransmissionLineType,
@@ -145,10 +146,10 @@ function MapControls({ data, isNormalized, maps }: Props) {
     const detailedView = useSelector((state: RootState) => state.app.detailedView)
 
     const countyId = useSelector((state: RootState) => state.app.county)
+    const zoomTo = useSelector((state: RootState) => state.app.zoomTo)
     const region: Region = maps[0]?.geography_type === 1 ? 'USA' : 'World'
     const params = useParams()
     const { tabId } = params
-    const navigate = useNavigate()
 
     const UsaCsv = (sortedData: Map<number, number> | undefined) => {
         const objectData = sortedData
@@ -198,38 +199,51 @@ function MapControls({ data, isNormalized, maps }: Props) {
 
     return (
         <div id={css.mapControls}>
-            {countyId && (
-                <Button
-                    variant="outlined"
-                    onClick={() => navigate(`/report-card/${tabId ?? '8'}/${countyId}`)}
-                >
-                    View report card for {counties.get(countyId)}, {states.get(stateId(countyId))}
-                </Button>
-            )}
-            {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
-            {isNormalized && data && (
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={detailedView}
-                            onChange={(_, value) => dispatch(setDetailedView(value))}
-                            name="detailed-view"
-                            color="primary"
-                        />
-                    }
-                    label="Detailed View"
-                />
-            )}
-            {data && (
-                <Button variant="outlined" onClick={downloadData}>
-                    Download data
-                </Button>
-            )}
-            {data && (
-                <Button variant="outlined" onClick={downloadImage}>
-                    Download Image
-                </Button>
-            )}
+            <div>
+                {countyId && (
+                    <Button
+                        variant="outlined"
+                        onClick={() => window.open(`/report-card/${tabId ?? '8'}/${countyId}`)}
+                    >
+                        View report card for {counties.get(countyId)},{' '}
+                        {states.get(stateId(countyId))}
+                    </Button>
+                )}
+                {zoomTo && (
+                    // creates a button that zooms back out if zoomed into a state or country
+                    <Button variant="outlined" onClick={() => dispatch(clickMap(Number(-1)))}>
+                        Zoom Out
+                    </Button>
+                )}
+            </div>
+            <div>
+                {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
+                {isNormalized && data && (
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={detailedView}
+                                onChange={(_, value) => dispatch(setDetailedView(value))}
+                                name="detailed-view"
+                                color="primary"
+                            />
+                        }
+                        label="Detailed View"
+                    />
+                )}
+            </div>
+            <div>
+                {data && (
+                    <Button variant="outlined" onClick={downloadData}>
+                        Download Data
+                    </Button>
+                )}
+                {data && (
+                    <Button variant="outlined" onClick={downloadImage}>
+                        Download Image
+                    </Button>
+                )}
+            </div>
         </div>
     )
 }

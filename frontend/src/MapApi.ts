@@ -76,7 +76,7 @@ export type PercentileRow = {
     decimals: number
 }
 
-type Percentiles = {
+export type Percentiles = {
     [key in DatasetId]: PercentileRow
 }
 
@@ -213,6 +213,18 @@ export const mapApi = createApi({
             queryFn: ({ geoId, category, geographyType }) => {
                 const loadingCsv = loadCsv<CountyCsvRow>(
                     `/api/percentile?geo_id=${geoId}&category=${category}&geography_type=${geographyType}`,
+                    autoType
+                )
+                return loadingCsv.then(transformCountySummary).then(
+                    (data) => ({ data }),
+                    (failure) => ({ error: failure })
+                )
+            },
+        }),
+        getStatePercentiles: builder.query<Percentiles, PercentileQueryParams>({
+            queryFn: ({ geoId, category, geographyType }) => {
+                const loadingCsv = loadCsv<CountyCsvRow>(
+                    `/api/state_percentile?geo_id=${geoId}&category=${category}&geography_type=${geographyType}`,
                     autoType
                 )
                 return loadingCsv.then(transformCountySummary).then(
@@ -463,6 +475,7 @@ export const {
     useGetCountiesQuery,
     useGetStatesQuery,
     useGetPercentilesQuery,
+    useGetStatePercentilesQuery,
     useGetSubcategoriesQuery,
     useUnpublishMapVisualizationMutation,
     usePublishMapVisualizationMutation,

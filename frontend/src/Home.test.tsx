@@ -86,7 +86,7 @@ test('It shows header and loads data selector', async () => {
             </Routes>
         </MemoryRouter>
     )
-    expect(screen.getByText(/STRESS Tool/i)).toBeInTheDocument()
+    expect(screen.getByText(/STRESS Platform/i)).toBeInTheDocument()
     // map title, data selector, and description expander all have the same text
     expect(
         await screen.findAllByText(/Exposure to airborne particulate matter/i, undefined, {

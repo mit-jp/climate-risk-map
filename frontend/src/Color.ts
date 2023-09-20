@@ -23,6 +23,10 @@ export const redBlue = scaleThreshold<number, string, never>(
     [0.05, 0.25, 0.75, 0.95],
     [...schemeRdYlBu[5]].reverse()
 )
+export const redBlueReportCard = scaleThreshold<number, string, never>(
+    [0.01, 0.05, 0.25, 0.33, 0.5, 0.66, 0.75, 0.95, 0.99],
+    [...schemeRdYlBu[10]].reverse()
+)
 
 const colorScheme = (
     map: MapVisualization,

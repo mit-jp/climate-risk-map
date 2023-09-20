@@ -69,21 +69,23 @@ function Home() {
     return (
         <>
             <Header />
-            <RegionNavigation />
-            {tabs ? (
-                <Navigation
-                    tabs={displayedTabs}
-                    onTabClick={(tab) => dispatch(setTab(tab))}
-                    selectedTabId={tab?.id}
-                />
-            ) : (
-                <EmptyNavigation />
-            )}
+            <div className={css.navDiv}>
+                {tabs ? (
+                    <Navigation
+                        tabs={displayedTabs}
+                        onTabClick={(tab) => dispatch(setTab(tab))}
+                        selectedTabId={tab?.id}
+                    />
+                ) : (
+                    <EmptyNavigation />
+                )}
+                <RegionNavigation />
+            </div>
             {isNormalized && (
                 <aside className={css.siteOverview}>
                     <p>
-                        You can select multiple metrics and adjust their relative importance to view
-                        the combined impact. To see additional and supporting data, select the other
+                        Select multiple metrics and adjust their relative importance to view the
+                        combined impact. To see additional and supporting data, select the other
                         categories.
                     </p>
                 </aside>

@@ -174,6 +174,129 @@ impl<'c> Table<'c, Data> {
         .await
     }
 
+    /**
+     * The state-level percentile for a given geo-id for all datasets in a category
+     */
+    pub async fn state_percentile(
+        &self,
+        info: PercentileInfo,
+    ) -> Result<Vec<data::Percentile>, sqlx::Error> {
+        sqlx::query_as!(
+            data::Percentile,
+            r#"
+        SELECT
+            entry.dataset,
+            entry.dataset_name,
+            entry.source as "source!",
+            entry.start_date as "start_date!",
+            entry.end_date as "end_date!",
+            entry.units,
+            entry.formatter_type,
+            entry.decimals,
+            (
+                SELECT
+                    value
+                FROM
+                    (SELECT * FROM data
+                    WHERE FLOOR(id / 1000) = FLOOR($1 / 1000)) AS state_data
+                WHERE
+                    id =($1)
+                    AND dataset = entry.dataset
+                    AND source = entry.source
+                    AND start_date = entry.start_date
+                    AND end_date = entry.end_date
+            ),
+            CASE WHEN (
+                SELECT
+                    value
+                FROM
+                    (SELECT * FROM data
+                    WHERE FLOOR(id / 1000) = FLOOR($1 / 1000)) AS state_data
+                WHERE
+                    id =($1)
+                    AND dataset = entry.dataset
+                    AND source = entry.source
+                    AND start_date = entry.start_date
+                    AND end_date = entry.end_date
+            ) IS NULL THEN NULL ELSE
+            percent_rank(
+                (
+                    SELECT
+                        CASE WHEN entry.invert_normalized THEN -value ELSE value END as value
+                    FROM
+                        (SELECT * FROM data
+                        WHERE FLOOR(id / 1000) = FLOOR($1 / 1000)) AS state_data
+                    WHERE
+                        id =($1)
+                        AND dataset = entry.dataset
+                        AND source = entry.source
+                        AND start_date = entry.start_date
+                        AND end_date = entry.end_date
+                )
+            ) within GROUP (
+                ORDER BY CASE WHEN entry.invert_normalized THEN -value ELSE value END
+            )
+        END
+        FROM
+            (SELECT * FROM data
+            WHERE FLOOR(id / 1000) = FLOOR($1 / 1000)) AS state_data,
+            (
+                SELECT
+                    map_visualization.dataset,
+                    dataset.name as dataset_name,
+                    COALESCE(default_source, source) AS source,
+                    COALESCE(default_start_date, start_date) AS start_date,
+                    COALESCE(default_end_date, end_date) AS end_date,
+                    invert_normalized,
+                    units,
+                    formatter_type,
+                    decimals
+                FROM
+                    map_visualization,
+                    map_visualization_collection,
+                    dataset,
+                    (
+                        SELECT
+                            dataset,
+                            MAX(end_date) AS end_date,
+                            MAX(start_date) AS start_date,
+                            MAX("source") AS source
+                        FROM
+                            data
+                        GROUP BY
+                            dataset
+                    ) AS cd
+                WHERE
+                    map_visualization_collection.category = $2
+                    AND map_visualization.dataset = dataset.id
+                    AND cd.dataset = map_visualization.dataset
+                    AND map_visualization_collection.map_visualization = map_visualization.id
+                    AND dataset.geography_type = $3
+            ) AS entry
+        WHERE
+            state_data.dataset = entry.dataset
+            AND state_data.source = entry.source
+            AND state_data.start_date = entry.start_date
+            AND state_data.end_date = entry.end_date
+        GROUP BY
+            entry.dataset,
+            entry.dataset_name,
+            entry.source,
+            entry.start_date,
+            entry.end_date,
+            entry.units,
+            entry.formatter_type,
+            entry.decimals,
+            entry.invert_normalized;
+        "#,
+            info.geo_id,
+            info.category,
+            info.geography_type
+        )
+        .fetch_all(&*self.pool)
+        .await
+    }
+
     pub async fn insert(&self, data: &HashSet<Creator>) -> Result<PgQueryResult, sqlx::Error> {
         let mut ids: Vec<i32> = Vec::with_capacity(data.len());
         let mut sources: Vec<i32> = Vec::with_capacity(data.len());
