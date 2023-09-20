@@ -199,46 +199,51 @@ function MapControls({ data, isNormalized, maps }: Props) {
 
     return (
         <div id={css.mapControls}>
-            {countyId && (
-                <Button
-                    variant="outlined"
-                    onClick={() => window.open(`/report-card/${tabId ?? '8'}/${countyId}`)}
-                >
-                    View report card for {counties.get(countyId)}, {states.get(stateId(countyId))}
-                </Button>
-            )}
-            {zoomTo && (
-                // creates a button that zooms back out if zoomed into a state or country
-                <Button variant="outlined" onClick={() => dispatch(clickMap(Number(-1)))}>
-                    Zoom Out
-                </Button>
-            )}
-            <br />
-            {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
-            {isNormalized && data && (
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={detailedView}
-                            onChange={(_, value) => dispatch(setDetailedView(value))}
-                            name="detailed-view"
-                            color="primary"
-                        />
-                    }
-                    label="Detailed View"
-                />
-            )}
-            <br />
-            {data && (
-                <Button variant="outlined" onClick={downloadData}>
-                    Download Data
-                </Button>
-            )}
-            {data && (
-                <Button variant="outlined" onClick={downloadImage}>
-                    Download Image
-                </Button>
-            )}
+            <div>
+                {countyId && (
+                    <Button
+                        variant="outlined"
+                        onClick={() => window.open(`/report-card/${tabId ?? '8'}/${countyId}`)}
+                    >
+                        View report card for {counties.get(countyId)},{' '}
+                        {states.get(stateId(countyId))}
+                    </Button>
+                )}
+                {zoomTo && (
+                    // creates a button that zooms back out if zoomed into a state or country
+                    <Button variant="outlined" onClick={() => dispatch(clickMap(Number(-1)))}>
+                        Zoom Out
+                    </Button>
+                )}
+            </div>
+            <div>
+                {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
+                {isNormalized && data && (
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={detailedView}
+                                onChange={(_, value) => dispatch(setDetailedView(value))}
+                                name="detailed-view"
+                                color="primary"
+                            />
+                        }
+                        label="Detailed View"
+                    />
+                )}
+            </div>
+            <div>
+                {data && (
+                    <Button variant="outlined" onClick={downloadData}>
+                        Download Data
+                    </Button>
+                )}
+                {data && (
+                    <Button variant="outlined" onClick={downloadImage}>
+                        Download Image
+                    </Button>
+                )}
+            </div>
         </div>
     )
 }
