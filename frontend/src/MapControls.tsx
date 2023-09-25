@@ -134,6 +134,15 @@ function OverlayCheckBoxes({ overlays }: { overlays: Record<OverlayName, Overlay
     )
 }
 
+function triggerImageDownload(imgURL: string, maps: MapVisualization[], isNormalized: boolean) {
+    const a = document.createElement('a')
+    a.download = getFilename(maps, isNormalized)
+    a.target = '_blank'
+    a.href = imgURL
+
+    a.click()
+}
+
 type Props = {
     data: Map<GeoId, number> | undefined
     isNormalized: boolean
@@ -192,8 +201,29 @@ function MapControls({ data, isNormalized, maps }: Props) {
     const downloadImage = () => {
         const svg = document.getElementById('map-svg')
         if (svg?.outerHTML) {
-            const blob = new Blob([svg.outerHTML], { type: 'text/plain' })
-            saveAs(blob, `${getFilename(maps, isNormalized)}.svg`)
+            const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml;charset=utf-8' })
+            const DOMURL = window.URL || window.webkitURL || window
+            const url = DOMURL.createObjectURL(blob)
+
+            const img = new Image()
+            img.width = 1175
+            img.height = 610
+            img.src = url
+
+            // eslint-disable-next-line func-names
+            img.onload = function () {
+                const canvas = document.createElement('canvas')
+                canvas.width = 1175
+                canvas.height = 610
+                const ctx = canvas.getContext('2d')
+
+                ctx?.drawImage(img, 0, 0)
+                DOMURL.revokeObjectURL(url)
+
+                const imgURL = canvas.toDataURL('image/png')
+
+                triggerImageDownload(imgURL, maps, isNormalized)
+            }
         }
     }
 
