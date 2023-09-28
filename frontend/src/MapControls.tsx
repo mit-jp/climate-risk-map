@@ -198,7 +198,15 @@ function MapControls({ data, isNormalized, maps }: Props) {
         }
     }
 
-    const downloadImage = () => {
+    const downloadImageSVG = () => {
+        const svg = document.getElementById('map-svg')
+        if (svg?.outerHTML) {
+            const blob = new Blob([svg.outerHTML], { type: 'text/plain' })
+            saveAs(blob, `${getFilename(maps, isNormalized)}.svg`)
+        }
+    }
+
+    const downloadImagePNG = () => {
         const svg = document.getElementById('map-svg')
         if (svg?.outerHTML) {
             const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml;charset=utf-8' })
@@ -206,15 +214,15 @@ function MapControls({ data, isNormalized, maps }: Props) {
             const url = DOMURL.createObjectURL(blob)
 
             const img = new Image()
-            img.width = 1175
-            img.height = 610
+            img.width = 3525
+            img.height = 1830
             img.src = url
 
             // eslint-disable-next-line func-names
             img.onload = function () {
                 const canvas = document.createElement('canvas')
-                canvas.width = 1175
-                canvas.height = 610
+                canvas.width = 3525
+                canvas.height = 1830
                 const ctx = canvas.getContext('2d')
 
                 ctx?.drawImage(img, 0, 0)
@@ -269,8 +277,13 @@ function MapControls({ data, isNormalized, maps }: Props) {
                     </Button>
                 )}
                 {data && (
-                    <Button variant="outlined" onClick={downloadImage}>
-                        Download Image
+                    <Button variant="outlined" onClick={downloadImageSVG}>
+                        Download Image (SVG)
+                    </Button>
+                )}
+                {data && (
+                    <Button variant="outlined" onClick={downloadImagePNG}>
+                        Download Image (PNG)
                     </Button>
                 )}
             </div>
