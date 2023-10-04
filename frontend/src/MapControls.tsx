@@ -225,7 +225,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
                 canvas.height = 1830
                 const ctx = canvas.getContext('2d')
 
-                ctx?.drawImage(img, 0, 0)
+                ctx?.drawImage(img, 0, 0, 3525, 1830)
                 DOMURL.revokeObjectURL(url)
 
                 const imgURL = canvas.toDataURL('image/png')
