@@ -7,6 +7,7 @@ import {
     MenuItem,
     Select,
     Switch,
+    Tooltip,
 } from '@mui/material'
 import { csvFormat } from 'd3'
 import { saveAs } from 'file-saver'
@@ -282,9 +283,11 @@ function MapControls({ data, isNormalized, maps }: Props) {
                     </Button>
                 )}
                 {data && (
-                    <Button variant="outlined" onClick={downloadImagePNG}>
-                        Download Image (PNG)
-                    </Button>
+                    <Tooltip title="Google Chrome is recommended to download PNG images" arrow>
+                        <Button variant="outlined" onClick={downloadImagePNG}>
+                            Download Image (PNG)
+                        </Button>
+                    </Tooltip>
                 )}
             </div>
         </div>
