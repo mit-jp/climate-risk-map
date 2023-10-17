@@ -218,23 +218,25 @@ impl<'c> Table<'c, Data> {
                     AND source = entry.source
                     AND start_date = entry.start_date
                     AND end_date = entry.end_date
-            ) IS NULL THEN NULL ELSE
-            percent_rank(
-                (
-                    SELECT
-                        CASE WHEN entry.invert_normalized THEN -value ELSE value END as value
-                    FROM
-                        (SELECT * FROM data
-                        WHERE FLOOR(id / 1000) = FLOOR($1 / 1000)) AS state_data
-                    WHERE
-                        id =($1)
-                        AND dataset = entry.dataset
-                        AND source = entry.source
-                        AND start_date = entry.start_date
-                        AND end_date = entry.end_date
-                )
-            ) within GROUP (
-                ORDER BY CASE WHEN entry.invert_normalized THEN -value ELSE value END
+            ) IS NULL THEN NULL ELSE (
+                SELECT percent_rank FROM
+                (SELECT *,
+                    PERCENT_RANK() OVER (ORDER BY ABS(state_data.value)) AS percent_rank
+                FROM 
+                    (SELECT * FROM data
+                        WHERE
+                            FLOOR(id / 1000) = FLOOR($1 / 1000)
+                            AND dataset = entry.dataset
+                            AND source = entry.source
+                            AND start_date = entry.start_date
+                            AND end_date = entry.end_date)
+                    AS state_data) AS percents
+                WHERE
+                    id = ($1)
+                    AND dataset = entry.dataset
+                    AND source = entry.source
+                    AND start_date = entry.start_date
+                    AND end_date = entry.end_date
             )
         END
         FROM
