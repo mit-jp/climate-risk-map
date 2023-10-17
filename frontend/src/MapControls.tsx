@@ -7,6 +7,7 @@ import {
     MenuItem,
     Select,
     Switch,
+    Tooltip,
 } from '@mui/material'
 import { csvFormat } from 'd3'
 import { saveAs } from 'file-saver'
@@ -134,6 +135,15 @@ function OverlayCheckBoxes({ overlays }: { overlays: Record<OverlayName, Overlay
     )
 }
 
+function triggerImageDownload(imgURL: string, maps: MapVisualization[], isNormalized: boolean) {
+    const a = document.createElement('a')
+    a.download = getFilename(maps, isNormalized)
+    a.target = '_blank'
+    a.href = imgURL
+
+    a.click()
+}
+
 type Props = {
     data: Map<GeoId, number> | undefined
     isNormalized: boolean
@@ -189,11 +199,40 @@ function MapControls({ data, isNormalized, maps }: Props) {
         }
     }
 
-    const downloadImage = () => {
+    const downloadImageSVG = () => {
         const svg = document.getElementById('map-svg')
         if (svg?.outerHTML) {
             const blob = new Blob([svg.outerHTML], { type: 'text/plain' })
             saveAs(blob, `${getFilename(maps, isNormalized)}.svg`)
+        }
+    }
+
+    const downloadImagePNG = () => {
+        const svg = document.getElementById('map-svg')
+        if (svg?.outerHTML) {
+            const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml;charset=utf-8' })
+            const DOMURL = window.URL || window.webkitURL || window
+            const url = DOMURL.createObjectURL(blob)
+
+            const img = new Image()
+            img.width = 3525
+            img.height = 1830
+            img.src = url
+
+            // eslint-disable-next-line func-names
+            img.onload = function () {
+                const canvas = document.createElement('canvas')
+                canvas.width = 3525
+                canvas.height = 1830
+                const ctx = canvas.getContext('2d')
+
+                ctx?.drawImage(img, 0, 0, 3525, 1830)
+                DOMURL.revokeObjectURL(url)
+
+                const imgURL = canvas.toDataURL('image/png')
+
+                triggerImageDownload(imgURL, maps, isNormalized)
+            }
         }
     }
 
@@ -239,9 +278,16 @@ function MapControls({ data, isNormalized, maps }: Props) {
                     </Button>
                 )}
                 {data && (
-                    <Button variant="outlined" onClick={downloadImage}>
-                        Download Image
+                    <Button variant="outlined" onClick={downloadImageSVG}>
+                        Download Image (SVG)
                     </Button>
+                )}
+                {data && (
+                    <Tooltip title="Google Chrome is recommended to download PNG images" arrow>
+                        <Button variant="outlined" onClick={downloadImagePNG}>
+                            Download Image (PNG)
+                        </Button>
+                    </Tooltip>
                 )}
             </div>
         </div>
