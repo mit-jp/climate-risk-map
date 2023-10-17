@@ -221,7 +221,7 @@ impl<'c> Table<'c, Data> {
             ) IS NULL THEN NULL ELSE (
                 SELECT percent_rank FROM
                 (SELECT *,
-                    PERCENT_RANK() OVER (ORDER BY ABS(state_data.value)) AS percent_rank
+                    PERCENT_RANK() OVER (ORDER BY CASE WHEN entry.invert_normalized THEN -value ELSE value END) AS percent_rank
                 FROM 
                     (SELECT * FROM data
                         WHERE
