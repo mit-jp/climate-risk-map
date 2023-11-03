@@ -1,4 +1,4 @@
-import { scaleSequentialQuantile, sum } from 'd3'
+import { sum } from 'd3'
 import { Map, Set } from 'immutable'
 import { Data2 } from './MapApi'
 import { MapVisualizationId } from './MapVisualization'
@@ -18,10 +18,42 @@ const normalizeData = (params: Params, totalWeight: number, valueByGeoId: Map<nu
         ? valueByGeoId.map((value) => -1 * value)
         : valueByGeoId
 
-    const weightedPercentileScale = scaleSequentialQuantile(
-        normalizedValueByGeoId.valueSeq(),
-        (quantile) => quantile * weight
+    let normalizedValueByGeoIdNonZero = Map<number, number>(
+        JSON.parse(JSON.stringify(Array.from(normalizedValueByGeoId)))
     )
+    // eslint-disable-next-line no-restricted-syntax
+    for (const entry of normalizedValueByGeoIdNonZero) {
+        if (entry[1] === 0) {
+            normalizedValueByGeoIdNonZero = normalizedValueByGeoIdNonZero.delete(entry[0])
+        }
+    }
+    normalizedValueByGeoIdNonZero = normalizedValueByGeoIdNonZero.set(0, 0)
+    const valueListNonZero = normalizedValueByGeoIdNonZero
+        .valueSeq()
+        .toArray()
+        .sort((a, b) => a - b)
+
+    const weightedPercentileScale = (value: number) => {
+        const maxValue = Math.max(...valueListNonZero)
+        if (value === 0) {
+            return 0
+        }
+        if (value === maxValue) {
+            return 1
+        }
+        // eslint-disable-next-line no-plusplus
+        for (let i = 0, l = valueListNonZero.length; i < l; i++) {
+            if (value <= valueListNonZero[i]) {
+                if (value !== valueListNonZero[i - 1]) {
+                    i +=
+                        (value - valueListNonZero[i - 1]) /
+                        (valueListNonZero[i] - valueListNonZero[i - 1])
+                }
+                return ((i - 1) / (l - 1)) * weight
+            }
+        }
+        return 1
+    }
     return normalizedValueByGeoId.map((value) => weightedPercentileScale(value))
 }
 
