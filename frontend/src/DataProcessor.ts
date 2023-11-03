@@ -34,12 +34,8 @@ const normalizeData = (params: Params, totalWeight: number, valueByGeoId: Map<nu
         .sort((a, b) => a - b)
 
     const weightedPercentileScale = (value: number) => {
-        const maxValue = Math.max(...valueListNonZero)
         if (value === 0) {
             return 0
-        }
-        if (value === maxValue) {
-            return 1
         }
         // eslint-disable-next-line no-plusplus
         for (let i = 0, l = valueListNonZero.length; i < l; i++) {

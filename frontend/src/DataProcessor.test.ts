@@ -6,6 +6,7 @@ const DATA = Map<number, Data2>([
     [
         1,
         [
+            [0, 0],
             [1, 1],
             [2, 2],
             [3, 3],
@@ -16,6 +17,7 @@ const DATA_2 = Map<number, Data2>([
     [
         2,
         [
+            [0, 0],
             [1, 100],
             [2, 20],
             [3, 30],
@@ -31,6 +33,7 @@ test('it returns a single dataset, not normalized', () => {
         })
     ).toEqual(
         Map([
+            [0, 0],
             [1, 1],
             [2, 2],
             [3, 3],
@@ -47,7 +50,8 @@ test('it returns a single dataset, normalized', () => {
         })
     ).toEqual(
         Map([
-            [1, 0],
+            [0, 0],
+            [1, 0.25],
             [2, 0.5],
             [3, 1],
         ])
@@ -65,6 +69,7 @@ test('it returns two datasets, added, if they are both selected', () => {
         })
     ).toEqual(
         Map([
+            [0, 0],
             [1, 101],
             [2, 22],
             [3, 33],
@@ -84,8 +89,9 @@ test('it returns two datasets, normalized then averaged, if they are both select
         })
     ).toEqual(
         Map([
-            [1, 0.5],
-            [2, 0.25],
+            [0, 0],
+            [1, 0.625],
+            [2, 0.375],
             [3, 0.75],
         ])
     )
@@ -137,6 +143,7 @@ test('it weights datasets when normalizing', () => {
         })
     ).toEqual(
         Map([
+            [0, 0],
             [1, 0.75],
             [2, 0.125],
             [3, 0.625],
@@ -155,6 +162,7 @@ test("it doesn't weight datasets when not normalizing", () => {
         })
     ).toEqual(
         Map([
+            [0, 0],
             [1, 101],
             [2, 22],
             [3, 33],
@@ -171,6 +179,7 @@ test('it filters geoIds', () => {
         })
     ).toEqual(
         Map([
+            [0, 0],
             [1, 1],
             [3, 3],
         ])
@@ -187,7 +196,8 @@ test('it filters by geoIds, then normalizes with respect to only those ids', () 
         })
     ).toEqual(
         Map([
-            [1, 0],
+            [0, 0],
+            [1, 0.33],
             [2, 1],
         ])
     )
