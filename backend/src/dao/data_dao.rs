@@ -86,7 +86,7 @@ impl<'c> Table<'c, Data> {
                     AND start_date = entry.start_date
                     AND end_date = entry.end_date
             ),
-            CASE WHEN (
+            CASE (
                 SELECT
                     value
                 FROM
@@ -97,22 +97,37 @@ impl<'c> Table<'c, Data> {
                     AND source = entry.source
                     AND start_date = entry.start_date
                     AND end_date = entry.end_date
-            ) IS NULL THEN NULL ELSE
-            percent_rank(
-                (
+            ) 
+            WHEN NULL THEN NULL 
+            WHEN 0 THEN 0
+            ELSE (
+                SELECT percent_rank FROM
+                (SELECT *,
+                  percent_rank() OVER (ORDER BY CASE WHEN entry.invert_normalized THEN -value ELSE value END) AS percent_rank
+                FROM 
+                    (SELECT * FROM data
+                        WHERE 
+                            dataset = entry.dataset
+                            AND source = entry.source
+                            AND start_date = entry.start_date
+                            AND end_date = entry.end_date
+                            AND value != 0
+                    UNION
                     SELECT
-                        CASE WHEN entry.invert_normalized THEN -value ELSE value END as value
-                    FROM
-                        data
-                    WHERE
-                        id = $1
-                        AND dataset = entry.dataset
-                        AND source = entry.source
-                        AND start_date = entry.start_date
-                        AND end_date = entry.end_date
-                )
-            ) within GROUP (
-                ORDER BY CASE WHEN entry.invert_normalized THEN -value ELSE value END
+                      0 AS dataset,
+                      0 AS source,
+                      '2000-01-01' AS start_date,
+                      '2000-01-01' AS end_date,
+                      0 AS value,
+                      0 AS id,
+                      0 AS geography_type) 
+                            AS state_data) AS percents
+                WHERE 
+                    id = $1
+                    AND dataset = entry.dataset
+                    AND source = entry.source
+                    AND start_date = entry.start_date
+                    AND end_date = entry.end_date
             )
         END
         FROM
@@ -206,35 +221,50 @@ impl<'c> Table<'c, Data> {
                     AND start_date = entry.start_date
                     AND end_date = entry.end_date
             ),
-            CASE WHEN (
+            CASE (
                 SELECT
                     value
                 FROM
                     (SELECT * FROM data
                     WHERE FLOOR(id / 1000) = FLOOR($1 / 1000)) AS state_data
                 WHERE
-                    id =($1)
+                    id = $1
                     AND dataset = entry.dataset
                     AND source = entry.source
                     AND start_date = entry.start_date
                     AND end_date = entry.end_date
-            ) IS NULL THEN NULL ELSE
-            percent_rank(
-                (
+            ) 
+            WHEN NULL THEN NULL 
+            WHEN 0 THEN 0
+            ELSE (
+                SELECT percent_rank FROM
+                (SELECT *,
+                  percent_rank() OVER (ORDER BY CASE WHEN entry.invert_normalized THEN -value ELSE value END) AS percent_rank
+                FROM 
+                    (SELECT * FROM data
+                        WHERE 
+                            FLOOR(id / 1000) = FLOOR($1 / 1000)
+                            AND dataset = entry.dataset
+                            AND source = entry.source
+                            AND start_date = entry.start_date
+                            AND end_date = entry.end_date
+                            AND value != 0
+                    UNION
                     SELECT
-                        CASE WHEN entry.invert_normalized THEN -value ELSE value END as value
-                    FROM
-                        (SELECT * FROM data
-                        WHERE FLOOR(id / 1000) = FLOOR($1 / 1000)) AS state_data
-                    WHERE
-                        id =($1)
-                        AND dataset = entry.dataset
-                        AND source = entry.source
-                        AND start_date = entry.start_date
-                        AND end_date = entry.end_date
-                )
-            ) within GROUP (
-                ORDER BY CASE WHEN entry.invert_normalized THEN -value ELSE value END
+                      0 AS dataset,
+                      0 AS source,
+                      '2000-01-01' AS start_date,
+                      '2000-01-01' AS end_date,
+                      0 AS value,
+                      0 AS id,
+                      0 AS geography_type) 
+                            AS state_data) AS percents
+                WHERE 
+                    id = $1
+                    AND dataset = entry.dataset
+                    AND source = entry.source
+                    AND start_date = entry.start_date
+                    AND end_date = entry.end_date
             )
         END
         FROM
