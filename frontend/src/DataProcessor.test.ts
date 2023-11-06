@@ -210,7 +210,7 @@ test('it filters by geoIds, then normalizes with respect to only those ids', () 
     expect(
         DataProcessor({
             data: DATA_3,
-            params: [{ mapId: 1, weight: 1, invertNormalized: false }],
+            params: [{ mapId: 3, weight: 1, invertNormalized: false }],
             filter: (geoId) => geoId !== 3,
             normalize: true,
         })
