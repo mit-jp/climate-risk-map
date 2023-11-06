@@ -218,7 +218,7 @@ test('it filters by geoIds, then normalizes with respect to only those ids', () 
         Map([
             [0, 0],
             [1, 0.5],
-            [2, 0.1],
+            [2, 1],
         ])
     )
 })
