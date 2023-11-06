@@ -28,7 +28,7 @@ const DATA_2 = Map<number, Data2>([
 ])
 const DATA_3 = Map<number, Data2>([
     [
-        2,
+        3,
         [
             [0, 0],
             [1, 1],
@@ -106,10 +106,10 @@ test('it returns two datasets, normalized then averaged, if they are both select
     ).toEqual(
         Map([
             [0, 0],
-            [1, 0.5],
+            [1, 0.625],
             [2, 0.375],
             [3, 0.625],
-            [4, 0.75],
+            [4, 0.875],
         ])
     )
 })
@@ -161,10 +161,10 @@ test('it weights datasets when normalizing', () => {
     ).toEqual(
         Map([
             [0, 0],
-            [1, 0.75],
-            [2, 0.125],
-            [3, 0.625],
-            [4, 0.75],
+            [1, 0.8125],
+            [2, 0.3125],
+            [3, 0.5625],
+            [4, 0.8125],
         ])
     )
 })
