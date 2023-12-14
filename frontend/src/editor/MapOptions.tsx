@@ -193,7 +193,7 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                     value={mapVisualization.legend_ticks ?? ''}
                     onChange={(e) => {
                         let legendTicks: number | undefined = parseInt(e.target.value, 10)
-                        if (Number.isNaN(legendTicks)) {
+                        if (Number.isNaN(legendTicks) || legendTicks < 0) {
                             legendTicks = undefined
                         }
                         updateMap({ ...mapVisualization, legend_ticks: legendTicks })
@@ -209,7 +209,7 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                     value={mapVisualization.legend_decimals ?? mapVisualization.decimals}
                     onChange={(e) => {
                         let legendDecimals: number | undefined = parseInt(e.target.value, 10)
-                        if (Number.isNaN(legendDecimals)) {
+                        if (Number.isNaN(legendDecimals) || legendDecimals < 0) {
                             legendDecimals = undefined
                         }
                         updateMap({ ...mapVisualization, legend_decimals: legendDecimals })
