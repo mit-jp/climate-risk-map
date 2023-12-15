@@ -185,7 +185,7 @@ export default function ReportCard() {
             <div>
                 <label>
                     <input type="checkbox" checked={checked} onChange={handleChange} />
-                    Display state-level percentile data
+                    Display state-level percentile
                 </label>
             </div>
             {selectedRegion && states && categoryId !== undefined && (
