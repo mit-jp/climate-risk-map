@@ -195,10 +195,9 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                         let legendTicks: number | undefined = parseInt(e.target.value, 10)
                         if (Number.isNaN(legendTicks)) {
                             legendTicks = undefined
-                        } else if (legendTicks <= 0) {
-                            legendTicks = 0
+                        } else if (Number.isInteger(legendTicks) && legendTicks >= 0) {
+                            updateMap({ ...mapVisualization, legend_ticks: legendTicks })
                         }
-                        updateMap({ ...mapVisualization, legend_ticks: legendTicks })
                     }}
                 />
                 <TextField
@@ -213,10 +212,9 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                         let legendDecimals: number | undefined = parseInt(e.target.value, 10)
                         if (Number.isNaN(legendDecimals)) {
                             legendDecimals = undefined
-                        } else if (legendDecimals <= 0) {
-                            legendDecimals = 0
+                        } else if (Number.isInteger(legendDecimals) && legendDecimals >= 0) {
+                            updateMap({ ...mapVisualization, legend_decimals: legendDecimals })
                         }
-                        updateMap({ ...mapVisualization, legend_decimals: legendDecimals })
                     }}
                 />
 
