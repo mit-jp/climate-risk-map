@@ -166,6 +166,7 @@ export type UploadError =
               link: string
           }
       }
+    | { name: 'DataNonNumeric' }
     | { name: 'DataSourceIncomplete' }
     | { name: 'DataSourceLinkInvalid'; info: string }
     | { name: 'MissingMetadata' }

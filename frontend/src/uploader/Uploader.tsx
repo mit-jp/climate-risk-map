@@ -92,6 +92,15 @@ function Error({
                         </ul>
                     </>
                 )
+            case 'DataNonNumeric':
+                return (
+                    <>
+                        <p>At least one value must be numeric.</p>
+                        <p>
+                            Make sure values do not have symbols attached in csv (e.g. $, %, etc.)
+                        </p>
+                    </>
+                )
             case 'DuplicateDataSource':
                 return <p>Duplicate data source: {e.info.name}</p>
             case 'DataSourceIncomplete':
