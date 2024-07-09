@@ -45,6 +45,8 @@ enum Error {
         row: usize,
         parsed_data: data::Parsed,
     },
+    #[display(fmt = "At least one value in the dataset must be numerical.")]
+    DataNonNumeric,
     #[display(fmt = "Duplicate datasets: {_0:#?}")]
     DuplicateDatasets(Vec<Dataset>),
     DuplicateDataSource(DataSource),
@@ -179,6 +181,9 @@ fn parse_csv(file: &File, metadata: &UploadMetadata) -> Result<HashSet<data::Par
                 }
             }
         }
+    }
+    if new_data.is_empty() {
+        return Err(Error::DataNonNumeric)
     }
     Ok(new_data)
 }
