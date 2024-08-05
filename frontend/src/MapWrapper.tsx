@@ -76,6 +76,7 @@ function MapWrapper({
         return <p>Loading</p>
     }
     // rectangle ("rect") below is made so that the user can zoom out by clicking on the map background
+    // set to be transparent
     return (
         <>
             <div className={css.map}>
