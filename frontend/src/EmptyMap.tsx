@@ -8,8 +8,21 @@ import { GeoMap } from './appSlice'
 const path = geoPath()
 
 function EmptyMap({ map, transform }: { map: GeoMap; transform?: string }) {
-    const geometry =
-        map.region === 'USA' ? map.topoJson.objects.nation : map.topoJson.objects.countries
+    let geometry
+    switch (map.region) {
+        case 'USA':
+            geometry = map.topoJson.objects.nation
+            break
+        case 'World':
+            geometry = map.topoJson.objects.countries
+            break
+        case 'GriddedWorld':
+            geometry = map.topoJson.objects.cells
+            break
+        default:
+            geometry = map.topoJson.objects.nation
+            break
+    }
     const borders = feature(
         map.topoJson,
         geometry as GeometryCollection<GeoJsonProperties>

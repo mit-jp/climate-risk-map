@@ -49,6 +49,9 @@ export const USACounties = (map: TopoJson) =>
 export const countries = (map: TopoJson) =>
     feature(map, map.objects.countries as GeometryCollection<GeoJsonProperties>).features
 
+export const cells = (map: TopoJson) =>
+    feature(map, map.objects.cells as GeometryCollection<GeoJsonProperties>).features
+
 type Props = {
     map: GeoMap
     selectedMapVisualizations: MapVisualization[]
@@ -80,7 +83,21 @@ function ChoroplethMap(
         const value = data.get(regionId)
         return colorScheme(value as any) ?? MISSING_DATA_COLOR
     }
-    const borders = map.region === 'USA' ? USACounties(map.topoJson) : countries(map.topoJson)
+    let borders
+    switch (map.region) {
+        case 'USA':
+            borders = USACounties(map.topoJson)
+            break
+        case 'World':
+            borders = countries(map.topoJson)
+            break
+        case 'GriddedWorld':
+            borders = cells(map.topoJson)
+            break
+        default:
+            borders = USACounties(map.topoJson)
+            break
+    }
     const legendTicks = getLegendTicks(selectedMapVisualizations, isNormalized)
     const legendFormatter = getLegendFormatter(selectedMapVisualizations, isNormalized)
     const getArrayOfData = () =>

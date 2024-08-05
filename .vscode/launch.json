@@ -1,15 +1,3 @@
-{
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "type": "chrome",
-      "request": "launch",
-      "name": "Launch Chrome against localhost",
-      "url": "http://localhost:8080",
-      "webRoot": "${workspaceFolder}"
-    }
-  ]
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:c3252f1286f1ee8d9ccb1ebad9f8a37480214c5ff861fe7eee80e285df2051aa
+size 434

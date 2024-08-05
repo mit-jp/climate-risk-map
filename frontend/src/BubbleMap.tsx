@@ -3,7 +3,7 @@ import type { Feature, GeoJsonProperties, Geometry } from 'geojson'
 import { Map } from 'immutable'
 import { GeoId, GeoMap } from './appSlice'
 import BubbleLegend from './BubbleLegend'
-import { countries, USACounties } from './ChoroplethMap'
+import { countries, USACounties, cells } from './ChoroplethMap'
 import { getDomain } from './DataProcessor'
 import EmptyMap from './EmptyMap'
 import StateMap from './StateMap'
@@ -25,7 +25,21 @@ const makeRegionToRadius =
 
 function BubbleMap({ map, data, legendTitle, color }: Props) {
     const path = geoPath()
-    const regions = map.region === 'USA' ? USACounties(map.topoJson) : countries(map.topoJson)
+    let regions
+    switch (map.region) {
+        case 'USA':
+            regions = USACounties(map.topoJson)
+            break
+        case 'World':
+            regions = countries(map.topoJson)
+            break
+        case 'GriddedWorld':
+            regions = cells(map.topoJson)
+            break
+        default:
+            regions = USACounties(map.topoJson)
+            break
+    }
     const { max } = getDomain(data)
     const valueToRadius = scaleSqrt([0, max], [0, 40])
     const regionToRadius = makeRegionToRadius(valueToRadius, data)

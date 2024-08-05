@@ -16,6 +16,8 @@ export default function RegionNavigation() {
             dispatch(selectRegion('USA'))
         } else if (urlRegion === 2) {
             dispatch(selectRegion('World'))
+        } else if (urlRegion === 3) {
+            dispatch(selectRegion('GriddedWorld'))
         }
     }, [dispatch, urlRegion])
 
@@ -54,6 +56,9 @@ export default function RegionNavigation() {
                 >
                     <MenuItem value="World" aria-label="world">
                         World
+                    </MenuItem>
+                    <MenuItem value="GriddedWorld" aria-label="gridded world">
+                        World (Gridded)
                     </MenuItem>
                     <MenuItem value="USA" aria-label="usa">
                         USA

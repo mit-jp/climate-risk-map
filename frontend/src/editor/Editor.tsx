@@ -51,8 +51,28 @@ function Editor() {
     const map = useSelector((state: RootState) => state.editor.map)
 
     useEffect(() => {
-        const region: Region = selectedMapVisualization?.geography_type === 2 ? 'World' : 'USA'
-        const file = region === 'USA' ? '/usa.json' : '/world.json'
+        let region: Region = 'USA'
+        switch (selectedMapVisualization?.geography_type) {
+            case 2:
+                region = 'World'
+                break
+            case 3:
+                region = 'GriddedWorld'
+                break
+            default:
+                break
+        }
+        let file = '/usa.json'
+        switch (region) {
+            case 'World':
+                file = '/world.json'
+                break
+            case 'GriddedWorld':
+                file = '/gridded-world.json'
+                break
+            default:
+                break
+        }
         json<TopoJson>(file).then((topoJson) => {
             if (topoJson) {
                 dispatch(setMap({ topoJson, region }))
