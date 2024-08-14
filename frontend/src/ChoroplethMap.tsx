@@ -49,8 +49,8 @@ export const USACounties = (map: TopoJson) =>
 export const countries = (map: TopoJson) =>
     feature(map, map.objects.countries as GeometryCollection<GeoJsonProperties>).features
 
-export const cells = (map: TopoJson) =>
-    feature(map, map.objects.cells as GeometryCollection<GeoJsonProperties>).features
+export const features = (map: TopoJson) =>
+    feature(map, map.objects.features as GeometryCollection<GeoJsonProperties>).features
 
 type Props = {
     map: GeoMap
@@ -92,7 +92,7 @@ function ChoroplethMap(
             borders = countries(map.topoJson)
             break
         case 'GriddedWorld':
-            borders = cells(map.topoJson)
+            borders = features(map.topoJson)
             break
         default:
             borders = USACounties(map.topoJson)

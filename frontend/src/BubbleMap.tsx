@@ -3,7 +3,7 @@ import type { Feature, GeoJsonProperties, Geometry } from 'geojson'
 import { Map } from 'immutable'
 import { GeoId, GeoMap } from './appSlice'
 import BubbleLegend from './BubbleLegend'
-import { countries, USACounties, cells } from './ChoroplethMap'
+import { countries, USACounties, features } from './ChoroplethMap'
 import { getDomain } from './DataProcessor'
 import EmptyMap from './EmptyMap'
 import StateMap from './StateMap'
@@ -34,7 +34,7 @@ function BubbleMap({ map, data, legendTitle, color }: Props) {
             regions = countries(map.topoJson)
             break
         case 'GriddedWorld':
-            regions = cells(map.topoJson)
+            regions = features(map.topoJson)
             break
         default:
             regions = USACounties(map.topoJson)

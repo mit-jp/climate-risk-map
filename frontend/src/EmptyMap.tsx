@@ -17,7 +17,7 @@ function EmptyMap({ map, transform }: { map: GeoMap; transform?: string }) {
             geometry = map.topoJson.objects.countries
             break
         case 'GriddedWorld':
-            geometry = map.topoJson.objects.cells
+            geometry = map.topoJson.objects.features
             break
         default:
             geometry = map.topoJson.objects.nation
