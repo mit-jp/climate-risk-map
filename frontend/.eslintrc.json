@@ -1,3 +1,104 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:1425d8a65c911ee93c274b51592c70a2257c4424f9b46d7b4567b6f0a3f1b83c
-size 3209
+{
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+        "airbnb",
+        "plugin:prettier/recommended",
+        "plugin:react/recommended",
+        "plugin:react-hooks/recommended",
+        "plugin:jsx-a11y/recommended",
+        "plugin:react/jsx-runtime"
+    ],
+    "plugins": ["prettier", "react", "@typescript-eslint", "testing-library"],
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+    "rules": {
+        "prettier/prettier": ["error"],
+        "react-hooks/exhaustive-deps": "warn",
+        "react-hooks/rules-of-hooks": "error",
+        "react/jsx-filename-extension": [1, { "extensions": [".ts", ".tsx"] }],
+        "react/jsx-indent-props": [2, 4],
+        "react/jsx-indent": [2, 4],
+        "react/jsx-one-expression-per-line": [0],
+        "react/prefer-stateless-function": [1],
+        "react/static-property-placement": [1, "property assignment"],
+        // https://stackoverflow.com/questions/69687167/proptype-name-is-not-required-but-has-no-corresponding-defaultprops-declarati
+        "react/require-default-props": "off",
+        // https://stackoverflow.com/a/59268871/382892
+        "import/extensions": [
+            "error",
+            "ignorePackages",
+            {
+                "js": "never",
+                "jsx": "never",
+                "ts": "never",
+                "tsx": "never"
+            }
+        ],
+        "no-param-reassign": [
+            "error",
+            {
+                "props": true,
+                "ignorePropertyModificationsFor": ["state", "accumulator"]
+            }
+        ],
+        "no-unused-expressions": [
+            "error",
+            {
+                "allowTernary": true
+            }
+        ],
+        "react/jsx-props-no-spreading": [
+            "error",
+            {
+                "exceptions": ["TextField", "Tooltip"]
+            }
+        ],
+        "@typescript-eslint/no-unused-vars": "error",
+        "no-unused-vars": "off",
+        "no-shadow": "off",
+        "jsx-a11y/label-has-associated-control": [
+            "error",
+            {
+                "assert": "either"
+            }
+        ]
+    },
+    "settings": {
+        // https://stackoverflow.com/a/55280867/382892
+        "import/resolver": {
+            "node": {
+                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+            }
+        }
+    },
+    "env": {
+        "browser": true
+    },
+    "overrides": [
+        {
+            // We enable eslint-plugin-testing-library rules or preset only for matching files!
+            "files": [
+                "**/__tests__/**/*.[jt]s?(x)",
+                "**/?(*.)+(spec|test).[jt]s?(x)",
+                "**/test-utils.tsx",
+                "**/setupTests.ts"
+            ],
+            "extends": ["plugin:testing-library/react"],
+            "rules": {
+                "import/no-extraneous-dependencies": ["error", { "devDependencies": true }]
+            },
+            "env": {
+                "jest": true
+            }
+        },
+        {
+            "files": ["vite.config.ts"],
+            "rules": {
+                "import/no-extraneous-dependencies": ["error", { "devDependencies": true }]
+            }
+        }
+    ]
+}

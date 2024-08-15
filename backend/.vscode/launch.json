@@ -1,3 +1,64 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:a5c2ac9232c3bbab333277ad7358625156720265c25bdc08d9536fa1e3620f32
-size 1947
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'climate_risk_map'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=climate_risk_map"
+                ],
+                "filter": {
+                    "name": "climate_risk_map",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'climate_risk_map'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=climate_risk_map",
+                    "--package=climate_risk_map"
+                ],
+                "filter": {
+                    "name": "climate_risk_map",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'climate_risk_map'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=climate_risk_map",
+                    "--package=climate_risk_map"
+                ],
+                "filter": {
+                    "name": "climate_risk_map",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
