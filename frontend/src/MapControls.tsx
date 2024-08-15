@@ -157,21 +157,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
 
     const countyId = useSelector((state: RootState) => state.app.county)
     const zoomTo = useSelector((state: RootState) => state.app.zoomTo)
-    let region: Region
-    switch (maps[0]?.geography_type) {
-        case 1:
-            region = 'USA'
-            break
-        case 2:
-            region = 'World'
-            break
-        case 3:
-            region = 'GriddedWorld'
-            break
-        default:
-            region = 'USA'
-            break
-    }
+    const region: Region = maps[0]?.geography_type === 1 ? 'USA' : 'World'
     const params = useParams()
     const { tabId } = params
 
@@ -204,38 +190,9 @@ function MapControls({ data, isNormalized, maps }: Props) {
         return undefined
     }
 
-    // PLACEHOLDER
-    const GriddedWorldCsv = (sortedData: Map<number, number> | undefined) => {
-        const objectData = sortedData
-            ?.map((value, id) => {
-                const cell = id
-                return { id, cell, value }
-            })
-            .valueSeq()
-            .toArray()
-        if (objectData) {
-            return csvFormat(objectData, ['id', 'cell', 'value'])
-        }
-        return undefined
-    }
-
     const downloadData = () => {
         const sortedData = data?.sortBy((_, id) => id)
-        let csv
-        switch (region) {
-            case 'USA':
-                csv = UsaCsv(sortedData)
-                break
-            case 'World':
-                csv = WorldCsv(sortedData)
-                break
-            case 'GriddedWorld':
-                csv = GriddedWorldCsv(sortedData)
-                break
-            default:
-                csv = UsaCsv(sortedData)
-                break
-        }
+        const csv = region === 'USA' ? UsaCsv(sortedData) : WorldCsv(sortedData)
         if (csv) {
             const blob = new Blob([csv], { type: 'text/plain;charset=utf-8' })
             saveAs(blob, `${getFilename(maps, isNormalized)}.csv`)

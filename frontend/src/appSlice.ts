@@ -29,7 +29,7 @@ export type OverlayName =
     | 'Critical water habitats'
     | 'Endangered species'
 export type Overlay = { topoJson?: TopoJson; shouldShow: boolean }
-export type Region = 'USA' | 'World' | 'GriddedWorld'
+export type Region = 'USA' | 'World'
 export type GeoMap = {
     topoJson: TopoJson
     region: Region
@@ -73,7 +73,7 @@ const initialState: AppState = {
         'Endangered species': { shouldShow: false },
     },
     tab: undefined,
-    mapSelections: { USA: {}, World: {}, GriddedWorld: {} },
+    mapSelections: { USA: {}, World: {} },
     dataWeights: {},
     zoomTo: undefined,
     detailedView: true,
@@ -259,12 +259,7 @@ const generateMapTransform = (zoomTo: number | undefined, map: GeoMap | undefine
     // topoJson country id: "012", country id: 12
     // topoJson state id: "01", state id: 1
     const idLength = map.region === 'USA' ? 2 : 3
-    let zoomToId
-    if (map.region === 'USA' || map.region === 'World') {
-        zoomToId = String(zoomTo).padStart(idLength, '0')
-    } else {
-        zoomToId = String(zoomTo)
-    }
+    const zoomToId = String(zoomTo).padStart(idLength, '0')
 
     const bounds = geoPath().bounds(features[zoomToId])
     const dx = bounds[1][0] - bounds[0][0]

@@ -24,7 +24,6 @@ type TopoJsonFile =
     | 'transmission-lines-topo.json'
     | 'critical-habitats-topo.json'
     | 'endangered-species-topo.json'
-    | 'gridded-world.json'
 
 type OverlayMap = Record<OverlayName, TopoJsonFile>
 
@@ -38,24 +37,14 @@ const overlayToFile: OverlayMap = {
 }
 const usaFile: { name: TopoJsonFile; region: Region } = { name: 'usa.json', region: 'USA' }
 const worldFile: { name: TopoJsonFile; region: Region } = { name: 'world.json', region: 'World' }
-const griddedWorldFile: { name: TopoJsonFile; region: Region } = {
-    name: 'gridded-world.json',
-    region: 'GriddedWorld',
-}
 
 function Home() {
     const dispatch = useDispatch()
     const region = useSelector((state: RootState) => state.app.region)
     const { data: tabs } = useGetTabsQuery(false)
     const tab = useSelector(selectSelectedTab)
-    let mapRegion = 1
-    if (region === 'World') {
-        mapRegion = 2
-    } else if (region === 'GriddedWorld') {
-        mapRegion = 3
-    }
     const { data: mapVisualizations } = useGetMapVisualizationsQuery({
-        geographyType: mapRegion,
+        geographyType: region === 'USA' ? 1 : 2,
     })
 
     const isNormalized = tab?.normalized ?? false
@@ -65,17 +54,7 @@ function Home() {
             : []
 
     useEffect(() => {
-        let file = usaFile
-        switch (region) {
-            case 'World':
-                file = worldFile
-                break
-            case 'GriddedWorld':
-                file = griddedWorldFile
-                break
-            default:
-                break
-        }
+        const file = region === 'USA' ? usaFile : worldFile
         json<TopoJson>(file.name).then((topoJson) => {
             dispatch(setMap(topoJson ? { topoJson, region } : undefined))
         })
