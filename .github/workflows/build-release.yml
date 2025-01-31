@@ -195,5 +195,5 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: >
             systemctl --user stop pod-crm_pod.service &&
-            ln -snf ~/builds/${{ github.event.pull_request.head.sha }} ~/climate-risk-map &&
+            ln -snf ~/builds/${{ github.sha }} ~/climate-risk-map &&
             systemctl --user start pod-crm_pod.service
