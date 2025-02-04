@@ -156,11 +156,9 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: >
-            podman pod start crm_pod &&
-            podman stop crm_backend &&
+            systemctl --user stop pod-crm_pod.service &&
             ln -snf ~/builds/${{ github.event.pull_request.head.sha }} ~/climate-risk-map &&
-            podman run --rm -v ~/climate-risk-map/backend:/opt/climate-risk-map/backend:Z --tz=America/New_York --env-file=$HOME/.env --pod=crm_pod sqlx database reset -y &&
-            podman start crm_backend
+            systemctl --user start pod-crm_pod.service
 
   deploy-production:
     if: github.event_name == 'push'
@@ -196,7 +194,6 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: >
-            podman stop crm_backend &&
+            systemctl --user stop pod-crm_pod.service &&
             ln -snf ~/builds/${{ github.sha }} ~/climate-risk-map &&
-            podman run --rm -v ~/climate-risk-map/backend:/opt/climate-risk-map/backend:Z --tz=America/New_York --env-file=$HOME/.env --pod=crm_pod sqlx migrate run &&
-            podman start crm_backend
+            systemctl --user start pod-crm_pod.service
