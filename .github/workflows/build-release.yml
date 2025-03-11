@@ -35,9 +35,9 @@ jobs:
           - 5432:5432
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: ⚡ Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cargo/registry/index/
@@ -47,7 +47,7 @@ jobs:
           key: ${{ runner.os }}-cargo-dependencies-${{ hashFiles('**/Cargo.lock') }}
 
       - name: ⚡ Cache sqlx-cli
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: cache-sqlx
         with:
           path: |
@@ -86,7 +86,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: actions/setup-node@v3
         with:
@@ -98,7 +98,7 @@ jobs:
         working-directory: frontend
 
       - name: ⚡ Cache yarn dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
