@@ -1,6 +1,5 @@
 import css from './Header.module.css'
-import jointProgramLogo from './joint-program-logo.jpg'
-import mitLogo from './MIT-logo.svg'
+import CS3Logo from './CS3-logo.png'
 
 function Header() {
     return (
@@ -16,13 +15,10 @@ function Header() {
             </div>
             <a href="https://globalchange.mit.edu/">
                 <img
-                    src={jointProgramLogo}
-                    className={css.jointProgramLogo}
-                    alt="MIT Joint Program on The Science and Policy of Global Change"
+                    src={CS3Logo}
+                    className={css.CS3Logo}
+                    alt="MIT Center for Sustainability Science and Strategy (CS3)"
                 />
-            </a>
-            <a href="https://mit.edu/">
-                <img src={mitLogo} alt="MIT" className={css.mitLogo} />
             </a>
         </header>
     )

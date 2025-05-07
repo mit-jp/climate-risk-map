@@ -6,7 +6,7 @@ function Footer() {
     return (
         <footer id={css.footer}>
             <div id={css.address}>
-                <p>MIT Joint Program on the Science and Policy of Global Change</p>
+                <p>MIT Center for Sustainability Science and Strategy (CS3)</p>
                 <p>Massachusetts Institute of Technology • Cambridge, MA 02139</p>
             </div>
             <ul id={css.social}>
@@ -79,7 +79,7 @@ function Footer() {
                 </li>
                 <li>
                     <a href="https://wikis.mit.edu/confluence/display/globalchange/Home">
-                        JP Staff &amp; Students
+                        CS3 Staff &amp; Students
                     </a>
                 </li>
                 <li>
