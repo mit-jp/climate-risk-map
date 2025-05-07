@@ -9,7 +9,7 @@ env:
 
 jobs:
   build-backend:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     env:
       SQLX_VERSION: ^0.6.2
@@ -83,7 +83,7 @@ jobs:
           path: backend/backend.tar
 
   build-frontend:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v3
@@ -128,7 +128,7 @@ jobs:
       name: development
       url: https://svante3.mit.edu
     needs: [build-backend, build-frontend]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -166,7 +166,7 @@ jobs:
       name: production
       url: https://est.mit.edu
     needs: [build-backend, build-frontend]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/download-artifact@v4
         with:
