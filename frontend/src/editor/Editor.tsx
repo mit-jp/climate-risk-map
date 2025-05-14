@@ -30,6 +30,7 @@ import {
 
 export const isDrafts = (tab: Tab | undefined) => tab?.id === -1
 
+// comment
 function Editor() {
     const dispatch = useDispatch()
     const { data: allMapVisualizations } = useGetMapVisualizationsQuery({ includeDrafts: true })
