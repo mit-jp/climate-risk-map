@@ -9,7 +9,7 @@ env:
 
 jobs:
   build-backend:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     env:
       SQLX_VERSION: ^0.6.2
@@ -35,9 +35,9 @@ jobs:
           - 5432:5432
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: ⚡ Cache dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry/index/
@@ -47,7 +47,7 @@ jobs:
           key: ${{ runner.os }}-cargo-dependencies-${{ hashFiles('**/Cargo.lock') }}
 
       - name: ⚡ Cache sqlx-cli
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         id: cache-sqlx
         with:
           path: |
@@ -83,10 +83,10 @@ jobs:
           path: backend/backend.tar
 
   build-frontend:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: actions/setup-node@v3
         with:
@@ -98,7 +98,7 @@ jobs:
         working-directory: frontend
 
       - name: ⚡ Cache yarn dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -128,7 +128,7 @@ jobs:
       name: development
       url: https://svante3.mit.edu
     needs: [build-backend, build-frontend]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -166,7 +166,7 @@ jobs:
       name: production
       url: https://est.mit.edu
     needs: [build-backend, build-frontend]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/download-artifact@v4
         with:

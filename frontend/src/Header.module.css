@@ -5,7 +5,7 @@
 }
 
 .header h1 {
-    font-size: 40pt;
+    font-size: 45pt;
     font-weight: 1000;
     color: #11598d;
     font-family: 'Tahoma', sans-serif;
@@ -18,6 +18,10 @@
     margin-bottom: 2em;
 }
 
+.header a {
+    margin-right: 5%;
+}
+
 .title {
     display: flex;
     align-items: center;
@@ -28,12 +32,7 @@
     margin-left: 40px;
 }
 
-.joint-program-logo {
-    height: 100px;
-    margin: 0 1em;
-}
-
-.mit-logo {
+.CS3-logo {
     margin: 0 1em;
 }
 

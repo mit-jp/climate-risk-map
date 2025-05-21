@@ -1,4 +1,4 @@
-import { Facebook, GitHub, Mail, RssFeed, Twitter } from '@mui/icons-material'
+import { GitHub, Mail, RssFeed } from '@mui/icons-material'
 import { IconButton, Link } from '@mui/material'
 import css from './Footer.module.css'
 
@@ -6,39 +6,15 @@ function Footer() {
     return (
         <footer id={css.footer}>
             <div id={css.address}>
-                <p>MIT Joint Program on the Science and Policy of Global Change</p>
+                <p>MIT Center for Sustainability Science and Strategy (CS3)</p>
                 <p>Massachusetts Institute of Technology • Cambridge, MA 02139</p>
             </div>
             <ul id={css.social}>
                 <li>
                     <IconButton
-                        aria-label="facebook"
-                        component={Link}
-                        href="https://www.facebook.com/MITGlobalChange/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        size="large"
-                    >
-                        <Facebook fontSize="large" style={{ color: '#fff' }} />
-                    </IconButton>
-                </li>
-                <li>
-                    <IconButton
-                        aria-label="twitter"
-                        component={Link}
-                        href="https://twitter.com/mitglobalchange"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        size="large"
-                    >
-                        <Twitter fontSize="large" style={{ color: '#fff' }} />
-                    </IconButton>
-                </li>
-                <li>
-                    <IconButton
                         aria-label="rss"
                         component={Link}
-                        href="https://globalchange.mit.edu/rss-feeds"
+                        href="https://cs3.mit.edu/rss-feeds"
                         target="_blank"
                         rel="noopener noreferrer"
                         size="large"
@@ -73,14 +49,10 @@ function Footer() {
             </ul>
             <ul id={css.navigation}>
                 <li>
-                    <a href="https://globalchange.mit.edu/about-us/our-purpose/contact-us">
-                        Contact Us
-                    </a>
+                    <a href="https://cs3.mit.edu/about-us/our-purpose/contact-us">Contact Us</a>
                 </li>
                 <li>
-                    <a href="https://wikis.mit.edu/confluence/display/globalchange/Home">
-                        JP Staff &amp; Students
-                    </a>
+                    <a href="https://cs3.mit.edu/about-us/personnel">CS3 Staff &amp; Students</a>
                 </li>
                 <li>
                     <a href="https://accessibility.mit.edu/">Accessibility</a>

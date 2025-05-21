@@ -15,6 +15,7 @@ import { TopoJson } from './TopoJson'
 import { OverlayName, Region, selectSelectedTab, setMap, setOverlay, setTab } from './appSlice'
 import { RootState } from './store'
 
+// Map overlays
 type TopoJsonFile =
     | 'usa.json'
     | 'world.json'
