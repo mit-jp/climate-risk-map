@@ -1,4 +1,4 @@
-import { Autocomplete, TextField } from '@mui/material'
+import { Autocomplete, TextField, Checkbox } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { redBlueReportCard } from '../Color'
@@ -183,10 +183,8 @@ export default function ReportCard() {
                 value={selectedRegion}
             />
             <div>
-                <label>
-                    <input type="checkbox" checked={checked} onChange={handleChange} />
-                    Display state-level percentile data
-                </label>
+                <Checkbox checked={checked} onChange={handleChange} />
+                Display state-level percentile data
             </div>
             {selectedRegion && states && categoryId !== undefined && (
                 <PercentileReport
