@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Button } from '@mui/material'
 import css from './DataDescription.module.css'
 import { DataSource } from './MapVisualization'
 
@@ -7,15 +8,17 @@ function DataSourceDescription({ dataSource }: { dataSource: DataSource }) {
 
     return (
         <div className={css.dataDescription}>
-            <button
-                type="button"
+            <Button
+                variant={show ? 'contained' : 'outlined'}
                 onClick={() => {
                     setShow(!show)
                 }}
                 className={show ? css.shown : undefined}
             >
-                About the {dataSource.name} dataset
-            </button>
+                {show
+                    ? `Hide ${dataSource.name} dataset info`
+                    : `About the ${dataSource.name} dataset`}
+            </Button>
             {show && <p>{dataSource.description}</p>}
             {show && (
                 <p>

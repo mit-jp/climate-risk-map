@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Button } from '@mui/material'
 import css from './DataDescription.module.css'
 
 function DataDescription({ name, description }: { name: string; description: string }) {
@@ -6,13 +7,13 @@ function DataDescription({ name, description }: { name: string; description: str
 
     return (
         <div className={css.dataDescription}>
-            <button
-                type="button"
+            <Button
+                variant={show ? 'contained' : 'outlined'}
                 onClick={() => setShow(!show)}
                 className={show ? css.shown : undefined}
             >
-                About the {name} data
-            </button>
+                {show ? `Hide ${name} data info` : `About the ${name} data`}
+            </Button>
             {show && <p>{description}</p>}
         </div>
     )
