@@ -52,8 +52,8 @@ function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarni
                 <div id={css.stateDataWarning}>
                     <h3 id={css.stateDataWarningTitle}>⚠️ Data Limitation Notice</h3>
                     <p id={css.stateDataWarningParagraph}>
-                        This dataset contains state-level data only. <br></br> For accurate
-                        analysis, please compare at the national view.
+                        This dataset contains state-level data only. <br /> For accurate analysis,
+                        please compare at the national view.
                     </p>
                 </div>
             )}
