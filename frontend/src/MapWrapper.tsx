@@ -72,6 +72,28 @@ function MapWrapper({
     const dataSource =
         maps[0] && selections[0] ? maps[0].sources[selections[0].dataSource] : undefined
 
+    const isStateLevelOnlyData = useMemo(() => {
+        if (!processedData || region !== 'USA') {
+            return false
+        }
+
+        const stateGroups: Record<number, number[]> = {}
+        processedData?.forEach((value, countyId) => {
+            const countyStateId = Math.floor(countyId / 1000)
+            if (!stateGroups[countyStateId]) {
+                stateGroups[countyStateId] = []
+            }
+            stateGroups[countyStateId].push(value)
+        })
+
+        const allStatesUniform = Object.values(stateGroups).every(
+            (stateValues) =>
+                stateValues.length > 0 && stateValues.every((value) => value === stateValues[0])
+        )
+
+        return allStatesUniform
+    }, [processedData, region])
+
     if (map === undefined) {
         return <p>Loading</p>
     }
@@ -81,7 +103,11 @@ function MapWrapper({
         <>
             <div className={css.map}>
                 {maps.length > 0 ? (
-                    <MapTitle selectedMapVisualizations={maps} isNormalized={isNormalized} />
+                    <MapTitle
+                        selectedMapVisualizations={maps}
+                        isNormalized={isNormalized}
+                        showStateLevelWarning={isStateLevelOnlyData && !zoomTo}
+                    />
                 ) : (
                     <EmptyMapTitle />
                 )}

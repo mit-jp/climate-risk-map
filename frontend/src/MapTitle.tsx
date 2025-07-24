@@ -16,6 +16,7 @@ const getTitle = (selectedMaps: MapVisualization[]) => {
 type Props = {
     selectedMapVisualizations: MapVisualization[]
     isNormalized: boolean
+    showStateLevelWarning: boolean
 }
 
 const BigTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -30,22 +31,33 @@ const BigTooltip = styled(({ className, ...props }: TooltipProps) => (
     },
 }))
 
-function MapTitle({ selectedMapVisualizations, isNormalized }: Props) {
+function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarning }: Props) {
     return (
-        <h3 id={css.mapTitle}>
-            {getTitle(selectedMapVisualizations)}
-            {isNormalized && (
-                <BigTooltip
-                    title="The normalized value is the percentile
+        <>
+            <h3 id={css.mapTitle}>
+                {getTitle(selectedMapVisualizations)}
+                {isNormalized && (
+                    <BigTooltip
+                        title="The normalized value is the percentile
                 of the raw data. If you select multiple data,
                 we take the mean of the ranked values."
-                >
-                    <IconButton aria-label="info" size="large">
-                        <Info />
-                    </IconButton>
-                </BigTooltip>
+                    >
+                        <IconButton aria-label="info" size="large">
+                            <Info />
+                        </IconButton>
+                    </BigTooltip>
+                )}
+            </h3>
+            {showStateLevelWarning && (
+                <div id={css.stateDataWarning}>
+                    <h3 id={css.stateDataWarningTitle}>⚠️ Data Limitation Notice</h3>
+                    <p id={css.stateDataWarningParagraph}>
+                        This dataset contains state-level data only. <br></br> For accurate
+                        analysis, please compare at the national view.
+                    </p>
+                </div>
             )}
-        </h3>
+        </>
     )
 }
 
