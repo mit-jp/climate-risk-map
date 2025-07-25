@@ -58,12 +58,13 @@ function OverlaySubControl({ name }: { name: OverlayName }) {
     if (name === 'Transmission lines') {
         return (
             <FormControl>
-                <InputLabel shrink id="transmission-lines-type">
+                <InputLabel shrink className={css.overlayOptionsLabel} id="transmission-lines-type">
                     Type
                 </InputLabel>
                 <Select
                     labelId="transmission-lines-type"
                     value={transmissionLineType}
+                    className={css.overlayOptions}
                     onChange={(event) =>
                         dispatch(
                             setTransmissionLineType(event.target.value as TransmissionLineType)
@@ -82,12 +83,13 @@ function OverlaySubControl({ name }: { name: OverlayName }) {
     if (name === 'Marine highways') {
         return (
             <FormControl>
-                <InputLabel shrink id="waterway-type">
+                <InputLabel shrink className={css.overlayOptionsLabel} id="waterway-type">
                     Tonnage
                 </InputLabel>
                 <Select
                     labelId="waterway-type"
                     value={waterwayValue}
+                    className={css.overlayOptions}
                     onChange={(event) =>
                         dispatch(setWaterwayValue(event.target.value as WaterwayValue))
                     }

@@ -7,3 +7,14 @@
     margin-right: 1em;
     margin-top: 1em;
 }
+
+.overlay-options {
+    margin-top: 4px;
+    margin-right: 1em;
+    height: 35px;
+}
+
+.overlay-options-label {
+    margin-top: -4px;
+    margin-left: -5px;
+}
