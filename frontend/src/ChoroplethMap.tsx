@@ -106,9 +106,9 @@ function ChoroplethMap(
                 tickFormat={legendFormatter}
                 ticks={legendTicks}
                 showHighLowLabels={isNormalized}
-                x={map.region === 'World' ? 0 : 850}
+                x={map.region === 'World' ? 0 : 875}
                 y={map.region === 'World' ? 502 : 500}
-                width={300}
+                width={290}
                 height={60}
             />
             {shouldShowPdf(selectedMapVisualizations, isNormalized) && (
