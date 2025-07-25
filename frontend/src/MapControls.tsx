@@ -257,7 +257,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
                     </Button>
                 )}
             </div>
-            <div>
+            <div id={css.overlays}>
                 {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
                 {isNormalized && data && (
                     <FormControlLabel

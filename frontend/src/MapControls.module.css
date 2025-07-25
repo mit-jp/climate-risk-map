@@ -1,6 +1,5 @@
 #map-controls {
     margin-left: 1em;
-    margin-top: 2em;
 }
 
 #map-controls button {
@@ -15,6 +14,11 @@
 }
 
 .overlay-options-label {
-    margin-top: -4px;
+    margin-top: 5px;
     margin-left: -5px;
+    background: white;
+}
+
+#overlays {
+    margin-top: 10px;
 }
