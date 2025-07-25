@@ -17,7 +17,9 @@
     border: 2px solid #f44336;
     border-radius: 4px;
     padding: 12px;
-    margin: 16px auto 16px 22%;
+    margin: 16px auto;
+    position: relative;
+    right: 10%;
     display: block;
     width: fit-content;
     text-align: center;
