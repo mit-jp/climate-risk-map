@@ -1,7 +1,10 @@
-import { IconButton, styled, Tooltip, TooltipProps, tooltipClasses } from '@mui/material'
+import { Button, styled, Tooltip, TooltipProps, tooltipClasses } from '@mui/material'
 import { Info } from '@mui/icons-material'
+import { useDispatch, useSelector } from 'react-redux'
 import { MapVisualization } from './MapVisualization'
 import css from './MapTitle.module.css'
+import { clickMap } from './appSlice'
+import { RootState } from './store'
 
 const getTitle = (selectedMaps: MapVisualization[]) => {
     if (selectedMaps.length > 1) {
@@ -31,21 +34,38 @@ const BigTooltip = styled(({ className, ...props }: TooltipProps) => (
 }))
 
 function MapTitle({ selectedMapVisualizations, isNormalized }: Props) {
+    const zoomTo = useSelector((state: RootState) => state.app.zoomTo)
+    const dispatch = useDispatch()
     return (
-        <h3 id={css.mapTitle}>
-            {getTitle(selectedMapVisualizations)}
-            {isNormalized && (
-                <BigTooltip
-                    title="The normalized value is the percentile
+        <div className={css.mapTitleContainer}>
+            {zoomTo && (
+                // creates a button that zooms back out if zoomed into a state or country
+                <button
+                    className={css.zoomOutButton}
+                    onClick={() => dispatch(clickMap(Number(-1)))}
+                >
+                    ←
+                </button>
+            )}
+            <h3 id={css.mapTitle}>
+                {getTitle(selectedMapVisualizations)}
+                {isNormalized && (
+                    <BigTooltip
+                        title="The normalized value is the percentile
                 of the raw data. If you select multiple data,
                 we take the mean of the ranked values."
-                >
-                    <IconButton aria-label="info" size="large">
-                        <Info />
-                    </IconButton>
-                </BigTooltip>
-            )}
-        </h3>
+                    >
+                        <Info
+                            sx={{
+                                verticalAlign: 'middle',
+                                marginLeft: '8px',
+                                marginBottom: '3px',
+                            }}
+                        />
+                    </BigTooltip>
+                )}
+            </h3>
+        </div>
     )
 }
 

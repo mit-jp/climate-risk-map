@@ -2,7 +2,7 @@
     font-weight: 400;
     font-size: 25px;
     line-height: 48px;
-    margin: 25px 0 0 0;
+    margin: 15px 0 15px 0;
     width: 82%;
     text-align: center;
 }
@@ -10,4 +10,28 @@
 #empty-title {
     height: 48px;
     margin-top: 25px;
+}
+
+.zoom-out-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 18px;
+    font-weight: 800;
+    background-color: rgb(188, 198, 212);
+    color: black;
+    border: 2px solid black;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    position: absolute;
+    left: 20px;
+}
+
+.zoom-out-button:hover {
+    background-color: rgb(73, 93, 121);
+    color: white;
+}
+
+.mapTitleContainer {
+    position: relative;
 }

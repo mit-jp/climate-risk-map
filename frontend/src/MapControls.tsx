@@ -250,12 +250,6 @@ function MapControls({ data, isNormalized, maps }: Props) {
                         {states.get(stateId(countyId))}
                     </Button>
                 )}
-                {zoomTo && (
-                    // creates a button that zooms back out if zoomed into a state or country
-                    <Button variant="outlined" onClick={() => dispatch(clickMap(Number(-1)))}>
-                        Zoom Out
-                    </Button>
-                )}
             </div>
             <div id={css.overlays}>
                 {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
