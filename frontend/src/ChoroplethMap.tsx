@@ -106,8 +106,10 @@ function ChoroplethMap(
                 tickFormat={legendFormatter}
                 ticks={legendTicks}
                 showHighLowLabels={isNormalized}
-                x={map.region === 'World' ? 0 : undefined}
-                y={map.region === 'World' ? 502 : undefined}
+                x={map.region === 'World' ? 0 : 850}
+                y={map.region === 'World' ? 502 : 500}
+                width={300}
+                height={60}
             />
             {shouldShowPdf(selectedMapVisualizations, isNormalized) && (
                 <ProbabilityDensity
@@ -117,6 +119,8 @@ function ChoroplethMap(
                     formatter={legendFormatter}
                     continuous={detailedView}
                     shouldNormalize={isNormalized}
+                    width={290}
+                    height={200}
                 />
             )}
         </>
