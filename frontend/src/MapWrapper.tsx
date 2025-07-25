@@ -78,7 +78,7 @@ function MapWrapper({
         }
 
         const stateGroups: Record<number, number[]> = {}
-        processedData?.forEach((value, countyId) => {
+        processedData.forEach((value, countyId) => {
             const countyStateId = Math.floor(countyId / 1000)
             if (!stateGroups[countyStateId]) {
                 stateGroups[countyStateId] = []
