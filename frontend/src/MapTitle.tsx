@@ -20,8 +20,9 @@ const getTitle = (selectedMaps: MapVisualization[]) => {
 
 const getSubtitle = (countyId: number | undefined, region: string) => {
     if (countyId) {
-        const countyName = counties.get(countyId)
-        const stateName = states.get(stateId(countyId))
+        const countyName = counties.get(countyId) || 'Unknown County'
+        const stateIdValue = stateId(countyId)
+        const stateName = stateIdValue ? states.get(stateIdValue) : 'Unknown State'
         return `${countyName}, ${stateName}`
     }
     if (region === 'USA') {
