@@ -9,6 +9,7 @@ import {
     Switch,
     Tooltip,
 } from '@mui/material'
+import { HelpOutline } from '@mui/icons-material'
 import { csvFormat } from 'd3'
 import { saveAs } from 'file-saver'
 import { Map } from 'immutable'
@@ -237,61 +238,66 @@ function MapControls({ data, isNormalized, maps }: Props) {
     }
 
     return (
-        <div id={css.mapControls}>
-            <div>
+        <>
+            <div id={css.countyControls}>
                 {countyId && (
-                    <Tooltip
-                        title="View detailed statistics and climate risk information for this county"
-                        arrow
-                        placement="top"
-                    >
+                    <>
                         <Button
-                            id={css.countyReportCardButton}
+                            id={css.reportCardButton}
                             variant="outlined"
                             onClick={() => window.open(`/report-card/${tabId ?? '8'}/${countyId}`)}
                         >
                             View report card for {counties.get(countyId)},{' '}
                             {states.get(stateId(countyId))}
                         </Button>
-                    </Tooltip>
+                        <Tooltip
+                            title="The Report Card shows detailed county information for all metrics in this tab. It includes the county’s: national percentile (how the county compares to all other counties in the country); state percentile (how the county compares to all other counties in the state); and the raw value for the metric. A higher percentile ranking represents a ‘higher risk’ for all metrics. This is a helpful tool to see which metrics are a relatively higher risk for a county."
+                            arrow
+                            placement="top"
+                        >
+                            <HelpOutline id={css.reportCardTooltip} />
+                        </Tooltip>
+                    </>
                 )}
             </div>
-            <div id={css.overlays}>
-                {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
-                {isNormalized && data && (
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={detailedView}
-                                onChange={(_, value) => dispatch(setDetailedView(value))}
-                                name="detailed-view"
-                                color="primary"
-                            />
-                        }
-                        label="Detailed View"
-                    />
-                )}
-            </div>
-            <div>
-                {data && (
-                    <Button variant="outlined" onClick={downloadData}>
-                        Download Data
-                    </Button>
-                )}
-                {data && (
-                    <Button variant="outlined" onClick={downloadImageSVG}>
-                        Download Image (SVG)
-                    </Button>
-                )}
-                {data && (
-                    <Tooltip title="Google Chrome is recommended to download PNG images" arrow>
-                        <Button variant="outlined" onClick={downloadImagePNG}>
-                            Download Image (PNG)
+            <div id={css.mapControls}>
+                <div id={css.overlays}>
+                    {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
+                    {isNormalized && data && (
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={detailedView}
+                                    onChange={(_, value) => dispatch(setDetailedView(value))}
+                                    name="detailed-view"
+                                    color="primary"
+                                />
+                            }
+                            label="Detailed View"
+                        />
+                    )}
+                </div>
+                <div>
+                    {data && (
+                        <Button variant="outlined" onClick={downloadData}>
+                            Download Data
                         </Button>
-                    </Tooltip>
-                )}
+                    )}
+                    {data && (
+                        <Button variant="outlined" onClick={downloadImageSVG}>
+                            Download Image (SVG)
+                        </Button>
+                    )}
+                    {data && (
+                        <Tooltip title="Google Chrome is recommended to download PNG images" arrow>
+                            <Button variant="outlined" onClick={downloadImagePNG}>
+                                Download Image (PNG)
+                            </Button>
+                        </Tooltip>
+                    )}
+                </div>
             </div>
-        </div>
+        </>
     )
 }
 

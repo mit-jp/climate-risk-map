@@ -4,7 +4,6 @@
 
 #map-controls button {
     margin-right: 1em;
-    margin-top: 1em;
 }
 
 .overlay-options {
@@ -23,14 +22,21 @@
     margin-top: 10px;
 }
 
-#county-report-card-button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 20px auto !important;
+#report-card-button {
     background-color: rgb(188, 198, 212);
     color: black;
     text-transform: none;
     font-weight: 500;
     font-size: 16px;
+}
+
+#county-controls {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+#report-card-tooltip {
+    margin-left: 5px;
 }
