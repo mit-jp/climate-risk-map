@@ -8,12 +8,15 @@ import {
     Select,
     Switch,
     Tooltip,
+    IconButton,
+    Popover,
+    Typography,
 } from '@mui/material'
 import { HelpOutline } from '@mui/icons-material'
 import { csvFormat } from 'd3'
 import { saveAs } from 'file-saver'
 import { Map } from 'immutable'
-import { Fragment } from 'react'
+import { useState, Fragment } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import counties from './Counties'
@@ -160,6 +163,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
     const countyId = useSelector((state: RootState) => state.app.county)
     const region: Region = maps[0]?.geography_type === 1 ? 'USA' : 'World'
     const params = useParams()
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
     const { tabId } = params
 
     const UsaCsv = (sortedData: Map<number, number> | undefined) => {
@@ -250,13 +254,26 @@ function MapControls({ data, isNormalized, maps }: Props) {
                             View report card for {counties.get(countyId)},{' '}
                             {states.get(stateId(countyId))}
                         </Button>
-                        <Tooltip
-                            title="The Report Card shows detailed county information for all metrics in this tab. It includes the county’s: national percentile (how the county compares to all other counties in the country); state percentile (how the county compares to all other counties in the state); and the raw value for the metric. A higher percentile ranking represents a ‘higher risk’ for all metrics. This is a helpful tool to see which metrics are a relatively higher risk for a county."
-                            arrow
-                            placement="top"
+                        <IconButton
+                            onClick={(event) => setAnchorEl(event.currentTarget)}
+                            size="small"
+                            id={css.reportCardTooltip}
                         >
-                            <HelpOutline id={css.reportCardTooltip} />
-                        </Tooltip>
+                            <HelpOutline />
+                        </IconButton>
+                        <Popover
+                            open={Boolean(anchorEl)}
+                            anchorEl={anchorEl}
+                            onClose={() => setAnchorEl(null)}
+                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                            transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+                        >
+                            <Typography sx={{ p: 2, maxWidth: 300 }}>
+                                Shows detailed county information including national and state
+                                percentiles for all metrics. Higher percentiles indicate higher
+                                risk.
+                            </Typography>
+                        </Popover>
                     </>
                 )}
             </div>
