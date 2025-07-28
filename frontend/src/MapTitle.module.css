@@ -25,6 +25,7 @@
     transition: background-color 0.2s ease;
     position: absolute;
     left: 20px;
+    top: 3.5px;
 }
 
 .zoom-out-button:hover {

@@ -1,5 +1,5 @@
 import { styled, Tooltip, TooltipProps, tooltipClasses } from '@mui/material'
-import { Info } from '@mui/icons-material'
+import { Info, ZoomOut } from '@mui/icons-material'
 import { useDispatch, useSelector } from 'react-redux'
 import { MapVisualization } from './MapVisualization'
 import css from './MapTitle.module.css'
@@ -45,7 +45,7 @@ function MapTitle({ selectedMapVisualizations, isNormalized }: Props) {
                     className={css.zoomOutButton}
                     onClick={() => dispatch(clickMap(-1))}
                 >
-                    ←
+                    <ZoomOut fontSize="medium" />
                 </button>
             )}
             <h3 id={css.mapTitle}>
