@@ -28,7 +28,6 @@ import {
     OverlayName,
     Region,
     TransmissionLineType,
-    clickMap,
     setDetailedView,
     setShowOverlay,
     setTransmissionLineType,
@@ -158,7 +157,6 @@ function MapControls({ data, isNormalized, maps }: Props) {
     const detailedView = useSelector((state: RootState) => state.app.detailedView)
 
     const countyId = useSelector((state: RootState) => state.app.county)
-    const zoomTo = useSelector((state: RootState) => state.app.zoomTo)
     const region: Region = maps[0]?.geography_type === 1 ? 'USA' : 'World'
     const params = useParams()
     const { tabId } = params

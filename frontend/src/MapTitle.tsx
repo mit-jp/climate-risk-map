@@ -1,4 +1,4 @@
-import { Button, styled, Tooltip, TooltipProps, tooltipClasses } from '@mui/material'
+import { styled, Tooltip, TooltipProps, tooltipClasses } from '@mui/material'
 import { Info } from '@mui/icons-material'
 import { useDispatch, useSelector } from 'react-redux'
 import { MapVisualization } from './MapVisualization'
@@ -41,8 +41,9 @@ function MapTitle({ selectedMapVisualizations, isNormalized }: Props) {
             {zoomTo && (
                 // creates a button that zooms back out if zoomed into a state or country
                 <button
+                    type="button"
                     className={css.zoomOutButton}
-                    onClick={() => dispatch(clickMap(Number(-1)))}
+                    onClick={() => dispatch(clickMap(-1))}
                 >
                     ←
                 </button>
