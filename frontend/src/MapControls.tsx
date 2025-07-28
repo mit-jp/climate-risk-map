@@ -240,13 +240,20 @@ function MapControls({ data, isNormalized, maps }: Props) {
         <div id={css.mapControls}>
             <div>
                 {countyId && (
-                    <Button
-                        variant="outlined"
-                        onClick={() => window.open(`/report-card/${tabId ?? '8'}/${countyId}`)}
+                    <Tooltip
+                        title="View detailed statistics and climate risk information for this county"
+                        arrow
+                        placement="top"
                     >
-                        View report card for {counties.get(countyId)},{' '}
-                        {states.get(stateId(countyId))}
-                    </Button>
+                        <Button
+                            id={css.countyReportCardButton}
+                            variant="outlined"
+                            onClick={() => window.open(`/report-card/${tabId ?? '8'}/${countyId}`)}
+                        >
+                            View report card for {counties.get(countyId)},{' '}
+                            {states.get(stateId(countyId))}
+                        </Button>
+                    </Tooltip>
                 )}
             </div>
             <div id={css.overlays}>

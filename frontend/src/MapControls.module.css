@@ -22,3 +22,15 @@
 #overlays {
     margin-top: 10px;
 }
+
+#county-report-card-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px auto !important;
+    background-color: rgb(188, 198, 212);
+    color: black;
+    text-transform: none;
+    font-weight: 500;
+    font-size: 16px;
+}
