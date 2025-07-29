@@ -45,7 +45,12 @@ function MapTitle({ selectedMapVisualizations, isNormalized }: Props) {
                     className={css.zoomOutButton}
                     onClick={() => dispatch(clickMap(-1))}
                 >
-                    <ZoomOut fontSize="medium" />
+                    <ZoomOut
+                        fontSize="medium"
+                        sx={{
+                            verticalAlign: 'middle',
+                        }}
+                    />
                 </button>
             )}
             <h3 id={css.mapTitle}>
