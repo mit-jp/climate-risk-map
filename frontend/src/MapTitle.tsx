@@ -1,7 +1,12 @@
 import { IconButton, styled, Tooltip, TooltipProps, tooltipClasses } from '@mui/material'
 import { Info } from '@mui/icons-material'
+import { useSelector } from 'react-redux'
 import { MapVisualization } from './MapVisualization'
+import { RootState } from './store'
+import { stateId } from './appSlice'
 import css from './MapTitle.module.css'
+import counties from './Counties'
+import states from './States'
 
 const getTitle = (selectedMaps: MapVisualization[]) => {
     if (selectedMaps.length > 1) {
@@ -11,6 +16,19 @@ const getTitle = (selectedMaps: MapVisualization[]) => {
         return ''
     }
     return selectedMaps[0].displayName
+}
+
+const getSubtitle = (countyId: number | undefined, region: string) => {
+    if (countyId) {
+        const countyName = counties.get(countyId) || 'Unknown County'
+        const stateIdValue = stateId(countyId)
+        const stateName = stateIdValue ? states.get(stateIdValue) : 'Unknown State'
+        return `${countyName}, ${stateName}`
+    }
+    if (region === 'USA') {
+        return 'United States'
+    }
+    return 'World'
 }
 
 type Props = {
@@ -31,25 +49,34 @@ const BigTooltip = styled(({ className, ...props }: TooltipProps) => (
 }))
 
 function MapTitle({ selectedMapVisualizations, isNormalized }: Props) {
+    const countyId = useSelector((state: RootState) => state.app.county)
+    const region = useSelector((state: RootState) => state.app.region)
     return (
-        <h3 id={css.mapTitle}>
-            {getTitle(selectedMapVisualizations)}
-            {isNormalized && (
-                <BigTooltip
-                    title="The normalized value is the percentile
+        <>
+            <h3 id={css.mapTitle}>
+                {getTitle(selectedMapVisualizations)}
+                {isNormalized && (
+                    <BigTooltip
+                        title="The normalized value is the percentile
                 of the raw data. If you select multiple data,
                 we take the mean of the ranked values."
-                >
-                    <IconButton aria-label="info" size="large">
-                        <Info />
-                    </IconButton>
-                </BigTooltip>
-            )}
-        </h3>
+                    >
+                        <IconButton aria-label="info" size="large">
+                            <Info />
+                        </IconButton>
+                    </BigTooltip>
+                )}
+            </h3>
+            <p id={css.mapSubtitle}>{getSubtitle(countyId, region)}</p>
+        </>
     )
 }
 
 export function EmptyMapTitle() {
-    return <div id={css.emptyTitle} />
+    return (
+        <div id={css.emptyTitle}>
+            <h1 id={css.noMetricTitle}>No metric selected</h1>
+        </div>
+    )
 }
 export default MapTitle
