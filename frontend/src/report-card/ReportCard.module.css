@@ -66,3 +66,7 @@ h1 {
     display: flex;
     align-items: center;
 }
+
+#countyAutocomplete {
+    height: 10px;
+}

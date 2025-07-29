@@ -167,6 +167,7 @@ export default function ReportCard() {
                     `: ${categories[categoryId]?.name ?? ''}`}
             </h1>
             <Autocomplete
+                id={css.countyAutocomplete}
                 loading={countyList.length === 0 && !states}
                 options={countyList}
                 getOptionLabel={(county) =>
