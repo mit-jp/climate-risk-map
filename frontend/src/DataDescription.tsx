@@ -20,7 +20,9 @@ function DataDescription({ name, description }: { name: string; description: str
                 >
                     About the {name} data
                 </AccordionSummary>
-                <AccordionDetails>{description}</AccordionDetails>
+                <AccordionDetails>
+                    <p>{description}</p>
+                </AccordionDetails>
             </Accordion>
         </div>
     )
