@@ -30,6 +30,11 @@
     font-size: 16px;
 }
 
+#report-card-button:hover {
+    background-color: rgb(73, 93, 121);
+    color: white;
+}
+
 #county-controls {
     display: flex;
     flex-direction: row;
