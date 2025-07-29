@@ -120,10 +120,15 @@ function MapWrapper({
                 {map && (
                     <MapControls data={processedData} isNormalized={isNormalized} maps={maps} />
                 )}
-                {maps[0] && (
-                    <DataDescription name={maps[0].displayName} description={maps[0].description} />
-                )}
-                {dataSource && <DataSourceDescription dataSource={dataSource} />}
+                <div id={css.dataDescriptions}>
+                    {maps[0] && (
+                        <DataDescription
+                            name={maps[0].displayName}
+                            description={maps[0].description}
+                        />
+                    )}
+                    {dataSource && <DataSourceDescription dataSource={dataSource} />}
+                </div>
             </div>
             <MapTooltip
                 data={processedData}
