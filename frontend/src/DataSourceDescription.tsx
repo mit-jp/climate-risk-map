@@ -8,7 +8,7 @@ function DataSourceDescription({ dataSource }: { dataSource: DataSource }) {
         <div className={css.dataDescription}>
             <Accordion
                 sx={{
-                    width: '60%',
+                    width: 'fit-content',
                 }}
             >
                 <AccordionSummary

@@ -7,7 +7,7 @@ function DataDescription({ name, description }: { name: string; description: str
         <div className={css.dataDescription}>
             <Accordion
                 sx={{
-                    width: '60%',
+                    width: 'fit-content',
                 }}
             >
                 <AccordionSummary
