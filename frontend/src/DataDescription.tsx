@@ -1,20 +1,27 @@
-import { useState } from 'react'
-import { Button } from '@mui/material'
+import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
+import { ExpandMore } from '@mui/icons-material'
 import css from './DataDescription.module.css'
 
 function DataDescription({ name, description }: { name: string; description: string }) {
-    const [show, setShow] = useState(false)
-
     return (
         <div className={css.dataDescription}>
-            <Button
-                variant={show ? 'contained' : 'outlined'}
-                onClick={() => setShow(!show)}
-                className={show ? css.shown : undefined}
+            <Accordion
+                sx={{
+                    width: '60%',
+                }}
             >
-                {show ? `Hide ${name} data info` : `About the ${name} data`}
-            </Button>
-            {show && <p>{description}</p>}
+                <AccordionSummary
+                    expandIcon={<ExpandMore />}
+                    sx={{
+                        backgroundColor: 'rgb(238, 238, 238)',
+                        fontWeight: '400',
+                        minHeight: '40px',
+                    }}
+                >
+                    About the {name} data
+                </AccordionSummary>
+                <AccordionDetails>{description}</AccordionDetails>
+            </Accordion>
         </div>
     )
 }
