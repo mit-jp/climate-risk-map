@@ -182,7 +182,7 @@ export default function ReportCard() {
                 }}
                 value={selectedRegion}
             />
-            <div>
+            <div id={css.statePercentileCheckbox}>
                 <Checkbox checked={checked} onChange={handleChange} />
                 Display state-level percentile data
             </div>
