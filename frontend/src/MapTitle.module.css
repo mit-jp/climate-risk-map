@@ -13,19 +13,19 @@
 }
 
 .zoom-out-button {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    font-size: 18px;
+    width: 100px;
+    height: 30px;
+    border-radius: 4px;
+    font-size: 16px;
     font-weight: 800;
     background-color: hsl(215, 22%, 82%);
     color: black;
-    border: 2px solid black;
+    border: 1px solid black;
     cursor: pointer;
     transition: background-color 0.2s ease;
     position: absolute;
     left: 20px;
-    top: 3.5px;
+    top: 9px;
 }
 
 .zoom-out-button:hover {
