@@ -1,7 +1,12 @@
 import { IconButton, styled, Tooltip, TooltipProps, tooltipClasses } from '@mui/material'
 import { Info } from '@mui/icons-material'
+import { useSelector } from 'react-redux'
 import { MapVisualization } from './MapVisualization'
+import { RootState } from './store'
+import { stateId } from './appSlice'
 import css from './MapTitle.module.css'
+import counties from './Counties'
+import states from './States'
 
 const getTitle = (selectedMaps: MapVisualization[]) => {
     if (selectedMaps.length > 1) {
@@ -11,6 +16,19 @@ const getTitle = (selectedMaps: MapVisualization[]) => {
         return ''
     }
     return selectedMaps[0].displayName
+}
+
+const getSubtitle = (countyId: number | undefined, region: string) => {
+    if (countyId) {
+        const countyName = counties.get(countyId) || 'Unknown County'
+        const stateIdValue = stateId(countyId)
+        const stateName = stateIdValue ? states.get(stateIdValue) : 'Unknown State'
+        return `${countyName}, ${stateName}`
+    }
+    if (region === 'USA') {
+        return 'United States'
+    }
+    return 'World'
 }
 
 type Props = {
@@ -32,6 +50,8 @@ const BigTooltip = styled(({ className, ...props }: TooltipProps) => (
 }))
 
 function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarning }: Props) {
+    const countyId = useSelector((state: RootState) => state.app.county)
+    const region = useSelector((state: RootState) => state.app.region)
     return (
         <>
             <h3 id={css.mapTitle}>
@@ -48,6 +68,7 @@ function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarni
                     </BigTooltip>
                 )}
             </h3>
+            <p id={css.mapSubtitle}>{getSubtitle(countyId, region)}</p>
             {showStateLevelWarning && (
                 <div id={css.stateDataWarning}>
                     <h3 id={css.stateDataWarningTitle}>⚠️ Data Limitation Notice</h3>
@@ -62,6 +83,10 @@ function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarni
 }
 
 export function EmptyMapTitle() {
-    return <div id={css.emptyTitle} />
+    return (
+        <div id={css.emptyTitle}>
+            <h1 id={css.noMetricTitle}>No metric selected</h1>
+        </div>
+    )
 }
 export default MapTitle
