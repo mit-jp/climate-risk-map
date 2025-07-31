@@ -1,8 +1,9 @@
-#map-title {
+#map-title,
+#no-metric-title {
     font-weight: 400;
     font-size: 25px;
     line-height: 48px;
-    margin: 15px 0 15px 60px;
+    margin: 15px 0 0 60px;
     width: 82%;
     text-align: center;
 }
@@ -35,4 +36,12 @@
 
 .mapTitleContainer {
     position: relative;
+}
+
+#map-subtitle {
+    font-weight: 400;
+    font-size: 15px;
+    width: 82%;
+    text-align: center;
+    margin: 0 0 15px 60px;
 }
