@@ -73,26 +73,34 @@ function MapWrapper({
         maps[0] && selections[0] ? maps[0].sources[selections[0].dataSource] : undefined
 
     const isStateLevelOnlyData = useMemo(() => {
-        if (!processedData || region !== 'USA') {
+        if (!data || region !== 'USA') {
             return false
         }
 
-        const stateGroups: Record<number, number[]> = {}
-        processedData.forEach((value, countyId) => {
-            const countyStateId = Math.floor(countyId / 1000)
-            if (!stateGroups[countyStateId]) {
-                stateGroups[countyStateId] = []
-            }
-            stateGroups[countyStateId].push(value)
+        return maps.some((map) => {
+            const mapId = map.id
+            const mapData = data.get(mapId)
+            if (!mapData) return false
+
+            const stateGroups: Record<number, number[]> = {}
+
+            mapData.forEach((value: number, geoId: number) => {
+                const stateId = Math.floor(geoId / 1000)
+                if (!stateGroups[stateId]) {
+                    stateGroups[stateId] = []
+                }
+                stateGroups[stateId].push(value)
+            })
+
+            console.log('stateGroups', stateGroups)
+
+            const allStatesUniform = Object.values(stateGroups).every(
+                (stateValues) =>
+                    stateValues.length > 0 && stateValues.every((value) => value === stateValues[0])
+            )
+            return allStatesUniform
         })
-
-        const allStatesUniform = Object.values(stateGroups).every(
-            (stateValues) =>
-                stateValues.length > 0 && stateValues.every((value) => value === stateValues[0])
-        )
-
-        return allStatesUniform
-    }, [processedData, region])
+    }, [data, region, maps])
 
     if (map === undefined) {
         return <p>Loading</p>
