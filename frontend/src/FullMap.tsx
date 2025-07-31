@@ -47,7 +47,6 @@ function FullMap(
                     selectedMapVisualizations={selectedMapVisualizations}
                     data={data}
                     detailedView={detailedView}
-                    legendTitle={legendTitle}
                     isNormalized={isNormalized}
                     ref={ref}
                     transform={transform}
