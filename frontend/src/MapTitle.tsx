@@ -34,6 +34,7 @@ const getSubtitle = (countyId: number | undefined, region: string) => {
 type Props = {
     selectedMapVisualizations: MapVisualization[]
     isNormalized: boolean
+    showStateLevelWarning: boolean
 }
 
 const BigTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -48,7 +49,7 @@ const BigTooltip = styled(({ className, ...props }: TooltipProps) => (
     },
 }))
 
-function MapTitle({ selectedMapVisualizations, isNormalized }: Props) {
+function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarning }: Props) {
     const countyId = useSelector((state: RootState) => state.app.county)
     const region = useSelector((state: RootState) => state.app.region)
     return (
@@ -68,6 +69,15 @@ function MapTitle({ selectedMapVisualizations, isNormalized }: Props) {
                 )}
             </h3>
             <p id={css.mapSubtitle}>{getSubtitle(countyId, region)}</p>
+            {showStateLevelWarning && (
+                <div id={css.stateDataWarning}>
+                    <h3 id={css.stateDataWarningTitle}>⚠️ Data Limitation Notice</h3>
+                    <p id={css.stateDataWarningParagraph}>
+                        This dataset contains state-level data only. <br /> For accurate analysis,
+                        please compare at the national view.
+                    </p>
+                </div>
+            )}
         </>
     )
 }
