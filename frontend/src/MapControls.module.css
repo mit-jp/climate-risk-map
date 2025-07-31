@@ -23,7 +23,7 @@
 }
 
 #report-card-button {
-    background-color: rgb(249, 248, 201);
+    background-color: hsl(59, 82%, 82%);
     color: black;
     text-transform: none;
     font-weight: 700;
@@ -31,8 +31,7 @@
 }
 
 #report-card-button:hover {
-    background-color: rgb(73, 93, 121);
-    color: white;
+    background-color: hsl(59, 82%, 91%);
 }
 
 #county-controls {
