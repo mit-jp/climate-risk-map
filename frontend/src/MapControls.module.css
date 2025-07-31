@@ -23,10 +23,10 @@
 }
 
 #report-card-button {
-    background-color: hsl(215, 22%, 82%);
+    background-color: rgb(249, 248, 201);
     color: black;
     text-transform: none;
-    font-weight: 500;
+    font-weight: 700;
     font-size: 16px;
 }
 
