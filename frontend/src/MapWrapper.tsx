@@ -74,18 +74,27 @@ function MapWrapper({
 
     const isStateLevelOnlyData = useMemo(() => {
         if (data && maps.length > 0) {
-            const mapList = data.get(maps[0].id)
-            const valueSet = new Set()
-            const stateSet = new Set()
-            mapList?.forEach(([geoId, value]) => {
-                const stateId = Math.floor(geoId / 1000)
-                // console.log(`State: ${stateId}, County: ${countyId}, Value: ${value}`)
-                valueSet.add(value)
-                stateSet.add(stateId)
-            })
-            console.log(`Num States: ${stateSet.size}, Num Values: ${valueSet.size}`)
+            console.log(`Data Type: ${typeof data}, Maps Type: ${typeof maps}`)
+            const stateDataDetected = maps.every((map) => {
+                const mapList = data.get(map.id)
+                const valueSet = new Set()
+                const stateSet = new Set()
+                mapList?.forEach(([geoId, value]) => {
+                    const stateId = Math.floor(geoId / 1000)
+                    // console.log(`State: ${stateId}, County: ${countyId}, Value: ${value}`)
+                    valueSet.add(value)
+                    stateSet.add(stateId)
+                })
+                console.log(`Num States: ${stateSet.size}, Num Values: ${valueSet.size}`)
 
-            return valueSet.size === stateSet.size
+                // to prevent the warning from showing up briefly when loading a new map
+                if (stateSet.size === 0 && valueSet.size === 0) {
+                    return true
+                }
+
+                return valueSet.size !== stateSet.size
+            })
+            return !stateDataDetected
         }
         return false
     }, [data, maps])
