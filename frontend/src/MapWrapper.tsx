@@ -74,7 +74,7 @@ function MapWrapper({
 
     const isStateLevelOnlyData = useMemo(() => {
         if (data && maps.length > 0) {
-            const stateDataDetected = maps.every((map) => {
+            const allMapsStateLevelOnly = maps.every((map) => {
                 const mapList = data.get(map.id)
 
                 const countryMap = new Map()
@@ -91,9 +91,9 @@ function MapWrapper({
                     return state.every((val: number) => val === state[0])
                 })
 
-                return !allStateValuesSame
+                return allStateValuesSame
             })
-            return !stateDataDetected
+            return allMapsStateLevelOnly
         }
         return false
     }, [data, maps])
