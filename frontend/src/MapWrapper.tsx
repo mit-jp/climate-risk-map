@@ -74,7 +74,6 @@ function MapWrapper({
 
     const isStateLevelOnlyData = useMemo(() => {
         if (data && maps.length > 0) {
-            console.log(`Data Type: ${typeof data}, Maps Type: ${typeof maps}`)
             const stateDataDetected = maps.every((map) => {
                 const mapList = data.get(map.id)
                 const valueSet = new Set()
@@ -97,7 +96,7 @@ function MapWrapper({
             return !stateDataDetected
         }
         return false
-    }, [data, maps])
+    }, [data, maps, zoomTo])
 
     if (map === undefined) {
         return <p>Loading</p>
@@ -111,7 +110,7 @@ function MapWrapper({
                     <MapTitle
                         selectedMapVisualizations={maps}
                         isNormalized={isNormalized}
-                        showStateLevelWarning={isStateLevelOnlyData && !zoomTo}
+                        showStateLevelWarning={isStateLevelOnlyData}
                     />
                 ) : (
                     <EmptyMapTitle />
