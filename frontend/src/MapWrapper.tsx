@@ -76,27 +76,27 @@ function MapWrapper({
         if (data && maps.length > 0) {
             const stateDataDetected = maps.every((map) => {
                 const mapList = data.get(map.id)
-                const valueSet = new Set()
-                const stateSet = new Set()
+
+                const countryMap = new Map()
+
                 mapList?.forEach(([geoId, value]) => {
                     const stateId = Math.floor(geoId / 1000)
-                    // console.log(`State: ${stateId}, County: ${countyId}, Value: ${value}`)
-                    valueSet.add(value)
-                    stateSet.add(stateId)
+                    if (!countryMap.get(stateId)) {
+                        countryMap.set(stateId, [])
+                    }
+                    countryMap.get(stateId).push(value)
                 })
-                console.log(`Num States: ${stateSet.size}, Num Values: ${valueSet.size}`)
 
-                // to prevent the warning from showing up briefly when loading a new map
-                if (stateSet.size === 0 && valueSet.size === 0) {
-                    return true
-                }
+                const allStateValuesSame = Array.from(countryMap.values()).every((state) => {
+                    return state.every((val: number) => val === state[0])
+                })
 
-                return valueSet.size !== stateSet.size
+                return !allStateValuesSame
             })
             return !stateDataDetected
         }
         return false
-    }, [data, maps, zoomTo])
+    }, [data, maps])
 
     if (map === undefined) {
         return <p>Loading</p>
