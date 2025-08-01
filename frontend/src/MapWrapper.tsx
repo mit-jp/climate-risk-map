@@ -73,34 +73,22 @@ function MapWrapper({
         maps[0] && selections[0] ? maps[0].sources[selections[0].dataSource] : undefined
 
     const isStateLevelOnlyData = useMemo(() => {
-        if (!data || region !== 'USA') {
-            return false
-        }
-
-        return maps.some((map) => {
-            const mapId = map.id
-            const mapData = data.get(mapId)
-            if (!mapData) return false
-
-            const stateGroups: Record<number, number[]> = {}
-
-            mapData.forEach((value: number, geoId: number) => {
+        if (data && maps.length > 0) {
+            const mapList = data.get(maps[0].id)
+            const valueSet = new Set()
+            const stateSet = new Set()
+            mapList?.forEach(([geoId, value]) => {
                 const stateId = Math.floor(geoId / 1000)
-                if (!stateGroups[stateId]) {
-                    stateGroups[stateId] = []
-                }
-                stateGroups[stateId].push(value)
+                // console.log(`State: ${stateId}, County: ${countyId}, Value: ${value}`)
+                valueSet.add(value)
+                stateSet.add(stateId)
             })
+            console.log(`Num States: ${stateSet.size}, Num Values: ${valueSet.size}`)
 
-            console.log('stateGroups', stateGroups)
-
-            const allStatesUniform = Object.values(stateGroups).every(
-                (stateValues) =>
-                    stateValues.length > 0 && stateValues.every((value) => value === stateValues[0])
-            )
-            return allStatesUniform
-        })
-    }, [data, region, maps])
+            return valueSet.size === stateSet.size
+        }
+        return false
+    }, [data, maps])
 
     if (map === undefined) {
         return <p>Loading</p>
