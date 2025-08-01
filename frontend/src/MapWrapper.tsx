@@ -74,26 +74,33 @@ function MapWrapper({
 
     const isStateLevelOnlyData = useMemo(() => {
         if (data && maps.length > 0) {
-            const allMapsStateLevelOnly = maps.every((map) => {
+            const noStateLevelMaps = maps.every((map) => {
                 const mapList = data.get(map.id)
 
                 const countryMap = new Map()
+                const valueSet = new Set()
 
                 mapList?.forEach(([geoId, value]) => {
                     const stateId = Math.floor(geoId / 1000)
+                    valueSet.add(value)
                     if (!countryMap.get(stateId)) {
                         countryMap.set(stateId, [])
                     }
                     countryMap.get(stateId).push(value)
                 })
 
-                const allStateValuesSame = Array.from(countryMap.values()).every((state) => {
+                const allValuesSame = Array.from(countryMap.values()).every((state) => {
                     return state.every((val: number) => val === state[0])
                 })
 
-                return allStateValuesSame
+                // to prevent the warning from flashing when loading a new map
+                if (valueSet.size === 0) {
+                    return true
+                }
+
+                return !allValuesSame
             })
-            return allMapsStateLevelOnly
+            return !noStateLevelMaps
         }
         return false
     }, [data, maps])
