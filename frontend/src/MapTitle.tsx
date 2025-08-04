@@ -52,6 +52,8 @@ const BigTooltip = styled(({ className, ...props }: TooltipProps) => (
 function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarning }: Props) {
     const countyId = useSelector((state: RootState) => state.app.county)
     const region = useSelector((state: RootState) => state.app.region)
+    const zoomTo = useSelector((state: RootState) => state.app.zoomTo)
+
     return (
         <>
             <h3 id={css.mapTitle}>
@@ -70,7 +72,11 @@ function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarni
             </h3>
             <p id={css.mapSubtitle}>{getSubtitle(countyId, region)}</p>
             {showStateLevelWarning && (
-                <div id={css.stateDataWarning}>
+                <div
+                    id={css.stateDataWarning}
+                    className={zoomTo ? css.zoomed : ''} // Add this line
+                >
+                    {' '}
                     <h3 id={css.stateDataWarningTitle}>⚠️ Data Limitation Notice</h3>
                     <p id={css.stateDataWarningParagraph}>
                         This dataset contains state-level data only. <br /> For accurate analysis,
