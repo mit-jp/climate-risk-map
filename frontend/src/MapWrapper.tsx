@@ -33,6 +33,7 @@ function MapWrapper({
     const transform = useSelector(selectMapTransform)
     const selections = useSelector(selectSelections)
     const region = useSelector((rootState: RootState) => rootState.app.region)
+    const tab = useSelector((state: RootState) => state.app.tab?.name ?? '')
     const maps = useMemo(() => {
         return selections
             .map((selection) => selection.mapVisualization)
@@ -73,7 +74,7 @@ function MapWrapper({
         maps[0] && selections[0] ? maps[0].sources[selections[0].dataSource] : undefined
 
     const isStateLevelOnlyData = useMemo(() => {
-        if (data && maps.length > 0) {
+        if (data && maps.length > 0 && tab === 'combinatory metrics') {
             const noStateLevelMaps = maps.every((map) => {
                 const mapList = data.get(map.id)
 
@@ -103,7 +104,7 @@ function MapWrapper({
             return !noStateLevelMaps
         }
         return false
-    }, [data, maps])
+    }, [data, maps, tab])
 
     if (map === undefined) {
         return <p>Loading</p>
