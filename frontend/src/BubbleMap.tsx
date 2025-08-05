@@ -1,7 +1,8 @@
 import { geoPath, ScalePower, scaleSqrt } from 'd3'
 import type { Feature, GeoJsonProperties, Geometry } from 'geojson'
 import { Map } from 'immutable'
-import { GeoId, GeoMap } from './appSlice'
+import { useDispatch } from 'react-redux'
+import { clickMap, GeoId, GeoMap } from './appSlice'
 import BubbleLegend from './BubbleLegend'
 import { countries, USACounties } from './ChoroplethMap'
 import { getDomain } from './DataProcessor'
@@ -24,6 +25,9 @@ const makeRegionToRadius =
     }
 
 function BubbleMap({ map, data, legendTitle, color }: Props) {
+    const dispatch = useDispatch()
+    const onRegionClicked = (event: any) =>
+        Number(event.target?.id) ? dispatch(clickMap(Number(event.target.id))) : null
     const path = geoPath()
     const regions = map.region === 'USA' ? USACounties(map.topoJson) : countries(map.topoJson)
     const { max } = getDomain(data)
@@ -45,6 +49,8 @@ function BubbleMap({ map, data, legendTitle, color }: Props) {
                         fill={color}
                         strokeOpacity={0.5}
                         fillOpacity={0.5}
+                        id={region.id as string}
+                        onClick={onRegionClicked}
                     />
                 ))}
             </g>
