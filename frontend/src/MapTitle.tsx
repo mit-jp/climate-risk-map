@@ -62,12 +62,6 @@ function MapTitle({ selectedMapVisualizations, isNormalized }: Props) {
                     className={css.zoomOutButton}
                     onClick={() => dispatch(clickMap(-1))}
                 >
-                    {/* <ZoomOut
-                        fontSize="medium"
-                        sx={{
-                            verticalAlign: 'middle',
-                        }}
-                    /> */}
                     Zoom Out
                 </button>
             )}
@@ -95,8 +89,19 @@ function MapTitle({ selectedMapVisualizations, isNormalized }: Props) {
 }
 
 export function EmptyMapTitle() {
+    const dispatch = useDispatch()
+    const zoomTo = useSelector((state: RootState) => state.app.zoomTo)
     return (
-        <div id={css.emptyTitle}>
+        <div className={css.mapTitleContainer}>
+            {zoomTo && (
+                <button
+                    type="button"
+                    className={css.zoomOutButton}
+                    onClick={() => dispatch(clickMap(-1))}
+                >
+                    Zoom Out
+                </button>
+            )}
             <h1 id={css.noMetricTitle}>No metric selected</h1>
         </div>
     )
