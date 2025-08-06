@@ -63,12 +63,12 @@ function MapWrapper({
                       })),
                       normalize: isNormalized,
                       filter:
-                          zoomTo && region === 'USA' && tab !== 'combinatory metrics'
+                          zoomTo && region === 'USA'
                               ? (geoId) => stateId(geoId) === zoomTo
                               : undefined,
                   })
                 : undefined,
-        [data, maps, dataWeights, zoomTo, isNormalized, region, tab]
+        [data, maps, dataWeights, zoomTo, isNormalized, region]
     )
     const dataSource =
         maps[0] && selections[0] ? maps[0].sources[selections[0].dataSource] : undefined
