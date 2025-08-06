@@ -57,6 +57,7 @@ type Props = {
     legendTitle: string
     isNormalized: boolean
     transform?: string
+    zoomable: boolean
 }
 
 function ChoroplethMap(
@@ -68,12 +69,13 @@ function ChoroplethMap(
         legendTitle,
         isNormalized,
         transform,
+        zoomable,
     }: Props,
     ref: ForwardedRef<SVGGElement>
 ) {
     const dispatch = useDispatch()
     const onRegionClicked = (event: any) =>
-        Number(event.target?.id) ? dispatch(clickMap(Number(event.target.id))) : null
+        Number(event.target?.id) && zoomable ? dispatch(clickMap(Number(event.target.id))) : null
     const domain = getDomain(data)
     const colorScheme = Color(isNormalized, detailedView, selectedMapVisualizations[0], domain)
     const color = (regionId: number) => {

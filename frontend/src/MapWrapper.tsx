@@ -51,28 +51,6 @@ function MapWrapper({
             : undefined
     const { data } = useGetDataQuery(queryParams ?? skipToken)
     const mapRef = useRef<SVGGElement>(null)
-    const processedData = useMemo(
-        () =>
-            data
-                ? DataProcessor({
-                      data,
-                      params: maps.map((map) => ({
-                          mapId: map.id,
-                          weight: dataWeights[map.id],
-                          invertNormalized: map.invert_normalized,
-                      })),
-                      normalize: isNormalized,
-                      filter:
-                          zoomTo && region === 'USA'
-                              ? (geoId) => stateId(geoId) === zoomTo
-                              : undefined,
-                  })
-                : undefined,
-        [data, maps, dataWeights, zoomTo, isNormalized, region]
-    )
-    const dataSource =
-        maps[0] && selections[0] ? maps[0].sources[selections[0].dataSource] : undefined
-
     const isStateLevelOnlyData = useMemo(() => {
         if (data && maps.length > 0 && tab === 'combinatory metrics') {
             const noStateLevelMaps = maps.every((map) => {
@@ -105,6 +83,27 @@ function MapWrapper({
         }
         return false
     }, [data, maps, tab])
+    const processedData = useMemo(
+        () =>
+            data
+                ? DataProcessor({
+                      data,
+                      params: maps.map((map) => ({
+                          mapId: map.id,
+                          weight: dataWeights[map.id],
+                          invertNormalized: map.invert_normalized,
+                      })),
+                      normalize: isNormalized,
+                      filter:
+                          zoomTo && region === 'USA' && !isStateLevelOnlyData
+                              ? (geoId) => stateId(geoId) === zoomTo
+                              : undefined,
+                  })
+                : undefined,
+        [data, maps, dataWeights, zoomTo, isNormalized, region, isStateLevelOnlyData]
+    )
+    const dataSource =
+        maps[0] && selections[0] ? maps[0].sources[selections[0].dataSource] : undefined
 
     if (map === undefined) {
         return <p>Loading</p>
@@ -149,6 +148,7 @@ function MapWrapper({
                             detailedView={detailedView}
                             isNormalized={isNormalized}
                             transform={transform}
+                            zoomable={!isStateLevelOnlyData}
                         />
                     ) : (
                         <EmptyMap map={map} transform={transform} />
