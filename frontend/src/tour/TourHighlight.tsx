@@ -1,0 +1,28 @@
+import css from './tour.module.css'
+
+type TourHighlightProps = {
+    targetElement: string
+}
+
+function TourHighlight({ targetElement }: TourHighlightProps) {
+    const element = document.querySelector(targetElement)
+
+    if (!element) return null
+
+    const rect = element.getBoundingClientRect()
+
+    return (
+        <div
+            className={css.tourHighlight}
+            style={{
+                position: 'fixed',
+                top: rect.top - 4,
+                left: rect.left - 4,
+                width: rect.width + 8,
+                height: rect.height + 8,
+            }}
+        />
+    )
+}
+
+export default TourHighlight

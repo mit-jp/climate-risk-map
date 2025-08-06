@@ -15,6 +15,7 @@ import css from './MapWrapper.module.css'
 import Overlays from './Overlays'
 import { clickMap, selectMapTransform, selectSelections, stateId } from './appSlice'
 import { RootState } from './store'
+import { TourStep } from './tour/TourStep'
 
 export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
 
@@ -75,10 +76,18 @@ function MapWrapper({
     if (map === undefined) {
         return <p>Loading</p>
     }
+
+    const welcomeStep = {
+        name: 'Welcome to the risk map',
+        description: 'desc',
+        targetElement: '#map-svg',
+        buttonText: 'Got it!',
+    }
     // rectangle ("rect") below is made so that the user can zoom out by clicking on the map background
     // set to be transparent
     return (
         <>
+            <TourStep stepData={welcomeStep} />
             <div className={css.map}>
                 {maps.length > 0 ? (
                     <MapTitle selectedMapVisualizations={maps} isNormalized={isNormalized} />
