@@ -30,7 +30,7 @@ type Props = {
     detailedView: boolean
     isNormalized: boolean
     transform?: string
-    zoomable: boolean
+    zoomable?: boolean
 }
 
 function FullMap(

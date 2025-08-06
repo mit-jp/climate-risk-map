@@ -57,7 +57,7 @@ type Props = {
     legendTitle: string
     isNormalized: boolean
     transform?: string
-    zoomable: boolean
+    zoomable?: boolean
 }
 
 function ChoroplethMap(
