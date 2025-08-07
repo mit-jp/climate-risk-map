@@ -4,15 +4,14 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.7); /* Dark overlay */
     z-index: 10000;
-    pointer-events: none; /* Allow clicks to pass through */
+    pointer-events: none;
 }
 
 .tour-highlight {
-    border: 3px solid #007bff; /* Blue border */
+    border: 3px solid #000000;
     border-radius: 8px;
-    z-index: 10001; /* Above the mask */
-    pointer-events: none; /* Don't block clicks */
-    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); /* Glowing effect */
+    z-index: 10001;
+    pointer-events: none;
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.6);
 }
