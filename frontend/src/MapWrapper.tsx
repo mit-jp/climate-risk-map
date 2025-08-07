@@ -79,7 +79,8 @@ function MapWrapper({
 
     const welcomeStep = {
         name: 'Welcome to the risk map',
-        description: 'desc',
+        description:
+            'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Perspiciatis nostrum id dicta, quaerat asperiores quia dolores consectetur dolore, possimus explicabo expedita minima beatae excepturi aut eius cumque, error nemo labore!',
         targetElement: '#map-svg',
         buttonText: 'Got it!',
     }
