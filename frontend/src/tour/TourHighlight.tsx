@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import css from './tour.module.css'
 
 type TourHighlightProps = {
@@ -5,11 +6,30 @@ type TourHighlightProps = {
 }
 
 function TourHighlight({ targetElement }: TourHighlightProps) {
-    const element = document.querySelector(targetElement)
+    const [rect, setRect] = useState<DOMRect | null>(null)
 
-    if (!element) return null
+    useEffect(() => {
+        const updatePosition = () => {
+            const element = document.querySelector(targetElement)
 
-    const rect = element.getBoundingClientRect()
+            if (element) {
+                setRect(element.getBoundingClientRect())
+            }
+        }
+        updatePosition()
+
+        window.addEventListener('scroll', updatePosition)
+        window.addEventListener('resize', updatePosition)
+
+        return () => {
+            window.removeEventListener('scroll', updatePosition)
+            window.removeEventListener('resize', updatePosition)
+        }
+    }, [targetElement])
+
+    if (!rect) {
+        return null
+    }
 
     return (
         <div
