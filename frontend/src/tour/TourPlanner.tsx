@@ -8,12 +8,24 @@ const TOUR_STEPS: TourStepData[] = [
         description:
             'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit nesciunt molestias odio, temporibus enim animi voluptatum excepturi nisi non asperiores hic maxime pariatur qui amet cumque quam vel officiis assumenda.',
         targetElement: '#map-svg',
+        popupPosition: {
+            top: '5%',
+            left: '50%',
+            width: '600px',
+            height: '200px',
+        },
     },
     {
         name: 'Lorem ipsum dolor sit amet.',
         description:
             'Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero alias dolores at? Repellendus, nostrum dolore delectus doloremque inventore ipsum quod natus non, illum vero illo quaerat labore vel beatae saepe?',
         targetElement: '#navdiv',
+        popupPosition: {
+            top: '40%',
+            left: '50%',
+            width: '600px',
+            height: '200px',
+        },
     },
     {
         name: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',

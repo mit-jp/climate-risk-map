@@ -9,6 +9,13 @@ export type TourStepData = {
     image?: string
     targetElement: string // CSS selector
     buttonText?: string
+
+    popupPosition?: {
+        top?: string
+        left?: string
+        width?: string
+        height?: string
+    }
 }
 
 // The way that the steps should be given (an object)
@@ -26,6 +33,7 @@ export function TourStep({ stepData }: TourStepProps) {
                 name={stepData.name}
                 description={stepData.description}
                 image={stepData.image}
+                position={stepData.popupPosition}
             />
         </>
     )

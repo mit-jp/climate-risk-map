@@ -4,11 +4,18 @@ type TourPopupProps = {
     name: string
     description: string
     image?: string
+
+    position?: {
+        top?: string
+        left?: string
+        width?: string
+        height?: string
+    }
 }
 
-function TourProp({ name, description, image }: TourPopupProps) {
+function TourProp({ name, description, image, position }: TourPopupProps) {
     return (
-        <div className={css.tourPopup}>
+        <div className={css.tourPopup} style={position || {}}>
             <div className={css.popupContent}>
                 <h3 className={css.popupTitle}>{name}</h3>
                 <p className={css.popupDescription}>{description}</p>
