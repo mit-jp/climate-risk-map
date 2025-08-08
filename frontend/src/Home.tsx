@@ -14,6 +14,7 @@ import Navigation from './Navigation'
 import { TopoJson } from './TopoJson'
 import { OverlayName, Region, selectSelectedTab, setMap, setOverlay, setTab } from './appSlice'
 import { RootState } from './store'
+import TourPlanner from './tour/TourPlanner'
 
 // Map overlays
 type TopoJsonFile =
@@ -69,8 +70,9 @@ function Home() {
 
     return (
         <>
+            <TourPlanner />
             <Header />
-            <div className={css.navDiv}>
+            <div className={css.navDiv} id="navdiv">
                 {tabs ? (
                     <Navigation
                         tabs={displayedTabs}

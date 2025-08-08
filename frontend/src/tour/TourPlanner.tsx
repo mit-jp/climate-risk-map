@@ -13,7 +13,7 @@ const TOUR_STEPS: TourStepData[] = [
         name: 'Lorem ipsum dolor sit amet.',
         description:
             'Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero alias dolores at? Repellendus, nostrum dolore delectus doloremque inventore ipsum quod natus non, illum vero illo quaerat labore vel beatae saepe?',
-        targetElement: '#map-svg',
+        targetElement: '#navdiv',
     },
     {
         name: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',

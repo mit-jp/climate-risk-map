@@ -15,7 +15,6 @@ import css from './MapWrapper.module.css'
 import Overlays from './Overlays'
 import { clickMap, selectMapTransform, selectSelections, stateId } from './appSlice'
 import { RootState } from './store'
-import TourPlanner from './tour/TourPlanner'
 
 export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
 
@@ -81,7 +80,6 @@ function MapWrapper({
     // set to be transparent
     return (
         <>
-            <TourPlanner />
             <div className={css.map}>
                 {maps.length > 0 ? (
                     <MapTitle selectedMapVisualizations={maps} isNormalized={isNormalized} />
