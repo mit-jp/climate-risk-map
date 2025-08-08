@@ -53,3 +53,70 @@
     border-radius: 8px;
     margin-bottom: 16px;
 }
+
+.tourControls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 10003; /* Above everything else */
+}
+
+.controlsContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.progressText {
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.buttonGroup {
+    display: flex;
+    gap: 12px;
+}
+
+.controlButton {
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #f8f9fa;
+    color: #333;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.controlButton:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.primaryButton {
+    background: #007bff !important;
+    color: white !important;
+    border-color: #007bff !important;
+}
+
+.primaryButton:hover {
+    background: #0056b3 !important;
+    border-color: #0056b3 !important;
+}
+
+.skipButton {
+    color: #6c757d !important;
+}
+
+.skipButton:hover {
+    color: #495057 !important;
+}
