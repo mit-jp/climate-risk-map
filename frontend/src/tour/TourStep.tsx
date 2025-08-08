@@ -1,6 +1,5 @@
 import TourHighlight from './TourHighlight'
 import TourPopup from './TourPopup'
-import css from './tour.module.css'
 
 // The data structure for each step
 export type TourStepData = {
@@ -26,7 +25,6 @@ type TourStepProps = {
 export function TourStep({ stepData }: TourStepProps) {
     return (
         <>
-            <div className={css.tourMask} />
             <TourHighlight targetElement={stepData.targetElement} />
 
             <TourPopup

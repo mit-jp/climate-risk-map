@@ -20,10 +20,12 @@ function TourHighlight({ targetElement }: TourHighlightProps) {
 
         window.addEventListener('scroll', updatePosition)
         window.addEventListener('resize', updatePosition)
+        window.addEventListener('load', updatePosition)
 
         return () => {
             window.removeEventListener('scroll', updatePosition)
             window.removeEventListener('resize', updatePosition)
+            window.addEventListener('resize', updatePosition)
         }
     }, [targetElement])
 
