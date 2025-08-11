@@ -25,7 +25,7 @@ function TourControls({ currentStep, totalSteps, onNext, onPrevious, onSkip }: T
                             Previous
                         </button>
                     )}
-                    <button type="button" className={css.controlButton} onClick={onNext}>
+                    <button type="button" className={css.primaryButton} onClick={onNext}>
                         {isLastStep ? 'Finish' : 'Next'}
                     </button>
                     <button type="button" className={css.controlButton} onClick={onSkip}>

@@ -57,11 +57,9 @@
 
 .controlsContent {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 16px 24px;
-    max-width: 1200px;
-    margin: 0 25% 0 0;
+    justify-content: space-between;
+    padding: 12px 24px 48px 24px;
 }
 
 .progressText {
@@ -93,14 +91,22 @@
 }
 
 .primaryButton {
-    background: #007bff !important;
-    color: white !important;
-    border-color: #007bff !important;
+    padding: 10px 20px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #f8f9fa;
+    color: #333;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    background: hsl(211, 93%, 59%);
+    border-color: #adb5bd;
 }
 
 .primaryButton:hover {
-    background: #0056b3 !important;
-    border-color: #0056b3 !important;
+    background: #0056b3;
+    border-color: #0056b3;
 }
 
 .skipButton {
