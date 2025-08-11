@@ -11,21 +11,30 @@ function TourHighlight({ targetElement }: TourHighlightProps) {
     useEffect(() => {
         const updatePosition = () => {
             const element = document.querySelector(targetElement)
-
             if (element) {
                 setRect(element.getBoundingClientRect())
             }
         }
         updatePosition()
 
+        const observer = new MutationObserver(() => {
+            const element = document.querySelector(targetElement)
+            if (element) {
+                setRect(element.getBoundingClientRect())
+                observer.disconnect()
+            }
+        })
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        })
         window.addEventListener('scroll', updatePosition)
         window.addEventListener('resize', updatePosition)
-        window.addEventListener('load', updatePosition)
 
         return () => {
             window.removeEventListener('scroll', updatePosition)
             window.removeEventListener('resize', updatePosition)
-            window.addEventListener('resize', updatePosition)
         }
     }, [targetElement])
 
