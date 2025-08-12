@@ -33,6 +33,7 @@ function MapWrapper({
     const transform = useSelector(selectMapTransform)
     const selections = useSelector(selectSelections)
     const region = useSelector((rootState: RootState) => rootState.app.region)
+    const tab = useSelector((state: RootState) => state.app.tab?.name ?? '')
     const maps = useMemo(() => {
         return selections
             .map((selection) => selection.mapVisualization)
@@ -50,6 +51,38 @@ function MapWrapper({
             : undefined
     const { data } = useGetDataQuery(queryParams ?? skipToken)
     const mapRef = useRef<SVGGElement>(null)
+    const isStateLevelOnlyData = useMemo(() => {
+        if (data && maps.length > 0 && tab === 'combinatory metrics') {
+            const noStateLevelMaps = maps.every((map) => {
+                const mapList = data.get(map.id)
+
+                const countryMap = new Map()
+                const valueSet = new Set()
+
+                mapList?.forEach(([geoId, value]) => {
+                    const stateId = Math.floor(geoId / 1000)
+                    valueSet.add(value)
+                    if (!countryMap.get(stateId)) {
+                        countryMap.set(stateId, [])
+                    }
+                    countryMap.get(stateId).push(value)
+                })
+
+                const allValuesSame = Array.from(countryMap.values()).every((state) => {
+                    return state.every((val: number) => val === state[0])
+                })
+
+                // to prevent the warning from flashing when loading a new map
+                if (valueSet.size === 0) {
+                    return true
+                }
+
+                return !allValuesSame
+            })
+            return !noStateLevelMaps
+        }
+        return false
+    }, [data, maps, tab])
     const processedData = useMemo(
         () =>
             data
@@ -62,12 +95,12 @@ function MapWrapper({
                       })),
                       normalize: isNormalized,
                       filter:
-                          zoomTo && region === 'USA'
+                          zoomTo && region === 'USA' && !isStateLevelOnlyData
                               ? (geoId) => stateId(geoId) === zoomTo
                               : undefined,
                   })
                 : undefined,
-        [data, maps, dataWeights, zoomTo, isNormalized, region]
+        [data, maps, dataWeights, zoomTo, isNormalized, region, isStateLevelOnlyData]
     )
     const dataSource =
         maps[0] && selections[0] ? maps[0].sources[selections[0].dataSource] : undefined
@@ -81,7 +114,11 @@ function MapWrapper({
         <>
             <div className={css.map}>
                 {maps.length > 0 ? (
-                    <MapTitle selectedMapVisualizations={maps} isNormalized={isNormalized} />
+                    <MapTitle
+                        selectedMapVisualizations={maps}
+                        isNormalized={isNormalized}
+                        showStateLevelWarning={isStateLevelOnlyData}
+                    />
                 ) : (
                     <EmptyMapTitle />
                 )}
@@ -111,6 +148,7 @@ function MapWrapper({
                             detailedView={detailedView}
                             isNormalized={isNormalized}
                             transform={transform}
+                            zoomable={!isStateLevelOnlyData}
                         />
                     ) : (
                         <EmptyMap map={map} transform={transform} />
