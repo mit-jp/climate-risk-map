@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
+import { Button } from '@mui/material'
 import { TourStep, TourStepData } from './TourStep'
 import TourControls from './TourControls'
+import css from './tour.module.css'
 
 const TOUR_STEPS: TourStepData[] = [
     {
@@ -39,6 +41,18 @@ const TOUR_STEPS: TourStepData[] = [
             height: '300px',
         },
     },
+    {
+        name: 'Congraulations, you have explored the STRESS Platform!',
+        description:
+            'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Accusamus velit fugit itaque, adipisci cupiditate eligendi cum ullam! Soluta aut culpa quisquam veniam, quaerat, facere, maxime sed dolores delectus exercitationem iure?',
+        targetElement: '#map-svg',
+        popupPosition: {
+            top: '20%',
+            left: '50%',
+            width: '600px',
+            height: '200px',
+        },
+    },
 ]
 
 function TourPlanner() {
@@ -51,6 +65,12 @@ function TourPlanner() {
             setIsActive(true)
         }
     }, [])
+
+    const restartTour = () => {
+        setIsActive(true)
+        localStorage.setItem('hasSeenClimateTour', 'false')
+        setCurrentStep(0)
+    }
 
     const finishTour = () => {
         setIsActive(false)
@@ -76,7 +96,11 @@ function TourPlanner() {
     }
 
     if (!isActive) {
-        return null
+        return (
+            <Button id={css.viewTourButton} onClick={restartTour}>
+                View Tour
+            </Button>
+        )
     }
 
     return (

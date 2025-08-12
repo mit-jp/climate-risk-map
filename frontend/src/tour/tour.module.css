@@ -94,13 +94,12 @@
     padding: 10px 20px;
     border: 1px solid #ddd;
     border-radius: 6px;
-    background: #f8f9fa;
-    color: #333;
+    color: white;
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
     transition: all 0.2s ease;
-    background: hsl(211, 93%, 59%);
+    background-color: hsl(215, 25%, 58%);
     border-color: #adb5bd;
 }
 
@@ -115,4 +114,22 @@
 
 .skipButton:hover {
     color: #495057 !important;
+}
+
+#viewTourButton {
+    position: fixed;
+    bottom: 12px;
+    right: 12px;
+    background-color: hsl(215, 25%, 58%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 10px;
+    z-index: 10010;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+}
+
+#viewTourButton:hover {
+    background-color: hsl(215, 25%, 38%);
 }

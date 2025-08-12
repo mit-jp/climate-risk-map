@@ -1,3 +1,4 @@
+import { Button } from '@mui/material'
 import css from './tour.module.css'
 
 type TourControlsProps = {
@@ -21,16 +22,16 @@ function TourControls({ currentStep, totalSteps, onNext, onPrevious, onSkip }: T
 
                 <div className={css.buttonGroup}>
                     {!isFirstStep && (
-                        <button type="button" className={css.controlButton} onClick={onPrevious}>
+                        <Button className={css.controlButton} onClick={onPrevious}>
                             Previous
-                        </button>
+                        </Button>
                     )}
-                    <button type="button" className={css.primaryButton} onClick={onNext}>
+                    <Button className={css.primaryButton} onClick={onNext}>
                         {isLastStep ? 'Finish' : 'Next'}
-                    </button>
-                    <button type="button" className={css.controlButton} onClick={onSkip}>
+                    </Button>
+                    <Button className={css.controlButton} onClick={onSkip}>
                         Skip Tour
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>
