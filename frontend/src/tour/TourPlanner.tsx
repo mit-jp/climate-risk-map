@@ -9,29 +9,35 @@ const TOUR_STEPS: TourStepData[] = [
             'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit nesciunt molestias odio, temporibus enim animi voluptatum excepturi nisi non asperiores hic maxime pariatur qui amet cumque quam vel officiis assumenda.',
         targetElement: '#map-svg',
         popupPosition: {
-            top: '5%',
+            top: '20%',
             left: '50%',
             width: '600px',
             height: '200px',
         },
     },
     {
-        name: 'Lorem ipsum dolor sit amet.',
+        name: 'Use the navigation bar to select a metric',
         description:
             'Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero alias dolores at? Repellendus, nostrum dolore delectus doloremque inventore ipsum quod natus non, illum vero illo quaerat labore vel beatae saepe?',
         targetElement: '#navdiv',
         popupPosition: {
-            top: '40%',
+            top: '30%',
             left: '50%',
             width: '600px',
             height: '200px',
         },
     },
     {
-        name: 'Lorem ipsum dolor sit amet consectetur adipisicing elit.',
+        name: 'The sidebar can be used to select and combine metrics shown on the map',
         description:
             'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Accusamus velit fugit itaque, adipisci cupiditate eligendi cum ullam! Soluta aut culpa quisquam veniam, quaerat, facere, maxime sed dolores delectus exercitationem iure?',
-        targetElement: '#map-svg',
+        targetElement: '#data-selector',
+        popupPosition: {
+            top: '33.5%',
+            left: '40%',
+            width: '700px',
+            height: '300px',
+        },
     },
 ]
 
