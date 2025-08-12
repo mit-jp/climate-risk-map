@@ -70,6 +70,7 @@ const TOUR_STEPS: TourStepData[] = [
 function TourPlanner() {
     const [currentStep, setCurrentStep] = useState(0)
     const [isActive, setIsActive] = useState(false)
+    // todo: add appstate
 
     useEffect(() => {
         const hasSeenTour = localStorage.getItem('hasSeenClimateTour')
@@ -124,6 +125,7 @@ function TourPlanner() {
                 onNext={handleNext}
                 onPrevious={handlePrevious}
                 onSkip={handleSkip}
+                canProceed={canProceed}
             />
         </>
     )

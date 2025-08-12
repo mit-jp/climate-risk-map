@@ -7,9 +7,17 @@ type TourControlsProps = {
     onNext: () => void
     onPrevious: () => void
     onSkip: () => void
+    canProceed: () => boolean
 }
 
-function TourControls({ currentStep, totalSteps, onNext, onPrevious, onSkip }: TourControlsProps) {
+function TourControls({
+    currentStep,
+    totalSteps,
+    onNext,
+    onPrevious,
+    onSkip,
+    canProceed,
+}: TourControlsProps) {
     const isFirstStep = currentStep === 1
     const isLastStep = currentStep === totalSteps
 
@@ -30,7 +38,12 @@ function TourControls({ currentStep, totalSteps, onNext, onPrevious, onSkip }: T
                             Previous
                         </Button>
                     )}
-                    <Button variant="contained" className={css.primaryButton} onClick={onNext}>
+                    <Button
+                        variant="contained"
+                        className={css.primaryButton}
+                        onClick={onNext}
+                        disabled={!canProceed}
+                    >
                         {isLastStep ? 'Finish' : 'Next'}
                     </Button>
                     <Button variant="outlined" className={css.controlButton} onClick={onSkip}>
