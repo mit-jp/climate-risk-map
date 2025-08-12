@@ -75,13 +75,8 @@
 
 .controlButton {
     padding: 10px 20px;
-    border: 1px solid #ddd;
     border-radius: 6px;
-    background: #f8f9fa;
-    color: #333;
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
     transition: all 0.2s ease;
 }
 
@@ -92,15 +87,8 @@
 
 .primaryButton {
     padding: 10px 20px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    color: white;
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
     transition: all 0.2s ease;
-    background-color: hsl(215, 25%, 58%);
-    border-color: #adb5bd;
 }
 
 .primaryButton:hover {

@@ -8,7 +8,7 @@ const TOUR_STEPS: TourStepData[] = [
     {
         name: 'Welcome to the STRESS Platform!',
         description:
-            'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit nesciunt molestias odio, temporibus enim animi voluptatum excepturi nisi non asperiores hic maxime pariatur qui amet cumque quam vel officiis assumenda.',
+            'Welcome to the System for the Triage of Risks from Environmental and Socioeconomic Stressors (STRESS) platform, a screening platform to identify overlapping environmental and socio-economic stressors at the county level across the U.S. Click through to learn how to use the platform.',
         targetElement: '#map-svg',
         popupPosition: {
             top: '20%',
@@ -18,13 +18,13 @@ const TOUR_STEPS: TourStepData[] = [
         },
     },
     {
-        name: 'Use the navigation bar to select a metric',
+        name: 'The Relative Risk Tool',
         description:
-            'Lorem ipsum dolor sit amet consectetur adipisicing elit. Vero alias dolores at? Repellendus, nostrum dolore delectus doloremque inventore ipsum quod natus non, illum vero illo quaerat labore vel beatae saepe?',
-        targetElement: '#navdiv',
+            'For each metric in the ‘combinatory metrics’ tab, each county is given a relative risk score from. 0-100 based on how that county’s raw value for a metric, such as temperature, compares to all other counties across the country or state, depending on the view. This is a percentile ranking. Note that 100 does not mean an absolutely high risk and blue does not mean no risk, red and blue just refer to relatively high and low risk respectively.',
+        targetElement: '#map-legend',
         popupPosition: {
-            top: '30%',
-            left: '50%',
+            top: '20%',
+            left: '55%',
             width: '600px',
             height: '200px',
         },
@@ -32,7 +32,7 @@ const TOUR_STEPS: TourStepData[] = [
     {
         name: 'The sidebar can be used to select and combine metrics shown on the map',
         description:
-            'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Accusamus velit fugit itaque, adipisci cupiditate eligendi cum ullam! Soluta aut culpa quisquam veniam, quaerat, facere, maxime sed dolores delectus exercitationem iure?',
+            'You can select various metrics and weigh them. The resulting combinatory risk scores are a weighted average of the relative risk scores for each metric for each county.',
         targetElement: '#data-selector',
         popupPosition: {
             top: '33.5%',
@@ -42,10 +42,22 @@ const TOUR_STEPS: TourStepData[] = [
         },
     },
     {
-        name: 'Congraulations, you have explored the STRESS Platform!',
+        name: 'Viewing County Data',
         description:
-            'Lorem, ipsum dolor sit amet consectetur adipisicing elit. Accusamus velit fugit itaque, adipisci cupiditate eligendi cum ullam! Soluta aut culpa quisquam veniam, quaerat, facere, maxime sed dolores delectus exercitationem iure?',
+            'Mouse over a county to see its relative risk score based on the metrics selected. The default view uses percentile rankings that compare a county to all other counties across the country. Click on a county to zoom in to the state. When you do this, the county’s relative risk for each metric is recalculated by comparing it only to other counties within the state. When this is done, the county’s relative risk score for individual and combinatory metrics can change.',
         targetElement: '#map-svg',
+        popupPosition: {
+            top: '20%',
+            left: '50%',
+            width: '600px',
+            height: '200px',
+        },
+    },
+    {
+        name: 'County Report Cards',
+        description:
+            'When you have one county selected, click here to view the ‘report card’ for that county. This provides the raw value for each metric, the percentile ranking within the state, and the percentile ranking within the country.',
+        targetElement: '#report-card-controls',
         popupPosition: {
             top: '20%',
             left: '50%',

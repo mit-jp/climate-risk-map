@@ -238,7 +238,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
 
     return (
         <div id={css.mapControls}>
-            <div>
+            <div id="report-card-controls">
                 {countyId && (
                     <Button
                         variant="outlined"
