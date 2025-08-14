@@ -51,8 +51,14 @@ function TourPlanner() {
         },
         {
             name: 'Viewing County Data',
-            description:
-                'Mouse over a county to see its relative risk score based on the metrics selected. The default view uses percentile rankings that compare a county to all other counties across the country. Click on a county to zoom in to the state. When you do this, the county’s relative risk for each metric is recalculated by comparing it only to other counties within the state. When this is done, the county’s relative risk score for individual and combinatory metrics can change.',
+            description: `Mouse over a county to see its relative risk score based on the metrics selected. 
+        The default view uses percentile rankings that compare a county to all other counties across 
+        the country. Click on a county to zoom in to the state. When you do this, the county's 
+        relative risk for each metric is recalculated by comparing it only to other counties within 
+        the state. When this is done, the county's relative risk score for individual and combinatory 
+        metrics can change.<br><br>
+        <b>Click on a county to zoom in and view its report card!</b>`,
+
             targetElement: '#map-svg',
             popupPosition: {
                 top: '20%',
