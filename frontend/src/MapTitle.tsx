@@ -34,6 +34,7 @@ const getSubtitle = (countyId: number | undefined, region: string) => {
 type Props = {
     selectedMapVisualizations: MapVisualization[]
     isNormalized: boolean
+    showStateLevelWarning: boolean
 }
 
 const BigTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -48,11 +49,12 @@ const BigTooltip = styled(({ className, ...props }: TooltipProps) => (
     },
 }))
 
-function MapTitle({ selectedMapVisualizations, isNormalized }: Props) {
+function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarning }: Props) {
     const zoomTo = useSelector((state: RootState) => state.app.zoomTo)
     const dispatch = useDispatch()
     const countyId = useSelector((state: RootState) => state.app.county)
     const region = useSelector((state: RootState) => state.app.region)
+
     return (
         <div className={css.mapTitleContainer}>
             {zoomTo && (
@@ -84,6 +86,16 @@ function MapTitle({ selectedMapVisualizations, isNormalized }: Props) {
                 )}
             </h3>
             <p id={css.mapSubtitle}>{getSubtitle(countyId, region)}</p>
+            {showStateLevelWarning && (
+                <div id={css.stateDataWarning} className={zoomTo ? css.zoomed : ''}>
+                    {' '}
+                    <h3 id={css.stateDataWarningTitle}>⚠️ Data Limitation Notice</h3>
+                    <p id={css.stateDataWarningParagraph}>
+                        This dataset contains state-level data. <br /> For accurate analysis, we
+                        have disabled state analysis while state-level data is enabled.
+                    </p>
+                </div>
+            )}
         </div>
     )
 }
