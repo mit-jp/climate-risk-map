@@ -60,12 +60,84 @@ function TourPlanner() {
                 width: '600px',
                 height: '200px',
             },
-            end: () => zoomTo < 1000,
+            end: () => zoomTo !== undefined,
         },
         {
             name: 'County Report Cards',
             description:
                 'When you have one county selected, click here to view the ‘report card’ for that county. This provides the raw value for each metric, the percentile ranking within the state, and the percentile ranking within the country.',
+            targetElement: '#report-card-controls',
+            popupPosition: {
+                top: '20%',
+                left: '50%',
+                width: '600px',
+                height: '200px',
+            },
+        },
+        {
+            name: 'Adding Infrastructure',
+            description:
+                'Click on these boxes to add in different types of infrastructure across the country.',
+            targetElement: '#map-overlays',
+            popupPosition: {
+                top: '20%',
+                left: '50%',
+                width: '600px',
+                height: '200px',
+            },
+        },
+        {
+            name: 'Source Information',
+            description:
+                'Click here to learn more about each metric and its datasource. <br> NEED TO PULL MAIN!',
+            targetElement: '#map-svg',
+            popupPosition: {
+                top: '20%',
+                left: '50%',
+                width: '600px',
+                height: '200px',
+            },
+        },
+        {
+            name: 'Downloading Data',
+            description:
+                'Click here to download the data and map images for the currently selected metrics.',
+            targetElement: '#download-buttons',
+            popupPosition: {
+                top: '20%',
+                left: '50%',
+                width: '600px',
+                height: '200px',
+            },
+        },
+        {
+            name: 'Viewing Raw Data',
+            description:
+                'The home tab includes ‘combinatory metrics,’ which provides and allows user combination of relative risk scores for over a dozen metrics. Click on other tabs to see data in its native units for over 100 metrics.',
+            targetElement: '#navdiv',
+            popupPosition: {
+                top: '20%',
+                left: '50%',
+                width: '600px',
+                height: '200px',
+            },
+        },
+        {
+            name: 'World View',
+            description:
+                'Click here to switch between viewing global and USA wide data. The global viewer currently does not include functionality for combinatory metrics but does include global climate projection data.',
+            targetElement: '#region-selector',
+            popupPosition: {
+                top: '20%',
+                left: '50%',
+                width: '600px',
+                height: '200px',
+            },
+        },
+        {
+            name: 'Important Notice',
+            description:
+                'Note that this tool is intended as a screening tool to identify areas for further investigation. The data included in this tool is certainly non-exhaustive of all important socio-economic and environmental risks. It is continually being expanded and updated, but is limited by data availability at the county-level across the U.S. ',
             targetElement: '#report-card-controls',
             popupPosition: {
                 top: '20%',

@@ -24,7 +24,7 @@ export default function RegionNavigation() {
     }
 
     return (
-        <nav className={css.regionNav}>
+        <nav className={css.regionNav} id="region-selector">
             <FormControl>
                 <InputLabel
                     id="region-label"

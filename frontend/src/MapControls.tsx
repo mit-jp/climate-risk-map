@@ -255,7 +255,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
                     </Button>
                 )}
             </div>
-            <div>
+            <div id="map-overlays">
                 {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
                 {isNormalized && data && (
                     <FormControlLabel
@@ -271,7 +271,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
                     />
                 )}
             </div>
-            <div>
+            <div id="download-buttons">
                 {data && (
                     <Button variant="outlined" onClick={downloadData}>
                         Download Data
