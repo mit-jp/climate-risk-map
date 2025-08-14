@@ -42,7 +42,7 @@ function TourControls({
                         variant="contained"
                         className={css.primaryButton}
                         onClick={onNext}
-                        disabled={!canProceed}
+                        disabled={!canProceed()}
                     >
                         {isLastStep ? 'Finish' : 'Next'}
                     </Button>

@@ -16,7 +16,7 @@ export type TourStepData = {
         height?: string
     }
 
-    end?: (state: any) => boolean
+    end?: () => boolean
 }
 
 // The way that the steps should be given (an object)
