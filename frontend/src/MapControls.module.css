@@ -1,9 +1,47 @@
 #map-controls {
     margin-left: 1em;
-    margin-top: 2em;
 }
 
 #map-controls button {
     margin-right: 1em;
+}
+
+.overlay-options {
+    margin-top: 4px;
+    margin-right: 1em;
+    height: 35px;
+}
+
+.overlay-options-label {
+    margin-top: 5px;
+    margin-left: -5px;
+    background: white;
+}
+
+#overlays {
+    margin-top: 10px;
+}
+
+#report-card-button {
+    background-color: hsl(59, 82%, 82%);
+    color: black;
+    text-transform: none;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+#report-card-button:hover {
+    background-color: hsl(59, 82%, 91%);
+}
+
+#county-controls {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     margin-top: 1em;
+}
+
+#report-card-tooltip {
+    margin-left: 5px;
 }

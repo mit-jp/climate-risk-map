@@ -137,8 +137,8 @@ function ProbabilityDensity({
             viewBox={`0 0 ${width.toString()} ${height.toString()}`}
             width={width}
             height={height}
-            x={850}
-            y={362}
+            x={875}
+            y={275}
         >
             <rect width="100%" height="100%" fill="rgba(255, 255, 255, 0.8)" />
             <g id="histogram" />

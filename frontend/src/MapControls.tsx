@@ -8,11 +8,15 @@ import {
     Select,
     Switch,
     Tooltip,
+    IconButton,
+    Popover,
+    Typography,
 } from '@mui/material'
+import { HelpOutline } from '@mui/icons-material'
 import { csvFormat } from 'd3'
 import { saveAs } from 'file-saver'
 import { Map } from 'immutable'
-import { Fragment } from 'react'
+import { useState, Fragment } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import counties from './Counties'
@@ -28,7 +32,6 @@ import {
     OverlayName,
     Region,
     TransmissionLineType,
-    clickMap,
     setDetailedView,
     setShowOverlay,
     setTransmissionLineType,
@@ -58,12 +61,13 @@ function OverlaySubControl({ name }: { name: OverlayName }) {
     if (name === 'Transmission lines') {
         return (
             <FormControl>
-                <InputLabel shrink id="transmission-lines-type">
+                <InputLabel shrink className={css.overlayOptionsLabel} id="transmission-lines-type">
                     Type
                 </InputLabel>
                 <Select
                     labelId="transmission-lines-type"
                     value={transmissionLineType}
+                    className={css.overlayOptions}
                     onChange={(event) =>
                         dispatch(
                             setTransmissionLineType(event.target.value as TransmissionLineType)
@@ -82,12 +86,13 @@ function OverlaySubControl({ name }: { name: OverlayName }) {
     if (name === 'Marine highways') {
         return (
             <FormControl>
-                <InputLabel shrink id="waterway-type">
+                <InputLabel shrink className={css.overlayOptionsLabel} id="waterway-type">
                     Tonnage
                 </InputLabel>
                 <Select
                     labelId="waterway-type"
                     value={waterwayValue}
+                    className={css.overlayOptions}
                     onChange={(event) =>
                         dispatch(setWaterwayValue(event.target.value as WaterwayValue))
                     }
@@ -156,9 +161,9 @@ function MapControls({ data, isNormalized, maps }: Props) {
     const detailedView = useSelector((state: RootState) => state.app.detailedView)
 
     const countyId = useSelector((state: RootState) => state.app.county)
-    const zoomTo = useSelector((state: RootState) => state.app.zoomTo)
     const region: Region = maps[0]?.geography_type === 1 ? 'USA' : 'World'
     const params = useParams()
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
     const { tabId } = params
 
     const UsaCsv = (sortedData: Map<number, number> | undefined) => {
@@ -237,60 +242,79 @@ function MapControls({ data, isNormalized, maps }: Props) {
     }
 
     return (
-        <div id={css.mapControls}>
-            <div>
+        <>
+            <div id={css.countyControls}>
                 {countyId && (
-                    <Button
-                        variant="outlined"
-                        onClick={() => window.open(`/report-card/${tabId ?? '8'}/${countyId}`)}
-                    >
-                        View report card for {counties.get(countyId)},{' '}
-                        {states.get(stateId(countyId))}
-                    </Button>
-                )}
-                {zoomTo && (
-                    // creates a button that zooms back out if zoomed into a state or country
-                    <Button variant="outlined" onClick={() => dispatch(clickMap(Number(-1)))}>
-                        Zoom Out
-                    </Button>
-                )}
-            </div>
-            <div>
-                {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
-                {isNormalized && data && (
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={detailedView}
-                                onChange={(_, value) => dispatch(setDetailedView(value))}
-                                name="detailed-view"
-                                color="primary"
-                            />
-                        }
-                        label="Detailed View"
-                    />
-                )}
-            </div>
-            <div>
-                {data && (
-                    <Button variant="outlined" onClick={downloadData}>
-                        Download Data
-                    </Button>
-                )}
-                {data && (
-                    <Button variant="outlined" onClick={downloadImageSVG}>
-                        Download Image (SVG)
-                    </Button>
-                )}
-                {data && (
-                    <Tooltip title="Google Chrome is recommended to download PNG images" arrow>
-                        <Button variant="outlined" onClick={downloadImagePNG}>
-                            Download Image (PNG)
+                    <>
+                        <Button
+                            id={css.reportCardButton}
+                            variant="outlined"
+                            onClick={() => window.open(`/report-card/${tabId ?? '8'}/${countyId}`)}
+                        >
+                            View report card for {counties.get(countyId)},{' '}
+                            {states.get(stateId(countyId))}
                         </Button>
-                    </Tooltip>
+                        <IconButton
+                            onClick={(event) => setAnchorEl(event.currentTarget)}
+                            size="small"
+                            id={css.reportCardTooltip}
+                        >
+                            <HelpOutline />
+                        </IconButton>
+                        <Popover
+                            open={Boolean(anchorEl)}
+                            anchorEl={anchorEl}
+                            onClose={() => setAnchorEl(null)}
+                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                            transformOrigin={{ vertical: 'top', horizontal: 'center' }}
+                        >
+                            <Typography sx={{ p: 2, maxWidth: 300 }}>
+                                Shows detailed county information including national and state
+                                percentiles for all metrics. Higher percentiles indicate higher
+                                risk.
+                            </Typography>
+                        </Popover>
+                    </>
                 )}
             </div>
-        </div>
+            <div id={css.mapControls}>
+                <div id={css.overlays}>
+                    {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
+                    {isNormalized && data && (
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={detailedView}
+                                    onChange={(_, value) => dispatch(setDetailedView(value))}
+                                    name="detailed-view"
+                                    color="primary"
+                                />
+                            }
+                            label="Detailed View"
+                        />
+                    )}
+                </div>
+                <div>
+                    {data && (
+                        <Button variant="outlined" onClick={downloadData}>
+                            Download Data
+                        </Button>
+                    )}
+                    {data && (
+                        <Button variant="outlined" onClick={downloadImageSVG}>
+                            Download Image (SVG)
+                        </Button>
+                    )}
+                    {data && (
+                        <Tooltip title="Google Chrome is recommended to download PNG images" arrow>
+                            <Button variant="outlined" onClick={downloadImagePNG}>
+                                Download Image (PNG)
+                            </Button>
+                        </Tooltip>
+                    )}
+                </div>
+            </div>
+        </>
     )
 }
 
