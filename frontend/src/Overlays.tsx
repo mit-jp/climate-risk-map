@@ -6,6 +6,7 @@ import type { GeometryCollection } from 'topojson-specification'
 import { TopoJson } from './TopoJson'
 import { OverlayName, selectMapTransform } from './appSlice'
 import { RootState } from './store'
+import { ZOOM_TRANSITION } from './MapWrapper'
 
 const linePath = geoPath()
 const pointPath = geoPath().pointRadius(1)
@@ -81,7 +82,12 @@ function Overlays() {
                 .filter(([, overlay]) => overlay.shouldShow && overlay.topoJson)
                 .map(([name, overlay]) => [name, overlay.topoJson] as [OverlayName, TopoJson])
                 .map(([name, topoJson]) => (
-                    <g id={name.replaceAll(' ', '-')} key={name} transform={transform}>
+                    <g
+                        id={name.replaceAll(' ', '-')}
+                        key={name}
+                        transform={transform}
+                        style={ZOOM_TRANSITION}
+                    >
                         {generatePaths(name, topoJson)}
                     </g>
                 ))}

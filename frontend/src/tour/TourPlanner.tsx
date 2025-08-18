@@ -79,7 +79,7 @@ function TourPlanner() {
             name: 'County Report Cards',
             description:
                 'When you have one county selected, click here to view the ‘report card’ for that county. This provides the raw value for each metric, the percentile ranking within the state, and the percentile ranking within the country.',
-            targetElement: '#report-card-controls',
+            targetElement: '#report-card-div',
             popupPosition: {
                 top: '20%',
                 left: '50%',
@@ -100,10 +100,10 @@ function TourPlanner() {
             },
         },
         {
-            name: 'Source Information',
+            name: 'Downloading Data',
             description:
-                'Click here to learn more about each metric and its datasource. <br> NEED TO PULL MAIN!',
-            targetElement: '#map-svg',
+                'Click here to download the data and map images for the currently selected metrics.',
+            targetElement: '#download-buttons',
             popupPosition: {
                 top: '20%',
                 left: '50%',
@@ -112,10 +112,9 @@ function TourPlanner() {
             },
         },
         {
-            name: 'Downloading Data',
-            description:
-                'Click here to download the data and map images for the currently selected metrics.',
-            targetElement: '#download-buttons',
+            name: 'Source Information',
+            description: 'Click here to learn more about each metric and its datasource.',
+            targetElement: '#data-desc',
             popupPosition: {
                 top: '20%',
                 left: '50%',

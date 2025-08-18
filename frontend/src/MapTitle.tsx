@@ -1,10 +1,10 @@
-import { IconButton, styled, Tooltip, TooltipProps, tooltipClasses } from '@mui/material'
+import { styled, Tooltip, TooltipProps, tooltipClasses } from '@mui/material'
 import { Info } from '@mui/icons-material'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { MapVisualization } from './MapVisualization'
-import { RootState } from './store'
-import { stateId } from './appSlice'
+import { stateId, clickMap } from './appSlice'
 import css from './MapTitle.module.css'
+import { RootState } from './store'
 import counties from './Counties'
 import states from './States'
 
@@ -34,6 +34,7 @@ const getSubtitle = (countyId: number | undefined, region: string) => {
 type Props = {
     selectedMapVisualizations: MapVisualization[]
     isNormalized: boolean
+    showStateLevelWarning: boolean
 }
 
 const BigTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -48,11 +49,24 @@ const BigTooltip = styled(({ className, ...props }: TooltipProps) => (
     },
 }))
 
-function MapTitle({ selectedMapVisualizations, isNormalized }: Props) {
+function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarning }: Props) {
+    const zoomTo = useSelector((state: RootState) => state.app.zoomTo)
+    const dispatch = useDispatch()
     const countyId = useSelector((state: RootState) => state.app.county)
     const region = useSelector((state: RootState) => state.app.region)
+
     return (
-        <>
+        <div className={css.mapTitleContainer}>
+            {zoomTo && (
+                // creates a button that zooms back out if zoomed into a state or country
+                <button
+                    type="button"
+                    className={css.zoomOutButton}
+                    onClick={() => dispatch(clickMap(-1))}
+                >
+                    Zoom Out
+                </button>
+            )}
             <h3 id={css.mapTitle}>
                 {getTitle(selectedMapVisualizations)}
                 {isNormalized && (
@@ -61,20 +75,45 @@ function MapTitle({ selectedMapVisualizations, isNormalized }: Props) {
                 of the raw data. If you select multiple data,
                 we take the mean of the ranked values."
                     >
-                        <IconButton aria-label="info" size="large">
-                            <Info />
-                        </IconButton>
+                        <Info
+                            sx={{
+                                verticalAlign: 'middle',
+                                marginLeft: '8px',
+                                marginBottom: '3px',
+                            }}
+                        />
                     </BigTooltip>
                 )}
             </h3>
             <p id={css.mapSubtitle}>{getSubtitle(countyId, region)}</p>
-        </>
+            {showStateLevelWarning && (
+                <div id={css.stateDataWarning} className={zoomTo ? css.zoomed : ''}>
+                    {' '}
+                    <h3 id={css.stateDataWarningTitle}>⚠️ Data Limitation Notice</h3>
+                    <p id={css.stateDataWarningParagraph}>
+                        This dataset contains state-level data. <br /> For accurate analysis, we
+                        have disabled state analysis while state-level data is enabled.
+                    </p>
+                </div>
+            )}
+        </div>
     )
 }
 
 export function EmptyMapTitle() {
+    const dispatch = useDispatch()
+    const zoomTo = useSelector((state: RootState) => state.app.zoomTo)
     return (
-        <div id={css.emptyTitle}>
+        <div className={css.mapTitleContainer}>
+            {zoomTo && (
+                <button
+                    type="button"
+                    className={css.zoomOutButton}
+                    onClick={() => dispatch(clickMap(-1))}
+                >
+                    Zoom Out
+                </button>
+            )}
             <h1 id={css.noMetricTitle}>No metric selected</h1>
         </div>
     )

@@ -3,20 +3,80 @@
     font-weight: 400;
     font-size: 25px;
     line-height: 48px;
-    margin: 25px 0 0 0;
+    margin: 15px 0 0 60px;
     width: 82%;
     text-align: center;
 }
 
-#empty-title {
-    height: 48px;
-    margin-top: 25px;
+.zoom-out-button {
+    width: 100px;
+    height: 30px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 800;
+    background-color: hsl(215, 22%, 82%);
+    color: black;
+    border: 1px solid black;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    position: absolute;
+    left: 20px;
+    top: 9px;
+}
+
+.zoom-out-button:hover {
+    background-color: rgb(73, 93, 121);
+    color: white;
+}
+
+.mapTitleContainer {
+    position: relative;
+}
+
+#stateDataWarning {
+    background-color: hsl(351, 100%, 94%);
+    border: 2px solid #f44336;
+    border-radius: 4px;
+    padding: 12px;
+    margin: 16px auto;
+    position: relative;
+    right: 3%;
+    display: block;
+    width: fit-content;
+    text-align: center;
+}
+
+#stateDataWarning.zoomed {
+    animation: backgroundFlash 0.5s ease-in-out 2;
+}
+
+@keyframes backgroundFlash {
+    0%,
+    100% {
+        background-color: hsl(351, 100%, 94%);
+        border: 2px solid #f44336;
+    }
+    50% {
+        background-color: hsl(351, 100%, 75%);
+        border: 2px solid #000000;
+    }
+}
+
+#stateDataWarningTitle {
+    color: hsl(0, 66%, 42%);
+    font-weight: 600;
+    margin: 0 0 8px 0;
+}
+
+#stateDataWarningParagraph {
+    color: hsl(0, 66%, 42%);
+    margin: 0;
 }
 
 #map-subtitle {
     font-weight: 400;
     font-size: 15px;
-    margin: 0 0 25px 0;
     width: 82%;
     text-align: center;
+    margin: 0 0 15px 60px;
 }

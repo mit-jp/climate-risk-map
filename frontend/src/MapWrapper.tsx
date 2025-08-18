@@ -2,7 +2,7 @@ import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import DataDescription from './DataDescription'
-import DataProcessor from './DataProcessor'
+import DataProcessor, { getDomain } from './DataProcessor'
 import DataSourceDescription from './DataSourceDescription'
 import EmptyMap from './EmptyMap'
 import FullMap from './FullMap'
@@ -10,14 +10,50 @@ import { DataQueryParams, useGetDataQuery } from './MapApi'
 import MapControls from './MapControls'
 import MapTitle, { EmptyMapTitle } from './MapTitle'
 import MapTooltip from './MapTooltip'
-import { MapVisualization, MapVisualizationId } from './MapVisualization'
+import { MapType, MapVisualization, MapVisualizationId } from './MapVisualization'
 import css from './MapWrapper.module.css'
 import Overlays from './Overlays'
 import { clickMap, selectMapTransform, selectSelections, stateId } from './appSlice'
 import { RootState } from './store'
+import Legend from './Legend'
+import { getLegendFormatter, getUnitString } from './Formatter'
+import Color from './Color'
+import ProbabilityDensity from './ProbabilityDensity'
 
 export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
 
+export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
+    const dataDefinition = selectedMaps[0]
+    const unitString = getUnitString({ units: dataDefinition.units, isNormalized })
+
+    if (isNormalized) {
+        if (selectedMaps.some((value) => value.subcategory === 1)) {
+            return selectedMaps.length > 1 ? 'Combined Relative Risk' : 'Relative Risk'
+        }
+        return 'Scaled Value'
+    }
+    return unitString
+}
+
+function getPdfDomain(selectedMaps: MapVisualization[]) {
+    const firstSelection = selectedMaps[0]
+    if (firstSelection === undefined) {
+        return undefined
+    }
+
+    return firstSelection.pdf_domain
+}
+
+function shouldShowPdf(selectedMaps: MapVisualization[], isNormalized: boolean) {
+    const firstSelection = selectedMaps[0]
+    if (selectedMaps[0] !== undefined && selectedMaps[0].show_pdf === false) {
+        return false
+    }
+    if (isNormalized) {
+        return selectedMaps.length > 1
+    }
+    return firstSelection !== undefined && firstSelection.map_type === MapType.Choropleth
+}
 function MapWrapper({
     allMapVisualizations,
     isNormalized,
@@ -33,6 +69,7 @@ function MapWrapper({
     const transform = useSelector(selectMapTransform)
     const selections = useSelector(selectSelections)
     const region = useSelector((rootState: RootState) => rootState.app.region)
+    const tab = useSelector((state: RootState) => state.app.tab?.name ?? '')
     const maps = useMemo(() => {
         return selections
             .map((selection) => selection.mapVisualization)
@@ -50,6 +87,38 @@ function MapWrapper({
             : undefined
     const { data } = useGetDataQuery(queryParams ?? skipToken)
     const mapRef = useRef<SVGGElement>(null)
+    const isStateLevelOnlyData = useMemo(() => {
+        if (data && maps.length > 0 && tab === 'combinatory metrics') {
+            const noStateLevelMaps = maps.every((map) => {
+                const mapList = data.get(map.id)
+
+                const countryMap = new Map()
+                const valueSet = new Set()
+
+                mapList?.forEach(([geoId, value]) => {
+                    const stateId = Math.floor(geoId / 1000)
+                    valueSet.add(value)
+                    if (!countryMap.get(stateId)) {
+                        countryMap.set(stateId, [])
+                    }
+                    countryMap.get(stateId).push(value)
+                })
+
+                const allValuesSame = Array.from(countryMap.values()).every((state) => {
+                    return state.every((val: number) => val === state[0])
+                })
+
+                // to prevent the warning from flashing when loading a new map
+                if (valueSet.size === 0) {
+                    return true
+                }
+
+                return !allValuesSame
+            })
+            return !noStateLevelMaps
+        }
+        return false
+    }, [data, maps, tab])
     const processedData = useMemo(
         () =>
             data
@@ -62,15 +131,17 @@ function MapWrapper({
                       })),
                       normalize: isNormalized,
                       filter:
-                          zoomTo && region === 'USA'
+                          zoomTo && region === 'USA' && !isStateLevelOnlyData
                               ? (geoId) => stateId(geoId) === zoomTo
                               : undefined,
                   })
                 : undefined,
-        [data, maps, dataWeights, zoomTo, isNormalized, region]
+        [data, maps, dataWeights, zoomTo, isNormalized, region, isStateLevelOnlyData]
     )
     const dataSource =
         maps[0] && selections[0] ? maps[0].sources[selections[0].dataSource] : undefined
+    const getLegendTicks = (selectedMaps: MapVisualization[], isNormalized: boolean) =>
+        isNormalized ? undefined : selectedMaps[0].legend_ticks
 
     if (map === undefined) {
         return <p>Loading</p>
@@ -82,7 +153,11 @@ function MapWrapper({
         <>
             <div className={css.map}>
                 {maps.length > 0 ? (
-                    <MapTitle selectedMapVisualizations={maps} isNormalized={isNormalized} />
+                    <MapTitle
+                        selectedMapVisualizations={maps}
+                        isNormalized={isNormalized}
+                        showStateLevelWarning={isStateLevelOnlyData}
+                    />
                 ) : (
                     <EmptyMapTitle />
                 )}
@@ -112,19 +187,65 @@ function MapWrapper({
                             detailedView={detailedView}
                             isNormalized={isNormalized}
                             transform={transform}
+                            zoomable={!isStateLevelOnlyData}
                         />
                     ) : (
                         <EmptyMap map={map} transform={transform} />
                     )}
                     <Overlays />
+                    {processedData &&
+                        (() => {
+                            // JavaScript goes here
+                            const legendTitle = getLegendTitle(maps, isNormalized)
+                            const legendFormatter = getLegendFormatter(maps, isNormalized)
+                            const domain = getDomain(processedData)
+                            const colorScheme = Color(isNormalized, detailedView, maps[0], domain)
+                            const getArrayOfData = () =>
+                                Array.from(processedData.valueSeq()).filter(
+                                    (value) => value !== undefined
+                                ) as number[]
+                            const legendTicks = getLegendTicks(maps, isNormalized)
+                            return (
+                                <>
+                                    <Legend
+                                        title={legendTitle}
+                                        colorScheme={colorScheme}
+                                        tickFormat={legendFormatter}
+                                        ticks={legendTicks}
+                                        showHighLowLabels={isNormalized}
+                                        x={map.region === 'World' ? 0 : 875}
+                                        y={map.region === 'World' ? 502 : 500}
+                                        width={290}
+                                        height={60}
+                                    />
+                                    {shouldShowPdf(maps, isNormalized) && (
+                                        <ProbabilityDensity
+                                            data={getArrayOfData()}
+                                            map={maps[0]}
+                                            xRange={getPdfDomain(maps)}
+                                            formatter={legendFormatter}
+                                            continuous={detailedView}
+                                            shouldNormalize={isNormalized}
+                                            width={290}
+                                            height={200}
+                                        />
+                                    )}
+                                </>
+                            )
+                        })()}
                 </svg>
                 {map && (
                     <MapControls data={processedData} isNormalized={isNormalized} maps={maps} />
                 )}
-                {maps[0] && (
-                    <DataDescription name={maps[0].displayName} description={maps[0].description} />
-                )}
-                {dataSource && <DataSourceDescription dataSource={dataSource} />}
+                <div className={css.dataDescriptions} id="data-desc">
+                    {maps[0] && (
+                        <DataDescription
+                            name={maps[0].displayName}
+                            description={maps[0].description}
+                        />
+                    )}
+                    {dataSource && <DataSourceDescription dataSource={dataSource} />}
+                </div>
             </div>
             <MapTooltip
                 data={processedData}

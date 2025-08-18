@@ -35,6 +35,7 @@ export default function RegionNavigation() {
                 </InputLabel>
                 <Select
                     label="Region"
+                    size="small"
                     value={region}
                     onChange={(event: SelectChangeEvent) => {
                         if (region != null) {

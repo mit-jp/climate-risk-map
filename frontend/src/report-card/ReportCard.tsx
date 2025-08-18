@@ -1,4 +1,4 @@
-import { Autocomplete, TextField } from '@mui/material'
+import { Autocomplete, TextField, Checkbox } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { redBlueReportCard } from '../Color'
@@ -167,6 +167,7 @@ export default function ReportCard() {
                     `: ${categories[categoryId]?.name ?? ''}`}
             </h1>
             <Autocomplete
+                id={css.countyAutocomplete}
                 loading={countyList.length === 0 && !states}
                 options={countyList}
                 getOptionLabel={(county) =>
@@ -182,11 +183,9 @@ export default function ReportCard() {
                 }}
                 value={selectedRegion}
             />
-            <div>
-                <label>
-                    <input type="checkbox" checked={checked} onChange={handleChange} />
-                    Display state-level percentile data
-                </label>
+            <div id={css.statePercentileCheckbox}>
+                <Checkbox checked={checked} onChange={handleChange} />
+                Display state-level percentile data
             </div>
             {selectedRegion && states && categoryId !== undefined && (
                 <PercentileReport

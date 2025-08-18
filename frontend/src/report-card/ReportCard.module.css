@@ -12,14 +12,14 @@ h1 {
 }
 
 .county-metrics thead td {
-    padding-left: .25em;
+    padding-left: 0.25em;
 }
 
 .county-metrics tr:hover {
     background: #f2f2f2;
 }
 
-.county-metrics td{
+.county-metrics td {
     padding: 0em;
 }
 
@@ -38,26 +38,35 @@ h1 {
     height: 10px;
     width: 0%;
     margin: 0.5em 0;
-    border:1px solid #000000;
+    border: 1px solid #000000;
 }
 
 .county-metrics .percentile-bar-column {
     padding-left: 0;
-    border-left-style: hidden!important;
-    padding-right: .5em;
-    width: 15%
+    border-left-style: hidden !important;
+    padding-right: 0.5em;
+    width: 15%;
 }
 
 .county-metrics .percentile-column {
     width: 2em;
-    padding-right: .5em;
-    padding-left: .25em;
+    padding-right: 0.5em;
+    padding-left: 0.25em;
 }
 
 .county-metrics .raw-val-column {
-    padding-left: .25em; 
+    padding-left: 0.25em;
 }
 
 .county-metrics .metric-column {
-    padding-left: .25em; 
+    padding-left: 0.25em;
+}
+
+#statePercentileCheckbox {
+    display: flex;
+    align-items: center;
+}
+
+#countyAutocomplete {
+    height: 10px;
 }

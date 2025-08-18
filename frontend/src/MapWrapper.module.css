@@ -4,6 +4,11 @@
     width: 100%;
 }
 
+.data-descriptions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
 /* no min width if screen is small */
 @media (max-width: 600px) {
     .map {

@@ -30,10 +30,19 @@ type Props = {
     detailedView: boolean
     isNormalized: boolean
     transform?: string
+    zoomable?: boolean
 }
 
 function FullMap(
-    { map, selectedMapVisualizations, data, detailedView, isNormalized, transform }: Props,
+    {
+        map,
+        selectedMapVisualizations,
+        data,
+        detailedView,
+        isNormalized,
+        transform,
+        zoomable,
+    }: Props,
     ref: ForwardedRef<SVGGElement>
 ) {
     const mapVisualization = selectedMapVisualizations[0]!
@@ -47,10 +56,10 @@ function FullMap(
                     selectedMapVisualizations={selectedMapVisualizations}
                     data={data}
                     detailedView={detailedView}
-                    legendTitle={legendTitle}
                     isNormalized={isNormalized}
                     ref={ref}
                     transform={transform}
+                    zoomable={zoomable}
                 />
             )
         case MapType.Bubble:
