@@ -15,9 +15,6 @@
     border-radius: 12px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     z-index: 10002;
-    max-width: 600px;
-    min-width: 350px;
-    max-height: 200px;
 }
 
 .popupContent {

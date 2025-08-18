@@ -38,7 +38,7 @@ function TourHighlight({ targetElement }: TourHighlightProps) {
         }
     }, [targetElement])
 
-    if (!rect) {
+    if (!rect || !targetElement) {
         return null
     }
 

@@ -19,10 +19,10 @@ function TourPlanner() {
                 'Welcome to the System for the Triage of Risks from Environmental and Socioeconomic Stressors (STRESS) platform, a screening platform to identify overlapping environmental and socio-economic stressors at the county level across the U.S. Click through to learn how to use the platform.',
             targetElement: '#map-svg',
             popupPosition: {
-                top: '20%',
-                left: '50%',
-                width: '600px',
-                height: '200px',
+                top: '16.4%',
+                left: '7.3%',
+                width: '320px',
+                height: '270px',
             },
         },
         {
@@ -46,7 +46,7 @@ function TourPlanner() {
                 top: '33.5%',
                 left: '40%',
                 width: '700px',
-                height: '300px',
+                height: '150px',
             },
         },
         {
@@ -55,23 +55,23 @@ function TourPlanner() {
 
             targetElement: '#map-svg',
             popupPosition: {
-                top: '20%',
-                left: '50%',
-                width: '600px',
+                top: '16.4%',
+                left: '7.3%',
+                width: '320px',
                 height: '200px',
             },
             end: () => zoomTo !== undefined,
         },
         {
-            name: 'Viewing County Data',
+            name: 'Zooming into a State',
             description: `Now that you have zoomed in, the county’s relative risk for each metric is recalculated by comparing it only to other counties within the state. When this is done, the county’s relative risk score for individual and combinatory metrics will change.`,
 
             targetElement: '#map-svg',
             popupPosition: {
-                top: '20%',
-                left: '50%',
-                width: '600px',
-                height: '200px',
+                top: '16.4%',
+                left: '7.3%',
+                width: '320px',
+                height: '230px',
             },
             end: () => zoomTo !== undefined,
         },
@@ -81,10 +81,10 @@ function TourPlanner() {
                 'When you have one county selected, click here to view the ‘report card’ for that county. This provides the raw value for each metric, the percentile ranking within the state, and the percentile ranking within the country.',
             targetElement: '#report-card-div',
             popupPosition: {
-                top: '20%',
+                top: '30%',
                 left: '50%',
                 width: '600px',
-                height: '200px',
+                height: '150px',
             },
         },
         {
@@ -93,10 +93,10 @@ function TourPlanner() {
                 'Click on these boxes to add in different types of infrastructure across the country.',
             targetElement: '#map-overlays',
             popupPosition: {
-                top: '20%',
+                top: '40%',
                 left: '50%',
                 width: '600px',
-                height: '200px',
+                height: '100px',
             },
         },
         {
@@ -105,10 +105,10 @@ function TourPlanner() {
                 'Click here to download the data and map images for the currently selected metrics.',
             targetElement: '#download-buttons',
             popupPosition: {
-                top: '20%',
+                top: '50%',
                 left: '50%',
                 width: '600px',
-                height: '200px',
+                height: '100px',
             },
         },
         {
@@ -116,10 +116,10 @@ function TourPlanner() {
             description: 'Click here to learn more about each metric and its datasource.',
             targetElement: '#data-desc',
             popupPosition: {
-                top: '20%',
+                top: '55%',
                 left: '50%',
                 width: '600px',
-                height: '200px',
+                height: '100px',
             },
         },
         {
@@ -128,10 +128,10 @@ function TourPlanner() {
                 'The home tab includes ‘combinatory metrics,’ which provides and allows user combination of relative risk scores for over a dozen metrics. Click on other tabs to see data in its native units for over 100 metrics.',
             targetElement: '#navdiv',
             popupPosition: {
-                top: '20%',
+                top: '30%',
                 left: '50%',
                 width: '600px',
-                height: '200px',
+                height: '150px',
             },
         },
         {
@@ -143,19 +143,19 @@ function TourPlanner() {
                 top: '20%',
                 left: '50%',
                 width: '600px',
-                height: '200px',
+                height: '150px',
             },
         },
         {
             name: 'Important Notice',
             description:
                 'Note that this tool is intended as a screening tool to identify areas for further investigation. The data included in this tool is certainly non-exhaustive of all important socio-economic and environmental risks. It is continually being expanded and updated, but is limited by data availability at the county-level across the U.S. ',
-            targetElement: '#report-card-controls',
+            targetElement: 'a',
             popupPosition: {
                 top: '20%',
                 left: '50%',
                 width: '600px',
-                height: '200px',
+                height: '170px',
             },
         },
     ]
@@ -198,6 +198,19 @@ function TourPlanner() {
     const handleSkip = () => {
         finishTour()
     }
+
+    useEffect(() => {
+        if (isActive) {
+            const element = document.querySelector(currentStep.targetElement)
+            if (element) {
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                    inline: 'nearest',
+                })
+            }
+        }
+    }, [currentStepNum, isActive, currentStep.targetElement])
 
     if (!isActive) {
         return (
