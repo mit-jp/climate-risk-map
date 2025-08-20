@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
-import { Button } from '@mui/material'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { TourStep, TourStepData } from './TourStep'
 import TourControls from './TourControls'
-import css from './tour.module.css'
 import { RootState } from '../store'
+import { setTourActive } from '../appSlice'
 
 function TourPlanner() {
     const [currentStepNum, setCurrentStepNum] = useState(0)
-    const [isActive, setIsActive] = useState(false)
+    const dispatch = useDispatch()
+
+    const isTourActive = useSelector((state: RootState) => state.app.isTourActive)
 
     const zoomTo = useSelector((rootState: RootState) => rootState.app.zoomTo)
 
@@ -166,18 +167,18 @@ function TourPlanner() {
     useEffect(() => {
         const hasSeenTour = localStorage.getItem('hasSeenClimateTour')
         if (!hasSeenTour) {
-            setIsActive(true)
+            dispatch(setTourActive(true))
         }
-    }, [])
+    }, [dispatch])
 
-    const restartTour = () => {
-        setIsActive(true)
-        localStorage.setItem('hasSeenClimateTour', 'false')
-        setCurrentStepNum(0)
-    }
+    // const restartTour = () => {
+    //     dispatch(setTourActive(true))
+    //     localStorage.setItem('hasSeenClimateTour', 'false')
+    //     setCurrentStepNum(0)
+    // }
 
     const finishTour = () => {
-        setIsActive(false)
+        dispatch(setTourActive(false))
         localStorage.setItem('hasSeenClimateTour', 'true')
     }
 
@@ -200,7 +201,7 @@ function TourPlanner() {
     }
 
     useEffect(() => {
-        if (isActive) {
+        if (isTourActive) {
             const element = document.querySelector(currentStep.targetElement)
             if (element) {
                 element.scrollIntoView({
@@ -210,14 +211,10 @@ function TourPlanner() {
                 })
             }
         }
-    }, [currentStepNum, isActive, currentStep.targetElement])
+    }, [currentStepNum, isTourActive, currentStep.targetElement])
 
-    if (!isActive) {
-        return (
-            <Button id={css.viewTourButton} onClick={restartTour}>
-                View Tour
-            </Button>
-        )
+    if (!isTourActive) {
+        return null
     }
 
     return (

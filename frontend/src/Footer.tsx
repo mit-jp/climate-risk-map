@@ -1,6 +1,7 @@
 import { GitHub, Mail, RssFeed } from '@mui/icons-material'
 import { IconButton, Link } from '@mui/material'
 import css from './Footer.module.css'
+import ViewTourButton from './tour/ViewTourButton'
 
 function Footer() {
     return (
@@ -58,6 +59,7 @@ function Footer() {
                     <a href="https://accessibility.mit.edu/">Accessibility</a>
                 </li>
             </ul>
+            <ViewTourButton />
         </footer>
     )
 }
