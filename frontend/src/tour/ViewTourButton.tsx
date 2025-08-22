@@ -11,7 +11,12 @@ function ViewTourButton() {
     }
 
     return (
-        <Button variant="contained" onClick={handleClick} className={css.viewTourButton}>
+        <Button
+            variant="contained"
+            onClick={handleClick}
+            className={css.viewTourButton}
+            id="view-tour-button-id"
+        >
             View Tour
         </Button>
     )

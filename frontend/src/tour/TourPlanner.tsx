@@ -52,7 +52,7 @@ function TourPlanner() {
         },
         {
             name: 'Viewing County Data',
-            description: `Mouse over a county to see its relative risk score based on the metrics selected. The default view uses percentile rankings that compare a county to all other counties across the country. Click on a county to zoom in to the state. `,
+            description: `Mouse over a county to see its relative risk score based on the metrics selected. The default view uses percentile rankings that compare a county to all other counties across the country. `,
 
             targetElement: '#map-svg',
             popupPosition: {
@@ -60,6 +60,18 @@ function TourPlanner() {
                 left: '7.3%',
                 width: '320px',
                 height: '200px',
+            },
+        },
+        {
+            name: 'Zooming into a State',
+            description: `Click on a county to zoom in to its state.`,
+
+            targetElement: '#map-svg',
+            popupPosition: {
+                top: '20%',
+                left: '7.3%',
+                width: '320px',
+                height: '100px',
             },
             end: () => zoomTo !== undefined,
         },
@@ -159,6 +171,18 @@ function TourPlanner() {
                 height: '170px',
             },
         },
+        {
+            name: 'Revisiting the Tour',
+            description:
+                'You can view the tour again by clicking on this button at the bottom of the page.',
+            targetElement: '#view-tour-button-id',
+            popupPosition: {
+                top: '20%',
+                left: '50%',
+                width: '600px',
+                height: '170px',
+            },
+        },
     ]
 
     const currentStep = TOUR_STEPS[currentStepNum]
@@ -171,15 +195,10 @@ function TourPlanner() {
         }
     }, [dispatch])
 
-    // const restartTour = () => {
-    //     dispatch(setTourActive(true))
-    //     localStorage.setItem('hasSeenClimateTour', 'false')
-    //     setCurrentStepNum(0)
-    // }
-
     const finishTour = () => {
         dispatch(setTourActive(false))
         localStorage.setItem('hasSeenClimateTour', 'true')
+        setCurrentStepNum(0)
     }
 
     const handleNext = () => {

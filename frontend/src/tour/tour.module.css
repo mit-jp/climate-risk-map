@@ -101,18 +101,9 @@
     color: #495057 !important;
 }
 
-#viewTourButton {
-    position: fixed;
-    bottom: 12px;
-    right: 12px;
-    background-color: hsl(215, 25%, 58%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 6px 10px;
-    z-index: 10010;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    cursor: pointer;
+.viewTourButton {
+    border-radius: 0px !important;
+    box-shadow: none !important;
 }
 
 #viewTourButton:hover {
