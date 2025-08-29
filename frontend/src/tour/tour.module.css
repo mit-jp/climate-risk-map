@@ -104,8 +104,9 @@
 .viewTourButton {
     border-radius: 0px !important;
     box-shadow: none !important;
+    background-color: hsl(217, 14%, 69%) !important;
 }
 
-#viewTourButton:hover {
-    background-color: hsl(215, 25%, 38%);
+.viewTourButton:hover {
+    background-color: hsl(217, 14%, 49%) !important;
 }
