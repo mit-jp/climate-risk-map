@@ -8,9 +8,7 @@ import { setTourActive } from '../appSlice'
 function TourPlanner() {
     const [currentStepNum, setCurrentStepNum] = useState(0)
     const dispatch = useDispatch()
-
     const isTourActive = useSelector((state: RootState) => state.app.isTourActive)
-
     const zoomTo = useSelector((rootState: RootState) => rootState.app.zoomTo)
 
     const TOUR_STEPS: TourStepData[] = [
