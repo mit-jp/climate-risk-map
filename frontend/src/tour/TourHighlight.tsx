@@ -21,7 +21,6 @@ function TourHighlight({ targetElement }: TourHighlightProps) {
             const element = document.querySelector(targetElement)
             if (element) {
                 setRect(element.getBoundingClientRect())
-                observer.disconnect()
             }
         })
 
@@ -33,6 +32,7 @@ function TourHighlight({ targetElement }: TourHighlightProps) {
         window.addEventListener('resize', updatePosition)
 
         return () => {
+            observer.disconnect()
             window.removeEventListener('scroll', updatePosition)
             window.removeEventListener('resize', updatePosition)
         }
