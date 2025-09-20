@@ -26,12 +26,12 @@
     background: #eee;
 }
 
-.input:checked + .label .name,
+.label .name,
 .label:hover .name {
     text-decoration: underline;
 }
 
-.input:checked + .label .year {
+.label .year {
     font-size: 0.875rem;
     color: #646464;
 }
