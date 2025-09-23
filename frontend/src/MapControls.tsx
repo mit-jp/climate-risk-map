@@ -245,7 +245,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
         <>
             <div id={css.countyControls}>
                 {countyId && (
-                    <>
+                    <div id="report-card-div">
                         <Button
                             id={css.reportCardButton}
                             variant="outlined"
@@ -274,11 +274,11 @@ function MapControls({ data, isNormalized, maps }: Props) {
                                 risk.
                             </Typography>
                         </Popover>
-                    </>
+                    </div>
                 )}
             </div>
             <div id={css.mapControls}>
-                <div id={css.overlays}>
+                <div className={css.overlays} id="map-overlays">
                     {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
                     {isNormalized && data && (
                         <FormControlLabel
@@ -294,7 +294,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
                         />
                     )}
                 </div>
-                <div>
+                <div id="download-buttons">
                     {data && (
                         <Button variant="outlined" onClick={downloadData}>
                             Download Data

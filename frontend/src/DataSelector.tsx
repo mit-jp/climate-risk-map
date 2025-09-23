@@ -10,7 +10,11 @@ function DataSelector({
     isNormalized: boolean
     maps: Record<number, MapVisualization>
 }) {
-    return isNormalized ? <MultiDataSelector maps={maps} /> : <SingleDataSelector maps={maps} />
+    return (
+        <div id="data-selector">
+            {isNormalized ? <MultiDataSelector maps={maps} /> : <SingleDataSelector maps={maps} />}
+        </div>
+    )
 }
 
 export type MapSelection = {

@@ -1,0 +1,112 @@
+.tour-highlight {
+    border: 3px solid #000000;
+    border-radius: 8px;
+    z-index: 10001;
+    pointer-events: none;
+    box-shadow: 0 0 0 1000vmax rgba(0, 0, 0, 0.6);
+}
+
+.tourPopup {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-24%);
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    z-index: 10002;
+}
+
+.popupContent {
+    padding: 24px;
+}
+
+.popupTitle {
+    margin: 0 0 12px 0;
+    color: #333;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.popupDescription {
+    margin: 0 0 16px 0;
+    color: #666;
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+.popupImage {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.tourControls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 10003; /* Above everything else */
+}
+
+.controlsContent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+}
+
+.progressText {
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.buttonGroup {
+    display: flex;
+    gap: 12px;
+}
+
+.controlButton {
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.controlButton:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.primaryButton {
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.primaryButton:hover {
+    background: #0056b3;
+    border-color: #0056b3;
+}
+
+.skipButton {
+    color: #6c757d !important;
+}
+
+.skipButton:hover {
+    color: #495057 !important;
+}
+
+.viewTourButton {
+    border-radius: 0px !important;
+    box-shadow: none !important;
+    background-color: hsl(217, 14%, 69%) !important;
+}
+
+.viewTourButton:hover {
+    background-color: hsl(217, 14%, 49%) !important;
+}
