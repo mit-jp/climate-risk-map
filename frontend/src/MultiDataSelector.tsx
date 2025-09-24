@@ -59,13 +59,19 @@ const checkBox = (
                     />
                 }
                 label={
-                    <div className={css.label}>
+                    <label className={css.labelMulti}>
                         <div>{map.displayName}</div>
                         {selection && (
                             <div className={css.year}>{readable(selection.dateRange)}</div>
                         )}
-                    </div>
+                    </label>
                 }
+                sx={{
+                    width: '100%',
+                    '& .MuiFormControlLabel-label': {
+                        width: '100%',
+                    },
+                }}
             />
             {shouldBeChecked(map.id) && multipleChecked(selections) && (
                 <div className={css.weight}>

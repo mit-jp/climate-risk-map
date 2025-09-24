@@ -18,6 +18,18 @@
     justify-content: space-between;
 }
 
+.label-multi {
+    margin: 0;
+    cursor: pointer;
+    display: flex !important;
+    justify-content: space-between !important;
+}
+
+.year {
+    font-size: 0.875rem;
+    color: #646464;
+}
+
 .input {
     display: none;
 }
