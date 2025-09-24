@@ -119,6 +119,7 @@ function Legend({
 
     return (
         <svg
+            id="map-legend"
             x={x}
             y={y}
             width={width}

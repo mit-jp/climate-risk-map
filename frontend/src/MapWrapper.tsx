@@ -146,6 +146,7 @@ function MapWrapper({
     if (map === undefined) {
         return <p>Loading</p>
     }
+
     // rectangle ("rect") below is made so that the user can zoom out by clicking on the map background
     // set to be transparent
     return (
@@ -236,7 +237,7 @@ function MapWrapper({
                 {map && (
                     <MapControls data={processedData} isNormalized={isNormalized} maps={maps} />
                 )}
-                <div id={css.dataDescriptions}>
+                <div className={css.dataDescriptions} id="data-desc">
                     {maps[0] && (
                         <DataDescription
                             name={maps[0].displayName}

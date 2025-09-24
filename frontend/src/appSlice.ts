@@ -60,6 +60,8 @@ interface AppState {
     readonly detailedView: boolean
     readonly waterwayValue: WaterwayValue
     readonly transmissionLineType: TransmissionLineType
+    readonly isTourActive: boolean
+    readonly hasSeenTour: boolean
 }
 
 const initialState: AppState = {
@@ -80,6 +82,8 @@ const initialState: AppState = {
     waterwayValue: 'total',
     transmissionLineType: 'Level 3 (>= 345kV)',
     county: undefined,
+    isTourActive: false,
+    hasSeenTour: localStorage.getItem('hasSeenClimateTour') === 'true',
 }
 
 export const appSlice = createSlice({
@@ -198,6 +202,13 @@ export const appSlice = createSlice({
                 'Endangered species': { shouldShow: false },
             }
         },
+        setTourActive: (state, action: PayloadAction<boolean>) => {
+            state.isTourActive = action.payload
+            if (!action.payload) {
+                state.hasSeenTour = true
+                localStorage.setItem('hasSeenClimateTour', 'true')
+            }
+        },
     },
     extraReducers: (builder) => {
         builder.addMatcher(mapApi.endpoints.getTabs.matchFulfilled, (state, actions) => {
@@ -235,6 +246,7 @@ export const {
     setTransmissionLineType,
     clickMap,
     selectRegion,
+    setTourActive,
 } = appSlice.actions
 
 // Accessors that return a new object every time, or run for a long time.
