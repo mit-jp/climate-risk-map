@@ -59,12 +59,12 @@ const checkBox = (
                     />
                 }
                 label={
-                    <label className={css.labelMulti}>
-                        <div>{map.displayName}</div>
+                    <div className={css.labelMulti}>
+                        {map.displayName}
                         {selection && (
                             <div className={css.year}>{readable(selection.dateRange)}</div>
                         )}
-                    </label>
+                    </div>
                 }
                 sx={{
                     width: '100%',
