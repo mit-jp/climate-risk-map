@@ -21,6 +21,7 @@ import {
 } from './MapVisualization'
 import { changeWeight, selectSelections, setMapSelections } from './appSlice'
 import { RootState, store } from './store'
+import { readable } from './YearSelector'
 
 const multipleChecked = (selections: MapSelection[]) => {
     return selections.length > 1
@@ -39,6 +40,8 @@ const checkBox = (
     dataWeights: Record<MapVisualizationId, number>,
     dispatch: typeof store.dispatch
 ) => {
+    const selection = selections.find((s) => s.mapVisualization === map.id)
+
     return (
         <div
             key={map.id}
@@ -55,7 +58,20 @@ const checkBox = (
                         color="primary"
                     />
                 }
-                label={map.displayName}
+                label={
+                    <div className={css.labelMulti}>
+                        {map.displayName}
+                        {selection && (
+                            <div className={css.year}>{readable(selection.dateRange)}</div>
+                        )}
+                    </div>
+                }
+                sx={{
+                    width: '100%',
+                    '& .MuiFormControlLabel-label': {
+                        width: '100%',
+                    },
+                }}
             />
             {shouldBeChecked(map.id) && multipleChecked(selections) && (
                 <div className={css.weight}>
