@@ -21,8 +21,8 @@
 .label-multi {
     margin: 0;
     cursor: pointer;
-    display: flex !important;
-    justify-content: space-between !important;
+    display: flex;
+    justify-content: space-between;
 }
 
 .year {
