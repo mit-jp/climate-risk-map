@@ -1,5 +1,5 @@
 -- add new subcateogories for 2025 outlook data
-INSERT INTO subcateogory (id, name, order)
+INSERT INTO subcateogory (id,name,"order")
 VALUES
   (4, "Economic Indicators", 4),
   (5, "GHG Emissions", 5),
