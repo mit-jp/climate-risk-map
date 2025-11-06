@@ -14,6 +14,7 @@ import {
     useGetColorPalettesQuery,
     useGetScaleTypesQuery,
     useUpdateMapVisualizationMutation,
+    useGetSubcategoriesQuery,
 } from '../MapApi'
 import { FormatterType, MapType, MapVisualization } from '../MapVisualization'
 import css from './Editor.module.css'
@@ -23,6 +24,7 @@ const INPUT_MARGIN = { margin: '0.5em 0' }
 function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }) {
     const { data: colorPalettes } = useGetColorPalettesQuery(undefined)
     const { data: scales } = useGetScaleTypesQuery(undefined)
+    const { data: subcategories } = useGetSubcategoriesQuery(undefined)
     const [updateMap] = useUpdateMapVisualizationMutation()
     const [customLegendFormat, setCustomLegendFormat] = useState<boolean>(false)
 
@@ -180,6 +182,40 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                     }}
                 />
             </FormControl>
+
+            {mapVisualization.map_type === MapType.Choropleth && (
+                <FormControl component="fieldset">
+                    <FormLabel component="legend">Combinatory Metrics</FormLabel>
+                    {subcategories && (
+                        <Autocomplete
+                            disablePortal
+                            value={
+                                // include a "None" option with id null so the selected value can show "None"
+                                (
+                                    [{ id: null, name: 'None' }, ...(subcategories ?? [])] as any
+                                ).find((o: any) => o.id === mapVisualization.subcategory) ?? null
+                            }
+                            options={[{ id: null, name: 'None' }, ...(subcategories ?? [])]}
+                            getOptionLabel={(option: any) => option.name ?? ''}
+                            isOptionEqualToValue={(option: any, value: any) =>
+                                option.id === value?.id
+                            }
+                            sx={INPUT_MARGIN}
+                            renderInput={(params) => <TextField {...params} label="Subcategory" />}
+                            onChange={(_, subcategory) =>
+                                // subcategory can be the "None" option (id === null) or a real subcategory object
+                                updateMap({
+                                    ...mapVisualization,
+                                    subcategory:
+                                        subcategory && (subcategory as any).id != null
+                                            ? (subcategory as any).id
+                                            : null,
+                                })
+                            }
+                        />
+                    )}
+                </FormControl>
+            )}
 
             <FormControl component="fieldset">
                 <FormLabel component="legend">Legend</FormLabel>
