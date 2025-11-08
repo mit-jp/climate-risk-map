@@ -131,14 +131,29 @@ function ProbabilityDensity({
     if (data === undefined || map === undefined) {
         return null
     }
+    let locX = 875
+    let locY = 275
+
+    switch (map.geography_type) {
+        case 1: // USA
+            locX = 875
+            locY = 275
+            break
+        case 2: // World
+            locX = 875
+            locY = 25
+            break
+        default:
+            break
+    }
     return (
         <svg
             ref={svgRef}
             viewBox={`0 0 ${width.toString()} ${height.toString()}`}
             width={width}
             height={height}
-            x={875}
-            y={275}
+            x={locX}
+            y={locY}
         >
             <rect width="100%" height="100%" fill="rgba(255, 255, 255, 0.8)" />
             <g id="histogram" />
