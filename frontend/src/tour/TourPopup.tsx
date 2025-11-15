@@ -8,6 +8,10 @@ type TourPopupProps = {
     position?: {
         top?: string
         left?: string
+        right?: string
+        bottom?: string
+        maxWidth?: string
+        transform?: string
         width?: string
         height?: string
     }

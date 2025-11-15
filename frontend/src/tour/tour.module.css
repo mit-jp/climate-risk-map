@@ -8,8 +8,6 @@
 
 .tourPopup {
     position: fixed;
-    top: 10px;
-    left: 50%;
     transform: translateX(-24%);
     background: white;
     border-radius: 12px;
