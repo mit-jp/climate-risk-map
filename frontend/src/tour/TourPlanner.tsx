@@ -18,10 +18,10 @@ function TourPlanner() {
                 'Welcome to the System for the Triage of Risks from Environmental and Socioeconomic Stressors (STRESS) platform, a screening platform to identify overlapping environmental and socio-economic stressors at the county level across the U.S. Click through to learn how to use the platform.',
             targetElement: '#map-svg',
             popupPosition: {
-                top: '16.4%',
-                left: '7.3%',
-                width: '320px',
-                height: '270px',
+                top: '10%',
+                left: '50%',
+                width: '500px',
+                height: '200px',
             },
         },
         {
@@ -30,7 +30,7 @@ function TourPlanner() {
                 'For each metric in the ‘combinatory metrics’ tab, each county is given a relative risk score from. 0-100 based on how that county’s raw value for a metric, such as temperature, compares to all other counties across the country or state, depending on the view. This is a percentile ranking. Note that 100 does not mean an absolutely high risk and blue does not mean no risk, red and blue just refer to relatively high and low risk respectively.',
             targetElement: '#map-legend',
             popupPosition: {
-                top: '20%',
+                top: '55%',
                 left: '55%',
                 width: '600px',
                 height: '200px',
@@ -43,9 +43,9 @@ function TourPlanner() {
             targetElement: '#data-selector',
             popupPosition: {
                 top: '33.5%',
-                left: '40%',
-                width: '700px',
-                height: '150px',
+                left: '600px',
+                width: '500px',
+                height: '200px',
             },
         },
         {
@@ -54,8 +54,8 @@ function TourPlanner() {
 
             targetElement: '#map-svg',
             popupPosition: {
-                top: '16.4%',
-                left: '7.3%',
+                top: '30%',
+                left: '125px',
                 width: '320px',
                 height: '200px',
             },
@@ -66,8 +66,8 @@ function TourPlanner() {
 
             targetElement: '#map-svg',
             popupPosition: {
-                top: '20%',
-                left: '7.3%',
+                top: '18%',
+                left: '20%',
                 width: '320px',
                 height: '100px',
             },
@@ -79,8 +79,8 @@ function TourPlanner() {
 
             targetElement: '#map-svg',
             popupPosition: {
-                top: '16.4%',
-                left: '7.3%',
+                top: '10%',
+                left: '20%',
                 width: '320px',
                 height: '230px',
             },
@@ -139,8 +139,9 @@ function TourPlanner() {
                 'The home tab includes ‘combinatory metrics,’ which provides and allows user combination of relative risk scores for over a dozen metrics. Click on other tabs to see data in its native units for over 100 metrics.',
             targetElement: '#navdiv',
             popupPosition: {
-                top: '30%',
+                top: '300px',
                 left: '50%',
+                transform: 'translateX(-50%)',
                 width: '600px',
                 height: '150px',
             },
@@ -151,8 +152,8 @@ function TourPlanner() {
                 'Click here to switch between viewing global and USA wide data. The global viewer currently does not include functionality for combinatory metrics but does include global climate projection data.',
             targetElement: '#region-selector',
             popupPosition: {
-                top: '20%',
-                left: '50%',
+                top: '10%',
+                right: '5px',
                 width: '600px',
                 height: '150px',
             },
@@ -163,8 +164,8 @@ function TourPlanner() {
                 'Note that this tool is intended as a screening tool to identify areas for further investigation. The data included in this tool is certainly non-exhaustive of all important socio-economic and environmental risks. It is continually being expanded and updated, but is limited by data availability at the county-level across the U.S. ',
             targetElement: 'a',
             popupPosition: {
-                top: '20%',
-                left: '50%',
+                top: '2%',
+                right: '20%',
                 width: '600px',
                 height: '170px',
             },
@@ -175,10 +176,11 @@ function TourPlanner() {
                 'You can view the tour again by clicking on this button at the bottom of the page.',
             targetElement: '#view-tour-button-id',
             popupPosition: {
-                top: '20%',
+                top: '70%',
                 left: '50%',
+                transform: 'translateX(-50%)',
                 width: '600px',
-                height: '170px',
+                height: '100px',
             },
         },
     ]
