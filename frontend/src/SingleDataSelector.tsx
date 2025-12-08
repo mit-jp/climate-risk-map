@@ -4,7 +4,7 @@ import { ChangeEvent } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import css from './DataSelector.module.css'
 import DataSourceSelector from './DatasetSelector'
-import { MapVisualization, MapVisualizationId } from './MapVisualization'
+import { MapVisualization, MapVisualizationId, GeographyType } from './MapVisualization'
 import YearSelector, { readable } from './YearSelector'
 import { changeDataSource, changeDateRange, changeMapSelection, selectSelections } from './appSlice'
 import { RootState } from './store'
@@ -44,6 +44,11 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
 
     const isEmpty = (subcategoryId: number) =>
         Object.values(maps).filter((map) => map.subcategory === subcategoryId).length === 0
+
+    // only show subcategory grouping when there is at least one map and all maps are GeographyType.World
+    const shouldShowSubcategories =
+        Object.values(maps).length > 0 &&
+        Object.values(maps).every((m) => m.geography_type === GeographyType.World)
 
     const renderMapEntry = (map: MapVisualization) => (
         <div key={map.id}>
@@ -89,7 +94,8 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
 
     return (
         <form id={css.dataSelector}>
-            {subcategories &&
+            {shouldShowSubcategories &&
+                subcategories &&
                 subcategories
                     .filter((subcategory) => !isEmpty(subcategory.id))
                     .map((subcategory) => (
@@ -107,6 +113,7 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
                         </Accordion>
                     ))}
             {getDataList((map) => map.subcategory == null)}
+            {!shouldShowSubcategories && getDataList((map) => map.subcategory != null)}
         </form>
     )
 }
