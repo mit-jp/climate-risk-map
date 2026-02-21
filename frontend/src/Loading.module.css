@@ -1,0 +1,16 @@
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 400px;
+    width: 100%;
+    height: 100vh;
+    /* background-color: pink; */
+}
+
+@media (max-width: 600px) {
+    .loadingContainer {
+        min-width: auto;
+    }
+}
