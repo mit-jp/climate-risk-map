@@ -1,7 +1,7 @@
 import { CircularProgress } from '@mui/material'
 import css from './Loading.module.css'
 
-export default function Loading() {
+export default function LoadingScreen() {
     return (
         <div className={css.loadingContainer}>
             <CircularProgress />
