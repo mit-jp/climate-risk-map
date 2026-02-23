@@ -4,3 +4,4 @@ backend/.DS_Store
 .DS_Store
 yarn.lock
 .yarn-integrity
+backend/.env.template
