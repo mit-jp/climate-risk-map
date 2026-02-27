@@ -99,13 +99,13 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
                 subcategories
                     .filter((subcategory) => !isEmpty(subcategory.id))
                     .map((subcategory) => (
-                        <Accordion key={subcategory.id} defaultExpanded>
+                        <Accordion key={subcategory.id} defaultExpanded={false}>
                             <AccordionSummary
                                 aria-controls={`subcategory-${subcategory.id}-content`}
                                 id={`subcategory-${subcategory.id}-header`}
                                 expandIcon={<ExpandMoreIcon />}
                             >
-                                {subcategory.name}
+                                <div className={css.subcategoryTitle}>{subcategory.name}</div>
                             </AccordionSummary>
                             <AccordionDetails style={{ padding: 0 }}>
                                 {getDataList((map) => map.subcategory === subcategory.id)}
