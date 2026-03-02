@@ -16,6 +16,7 @@ import { OverlayName, Region, selectSelectedTab, setMap, setOverlay, setTab } fr
 import { RootState } from './store'
 import TourPlanner from './tour/TourPlanner'
 import ViewTourButton from './tour/ViewTourButton'
+import Loading from './LoadingScreen'
 
 // Map overlays
 type TopoJsonFile =
@@ -44,11 +45,12 @@ const worldFile: { name: TopoJsonFile; region: Region } = { name: 'world.json', 
 function Home() {
     const dispatch = useDispatch()
     const region = useSelector((state: RootState) => state.app.region)
-    const { data: tabs } = useGetTabsQuery(false)
+    const { data: tabs, isLoading: tabsLoading } = useGetTabsQuery(false)
     const tab = useSelector(selectSelectedTab)
-    const { data: mapVisualizations } = useGetMapVisualizationsQuery({
-        geographyType: region === 'USA' ? 1 : 2,
-    })
+    const { data: mapVisualizations, isLoading: mapVisualizationsLoading } =
+        useGetMapVisualizationsQuery({
+            geographyType: region === 'USA' ? 1 : 2,
+        })
 
     const isNormalized = tab?.normalized ?? false
     const displayedTabs =
@@ -103,14 +105,17 @@ function Home() {
                 ) : (
                     <EmptyDataSelector />
                 )}
-                {tabs && mapVisualizations && tab ? (
+
+                {(tabsLoading || mapVisualizationsLoading) && <Loading />}
+                {!tabsLoading && !mapVisualizationsLoading && tabs && mapVisualizations && tab && (
                     <MapWrapper
                         isNormalized={isNormalized}
                         allMapVisualizations={mapVisualizations[tab.id] ?? {}}
                     />
-                ) : (
-                    <p className={mapCss.map}>No Map</p>
                 )}
+                {!tabsLoading &&
+                    !mapVisualizationsLoading &&
+                    !(tabs && mapVisualizations && tab) && <p className={mapCss.map}>No Map</p>}
             </main>
             <ViewTourButton />
         </>
