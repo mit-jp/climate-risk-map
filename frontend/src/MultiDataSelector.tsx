@@ -151,13 +151,13 @@ function MultiDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisua
                 subcategories
                     .filter((subcategory) => !isEmpty(subcategory.id))
                     .map((subcategory) => (
-                        <Accordion key={subcategory.id} defaultExpanded>
+                        <Accordion key={subcategory.id} defaultExpanded={false}>
                             <AccordionSummary
                                 aria-controls="panel1a-content"
                                 id="panel1a-header"
                                 expandIcon={<ExpandMoreIcon />}
                             >
-                                {subcategory.name}
+                                <div className={css.subcategoryTitle}>{subcategory.name}</div>
                             </AccordionSummary>
                             <AccordionDetails style={{ padding: 0 }}>
                                 {getDataList((map) => map.subcategory === subcategory.id)}

@@ -76,3 +76,8 @@
         min-width: auto;
     }
 }
+
+.subcategoryTitle {
+    font-weight: 700;
+    font-size: calc(1rem + 2px);
+}
