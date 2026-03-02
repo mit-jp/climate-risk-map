@@ -151,7 +151,7 @@ function MultiDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisua
                 subcategories
                     .filter((subcategory) => !isEmpty(subcategory.id))
                     .map((subcategory) => (
-                        <Accordion key={subcategory.id} defaultExpanded>
+                        <Accordion key={subcategory.id} defaultExpanded={false}>
                             <AccordionSummary
                                 aria-controls="panel1a-content"
                                 id="panel1a-header"
