@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-if ! [ -x "$(command -v psql)" ]; then
-  echo >&2 "Error: psql is not installed."
+if ! [ -x "$(command -v psql-17)" ]; then
+  echo >&2 "Error: psql-17 is not installed."
   exit 1
 fi
 
@@ -59,7 +59,7 @@ then
 fi
 
 # Keep pinging Postgres until it's ready to accept commands
-until PGPASSWORD="${DATABASE_PASSWORD}" psql -h "${DATABASE_HOST}" -U "${DATABASE_USER}" -p "${DATABASE_PORT}" -d "postgres" -c '\q'; do
+until PGPASSWORD="${DATABASE_PASSWORD}" psql-17 -h "${DATABASE_HOST}" -U "${DATABASE_USER}" -p "${DATABASE_PORT}" -d "postgres" -c '\q'; do
   >&2 echo "Postgres is still unavailable - sleeping"
   sleep 1
 done
