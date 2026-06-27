@@ -1,29 +1,30 @@
+import { HelpOutline } from '@mui/icons-material'
 import {
     Button,
     Checkbox,
     FormControl,
     FormControlLabel,
+    IconButton,
     InputLabel,
     MenuItem,
+    Popover,
     Select,
     Switch,
     Tooltip,
-    IconButton,
-    Popover,
     Typography,
 } from '@mui/material'
-import { HelpOutline } from '@mui/icons-material'
 import { csvFormat } from 'd3'
 import { saveAs } from 'file-saver'
 import { Map } from 'immutable'
-import { useState, Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
-import counties from './Counties'
+import COUNTIES from './Counties'
 import { getLegendTitle } from './FullMap'
 import css from './MapControls.module.css'
-import { MapVisualization } from './MapVisualization'
-import nations from './Nations'
+import { GeographyType, MapVisualization } from './MapVisualization'
+import MASSACHUSETTS_CITIES from './MassachusettsCities'
+import NATIONS from './Nations'
 import states from './States'
 import waterwayTypes, { WaterwayValue } from './WaterwayType'
 import {
@@ -155,13 +156,20 @@ type Props = {
     maps: MapVisualization[]
 }
 
+const REGION_FOR: Record<GeographyType, Region> = {
+    1: 'USA',
+    2: 'World',
+    3: 'Massachusetts',
+}
+
 function MapControls({ data, isNormalized, maps }: Props) {
     const dispatch = useDispatch()
     const overlays = useSelector((state: RootState) => state.app.overlays)
     const detailedView = useSelector((state: RootState) => state.app.detailedView)
 
     const countyId = useSelector((state: RootState) => state.app.county)
-    const region: Region = maps[0]?.geography_type === 1 ? 'USA' : 'World'
+    const geographyType = maps[0]?.geography_type
+    const region = REGION_FOR[geographyType]
     const params = useParams()
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
     const { tabId } = params
@@ -169,7 +177,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
     const UsaCsv = (sortedData: Map<number, number> | undefined) => {
         const objectData = sortedData
             ?.map((value, id) => {
-                const county = counties.get(id)
+                const county = COUNTIES.get(id)
                 const state = states.get(stateId(id))
                 return { id, state, county, value }
             })
@@ -184,7 +192,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
     const WorldCsv = (sortedData: Map<number, number> | undefined) => {
         const objectData = sortedData
             ?.map((value, id) => {
-                const nation = nations.get(id)
+                const nation = NATIONS.get(id)
                 return { id, nation, value }
             })
             .valueSeq()
@@ -195,9 +203,28 @@ function MapControls({ data, isNormalized, maps }: Props) {
         return undefined
     }
 
+    const MassachusettsCsv = (sortedData: Map<number, number> | undefined) => {
+        const objectData = sortedData
+            ?.map((value, id) => {
+                const city = MASSACHUSETTS_CITIES.get(id)
+                return { id, city, value }
+            })
+            .valueSeq()
+            .toArray()
+        if (objectData) {
+            return csvFormat(objectData, ['id', 'city', 'value'])
+        }
+        return undefined
+    }
+
     const downloadData = () => {
         const sortedData = data?.sortBy((_, id) => id)
-        const csv = region === 'USA' ? UsaCsv(sortedData) : WorldCsv(sortedData)
+        const csv = {
+            USA: UsaCsv,
+            World: WorldCsv,
+            Massachusetts: MassachusettsCsv,
+        }[region](sortedData)
+
         if (csv) {
             const blob = new Blob([csv], { type: 'text/plain;charset=utf-8' })
             saveAs(blob, `${getFilename(maps, isNormalized)}.csv`)
@@ -251,7 +278,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
                             variant="outlined"
                             onClick={() => window.open(`/report-card/${tabId ?? '8'}/${countyId}`)}
                         >
-                            View report card for {counties.get(countyId)},{' '}
+                            View report card for {COUNTIES.get(countyId)},{' '}
                             {states.get(stateId(countyId))}
                         </Button>
                         <IconButton

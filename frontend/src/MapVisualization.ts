@@ -34,6 +34,7 @@ export enum MapType {
 export enum GeographyType {
     USA = 1,
     World = 2,
+    Massachusetts = 3,
 }
 
 export interface MapVisualizationPatch {

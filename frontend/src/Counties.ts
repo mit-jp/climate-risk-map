@@ -1,7 +1,7 @@
 import { Map } from 'immutable'
 import { GeoId } from './appSlice'
 
-const counties = Map<GeoId, string>([
+const COUNTIES = Map<GeoId, string>([
     [1001, 'Autauga'],
     [1003, 'Baldwin'],
     [1005, 'Barbour'],
@@ -3226,4 +3226,4 @@ const counties = Map<GeoId, string>([
     [78020, 'St. John Island'],
     [78030, 'St. Thomas Island'],
 ])
-export default counties
+export default COUNTIES

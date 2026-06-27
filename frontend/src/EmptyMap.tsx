@@ -3,13 +3,19 @@ import type { GeoJsonProperties } from 'geojson'
 import { feature } from 'topojson-client'
 import type { GeometryCollection } from 'topojson-specification'
 import { ZOOM_TRANSITION } from './MapWrapper'
-import { GeoMap } from './appSlice'
+import { GeoMap, Region } from './appSlice'
 
 const path = geoPath()
 
+const OBJECT_NAME_FOR: Record<Region, 'nation' | 'countries' | 'cities'> = {
+    USA: 'nation',
+    World: 'countries',
+    Massachusetts: 'cities',
+}
+
 function EmptyMap({ map, transform }: { map: GeoMap; transform?: string }) {
-    const geometry =
-        map.region === 'USA' ? map.topoJson.objects.nation : map.topoJson.objects.countries
+    const objectName = OBJECT_NAME_FOR[map.region]
+    const geometry = map.topoJson.objects[objectName]
     const borders = feature(
         map.topoJson,
         geometry as GeometryCollection<GeoJsonProperties>

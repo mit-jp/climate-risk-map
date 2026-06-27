@@ -7,7 +7,9 @@ import EmptyDataSelector from './EmptyDataSelector'
 import EmptyNavigation from './EmptyNavigation'
 import Header from './Header'
 import css from './Home.module.css'
+import Loading from './LoadingScreen'
 import { useGetMapVisualizationsQuery, useGetTabsQuery } from './MapApi'
+import { GeographyType } from './MapVisualization'
 import MapWrapper from './MapWrapper'
 import mapCss from './MapWrapper.module.css'
 import Navigation from './Navigation'
@@ -16,12 +18,12 @@ import { OverlayName, Region, selectSelectedTab, setMap, setOverlay, setTab } fr
 import { RootState } from './store'
 import TourPlanner from './tour/TourPlanner'
 import ViewTourButton from './tour/ViewTourButton'
-import Loading from './LoadingScreen'
 
 // Map overlays
 type TopoJsonFile =
     | 'usa.json'
     | 'world.json'
+    | 'essex-towns-topo.json'
     | 'roads-topo.json'
     | 'railroads-topo.json'
     | 'waterways-topo.json'
@@ -39,8 +41,17 @@ const overlayToFile: OverlayMap = {
     'Critical water habitats': 'critical-habitats-topo.json',
     'Endangered species': 'endangered-species-topo.json',
 }
-const usaFile: { name: TopoJsonFile; region: Region } = { name: 'usa.json', region: 'USA' }
-const worldFile: { name: TopoJsonFile; region: Region } = { name: 'world.json', region: 'World' }
+const FILE_FOR: Record<Region, TopoJsonFile> = {
+    USA: 'usa.json',
+    World: 'world.json',
+    Massachusetts: 'essex-towns-topo.json',
+}
+
+const GEOGRAPHY_TYPE_FOR: Record<Region, GeographyType> = {
+    USA: GeographyType.USA,
+    World: GeographyType.World,
+    Massachusetts: GeographyType.Massachusetts,
+}
 
 function Home() {
     const dispatch = useDispatch()
@@ -48,9 +59,7 @@ function Home() {
     const { data: tabs, isLoading: tabsLoading } = useGetTabsQuery(false)
     const tab = useSelector(selectSelectedTab)
     const { data: mapVisualizations, isLoading: mapVisualizationsLoading } =
-        useGetMapVisualizationsQuery({
-            geographyType: region === 'USA' ? 1 : 2,
-        })
+        useGetMapVisualizationsQuery({ geographyType: GEOGRAPHY_TYPE_FOR[region] })
 
     const isNormalized = tab?.normalized ?? false
     const displayedTabs =
@@ -59,8 +68,8 @@ function Home() {
             : []
 
     useEffect(() => {
-        const file = region === 'USA' ? usaFile : worldFile
-        json<TopoJson>(file.name).then((topoJson) => {
+        const file = FILE_FOR[region]
+        json<TopoJson>(file).then((topoJson) => {
             dispatch(setMap(topoJson ? { topoJson, region } : undefined))
         })
 
