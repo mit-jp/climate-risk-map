@@ -292,7 +292,7 @@ const generateMapTransform = (zoomTo: number | undefined, map: GeoMap | undefine
     // topoJson country id: "012", country id: 12
     // topoJson state id: "01", state id: 1
     // topoJson city id: "01260", city id: 1260
-    const idLength = { USA: 2, World: 3, Massachusetts: 5 }[map.region]
+    const idLength = { USA: 2, World: 3, Massachusetts: 10 }[map.region]
     const zoomToId = String(zoomTo).padStart(idLength, '0')
 
     const bounds = geoPath().bounds(features[zoomToId])
