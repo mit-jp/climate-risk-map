@@ -4,7 +4,7 @@ use sqlx::FromRow;
 
 #[derive(Serialize)]
 pub struct Named {
-    pub id: i32,
+    pub id: i64,
     pub name: String,
     pub geography_type: String,
 }
@@ -12,18 +12,18 @@ pub struct Named {
 #[derive(FromRow, PartialEq, Eq, Hash, Debug, Display, Serialize)]
 #[display(fmt = "GeoId(id: {id}, geography_type: {geography_type})")]
 pub struct GeoId {
-    pub id: i32,
+    pub id: i64,
     pub geography_type: i32,
 }
 
 #[derive(FromRow, Deserialize, Serialize)]
 pub struct State {
-    pub id: i32,
+    pub id: i64,
     pub name: String,
 }
 
 #[derive(FromRow, Deserialize, Serialize, PartialEq, Debug)]
 pub struct County {
-    pub id: i32,
+    pub id: i64,
     pub name: String,
 }

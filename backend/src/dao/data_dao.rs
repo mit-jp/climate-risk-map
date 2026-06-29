@@ -120,9 +120,9 @@ impl<'c> Table<'c, Data> {
                       '2000-01-01' AS end_date,
                       0 AS value,
                       0 AS id,
-                      0 AS geography_type) 
+                      0 AS geography_type)
                             AS state_data) AS percents
-                WHERE 
+                WHERE
                     id = $1
                     AND dataset = entry.dataset
                     AND source = entry.source
@@ -259,7 +259,7 @@ impl<'c> Table<'c, Data> {
                       0 AS id,
                       0 AS geography_type) 
                             AS state_data) AS percents
-                WHERE 
+                WHERE
                     id = $1
                     AND dataset = entry.dataset
                     AND source = entry.source
@@ -269,7 +269,7 @@ impl<'c> Table<'c, Data> {
         END
         FROM
             (SELECT * FROM data
-            WHERE FLOOR(id / 1000) = FLOOR($1 / 1000)) AS state_data,
+            WHERE FLOOR(id / 1000) = FLOOR($1 / 1000::int8)) AS state_data,
             (
                 SELECT
                     map_visualization.dataset,
@@ -328,7 +328,7 @@ impl<'c> Table<'c, Data> {
     }
 
     pub async fn insert(&self, data: &HashSet<Creator>) -> Result<PgQueryResult, sqlx::Error> {
-        let mut ids: Vec<i32> = Vec::with_capacity(data.len());
+        let mut ids: Vec<i64> = Vec::with_capacity(data.len());
         let mut sources: Vec<i32> = Vec::with_capacity(data.len());
         let mut datasets: Vec<i32> = Vec::with_capacity(data.len());
         let mut start_dates: Vec<NaiveDate> = Vec::with_capacity(data.len());
@@ -361,7 +361,7 @@ impl<'c> Table<'c, Data> {
             )
             SELECT *
             FROM
-            UNNEST ($1::int[], $2::int[], $3::int[], $4::date[], $5::date[], $6::float[], $7::int[])
+            UNNEST ($1::bigint[], $2::int[], $3::int[], $4::date[], $5::date[], $6::float[], $7::int[])
             ",
             &ids,
             &sources,

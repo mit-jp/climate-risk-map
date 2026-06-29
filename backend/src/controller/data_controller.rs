@@ -27,7 +27,7 @@ struct Info {
 #[derive(Deserialize)]
 pub struct PercentileInfo {
     pub category: i32,
-    pub geo_id: i32,
+    pub geo_id: i64,
     pub geography_type: i32,
 }
 
@@ -110,7 +110,11 @@ async fn get_state_percentiles(
     info: web::Query<PercentileInfo>,
     app_state: web::Data<AppState<'_>>,
 ) -> impl Responder {
-    let data = app_state.database.data.state_percentile(info.into_inner()).await;
+    let data = app_state
+        .database
+        .data
+        .state_percentile(info.into_inner())
+        .await;
 
     match data {
         Ok(data) => match csv_converter::convert(data) {

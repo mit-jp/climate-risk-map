@@ -18,7 +18,7 @@ async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
             counties
                 .into_iter()
                 .map(|county| (county.id, county))
-                .collect::<HashMap<i32, County>>(),
+                .collect::<HashMap<i64, County>>(),
         ),
     }
 }

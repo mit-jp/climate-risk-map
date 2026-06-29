@@ -19,7 +19,7 @@ pub struct Percentile {
 
 #[derive(FromRow, Deserialize, Serialize)]
 pub struct Data {
-    pub id: i32,
+    pub id: i64,
     pub source: i32,
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
@@ -29,7 +29,7 @@ pub struct Data {
 #[derive(Derivative)]
 #[derivative(Eq, PartialEq, Hash, Debug)]
 pub struct Creator {
-    pub id: i32,
+    pub id: i64,
     pub geography_type: i32,
     pub source: i32,
     pub dataset: i32,
@@ -59,14 +59,14 @@ pub struct Parsed {
     pub dataset: String,
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
-    pub id: i32,
+    pub id: i64,
     #[derivative(Hash = "ignore", PartialEq = "ignore")]
     pub value: f64,
 }
 
 #[derive(FromRow, Deserialize, Serialize)]
 pub struct Simple {
-    pub id: i32,
+    pub id: i64,
     pub value: f64,
 }
 
