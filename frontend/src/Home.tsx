@@ -23,7 +23,7 @@ import ViewTourButton from './tour/ViewTourButton'
 type TopoJsonFile =
     | 'usa.json'
     | 'world.json'
-    | 'essex-towns-topo.json'
+    | 'massachusetts-cities.json'
     | 'roads-topo.json'
     | 'railroads-topo.json'
     | 'waterways-topo.json'
@@ -44,7 +44,7 @@ const overlayToFile: OverlayMap = {
 const FILE_FOR: Record<Region, TopoJsonFile> = {
     USA: 'usa.json',
     World: 'world.json',
-    Massachusetts: 'essex-towns-topo.json',
+    Massachusetts: 'massachusetts-cities.json',
 }
 
 function Home() {

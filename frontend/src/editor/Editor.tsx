@@ -59,10 +59,8 @@ function Editor() {
         const file = {
             USA: '/usa.json',
             World: '/world.json',
-            Massachusetts: '/essex-towns-topo.json',
+            Massachusetts: '/massachusetts-cities.json',
         }[region]
-        console.log(selectedMapVisualization?.geography_type)
-        console.log(region)
         json<TopoJson>(file).then((topoJson) => {
             if (topoJson) {
                 dispatch(setMap({ topoJson, region }))
