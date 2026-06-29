@@ -7,7 +7,7 @@ import { formatData } from './Formatter'
 import { GeographyType, MapVisualization } from './MapVisualization'
 import MASSACHUSETTS_CITIES from './MassachusettsCities'
 import NATIONS from './Nations'
-import { default as states, default as STATES } from './States'
+import STATES from './States'
 
 type TooltipHover = { x: number; y: number; id: number }
 type Props = {
@@ -19,7 +19,7 @@ type Props = {
 
 const countyName = (id: number): string | undefined => {
     const county = COUNTIES.get(id)
-    const state = states.get(stateId(id))
+    const state = STATES.get(stateId(id))
     return county && state ? `${county}, ${state}` : undefined
 }
 
@@ -36,18 +36,20 @@ function MapTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
             return () => {}
         }
 
-        const onTouchMove = (event: any) =>
+        const onTouchMove = (event: any) => {
             setHover({
                 x: event.touches[0].pageX + 30,
                 y: event.touches[0].pageY - 45,
                 id: Number(event.target.id),
             })
-        const onMouseMove = (event: any) =>
+        }
+        const onMouseMove = (event: any) => {
             setHover({
                 x: event.pageX + 10,
                 y: event.pageY - 25,
                 id: Number(event.target.id),
             })
+        }
         const onHoverEnd = () => setHover(undefined)
 
         element.addEventListener('mouseout', onHoverEnd)
