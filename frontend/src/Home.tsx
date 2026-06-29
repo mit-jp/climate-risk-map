@@ -47,19 +47,19 @@ const FILE_FOR: Record<Region, TopoJsonFile> = {
     Massachusetts: 'essex-towns-topo.json',
 }
 
-const GEOGRAPHY_TYPE_FOR: Record<Region, GeographyType> = {
-    USA: GeographyType.USA,
-    World: GeographyType.World,
-    Massachusetts: GeographyType.Massachusetts,
-}
-
 function Home() {
     const dispatch = useDispatch()
     const region = useSelector((state: RootState) => state.app.region)
     const { data: tabs, isLoading: tabsLoading } = useGetTabsQuery(false)
     const tab = useSelector(selectSelectedTab)
     const { data: mapVisualizations, isLoading: mapVisualizationsLoading } =
-        useGetMapVisualizationsQuery({ geographyType: GEOGRAPHY_TYPE_FOR[region] })
+        useGetMapVisualizationsQuery({
+            geographyType: {
+                USA: GeographyType.USACounty,
+                World: GeographyType.World,
+                Massachusetts: GeographyType.USACity,
+            }[region],
+        })
 
     const isNormalized = tab?.normalized ?? false
     const displayedTabs =

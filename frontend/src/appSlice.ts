@@ -7,6 +7,7 @@ import type { GeometryCollection } from 'topojson-specification'
 import { MapSelection } from './DataSelector'
 import { mapApi, Tab, TabId } from './MapApi'
 import {
+    GeographyType,
     getDefaultSelection,
     MapType,
     MapVisualization,
@@ -30,6 +31,12 @@ export type OverlayName =
     | 'Endangered species'
 export type Overlay = { topoJson?: TopoJson; shouldShow: boolean }
 export type Region = 'USA' | 'World' | 'Massachusetts'
+export const REGION_FOR: Record<GeographyType, Region> = {
+    [GeographyType.USACounty]: 'USA',
+    [GeographyType.World]: 'World',
+    [GeographyType.USAState]: 'USA',
+    [GeographyType.USACity]: 'Massachusetts',
+}
 export type GeoMap = {
     topoJson: TopoJson
     region: Region

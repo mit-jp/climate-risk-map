@@ -22,7 +22,7 @@ import { useParams } from 'react-router-dom'
 import COUNTIES from './Counties'
 import { getLegendTitle } from './FullMap'
 import css from './MapControls.module.css'
-import { GeographyType, MapVisualization } from './MapVisualization'
+import { MapVisualization } from './MapVisualization'
 import MASSACHUSETTS_CITIES from './MassachusettsCities'
 import NATIONS from './Nations'
 import states from './States'
@@ -31,7 +31,7 @@ import {
     GeoId,
     Overlay,
     OverlayName,
-    Region,
+    REGION_FOR,
     TransmissionLineType,
     setDetailedView,
     setShowOverlay,
@@ -154,12 +154,6 @@ type Props = {
     data: Map<GeoId, number> | undefined
     isNormalized: boolean
     maps: MapVisualization[]
-}
-
-const REGION_FOR: Record<GeographyType, Region> = {
-    1: 'USA',
-    2: 'World',
-    3: 'Massachusetts',
 }
 
 function MapControls({ data, isNormalized, maps }: Props) {

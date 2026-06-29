@@ -2,9 +2,9 @@ import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@m
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
-import { GeographyType } from './MapVisualization'
+import { isGeographyType } from './MapVisualization'
 import css from './Navigation.module.css'
-import { Region, selectRegion } from './appSlice'
+import { Region, REGION_FOR, selectRegion } from './appSlice'
 import { RootState } from './store'
 
 export default function RegionNavigation() {
@@ -13,14 +13,8 @@ export default function RegionNavigation() {
     const region = useSelector((state: RootState) => state.app.region)
     const dispatch = useDispatch()
     useEffect(() => {
-        // TODO: ensure we do a comprehensive check for all geography types via the type system
-        if (urlRegion == null || urlRegion === GeographyType.USA) {
-            dispatch(selectRegion('USA'))
-        } else if (urlRegion === GeographyType.World) {
-            dispatch(selectRegion('World'))
-        } else if (urlRegion === GeographyType.Massachusetts) {
-            dispatch(selectRegion('Massachusetts'))
-        }
+        const regionToSelect = isGeographyType(urlRegion) ? REGION_FOR[urlRegion] : 'USA'
+        dispatch(selectRegion(regionToSelect))
     }, [dispatch, urlRegion])
 
     const onChange = (region: Region) => {

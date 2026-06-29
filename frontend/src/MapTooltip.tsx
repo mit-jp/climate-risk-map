@@ -7,7 +7,7 @@ import { formatData } from './Formatter'
 import { GeographyType, MapVisualization } from './MapVisualization'
 import MASSACHUSETTS_CITIES from './MassachusettsCities'
 import NATIONS from './Nations'
-import states from './States'
+import { default as states, default as STATES } from './States'
 
 type TooltipHover = { x: number; y: number; id: number }
 type Props = {
@@ -24,7 +24,7 @@ const countyName = (id: number): string | undefined => {
 }
 
 const nationName = (id: number): string | undefined => NATIONS.get(id) ?? undefined
-
+const stateName = (id: number): string | undefined => STATES.get(id) ?? undefined
 const cityName = (id: number): string | undefined => MASSACHUSETTS_CITIES.get(id) ?? undefined
 
 function MapTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
@@ -68,12 +68,14 @@ function MapTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
 
     let text = ''
     if (hover?.id) {
-        const name =
-            {
-                [GeographyType.USA]: countyName,
-                [GeographyType.World]: nationName,
-                [GeographyType.Massachusetts]: cityName,
-            }[selectedMap.geography_type](hover.id) ?? '---'
+        const nameFunction = {
+            [GeographyType.USACounty]: countyName,
+            [GeographyType.World]: nationName,
+            [GeographyType.USAState]: stateName,
+            [GeographyType.USACity]: cityName,
+        }[selectedMap.geography_type]
+
+        const name = nameFunction ? nameFunction(hover.id) ?? '---' : '---'
 
         const value = data?.get(hover.id)
         text = `${name}: ${formatData(value, {
