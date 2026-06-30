@@ -202,7 +202,7 @@ export const appSlice = createSlice({
                             : payload
                     break
                 }
-                case EssexMassachusetts: {
+                case 'EssexMassachusetts': {
                     // Don't zoom in or out.
                     break
                 }
