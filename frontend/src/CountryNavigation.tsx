@@ -57,8 +57,8 @@ export default function RegionNavigation() {
                     <MenuItem value="USA" aria-label="usa">
                         USA
                     </MenuItem>
-                    <MenuItem value="Massachusetts" aria-label="massachusetts">
-                        Massachusetts
+                    <MenuItem value="EssexMassachusetts" aria-label="essex, massachusetts">
+                        Essex, Massachusetts
                     </MenuItem>
                 </Select>
             </FormControl>

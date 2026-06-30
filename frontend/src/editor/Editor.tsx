@@ -59,7 +59,7 @@ function Editor() {
         const file = {
             USA: '/usa.json',
             World: '/world.json',
-            Massachusetts: '/massachusetts-cities.json',
+            EssexMassachusetts: '/essex-ma-towns.json',
         }[region]
         json<TopoJson>(file).then((topoJson) => {
             if (topoJson) {

@@ -216,7 +216,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
         const csv = {
             USA: UsaCsv,
             World: WorldCsv,
-            Massachusetts: MassachusettsCsv,
+            EssexMassachusetts: MassachusettsCsv,
         }[region](sortedData)
 
         if (csv) {

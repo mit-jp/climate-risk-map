@@ -213,8 +213,16 @@ function MapWrapper({
                                         tickFormat={legendFormatter}
                                         ticks={legendTicks}
                                         showHighLowLabels={isNormalized}
-                                        x={{ World: 0, USA: 875, Massachusetts: 0 }[map.region]}
-                                        y={{ World: 502, USA: 500, Massachusetts: 502 }[map.region]}
+                                        x={
+                                            { World: 0, USA: 875, EssexMassachusetts: 0 }[
+                                                map.region
+                                            ]
+                                        }
+                                        y={
+                                            { World: 502, USA: 500, EssexMassachusetts: 502 }[
+                                                map.region
+                                            ]
+                                        }
                                         width={290}
                                         height={60}
                                     />

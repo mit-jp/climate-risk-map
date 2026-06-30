@@ -30,12 +30,12 @@ export type OverlayName =
     | 'Critical water habitats'
     | 'Endangered species'
 export type Overlay = { topoJson?: TopoJson; shouldShow: boolean }
-export type Region = 'USA' | 'World' | 'Massachusetts'
+export type Region = 'USA' | 'World' | 'EssexMassachusetts'
 export const REGION_FOR: Record<GeographyType, Region> = {
     [GeographyType.USACounty]: 'USA',
     [GeographyType.World]: 'World',
     [GeographyType.USAState]: 'USA',
-    [GeographyType.USACity]: 'Massachusetts',
+    [GeographyType.USACity]: 'EssexMassachusetts',
 }
 export type GeoMap = {
     topoJson: TopoJson
@@ -82,7 +82,7 @@ const initialState: AppState = {
         'Endangered species': { shouldShow: false },
     },
     tab: undefined,
-    mapSelections: { USA: {}, World: {}, Massachusetts: {} },
+    mapSelections: { USA: {}, World: {}, EssexMassachusetts: {} },
     dataWeights: {},
     zoomTo: undefined,
     detailedView: true,
@@ -202,7 +202,7 @@ export const appSlice = createSlice({
                             : payload
                     break
                 }
-                case 'Massachusetts': {
+                case EssexMassachusetts: {
                     // Don't zoom in or out.
                     break
                 }
@@ -283,7 +283,7 @@ const generateMapTransform = (zoomTo: number | undefined, map: GeoMap | undefine
     const objectName = {
         USA: 'states',
         World: 'countries',
-        Massachusetts: 'cities',
+        EssexMassachusetts: 'cities',
     }[map.region]
     const objects = map.topoJson.objects[objectName]
     const features = feature(
@@ -299,7 +299,7 @@ const generateMapTransform = (zoomTo: number | undefined, map: GeoMap | undefine
     // topoJson country id: "012", country id: 12
     // topoJson state id: "01", state id: 1
     // topoJson city id: "01260", city id: 1260
-    const idLength = { USA: 2, World: 3, Massachusetts: 10 }[map.region]
+    const idLength = { USA: 2, World: 3, EssexMassachusetts: 10 }[map.region]
     const zoomToId = String(zoomTo).padStart(idLength, '0')
 
     const bounds = geoPath().bounds(features[zoomToId])

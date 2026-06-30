@@ -10,7 +10,7 @@ const path = geoPath()
 const OBJECT_NAME_FOR: Record<Region, 'nation' | 'countries' | 'cities'> = {
     USA: 'nation',
     World: 'countries',
-    Massachusetts: 'cities',
+    EssexMassachusetts: 'cities',
 }
 
 function EmptyMap({ map, transform }: { map: GeoMap; transform?: string }) {

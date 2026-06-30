@@ -28,7 +28,7 @@ const getSubtitle = (countyId: number | undefined, region: Region) => {
     return {
         USA: 'United States',
         World: 'World',
-        Massachusetts: 'Massachusetts',
+        EssexMassachusetts: 'Essex, Massachusetts',
     }[region]
 }
 
