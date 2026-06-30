@@ -29,9 +29,11 @@ function BubbleMap({ map, data, legendTitle, color }: Props) {
     const onRegionClicked = (event: any) =>
         Number(event.target?.id) ? dispatch(clickMap(Number(event.target.id))) : null
     const path = geoPath()
-    const regions = { USA: USACounties, World: countries, Massachusetts: massachusettsCities }[
-        map.region
-    ](map.topoJson)
+    const regions = {
+        USA: USACounties,
+        World: countries,
+        EssexMassachusetts: massachusettsCities,
+    }[map.region](map.topoJson)
     const { max } = getDomain(data)
     const valueToRadius = scaleSqrt([0, max], [0, 40])
     const regionToRadius = makeRegionToRadius(valueToRadius, data)

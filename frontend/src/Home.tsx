@@ -23,7 +23,7 @@ import ViewTourButton from './tour/ViewTourButton'
 type TopoJsonFile =
     | 'usa.json'
     | 'world.json'
-    | 'massachusetts-cities.json'
+    | 'essex-ma-towns.json'
     | 'roads-topo.json'
     | 'railroads-topo.json'
     | 'waterways-topo.json'
@@ -44,7 +44,7 @@ const overlayToFile: OverlayMap = {
 const FILE_FOR: Record<Region, TopoJsonFile> = {
     USA: 'usa.json',
     World: 'world.json',
-    Massachusetts: 'massachusetts-cities.json',
+    EssexMassachusetts: 'essex-ma-towns.json',
 }
 
 function Home() {
@@ -57,7 +57,7 @@ function Home() {
             geographyType: {
                 USA: GeographyType.USACounty,
                 World: GeographyType.World,
-                Massachusetts: GeographyType.USACity,
+                EssexMassachusetts: GeographyType.USACity,
             }[region],
         })
 

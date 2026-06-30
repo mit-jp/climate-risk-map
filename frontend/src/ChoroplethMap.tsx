@@ -61,7 +61,7 @@ function ChoroplethMap(
     const borders = {
         USA: USACounties,
         World: countries,
-        Massachusetts: massachusettsCities,
+        EssexMassachusetts: massachusettsCities,
     }[map.region](map.topoJson)
 
     return (
