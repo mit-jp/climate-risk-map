@@ -1,9 +1,10 @@
-import { Select, MenuItem, SelectChangeEvent, InputLabel, FormControl } from '@mui/material'
+import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
+import { isGeographyType } from './MapVisualization'
 import css from './Navigation.module.css'
-import { Region, selectRegion } from './appSlice'
+import { Region, REGION_FOR, selectRegion } from './appSlice'
 import { RootState } from './store'
 
 export default function RegionNavigation() {
@@ -12,11 +13,8 @@ export default function RegionNavigation() {
     const region = useSelector((state: RootState) => state.app.region)
     const dispatch = useDispatch()
     useEffect(() => {
-        if (urlRegion == null || urlRegion === 1) {
-            dispatch(selectRegion('USA'))
-        } else if (urlRegion === 2) {
-            dispatch(selectRegion('World'))
-        }
+        const regionToSelect = isGeographyType(urlRegion) ? REGION_FOR[urlRegion] : 'USA'
+        dispatch(selectRegion(regionToSelect))
     }, [dispatch, urlRegion])
 
     const onChange = (region: Region) => {
@@ -58,6 +56,9 @@ export default function RegionNavigation() {
                     </MenuItem>
                     <MenuItem value="USA" aria-label="usa">
                         USA
+                    </MenuItem>
+                    <MenuItem value="Massachusetts" aria-label="massachusetts">
+                        Massachusetts
                     </MenuItem>
                 </Select>
             </FormControl>

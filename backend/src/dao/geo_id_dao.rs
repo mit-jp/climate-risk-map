@@ -25,7 +25,7 @@ impl<'c> Table<'c, GeoId> {
         &self,
         geo_ids: &HashSet<GeoId>,
     ) -> Result<Vec<GeoId>, sqlx::Error> {
-        let mut ids: Vec<i32> = Vec::new();
+        let mut ids: Vec<i64> = Vec::new();
         let mut geography_types: Vec<i32> = Vec::new();
 
         for geo_id in geo_ids {

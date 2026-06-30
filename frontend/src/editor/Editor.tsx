@@ -15,7 +15,7 @@ import {
 } from '../MapApi'
 import SelectorList, { EmptySelectorList } from '../SelectorList'
 import { TopoJson } from '../TopoJson'
-import { Region } from '../appSlice'
+import { REGION_FOR } from '../appSlice'
 import { RootState } from '../store'
 import editorCss from './Editor.module.css'
 import EditorMap from './EditorMap'
@@ -52,8 +52,15 @@ function Editor() {
     const map = useSelector((state: RootState) => state.editor.map)
 
     useEffect(() => {
-        const region: Region = selectedMapVisualization?.geography_type === 2 ? 'World' : 'USA'
-        const file = region === 'USA' ? '/usa.json' : '/world.json'
+        const region =
+            selectedMapVisualization?.geography_type !== undefined
+                ? REGION_FOR[selectedMapVisualization?.geography_type]
+                : 'World'
+        const file = {
+            USA: '/usa.json',
+            World: '/world.json',
+            Massachusetts: '/massachusetts-cities.json',
+        }[region]
         json<TopoJson>(file).then((topoJson) => {
             if (topoJson) {
                 dispatch(setMap({ topoJson, region }))

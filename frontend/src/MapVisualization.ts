@@ -32,8 +32,14 @@ export enum MapType {
     Bubble = 2,
 }
 export enum GeographyType {
-    USA = 1,
+    USACounty = 1,
     World = 2,
+    USAState = 3,
+    USACity = 4,
+}
+
+export function isGeographyType(x: number): x is GeographyType {
+    return x in GeographyType
 }
 
 export interface MapVisualizationPatch {

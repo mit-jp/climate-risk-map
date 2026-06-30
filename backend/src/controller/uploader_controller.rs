@@ -110,7 +110,7 @@ fn parse_csv(file: &File, metadata: &UploadMetadata) -> Result<HashSet<data::Par
             }
             Some(id_str) => id_str,
         };
-        let id: i32 = id_str.parse::<i32>().map_err(|_| Error::GeoIdNotNumeric {
+        let id = id_str.parse::<i64>().map_err(|_| Error::GeoIdNotNumeric {
             geo_id: id_str.to_string(),
             row: i,
         })?;
@@ -183,7 +183,7 @@ fn parse_csv(file: &File, metadata: &UploadMetadata) -> Result<HashSet<data::Par
         }
     }
     if new_data.is_empty() {
-        return Err(Error::DataNonNumeric)
+        return Err(Error::DataNonNumeric);
     }
     Ok(new_data)
 }

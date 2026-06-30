@@ -1,12 +1,13 @@
 import { Map } from 'immutable'
 import { RefObject, useEffect, useState } from 'react'
-import counties from './Counties'
+import { GeoId, stateId } from './appSlice'
+import COUNTIES from './Counties'
 import css from './CountyTooltip.module.css'
 import { formatData } from './Formatter'
-import { MapVisualization } from './MapVisualization'
-import nations from './Nations'
-import states from './States'
-import { GeoId, stateId } from './appSlice'
+import { GeographyType, MapVisualization } from './MapVisualization'
+import MASSACHUSETTS_CITIES from './MassachusettsCities'
+import NATIONS from './Nations'
+import STATES from './States'
 
 type TooltipHover = { x: number; y: number; id: number }
 type Props = {
@@ -17,12 +18,14 @@ type Props = {
 }
 
 const countyName = (id: number): string | undefined => {
-    const county = counties.get(id)
-    const state = states.get(stateId(id))
+    const county = COUNTIES.get(id)
+    const state = STATES.get(stateId(id))
     return county && state ? `${county}, ${state}` : undefined
 }
 
-const nationName = (id: number): string | undefined => nations.get(id) ?? undefined
+const nationName = (id: number): string | undefined => NATIONS.get(id) ?? undefined
+const stateName = (id: number): string | undefined => STATES.get(id) ?? undefined
+const cityName = (id: number): string | undefined => MASSACHUSETTS_CITIES.get(id) ?? undefined
 
 function MapTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
     const [hover, setHover] = useState<TooltipHover>()
@@ -33,18 +36,20 @@ function MapTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
             return () => {}
         }
 
-        const onTouchMove = (event: any) =>
+        const onTouchMove = (event: any) => {
             setHover({
                 x: event.touches[0].pageX + 30,
                 y: event.touches[0].pageY - 45,
                 id: Number(event.target.id),
             })
-        const onMouseMove = (event: any) =>
+        }
+        const onMouseMove = (event: any) => {
             setHover({
                 x: event.pageX + 10,
                 y: event.pageY - 25,
                 id: Number(event.target.id),
             })
+        }
         const onHoverEnd = () => setHover(undefined)
 
         element.addEventListener('mouseout', onHoverEnd)
@@ -65,8 +70,15 @@ function MapTooltip({ data, mapRef, selectedMap, isNormalized }: Props) {
 
     let text = ''
     if (hover?.id) {
-        const name =
-            selectedMap.geography_type === 1 ? countyName(hover.id) : nationName(hover.id) ?? '---'
+        const nameFunction = {
+            [GeographyType.USACounty]: countyName,
+            [GeographyType.World]: nationName,
+            [GeographyType.USAState]: stateName,
+            [GeographyType.USACity]: cityName,
+        }[selectedMap.geography_type]
+
+        const name = nameFunction ? nameFunction(hover.id) ?? '---' : '---'
+
         const value = data?.get(hover.id)
         text = `${name}: ${formatData(value, {
             type: selectedMap.formatter_type,

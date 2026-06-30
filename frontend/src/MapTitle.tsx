@@ -1,12 +1,12 @@
-import { styled, Tooltip, TooltipProps, tooltipClasses } from '@mui/material'
 import { Info } from '@mui/icons-material'
+import { styled, Tooltip, tooltipClasses, TooltipProps } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
-import { MapVisualization } from './MapVisualization'
-import { stateId, clickMap } from './appSlice'
+import { clickMap, Region, stateId } from './appSlice'
+import COUNTIES from './Counties'
 import css from './MapTitle.module.css'
-import { RootState } from './store'
-import counties from './Counties'
+import { MapVisualization } from './MapVisualization'
 import states from './States'
+import { RootState } from './store'
 
 const getTitle = (selectedMaps: MapVisualization[]) => {
     if (selectedMaps.length > 1) {
@@ -18,17 +18,18 @@ const getTitle = (selectedMaps: MapVisualization[]) => {
     return selectedMaps[0].displayName
 }
 
-const getSubtitle = (countyId: number | undefined, region: string) => {
+const getSubtitle = (countyId: number | undefined, region: Region) => {
     if (countyId) {
-        const countyName = counties.get(countyId) || 'Unknown County'
+        const countyName = COUNTIES.get(countyId) || 'Unknown County'
         const stateIdValue = stateId(countyId)
         const stateName = stateIdValue ? states.get(stateIdValue) : 'Unknown State'
         return `${countyName}, ${stateName}`
     }
-    if (region === 'USA') {
-        return 'United States'
-    }
-    return 'World'
+    return {
+        USA: 'United States',
+        World: 'World',
+        Massachusetts: 'Massachusetts',
+    }[region]
 }
 
 type Props = {

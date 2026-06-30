@@ -1,102 +1,103 @@
 {
-    "folders": [
-        {
-            "path": "backend"
-        },
-        {
-            "path": "frontend"
-        },
-        {
-            "path": ".github"
-        }
-    ],
-    "settings": {
-        "cSpell.words": [
-            "actix",
-            "appleboy",
-            "awmp",
-            "browserslist",
-            "chrono",
-            "consts",
-            "Côte",
-            "COUNTYFP",
-            "Csvs",
-            "d'Ivoire",
-            "dbaeumer",
-            "dropzone",
-            "esbenp",
-            "fkey",
-            "Herz",
-            "immer",
-            "Jsons",
-            "Leste",
-            "luxon",
-            "papaparse",
-            "podman",
-            "POPESTIMATE",
-            "predeploy",
-            "reduxjs",
-            "Rica",
-            "rustls",
-            "scalerank",
-            "SIGHUP",
-            "SIGINT",
-            "Socio",
-            "sqlx",
-            "STATEFP",
-            "Swatini",
-            "Symlog",
-            "topojson",
-            "uncategorized",
-            "UNNEST",
-            "Unpublish",
-            "vite",
-            "vitejs",
-            "webm",
-            "webp",
-            "yarnrc"
-        ],
-        "workbench.colorCustomizations": {
-            "activityBar.activeBackground": "#3399ff",
-            "activityBar.activeBorder": "#bf0060",
-            "activityBar.background": "#3399ff",
-            "activityBar.foreground": "#15202b",
-            "activityBar.inactiveForeground": "#15202b99",
-            "activityBarBadge.background": "#bf0060",
-            "activityBarBadge.foreground": "#e7e7e7",
-            "sash.hoverBorder": "#3399ff",
-            "statusBar.background": "#007fff",
-            "statusBar.foreground": "#e7e7e7",
-            "statusBarItem.hoverBackground": "#3399ff",
-            "statusBarItem.remoteBackground": "#007fff",
-            "statusBarItem.remoteForeground": "#e7e7e7",
-            "titleBar.activeBackground": "#007fff",
-            "titleBar.activeForeground": "#e7e7e7",
-            "titleBar.inactiveBackground": "#007fff99",
-            "titleBar.inactiveForeground": "#e7e7e799",
-            "commandCenter.border": "#e7e7e799"
-        },
-        "peacock.color": "#007fff",
-        "jest.disabledWorkspaceFolders": ["backend", ".github"],
-        "[typescriptreact]": {
-            "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "[javascript]": {
-            "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "[typescript]": {
-            "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "[jsonc]": {
-            "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "editor.formatOnSave": true,
-        "editor.codeActionsOnSave": {
-            "source.fixAll": true,
-            "source.organizeImports": true
-        }
+  "folders": [
+    {
+      "path": "backend",
     },
-    "extensions": {
-        "recommendations": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint"]
-    }
+    {
+      "path": "frontend",
+    },
+    {
+      "path": ".github",
+    },
+  ],
+  "settings": {
+    "cSpell.words": [
+      "actix",
+      "appleboy",
+      "awmp",
+      "browserslist",
+      "chrono",
+      "consts",
+      "Côte",
+      "COUNTYFP",
+      "Csvs",
+      "d'Ivoire",
+      "dbaeumer",
+      "dropzone",
+      "esbenp",
+      "fkey",
+      "Herz",
+      "immer",
+      "Jsons",
+      "Leste",
+      "luxon",
+      "papaparse",
+      "podman",
+      "POPESTIMATE",
+      "predeploy",
+      "reduxjs",
+      "Rica",
+      "rustls",
+      "scalerank",
+      "SIGHUP",
+      "SIGINT",
+      "Socio",
+      "sqlx",
+      "STATEFP",
+      "Swatini",
+      "Symlog",
+      "topo",
+      "topojson",
+      "uncategorized",
+      "UNNEST",
+      "Unpublish",
+      "vite",
+      "vitejs",
+      "webm",
+      "webp",
+      "yarnrc",
+    ],
+    "workbench.colorCustomizations": {
+      "activityBar.activeBackground": "#3399ff",
+      "activityBar.activeBorder": "#bf0060",
+      "activityBar.background": "#3399ff",
+      "activityBar.foreground": "#15202b",
+      "activityBar.inactiveForeground": "#15202b99",
+      "activityBarBadge.background": "#bf0060",
+      "activityBarBadge.foreground": "#e7e7e7",
+      "sash.hoverBorder": "#3399ff",
+      "statusBar.background": "#007fff",
+      "statusBar.foreground": "#e7e7e7",
+      "statusBarItem.hoverBackground": "#3399ff",
+      "statusBarItem.remoteBackground": "#007fff",
+      "statusBarItem.remoteForeground": "#e7e7e7",
+      "titleBar.activeBackground": "#007fff",
+      "titleBar.activeForeground": "#e7e7e7",
+      "titleBar.inactiveBackground": "#007fff99",
+      "titleBar.inactiveForeground": "#e7e7e799",
+      "commandCenter.border": "#e7e7e799"
+    },
+    "peacock.color": "#007fff",
+    "jest.disabledWorkspaceFolders": ["backend", ".github"],
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "[jsonc]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+    },
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "always",
+      "source.organizeImports": "always",
+    },
+  },
+  "extensions": {
+    "recommendations": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint"],
+  },
 }

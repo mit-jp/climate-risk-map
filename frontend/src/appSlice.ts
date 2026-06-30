@@ -7,6 +7,7 @@ import type { GeometryCollection } from 'topojson-specification'
 import { MapSelection } from './DataSelector'
 import { mapApi, Tab, TabId } from './MapApi'
 import {
+    GeographyType,
     getDefaultSelection,
     MapType,
     MapVisualization,
@@ -29,7 +30,13 @@ export type OverlayName =
     | 'Critical water habitats'
     | 'Endangered species'
 export type Overlay = { topoJson?: TopoJson; shouldShow: boolean }
-export type Region = 'USA' | 'World'
+export type Region = 'USA' | 'World' | 'Massachusetts'
+export const REGION_FOR: Record<GeographyType, Region> = {
+    [GeographyType.USACounty]: 'USA',
+    [GeographyType.World]: 'World',
+    [GeographyType.USAState]: 'USA',
+    [GeographyType.USACity]: 'Massachusetts',
+}
 export type GeoMap = {
     topoJson: TopoJson
     region: Region
@@ -75,7 +82,7 @@ const initialState: AppState = {
         'Endangered species': { shouldShow: false },
     },
     tab: undefined,
-    mapSelections: { USA: {}, World: {} },
+    mapSelections: { USA: {}, World: {}, Massachusetts: {} },
     dataWeights: {},
     zoomTo: undefined,
     detailedView: true,
@@ -169,23 +176,40 @@ export const appSlice = createSlice({
             state.transmissionLineType = action.payload
         },
         clickMap: (state, { payload }: PayloadAction<number>) => {
-            if (state.region === 'USA') {
-                if (
-                    // Zooms out if the currently selected county is clicked,
-                    // or if the "Zoom Out" button is clicked (which is the -1 placeholder value)
-                    (state.county && state.county === payload) ||
-                    payload === -1
-                ) {
-                    state.zoomTo = undefined
-                    state.county = undefined
-                } else {
-                    state.zoomTo = stateId(payload)
-                    state.county = payload
+            const ZOOM_OUT_BUTTON = -1
+            switch (state.region) {
+                case 'USA': {
+                    if (
+                        // Zoom out if the selected county is clicked,
+                        // or if the "Zoom Out" button is clicked.
+                        (state.county && state.county === payload) ||
+                        payload === ZOOM_OUT_BUTTON
+                    ) {
+                        state.zoomTo = undefined
+                        state.county = undefined
+                    } else {
+                        state.zoomTo = stateId(payload)
+                        state.county = payload
+                    }
+                    break
                 }
-            } else {
-                // For the World map, zooms out if the currently selected country is clicked,
-                // or if the "Zoom Out" button is clicked
-                state.zoomTo = state.zoomTo === payload || payload === -1 ? undefined : payload
+                case 'World': {
+                    // Zoom out if the selected country is clicked,
+                    // or if the "Zoom Out" button is clicked.
+                    state.zoomTo =
+                        state.zoomTo === payload || payload === ZOOM_OUT_BUTTON
+                            ? undefined
+                            : payload
+                    break
+                }
+                case 'Massachusetts': {
+                    // Don't zoom in or out.
+                    break
+                }
+                default: {
+                    const unreachable: never = state.region
+                    throw new Error(`Unhandled region: ${unreachable}`)
+                }
             }
         },
         selectRegion: (state, { payload }: PayloadAction<Region>) => {
@@ -256,8 +280,12 @@ const generateMapTransform = (zoomTo: number | undefined, map: GeoMap | undefine
     if (zoomTo === undefined || map === undefined) {
         return undefined
     }
-    const objects =
-        map.region === 'USA' ? map.topoJson.objects.states : map.topoJson.objects.countries
+    const objectName = {
+        USA: 'states',
+        World: 'countries',
+        Massachusetts: 'cities',
+    }[map.region]
+    const objects = map.topoJson.objects[objectName]
     const features = feature(
         map.topoJson,
         objects as GeometryCollection<GeoJsonProperties>
@@ -270,7 +298,8 @@ const generateMapTransform = (zoomTo: number | undefined, map: GeoMap | undefine
     // pad number id by 0s to match topojson
     // topoJson country id: "012", country id: 12
     // topoJson state id: "01", state id: 1
-    const idLength = map.region === 'USA' ? 2 : 3
+    // topoJson city id: "01260", city id: 1260
+    const idLength = { USA: 2, World: 3, Massachusetts: 10 }[map.region]
     const zoomToId = String(zoomTo).padStart(idLength, '0')
 
     const bounds = geoPath().bounds(features[zoomToId])

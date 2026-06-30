@@ -1,20 +1,20 @@
-import { useEffect, useRef } from 'react'
 import {
-    scaleLinear,
-    extent,
-    bin as createBins,
-    select,
-    mean,
-    max,
     axisBottom,
     axisLeft,
-    line,
-    curveBasis,
     Bin,
+    bin as createBins,
+    curveBasis,
+    extent,
+    line,
+    max,
+    mean,
     median,
+    scaleLinear,
+    select,
 } from 'd3'
+import { useEffect, useRef } from 'react'
 import Color from './Color'
-import { MapVisualization } from './MapVisualization'
+import { GeographyType, MapVisualization } from './MapVisualization'
 
 const margin = { top: 20, right: 30, bottom: 30, left: 40 }
 type Props = {
@@ -135,16 +135,23 @@ function ProbabilityDensity({
     let locY = 275
 
     switch (map.geography_type) {
-        case 1: // USA
+        case GeographyType.USACounty:
+        case GeographyType.USAState:
             locX = 875
             locY = 275
             break
-        case 2: // World
+        case GeographyType.World:
             locX = 875
             locY = 25
             break
-        default:
+        case GeographyType.USACity:
+            locX = 875
+            locY = 25
             break
+        default: {
+            const unreachable: never = map.geography_type
+            throw Error(`${unreachable} should be checked for`)
+        }
     }
     return (
         <svg

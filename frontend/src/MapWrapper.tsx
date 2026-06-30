@@ -1,11 +1,14 @@
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { useMemo, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import Color from './Color'
 import DataDescription from './DataDescription'
 import DataProcessor, { getDomain } from './DataProcessor'
 import DataSourceDescription from './DataSourceDescription'
 import EmptyMap from './EmptyMap'
+import { getLegendFormatter, getUnitString } from './Formatter'
 import FullMap from './FullMap'
+import Legend from './Legend'
 import { DataQueryParams, useGetDataQuery } from './MapApi'
 import MapControls from './MapControls'
 import MapTitle, { EmptyMapTitle } from './MapTitle'
@@ -13,12 +16,9 @@ import MapTooltip from './MapTooltip'
 import { MapType, MapVisualization, MapVisualizationId } from './MapVisualization'
 import css from './MapWrapper.module.css'
 import Overlays from './Overlays'
+import ProbabilityDensity from './ProbabilityDensity'
 import { clickMap, selectMapTransform, selectSelections, stateId } from './appSlice'
 import { RootState } from './store'
-import Legend from './Legend'
-import { getLegendFormatter, getUnitString } from './Formatter'
-import Color from './Color'
-import ProbabilityDensity from './ProbabilityDensity'
 
 export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
 
@@ -213,8 +213,8 @@ function MapWrapper({
                                         tickFormat={legendFormatter}
                                         ticks={legendTicks}
                                         showHighLowLabels={isNormalized}
-                                        x={map.region === 'World' ? 0 : 875}
-                                        y={map.region === 'World' ? 502 : 500}
+                                        x={{ World: 0, USA: 875, Massachusetts: 0 }[map.region]}
+                                        y={{ World: 502, USA: 500, Massachusetts: 502 }[map.region]}
                                         width={290}
                                         height={60}
                                     />

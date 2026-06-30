@@ -1,7 +1,7 @@
 import { Map } from 'immutable'
 import { GeoId } from './appSlice'
 
-const nations = Map<GeoId, string>([
+const NATIONS = Map<GeoId, string>([
     [4, 'Afghanistan'],
     [8, 'Albania'],
     [10, 'Antarctica'],
@@ -177,4 +177,4 @@ const nations = Map<GeoId, string>([
     [887, 'Yemen'],
     [894, 'Zambia'],
 ])
-export default nations
+export default NATIONS
