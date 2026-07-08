@@ -107,7 +107,7 @@
     background-color: rgb(74, 93, 122);
     color: #ffffff;
     padding: 10px 20px;
-    border: 3px solid black;
+    border: 3px solid rgb(255, 255, 255);
     border-radius: 4px;
     cursor: pointer;
     font-weight: 500;
