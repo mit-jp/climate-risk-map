@@ -100,11 +100,21 @@
 }
 
 .viewTourButton {
-    border-radius: 0px !important;
-    box-shadow: none !important;
-    background-color: hsl(217, 14%, 69%) !important;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 99999;
+    background-color: rgb(74, 93, 122);
+    color: #ffffff;
+    padding: 10px 20px;
+    border: 3px solid black;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 1;
 }
 
 .viewTourButton:hover {
-    background-color: hsl(217, 14%, 49%) !important;
+    background-color: hsl(216, 24%, 58%);
 }

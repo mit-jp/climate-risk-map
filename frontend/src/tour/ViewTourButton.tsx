@@ -1,7 +1,8 @@
-import { Button } from '@mui/material'
-import { useDispatch } from 'react-redux'
-import css from './tour.module.css'
+import { useDispatch, useSelector } from 'react-redux'
+import ReactDOM from 'react-dom'
+import { RootState } from '../store'
 import { setTourActive } from '../appSlice'
+import css from './tour.module.css'
 
 function ViewTourButton() {
     const dispatch = useDispatch()
@@ -10,15 +11,22 @@ function ViewTourButton() {
         dispatch(setTourActive(true))
     }
 
-    return (
-        <Button
-            variant="contained"
+    const isTourActive = useSelector((state: RootState) => state.app.isTourActive)
+
+    if (isTourActive) {
+        return null
+    }
+
+    return ReactDOM.createPortal(
+        <button
+            type="button"
             onClick={handleClick}
             className={css.viewTourButton}
             id="view-tour-button-id"
         >
             View Tour
-        </Button>
+        </button>,
+        document.body
     )
 }
 
