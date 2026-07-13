@@ -3,7 +3,6 @@ import Home from './Home'
 import DataSourceEditor from './editor/DataSourceEditor'
 import DatasetEditor from './editor/DatasetEditor'
 import Editor from './editor/Editor'
-import LandingPage from './landing-page/LandingPage'
 import ReportCard from './report-card/ReportCard'
 import Uploader from './uploader/Uploader'
 
@@ -11,7 +10,6 @@ function App() {
     return (
         <Router>
             <Routes>
-                <Route path="/landing-page" element={<LandingPage />} />
                 <Route path="/uploader" element={<Uploader />} />
                 <Route path="/editor" element={<Editor />} />
                 <Route path="/report-card/:category" element={<ReportCard />} />
