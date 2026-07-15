@@ -215,7 +215,7 @@ function Uploader() {
                     />
                 )}
                 {metadata && dataSources && (
-                    <Button variant="contained" id={css.submit} type="submit" loading={isLoading}>
+                    <Button variant="contained" type="submit" loading={isLoading}>
                         Submit
                     </Button>
                 )}

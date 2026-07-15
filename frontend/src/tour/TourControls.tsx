@@ -30,23 +30,14 @@ function TourControls({
 
                 <div className={css.buttonGroup}>
                     {!isFirstStep && (
-                        <Button
-                            variant="outlined"
-                            className={css.controlButton}
-                            onClick={onPrevious}
-                        >
+                        <Button variant="outlined" onClick={onPrevious}>
                             Previous
                         </Button>
                     )}
-                    <Button
-                        variant="contained"
-                        className={css.primaryButton}
-                        onClick={onNext}
-                        disabled={!canProceed()}
-                    >
+                    <Button variant="contained" onClick={onNext} disabled={!canProceed()}>
                         {isLastStep ? 'Finish' : 'Next'}
                     </Button>
-                    <Button variant="outlined" className={css.controlButton} onClick={onSkip}>
+                    <Button variant="outlined" onClick={onSkip}>
                         Skip Tour
                     </Button>
                 </div>

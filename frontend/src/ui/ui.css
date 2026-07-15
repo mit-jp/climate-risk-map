@@ -19,6 +19,14 @@
     /* type scale: 1rem content, 0.875rem controls, 0.75rem labels */
     --ui-font-control: 0.875rem;
     --ui-font-label: 0.75rem;
+    /* spacing scale: use these for every padding, margin, and gap */
+    --ui-space-xs: 0.25rem;
+    --ui-space-s: 0.5rem;
+    --ui-space-m: 0.75rem;
+    --ui-space-l: 1rem;
+    --ui-space-xl: 1.5rem;
+    --ui-space-2xl: 2rem;
+    --ui-popover-width: 300px;
 }
 
 /* Buttons: 36px tall, matching inputs and selects */
@@ -26,12 +34,12 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: var(--ui-space-s);
     font: inherit;
     font-size: var(--ui-font-control);
     font-weight: 500;
     line-height: 1.25;
-    padding: 8px 16px;
+    padding: var(--ui-space-s) var(--ui-space-l);
     border-radius: var(--ui-radius);
     border: 1px solid transparent;
     background: none;
@@ -79,7 +87,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 8px;
+    padding: var(--ui-space-s);
     border: none;
     border-radius: 50%;
     background: none;
@@ -94,7 +102,7 @@
 .ui-field {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--ui-space-xs);
 }
 .ui-field-label {
     font-size: var(--ui-font-label);
@@ -107,7 +115,7 @@
     font-size: var(--ui-font-control);
     line-height: 1.25;
     color: inherit;
-    padding: 8px 12px;
+    padding: var(--ui-space-s) var(--ui-space-m);
     border: 1px solid var(--ui-border);
     border-radius: var(--ui-radius);
     background: #fff;
@@ -133,17 +141,17 @@
 .ui-fieldset {
     border: none;
     padding: 0;
-    margin: 1em 0;
+    margin: var(--ui-space-l) 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: var(--ui-space-s);
 }
 .ui-fieldset > legend {
     font-size: var(--ui-font-label);
     font-weight: 600;
     color: var(--ui-muted);
     padding: 0;
-    margin-bottom: 4px;
+    margin-bottom: var(--ui-space-xs);
 }
 
 /* Checkboxes, radios, and sliders lean on the browser's own rendering */
@@ -162,7 +170,7 @@
 .ui-choice {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--ui-space-s);
     cursor: pointer;
 }
 .ui-slider {
@@ -212,8 +220,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1em;
-    padding: 0.75em 1em;
+    gap: var(--ui-space-l);
+    padding: var(--ui-space-m) var(--ui-space-l);
     cursor: pointer;
     list-style: none;
 }
@@ -247,14 +255,14 @@
     transform: translate(-50%, -6px);
     background: #222;
     color: #fff;
-    font-size: 0.875rem;
+    font-size: var(--ui-font-control);
     font-weight: 400;
     line-height: 1.4;
     text-align: center;
-    padding: 8px 12px;
+    padding: var(--ui-space-s) var(--ui-space-m);
     border-radius: var(--ui-radius);
     width: max-content;
-    max-width: 300px;
+    max-width: var(--ui-popover-width);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -302,9 +310,9 @@
     background: #fff;
     border-radius: var(--ui-radius);
     box-shadow: 0 2px 10px rgb(0 0 0 / 0.3);
-    padding: 0 1em;
+    padding: 0 var(--ui-space-l);
     width: max-content;
-    max-width: 300px;
+    max-width: var(--ui-popover-width);
 }
 
 /* Combobox: text input with a filtered option list */
@@ -317,8 +325,8 @@
     left: 0;
     right: 0;
     z-index: 30;
-    margin: 4px 0 0;
-    padding: 4px 0;
+    margin: var(--ui-space-xs) 0 0;
+    padding: var(--ui-space-xs) 0;
     list-style: none;
     background: #fff;
     border-radius: var(--ui-radius);
@@ -327,7 +335,7 @@
     overflow: auto;
 }
 .ui-combobox-list li {
-    padding: 8px 12px;
+    padding: var(--ui-space-s) var(--ui-space-m);
     font-size: var(--ui-font-control);
     cursor: pointer;
 }
@@ -342,7 +350,7 @@
     border: 1px solid var(--ui-border);
     border-radius: var(--ui-radius);
     box-shadow: var(--ui-shadow);
-    padding: 1em;
+    padding: var(--ui-space-l);
 }
 
 /* Spinner */

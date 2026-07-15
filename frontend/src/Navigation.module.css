@@ -1,5 +1,5 @@
 .nav {
-    margin-bottom: 1em;
+    margin-bottom: var(--ui-space-l);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -10,7 +10,7 @@
     display: block;
     color: #000;
     text-decoration: none;
-    padding: 12px 16px;
+    padding: var(--ui-space-m) var(--ui-space-l);
     text-transform: capitalize;
     margin: 0;
     border: none;
@@ -43,16 +43,27 @@
 }
 
 .region-nav {
-    margin-left: 24px;
-    margin-right: 24px;
-    margin-bottom: 1em;
+    margin-left: var(--ui-space-xl);
+    margin-right: var(--ui-space-xl);
+    margin-bottom: var(--ui-space-l);
+}
+
+.region-label {
+    color: #000;
+    font-weight: bold;
+}
+
+.region-select {
+    background-color: #d9dee4;
+    color: #000;
+    font-weight: bold;
 }
 
 input.new-tab {
-    margin-left: 2em;
+    margin-left: var(--ui-space-2xl);
     font: inherit;
-    font-size: 0.875rem;
-    padding: 8px 12px;
+    font-size: var(--ui-font-control);
+    padding: var(--ui-space-s) var(--ui-space-m);
     border: 1px solid var(--ui-border);
     border-radius: var(--ui-radius);
 }
@@ -60,12 +71,12 @@ input.new-tab {
 button.create-tab {
     border: 1px solid var(--ui-border);
     border-radius: var(--ui-radius);
-    padding: 8px 12px;
+    padding: var(--ui-space-s) var(--ui-space-m);
     font: inherit;
-    font-size: 0.875rem;
+    font-size: var(--ui-font-control);
     cursor: pointer;
     background-color: #f0f6fc;
-    margin-left: 5px;
+    margin-left: var(--ui-space-xs);
 }
 
 button.create-tab:hover {
@@ -80,6 +91,6 @@ button.create-tab:disabled {
 /* do not pad region nav so much on small screen sizes */
 @media (max-width: 600px) {
     .region-nav {
-        margin-left: 1em;
+        margin-left: var(--ui-space-l);
     }
 }

@@ -16,8 +16,6 @@ import {
     toggleExistingSource,
 } from './uploaderSlice'
 
-export const INPUT_MARGIN = { margin: '0.5em 0' }
-
 function getPossibleColumns(
     columns: string[],
     datasets: Dataset[],
@@ -117,7 +115,6 @@ export default function MetadataForm({
             {'id' in source && (
                 <Combobox
                     label="Name"
-                    style={INPUT_MARGIN}
                     value={source}
                     getLabel={(option) => option.name}
                     onChange={(value) => dispatch(setExistingSource(value))}

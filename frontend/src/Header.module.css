@@ -33,7 +33,7 @@
 }
 
 .CS3-logo {
-    margin: 0 1em;
+    margin: 0 var(--ui-space-l);
 }
 
 /* stack vertically on mobile */
@@ -52,7 +52,7 @@
     }
 
     .title-and-subtitle {
-        margin: 0.5em 1em;
+        margin: var(--ui-space-s) var(--ui-space-l);
     }
 
     .joint-program-logo,

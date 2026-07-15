@@ -34,11 +34,7 @@ const checkBox = (
             key={map.id}
             className={shouldBeChecked(map.id) ? `${css.selectedGroup} ${css.padded}` : css.padded}
         >
-            <label
-                id={map.id.toString()}
-                className="ui-choice"
-                style={{ width: '100%', padding: '10px 0' }}
-            >
+            <label id={map.id.toString()} className={`ui-choice ${css.choiceRow}`}>
                 <input
                     type="checkbox"
                     className="ui-checkbox"
@@ -47,7 +43,7 @@ const checkBox = (
                     onChange={onSelectionToggled}
                     name="mapId"
                 />
-                <div className={css.labelMulti} style={{ flex: 1 }}>
+                <div className={css.labelMulti}>
                     {map.displayName}
                     {selection && <div className={css.year}>{readable(selection.dateRange)}</div>}
                 </div>

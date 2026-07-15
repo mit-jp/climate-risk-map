@@ -25,7 +25,8 @@ export default function RegionNavigation() {
         <nav className={css.regionNav} id="region-selector">
             <Select
                 label="Region"
-                labelStyle={{ color: '#000', fontWeight: 'bold' }}
+                labelClassName={css.regionLabel}
+                className={css.regionSelect}
                 value={region}
                 onChange={(event) => {
                     if (region != null) {
@@ -33,7 +34,6 @@ export default function RegionNavigation() {
                     }
                 }}
                 aria-label="geography type"
-                style={{ backgroundColor: '#d9dee4', color: 'black', fontWeight: 'bold' }}
             >
                 <option value="World" aria-label="world">
                     World

@@ -4,7 +4,7 @@
 }
 
 #map {
-    margin: 1em;
+    margin: var(--ui-space-l);
     min-width: 500px;
     width: 100%;
 }
@@ -12,12 +12,13 @@
 #title-field {
     display: flex;
     align-items: center;
+    gap: var(--ui-space-s);
 }
 
 #map-options {
     display: flex;
     flex-direction: column;
-    padding: 1em;
+    padding: var(--ui-space-l);
     min-width: 300px;
 }
 
@@ -27,28 +28,21 @@
     align-items: center;
 }
 
-#map-options > fieldset {
-    margin: 1em 0;
-}
-
 .publish-button {
-    margin: 1em 0 !important;
+    margin: var(--ui-space-l) 0;
 }
 
 .actions {
-    margin: 1em;
+    margin: var(--ui-space-l);
     display: flex;
     justify-content: space-between;
-}
-
-.actions > * {
-    margin: 0 1em;
+    gap: var(--ui-space-l);
 }
 
 .publish-link {
     display: inline-block;
-    padding: 8px 16px;
-    font-size: 0.875rem;
+    padding: var(--ui-space-s) var(--ui-space-l);
+    font-size: var(--ui-font-control);
     font-weight: 500;
     border-radius: var(--ui-radius);
     color: inherit;
@@ -62,12 +56,12 @@
 
 .delete-tab {
     font: inherit;
-    font-size: 0.875rem;
+    font-size: var(--ui-font-control);
     font-weight: 500;
     border: none;
     border-radius: var(--ui-radius);
     display: inline-block;
-    padding: 8px 16px;
+    padding: var(--ui-space-s) var(--ui-space-l);
     color: var(--ui-error);
     background-color: #f7d7d7;
     cursor: pointer;
@@ -80,5 +74,6 @@
 .publish-area {
     display: flex;
     align-items: center;
-    margin: 1em 0;
+    gap: var(--ui-space-s);
+    margin: var(--ui-space-l) 0;
 }

@@ -1,19 +1,19 @@
 #map-controls {
-    margin: 0 16px;
+    margin: 0 var(--ui-space-l);
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--ui-space-m);
 }
 
 #map-controls > div {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px 20px;
+    gap: var(--ui-space-s) var(--ui-space-xl);
 }
 
 .overlays {
-    font-size: 0.875rem;
+    font-size: var(--ui-font-control);
 }
 
 .overlay-options {
@@ -35,9 +35,9 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    margin-top: 1em;
+    margin-top: var(--ui-space-l);
 }
 
 #report-card-tooltip {
-    margin-left: 4px;
+    margin-left: var(--ui-space-xs);
 }

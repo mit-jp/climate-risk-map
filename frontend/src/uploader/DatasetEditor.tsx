@@ -4,8 +4,6 @@ import ColumnEditor from './ColumnEditor'
 import css from './Uploader.module.css'
 import { Dataset, deleteDataset, onDatasetChange } from './uploaderSlice'
 
-const INPUT_MARGIN = { margin: '0.5em 0' }
-
 export default function DatasetEditor({
     dataset,
     possibleColumns,
@@ -29,7 +27,6 @@ export default function DatasetEditor({
             </div>
             <TextField
                 required
-                style={INPUT_MARGIN}
                 label="Name"
                 value={dataset.name}
                 onChange={(e) =>
@@ -37,7 +34,6 @@ export default function DatasetEditor({
                 }
             />
             <TextField
-                style={INPUT_MARGIN}
                 label="Units"
                 value={dataset.units}
                 onChange={(e) =>
@@ -45,7 +41,6 @@ export default function DatasetEditor({
                 }
             />
             <TextField
-                style={INPUT_MARGIN}
                 multiline
                 fullWidth
                 label="Description"

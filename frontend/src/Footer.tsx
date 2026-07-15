@@ -17,7 +17,7 @@ function Footer() {
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        <RssFeed size={35} style={{ color: '#fff' }} />
+                        <RssFeed size={35} />
                     </a>
                 </li>
                 <li>
@@ -28,7 +28,7 @@ function Footer() {
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        <Mail size={35} style={{ color: '#fff' }} />
+                        <Mail size={35} />
                     </a>
                 </li>
                 <li>
@@ -39,7 +39,7 @@ function Footer() {
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        <GitHub size={35} style={{ color: '#fff' }} />
+                        <GitHub size={35} />
                     </a>
                 </li>
             </ul>

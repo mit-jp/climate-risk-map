@@ -59,13 +59,7 @@ function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarni
                 {getTitle(selectedMapVisualizations)}
                 {isNormalized && (
                     <Tooltip tip="The normalized value is the percentile of the raw data. If you select multiple data, we take the mean of the ranked values.">
-                        <Info
-                            style={{
-                                verticalAlign: 'middle',
-                                marginLeft: '8px',
-                                marginBottom: '3px',
-                            }}
-                        />
+                        <Info className={css.infoIcon} />
                     </Tooltip>
                 )}
             </h3>

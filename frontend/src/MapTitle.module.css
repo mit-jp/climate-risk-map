@@ -3,24 +3,32 @@
     font-weight: 400;
     font-size: 1.5rem;
     line-height: 2;
-    margin: 15px 0 0 60px;
+    /* the left offset and reduced width keep the title centered next to the
+       absolutely-positioned zoom-out button */
+    margin: var(--ui-space-l) 0 0 60px;
     width: 82%;
     text-align: center;
 }
 
+.info-icon {
+    vertical-align: middle;
+    margin-left: var(--ui-space-s);
+    margin-bottom: 3px;
+}
+
 .zoom-out-button {
     font: inherit;
-    font-size: 0.875rem;
+    font-size: var(--ui-font-control);
     font-weight: 600;
-    padding: 8px 16px;
+    padding: var(--ui-space-s) var(--ui-space-l);
     border-radius: var(--ui-radius);
     border: 1px solid var(--ui-primary);
     background: #fff;
     color: var(--ui-primary);
     cursor: pointer;
     position: absolute;
-    left: 20px;
-    top: 9px;
+    left: var(--ui-space-l);
+    top: var(--ui-space-s);
 }
 
 .zoom-out-button:hover {
@@ -34,9 +42,9 @@
 #stateDataWarning {
     background-color: hsl(351, 100%, 94%);
     border: 2px solid #f44336;
-    border-radius: 4px;
-    padding: 12px;
-    margin: 16px auto;
+    border-radius: var(--ui-radius);
+    padding: var(--ui-space-m);
+    margin: var(--ui-space-l) auto;
     position: relative;
     right: 3%;
     display: block;
@@ -63,7 +71,7 @@
 #stateDataWarningTitle {
     color: hsl(0, 66%, 42%);
     font-weight: 600;
-    margin: 0 0 8px 0;
+    margin: 0 0 var(--ui-space-s) 0;
 }
 
 #stateDataWarningParagraph {
@@ -73,8 +81,8 @@
 
 #map-subtitle {
     font-weight: 400;
-    font-size: 15px;
+    font-size: var(--ui-font-control);
     width: 82%;
     text-align: center;
-    margin: 0 0 15px 60px;
+    margin: 0 0 var(--ui-space-l) 60px;
 }

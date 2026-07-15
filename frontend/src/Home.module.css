@@ -4,9 +4,9 @@
 }
 
 .site-overview {
-    background: #eee;
-    padding: 0.25em 1em;
-    margin-bottom: 1em;
+    background: var(--ui-bg-subtle);
+    padding: var(--ui-space-xs) var(--ui-space-l);
+    margin-bottom: var(--ui-space-l);
 }
 
 .nav-div {

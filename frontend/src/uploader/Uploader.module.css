@@ -8,7 +8,7 @@
 }
 
 #csv-preview table th {
-    padding: 0.5em 1em 0 0;
+    padding: var(--ui-space-s) var(--ui-space-l) 0 0;
 }
 
 .id-column {
@@ -24,7 +24,14 @@
 }
 
 .dataset-editor {
-    margin-bottom: 1em;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ui-space-m);
+}
+
+.dataset-editor h3 {
+    margin: 0;
 }
 
 .dataset-editor label {
@@ -36,11 +43,11 @@
 }
 
 .delete-button {
-    float: right;
+    align-self: flex-end;
 }
 
 #uploader {
-    padding: 1em;
+    padding: var(--ui-space-l);
     min-height: 50vh;
 }
 
@@ -48,30 +55,27 @@
     max-width: 600px;
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ui-space-m);
+}
+
+#uploader h2 {
+    margin: var(--ui-space-l) 0 0;
 }
 
 .column-editor {
-    margin: 0.5em 0;
     display: flex;
-}
-
-.column-editor > * {
-    margin-right: 0.5em;
+    gap: var(--ui-space-s);
 }
 
 .column-editor > .column-select {
     flex-grow: 2;
 }
 
-#submit {
-    margin-top: 1em;
-}
-
 .error,
 .success {
-    padding: 12px;
-    margin-top: 1em;
-    border-radius: 5px;
+    padding: var(--ui-space-m);
+    border-radius: var(--ui-radius);
 }
 
 .error {

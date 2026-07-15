@@ -10,8 +10,6 @@ import { FormatterType, MapType, MapVisualization } from '../MapVisualization'
 import { Combobox, TextField } from '../ui'
 import css from './Editor.module.css'
 
-const INPUT_MARGIN = { margin: '0.5em 0' }
-
 type UpdateMap = (mapVisualization: MapVisualization) => void
 
 function Radio({
@@ -58,7 +56,6 @@ function DomainInput({
         <TextField
             label="Domain"
             placeholder="e.g. 0, 50, 100"
-            style={INPUT_MARGIN}
             value={text}
             onChange={(event) => setText(event.target.value)}
             onBlur={() =>
@@ -118,7 +115,6 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                                 value={mapVisualization.scale_type}
                                 options={scales}
                                 getLabel={(option) => option.name}
-                                style={INPUT_MARGIN}
                                 onChange={(scaleType) =>
                                     updateMap({ ...mapVisualization, scale_type: scaleType })
                                 }
@@ -130,7 +126,6 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                                 value={mapVisualization.color_palette}
                                 options={colorPalettes}
                                 getLabel={(option) => option.name}
-                                style={INPUT_MARGIN}
                                 onChange={(colorPalette) =>
                                     updateMap({ ...mapVisualization, color_palette: colorPalette })
                                 }
@@ -233,7 +228,6 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                             }
                             options={subcategoryOptions}
                             getLabel={(option) => option.name}
-                            style={INPUT_MARGIN}
                             onChange={(subcategory) =>
                                 updateMap({
                                     ...mapVisualization,
@@ -249,7 +243,6 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
             <fieldset className="ui-fieldset">
                 <legend>Legend</legend>
                 <TextField
-                    style={INPUT_MARGIN}
                     label="Custom Legend Tick Count"
                     type="number"
                     value={mapVisualization.legend_ticks ?? ''}
@@ -263,7 +256,6 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                     }}
                 />
                 <TextField
-                    style={INPUT_MARGIN}
                     label="Decimal places"
                     type="number"
                     value={mapVisualization.legend_decimals ?? mapVisualization.decimals}
