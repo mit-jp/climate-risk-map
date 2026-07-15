@@ -23,23 +23,15 @@
     background-color: rgb(234, 247, 232);
 }
 
+/* every field spans the form column so the page reads as one grid */
 .dataset-editor {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     gap: var(--ui-space-m);
 }
 
 .dataset-editor h3 {
     margin: 0;
-}
-
-.dataset-editor label {
-    display: block;
-}
-
-.dataset-editor label.column-label {
-    display: inline;
 }
 
 .delete-button {
@@ -55,8 +47,13 @@
     max-width: 600px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     gap: var(--ui-space-m);
+}
+
+/* buttons and checkboxes keep their natural width */
+#uploader form > button,
+#uploader form > :global(.ui-choice) {
+    align-self: flex-start;
 }
 
 #uploader h2 {
