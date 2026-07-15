@@ -1,5 +1,4 @@
-import { GitHub, Mail, RssFeed } from '@mui/icons-material'
-import { IconButton, Link } from '@mui/material'
+import { GitHub, Mail, RssFeed } from './ui'
 import css from './Footer.module.css'
 
 function Footer() {
@@ -11,40 +10,37 @@ function Footer() {
             </div>
             <ul id={css.social}>
                 <li>
-                    <IconButton
+                    <a
+                        className="ui-icon-button"
                         aria-label="rss"
-                        component={Link}
                         href="https://cs3.mit.edu/rss-feeds"
                         target="_blank"
                         rel="noopener noreferrer"
-                        size="large"
                     >
-                        <RssFeed fontSize="large" style={{ color: '#fff' }} />
-                    </IconButton>
+                        <RssFeed size={35} style={{ color: '#fff' }} />
+                    </a>
                 </li>
                 <li>
-                    <IconButton
+                    <a
+                        className="ui-icon-button"
                         aria-label="mail"
-                        component={Link}
                         href="http://eepurl.com/uV5Ur"
                         target="_blank"
                         rel="noopener noreferrer"
-                        size="large"
                     >
-                        <Mail fontSize="large" style={{ color: '#fff' }} />
-                    </IconButton>
+                        <Mail size={35} style={{ color: '#fff' }} />
+                    </a>
                 </li>
                 <li>
-                    <IconButton
+                    <a
+                        className="ui-icon-button"
                         aria-label="github"
-                        component={Link}
                         href="http://github.com/cypressf/climate-risk-map"
                         target="_blank"
                         rel="noopener noreferrer"
-                        size="large"
                     >
-                        <GitHub fontSize="large" style={{ color: '#fff' }} />
-                    </IconButton>
+                        <GitHub size={35} style={{ color: '#fff' }} />
+                    </a>
                 </li>
             </ul>
             <ul id={css.navigation}>

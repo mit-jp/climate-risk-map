@@ -1,28 +1,11 @@
-import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
-import { ExpandMore } from '@mui/icons-material'
+import { Accordion } from './ui'
 import css from './DataDescription.module.css'
 
 function DataDescription({ name, description }: { name: string; description: string }) {
     return (
         <div className={css.dataDescription}>
-            <Accordion
-                sx={{
-                    width: 'fit-content',
-                }}
-            >
-                <AccordionSummary
-                    expandIcon={<ExpandMore />}
-                    sx={{
-                        backgroundColor: 'rgb(238, 238, 238)',
-                        fontWeight: '400',
-                        minHeight: '40px',
-                    }}
-                >
-                    About the {name} data
-                </AccordionSummary>
-                <AccordionDetails>
-                    <p>{description}</p>
-                </AccordionDetails>
+            <Accordion summary={`About the ${name} data`} style={{ width: 'fit-content' }}>
+                <p className={css.description}>{description}</p>
             </Accordion>
         </div>
     )

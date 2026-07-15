@@ -1,22 +1,7 @@
-import { HelpOutline } from '@mui/icons-material'
-import {
-    Button,
-    Checkbox,
-    FormControl,
-    FormControlLabel,
-    IconButton,
-    InputLabel,
-    MenuItem,
-    Popover,
-    Select,
-    Switch,
-    Tooltip,
-    Typography,
-} from '@mui/material'
 import { csvFormat } from 'd3'
 import { saveAs } from 'file-saver'
 import { Map } from 'immutable'
-import { Fragment, useState } from 'react'
+import { Fragment } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import COUNTIES from './Counties'
@@ -40,6 +25,7 @@ import {
     stateId,
 } from './appSlice'
 import { RootState } from './store'
+import { Button, HelpOutline, Select, Tooltip } from './ui'
 
 const getFilename = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
     const unitString = getLegendTitle(selectedMaps, isNormalized)
@@ -61,50 +47,40 @@ function OverlaySubControl({ name }: { name: OverlayName }) {
     const transmissionLineType = useSelector((state: RootState) => state.app.transmissionLineType)
     if (name === 'Transmission lines') {
         return (
-            <FormControl>
-                <InputLabel shrink className={css.overlayOptionsLabel} id="transmission-lines-type">
-                    Type
-                </InputLabel>
-                <Select
-                    labelId="transmission-lines-type"
-                    value={transmissionLineType}
-                    className={css.overlayOptions}
-                    onChange={(event) =>
-                        dispatch(
-                            setTransmissionLineType(event.target.value as TransmissionLineType)
-                        )
-                    }
-                >
-                    {transmissionLinesTypes.map((value) => (
-                        <MenuItem key={value} value={value}>
-                            {value}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
+            <Select
+                label="Type"
+                labelClassName={css.overlayOptionsLabel}
+                value={transmissionLineType}
+                className={css.overlayOptions}
+                onChange={(event) =>
+                    dispatch(setTransmissionLineType(event.target.value as TransmissionLineType))
+                }
+            >
+                {transmissionLinesTypes.map((value) => (
+                    <option key={value} value={value}>
+                        {value}
+                    </option>
+                ))}
+            </Select>
         )
     }
     if (name === 'Marine highways') {
         return (
-            <FormControl>
-                <InputLabel shrink className={css.overlayOptionsLabel} id="waterway-type">
-                    Tonnage
-                </InputLabel>
-                <Select
-                    labelId="waterway-type"
-                    value={waterwayValue}
-                    className={css.overlayOptions}
-                    onChange={(event) =>
-                        dispatch(setWaterwayValue(event.target.value as WaterwayValue))
-                    }
-                >
-                    {waterwayTypes.map(({ name, value }) => (
-                        <MenuItem key={value} value={value}>
-                            {name}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
+            <Select
+                label="Tonnage"
+                labelClassName={css.overlayOptionsLabel}
+                value={waterwayValue}
+                className={css.overlayOptions}
+                onChange={(event) =>
+                    dispatch(setWaterwayValue(event.target.value as WaterwayValue))
+                }
+            >
+                {waterwayTypes.map(({ name, value }) => (
+                    <option key={value} value={value}>
+                        {name}
+                    </option>
+                ))}
+            </Select>
         )
     }
     return null
@@ -117,23 +93,22 @@ function OverlayCheckBoxes({ overlays }: { overlays: Record<OverlayName, Overlay
         <>
             {Object.entries(overlays).map(([overlayName, overlay]) => (
                 <Fragment key={overlayName}>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                onChange={(_, value) =>
-                                    dispatch(
-                                        setShowOverlay({
-                                            name: overlayName as OverlayName,
-                                            shouldShow: value,
-                                        })
-                                    )
-                                }
-                                title={overlayName}
-                                color="primary"
-                            />
-                        }
-                        label={overlayName}
-                    />
+                    <label className="ui-choice">
+                        <input
+                            type="checkbox"
+                            className="ui-checkbox"
+                            onChange={(event) =>
+                                dispatch(
+                                    setShowOverlay({
+                                        name: overlayName as OverlayName,
+                                        shouldShow: event.target.checked,
+                                    })
+                                )
+                            }
+                            title={overlayName}
+                        />
+                        {overlayName}
+                    </label>
                     {overlay.shouldShow && <OverlaySubControl name={overlayName as OverlayName} />}
                 </Fragment>
             ))}
@@ -165,7 +140,6 @@ function MapControls({ data, isNormalized, maps }: Props) {
     const geographyType = maps[0]?.geography_type
     const region = REGION_FOR[geographyType]
     const params = useParams()
-    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
     const { tabId } = params
 
     const UsaCsv = (sortedData: Map<number, number> | undefined) => {
@@ -275,26 +249,22 @@ function MapControls({ data, isNormalized, maps }: Props) {
                             View report card for {COUNTIES.get(countyId)},{' '}
                             {states.get(stateId(countyId))}
                         </Button>
-                        <IconButton
-                            onClick={(event) => setAnchorEl(event.currentTarget)}
-                            size="small"
-                            id={css.reportCardTooltip}
-                        >
-                            <HelpOutline />
-                        </IconButton>
-                        <Popover
-                            open={Boolean(anchorEl)}
-                            anchorEl={anchorEl}
-                            onClose={() => setAnchorEl(null)}
-                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                            transformOrigin={{ vertical: 'top', horizontal: 'center' }}
-                        >
-                            <Typography sx={{ p: 2, maxWidth: 300 }}>
-                                Shows detailed county information including national and state
-                                percentiles for all metrics. Higher percentiles indicate higher
-                                risk.
-                            </Typography>
-                        </Popover>
+                        <details className="ui-popover" id={css.reportCardTooltip}>
+                            <summary
+                                className="ui-icon-button"
+                                aria-label="about the report card"
+                                role="button"
+                            >
+                                <HelpOutline size={20} />
+                            </summary>
+                            <div className="ui-popover-content">
+                                <p>
+                                    Shows detailed county information including national and state
+                                    percentiles for all metrics. Higher percentiles indicate higher
+                                    risk.
+                                </p>
+                            </div>
+                        </details>
                     </div>
                 )}
             </div>
@@ -302,17 +272,18 @@ function MapControls({ data, isNormalized, maps }: Props) {
                 <div className={css.overlays} id="map-overlays">
                     {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
                     {isNormalized && data && (
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={detailedView}
-                                    onChange={(_, value) => dispatch(setDetailedView(value))}
-                                    name="detailed-view"
-                                    color="primary"
-                                />
-                            }
-                            label="Detailed View"
-                        />
+                        <label className="ui-choice">
+                            <input
+                                type="checkbox"
+                                className="ui-switch"
+                                checked={detailedView}
+                                onChange={(event) =>
+                                    dispatch(setDetailedView(event.target.checked))
+                                }
+                                name="detailed-view"
+                            />
+                            Detailed View
+                        </label>
                     )}
                 </div>
                 <div id="download-buttons">
@@ -327,7 +298,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
                         </Button>
                     )}
                     {data && (
-                        <Tooltip title="Google Chrome is recommended to download PNG images" arrow>
+                        <Tooltip tip="Google Chrome is recommended to download PNG images">
                             <Button variant="outlined" onClick={downloadImagePNG}>
                                 Download Image (PNG)
                             </Button>

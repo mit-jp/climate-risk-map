@@ -1,0 +1,360 @@
+/*
+ * A tiny, dependency-free design system.
+ * plain HTML elements styled by small CSS classes. The React components in
+ * this folder are thin wrappers that only add markup, never style logic.
+ */
+:root {
+    --ui-primary: #435e7c;
+    --ui-primary-light: #56779c;
+    --ui-secondary: #a5c2a6;
+    --ui-error: #b3261e;
+    --ui-error-light: #d3392f;
+    --ui-muted: #646464;
+    --ui-border: #c4cdd5;
+    --ui-bg-subtle: #eee;
+    --ui-radius: 4px;
+    --ui-shadow: 0 1px 4px rgb(0 0 0 / 0.25);
+}
+
+/* Buttons */
+.ui-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 6px 16px;
+    border-radius: var(--ui-radius);
+    border: 1px solid transparent;
+    background: none;
+    color: var(--ui-primary);
+    cursor: pointer;
+}
+.ui-button.outlined {
+    border-color: currentcolor;
+}
+.ui-button.outlined:hover {
+    background: rgb(67 94 124 / 0.08);
+}
+.ui-button.contained {
+    background: var(--ui-primary);
+    color: #fff;
+}
+.ui-button.contained:hover {
+    background: var(--ui-primary-light);
+}
+.ui-button.secondary {
+    background: var(--ui-secondary);
+    color: #1c3a1d;
+}
+.ui-button.error {
+    color: var(--ui-error);
+}
+.ui-button.error.contained {
+    background: var(--ui-error);
+    color: #fff;
+}
+.ui-button.error.contained:hover {
+    background: var(--ui-error-light);
+}
+.ui-button:disabled {
+    color: rgb(0 0 0 / 0.35);
+    background: rgb(0 0 0 / 0.08);
+    border-color: transparent;
+    cursor: default;
+}
+.ui-button.text:hover {
+    background: rgb(67 94 124 / 0.08);
+}
+
+.ui-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+}
+.ui-icon-button:hover {
+    background: rgb(0 0 0 / 0.08);
+}
+
+/* Form fields */
+.ui-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.ui-field-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ui-muted);
+}
+.ui-input,
+.ui-select {
+    font: inherit;
+    color: inherit;
+    padding: 8px 10px;
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius);
+    background: #fff;
+    min-width: 0;
+}
+.ui-input:hover,
+.ui-select:hover {
+    border-color: var(--ui-muted);
+}
+.ui-input:focus-visible,
+.ui-select:focus-visible {
+    outline: 2px solid var(--ui-primary);
+    outline-offset: 1px;
+}
+.ui-input:disabled,
+.ui-select:disabled {
+    background: var(--ui-bg-subtle);
+    color: var(--ui-muted);
+}
+.ui-full-width {
+    width: 100%;
+}
+.ui-fieldset {
+    border: none;
+    padding: 0;
+    margin: 1em 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.ui-fieldset > legend {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ui-muted);
+    padding: 0;
+    margin-bottom: 4px;
+}
+
+/* Checkboxes, radios, and sliders lean on the browser's own rendering */
+.ui-checkbox,
+.ui-radio,
+.ui-slider {
+    accent-color: var(--ui-primary);
+}
+.ui-checkbox,
+.ui-radio {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.ui-choice {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+.ui-slider {
+    cursor: pointer;
+}
+
+/* Switch: a restyled checkbox */
+.ui-switch {
+    appearance: none;
+    width: 38px;
+    height: 22px;
+    border-radius: 11px;
+    background: #9aa5b1;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+.ui-switch::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    transition: left 0.15s;
+}
+.ui-switch:checked {
+    background: var(--ui-primary);
+}
+.ui-switch:checked::before {
+    left: 19px;
+}
+
+/* Accordion: <details>/<summary> */
+.ui-accordion {
+    background: #fff;
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius);
+}
+.ui-accordion + .ui-accordion {
+    border-top: none;
+}
+.ui-accordion > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+    padding: 0.75em 1em;
+    cursor: pointer;
+    list-style: none;
+}
+.ui-accordion > summary::-webkit-details-marker {
+    display: none;
+}
+.ui-accordion > summary::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--ui-muted);
+    border-bottom: 2px solid var(--ui-muted);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+    margin-bottom: 2px;
+}
+.ui-accordion[open] > summary::after {
+    transform: rotate(-135deg);
+    margin-bottom: -4px;
+}
+
+/* Tooltip: pure CSS, content in a data-tip attribute */
+.ui-tooltip {
+    position: relative;
+}
+.ui-tooltip::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translate(-50%, -6px);
+    background: #222;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.4;
+    text-align: center;
+    padding: 8px 12px;
+    border-radius: var(--ui-radius);
+    width: max-content;
+    max-width: 300px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 10;
+}
+.ui-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #222;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 10;
+}
+.ui-tooltip:hover::after,
+.ui-tooltip:hover::before,
+.ui-tooltip:focus-within::after,
+.ui-tooltip:focus-within::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Popover: <details>/<summary>, toggles on click */
+.ui-popover {
+    position: relative;
+    display: inline-block;
+}
+.ui-popover > summary {
+    list-style: none;
+    cursor: pointer;
+    display: inline-flex;
+}
+.ui-popover > summary::-webkit-details-marker {
+    display: none;
+}
+.ui-popover-content {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 20;
+    background: #fff;
+    border-radius: var(--ui-radius);
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.3);
+    padding: 0 1em;
+    width: max-content;
+    max-width: 300px;
+}
+
+/* Combobox: text input with a filtered option list */
+.ui-combobox {
+    position: relative;
+}
+.ui-combobox-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    margin: 4px 0 0;
+    padding: 4px 0;
+    list-style: none;
+    background: #fff;
+    border-radius: var(--ui-radius);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.25);
+    max-height: 300px;
+    overflow: auto;
+}
+.ui-combobox-list li {
+    padding: 6px 12px;
+    cursor: pointer;
+}
+.ui-combobox-list li:hover,
+.ui-combobox-list li.ui-active {
+    background: var(--ui-bg-subtle);
+}
+
+/* Card */
+.ui-card {
+    background: #fff;
+    border: 1px solid var(--ui-border);
+    border-radius: var(--ui-radius);
+    box-shadow: var(--ui-shadow);
+    padding: 1em;
+}
+
+/* Spinner */
+.ui-spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgb(0 0 0 / 0.15);
+    border-top-color: currentcolor;
+    border-radius: 50%;
+    color: var(--ui-primary);
+    animation: ui-spin 0.8s linear infinite;
+}
+@keyframes ui-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+.ui-button .ui-spinner {
+    width: 1em;
+    height: 1em;
+    border-width: 2px;
+    color: inherit;
+}

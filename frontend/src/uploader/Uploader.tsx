@@ -1,4 +1,3 @@
-import { LoadingButton } from '@mui/lab'
 import Papa from 'papaparse'
 import React, { FormEvent, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,6 +8,7 @@ import {
     useGetGeographyTypesQuery,
     useUploadMutation,
 } from '../MapApi'
+import { Button } from '../ui'
 import CsvPreview from './CsvPreview'
 import MetadataForm from './MetadataForm'
 import UploadData, { FormData, uploadDataFromForm } from './UploadData'
@@ -215,14 +215,9 @@ function Uploader() {
                     />
                 )}
                 {metadata && dataSources && (
-                    <LoadingButton
-                        variant="contained"
-                        id={css.submit}
-                        type="submit"
-                        loading={isLoading}
-                    >
+                    <Button variant="contained" id={css.submit} type="submit" loading={isLoading}>
                         Submit
-                    </LoadingButton>
+                    </Button>
                 )}
                 {isSuccess && (
                     <div className={css.success}>

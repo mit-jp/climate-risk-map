@@ -1,5 +1,3 @@
-import { Info } from '@mui/icons-material'
-import { styled, Tooltip, tooltipClasses, TooltipProps } from '@mui/material'
 import { useDispatch, useSelector } from 'react-redux'
 import { clickMap, Region, stateId } from './appSlice'
 import COUNTIES from './Counties'
@@ -7,6 +5,7 @@ import css from './MapTitle.module.css'
 import { MapVisualization } from './MapVisualization'
 import states from './States'
 import { RootState } from './store'
+import { Info, Tooltip } from './ui'
 
 const getTitle = (selectedMaps: MapVisualization[]) => {
     if (selectedMaps.length > 1) {
@@ -38,18 +37,6 @@ type Props = {
     showStateLevelWarning: boolean
 }
 
-const BigTooltip = styled(({ className, ...props }: TooltipProps) => (
-    <Tooltip {...props} arrow placement="top" classes={{ popper: className }} />
-))(({ theme }) => ({
-    [`& .${tooltipClasses.arrow}`]: {
-        color: theme.palette.common.black,
-    },
-    [`& .${tooltipClasses.tooltip}`]: {
-        backgroundColor: theme.palette.common.black,
-        fontSize: theme.typography.fontSize,
-    },
-}))
-
 function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarning }: Props) {
     const zoomTo = useSelector((state: RootState) => state.app.zoomTo)
     const dispatch = useDispatch()
@@ -71,19 +58,15 @@ function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarni
             <h3 id={css.mapTitle}>
                 {getTitle(selectedMapVisualizations)}
                 {isNormalized && (
-                    <BigTooltip
-                        title="The normalized value is the percentile
-                of the raw data. If you select multiple data,
-                we take the mean of the ranked values."
-                    >
+                    <Tooltip tip="The normalized value is the percentile of the raw data. If you select multiple data, we take the mean of the ranked values.">
                         <Info
-                            sx={{
+                            style={{
                                 verticalAlign: 'middle',
                                 marginLeft: '8px',
                                 marginBottom: '3px',
                             }}
                         />
-                    </BigTooltip>
+                    </Tooltip>
                 )}
             </h3>
             <p id={css.mapSubtitle}>{getSubtitle(countyId, region)}</p>

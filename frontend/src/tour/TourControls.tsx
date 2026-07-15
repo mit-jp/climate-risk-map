@@ -1,4 +1,4 @@
-import { Button } from '@mui/material'
+import { Button } from '../ui'
 import css from './tour.module.css'
 
 type TourControlsProps = {

@@ -1,6 +1,6 @@
-import { MenuItem, Select } from '@mui/material'
 import { Interval } from 'luxon'
 import { Fragment } from 'react'
+import { Select } from './ui'
 import css from './SubSelector.module.css'
 
 type Props = {
@@ -28,9 +28,9 @@ function DropdownYearSelector({ years, selectedYear, onChange, id }: Props) {
                 id={id}
             >
                 {years.map((year) => (
-                    <MenuItem key={year.toISODate()} value={year.toISODate()}>
+                    <option key={year.toISODate()} value={year.toISODate()}>
                         {readable(year)}
-                    </MenuItem>
+                    </option>
                 ))}
             </Select>
         </div>

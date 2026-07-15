@@ -1,5 +1,5 @@
-import { Button } from '@mui/material'
 import { useDispatch } from 'react-redux'
+import { Button } from '../ui'
 import css from './tour.module.css'
 import { setTourActive } from '../appSlice'
 

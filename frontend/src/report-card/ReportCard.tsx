@@ -1,4 +1,3 @@
-import { Autocomplete, TextField, Checkbox } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { redBlueReportCard } from '../Color'
@@ -13,6 +12,7 @@ import {
     useGetTabsQuery,
 } from '../MapApi'
 import { stateId } from '../appSlice'
+import { Combobox } from '../ui'
 import css from './ReportCard.module.css'
 
 let showStatePercentiles = false
@@ -166,26 +166,29 @@ export default function ReportCard() {
                     categoryId !== undefined &&
                     `: ${categories[categoryId]?.name ?? ''}`}
             </h1>
-            <Autocomplete
-                id={css.countyAutocomplete}
-                loading={countyList.length === 0 && !states}
+            <Combobox
+                label="County"
                 options={countyList}
-                getOptionLabel={(county) =>
+                getLabel={(county) =>
                     `${county.name}, ${states ? states[stateId(county.id)].name : ''}`
                 }
-                renderInput={(p) => <TextField {...p} label="County" />}
-                onChange={(_, county) => {
-                    if (county) {
-                        navigate(`/report-card/${categoryId}/${fipsCode(county)}`, {
-                            replace: true,
-                        })
-                    }
+                onChange={(county) => {
+                    navigate(`/report-card/${categoryId}/${fipsCode(county)}`, {
+                        replace: true,
+                    })
                 }}
                 value={selectedRegion}
             />
             <div id={css.statePercentileCheckbox}>
-                <Checkbox checked={checked} onChange={handleChange} />
-                Display state-level percentile data
+                <label className="ui-choice">
+                    <input
+                        type="checkbox"
+                        className="ui-checkbox"
+                        checked={checked}
+                        onChange={handleChange}
+                    />
+                    Display state-level percentile data
+                </label>
             </div>
             {selectedRegion && states && categoryId !== undefined && (
                 <PercentileReport

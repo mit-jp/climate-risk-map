@@ -99,6 +99,13 @@
             "rules": {
                 "import/no-extraneous-dependencies": ["error", { "devDependencies": true }]
             }
+        },
+        {
+            // design-system wrappers exist to forward props to native elements
+            "files": ["src/ui/**"],
+            "rules": {
+                "react/jsx-props-no-spreading": "off"
+            }
         }
     ]
 }

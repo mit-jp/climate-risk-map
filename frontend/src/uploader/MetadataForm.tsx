@@ -1,15 +1,7 @@
-import {
-    Autocomplete,
-    Button,
-    Checkbox,
-    FormControlLabel,
-    MenuItem,
-    Select,
-    TextField,
-} from '@mui/material'
 import { useDispatch } from 'react-redux'
 import { GeographyType } from '../MapApi'
 import { DataSource } from '../MapVisualization'
+import { Button, Combobox, Select } from '../ui'
 import DatasetEditor from './DatasetEditor'
 import NewSourceInput from './NewSourceInput'
 import { FormData } from './UploadData'
@@ -72,9 +64,9 @@ export default function MetadataForm({
                 value={geographyType}
             >
                 {geographyTypes.map((type) => (
-                    <MenuItem value={type.id} key={type.id}>
+                    <option value={type.id} key={type.id}>
                         {type.name}
-                    </MenuItem>
+                    </option>
                 ))}
             </Select>
             <Select
@@ -84,9 +76,9 @@ export default function MetadataForm({
                 value={idColumn}
             >
                 {columns.map((column) => (
-                    <MenuItem value={column} key={column}>
+                    <option value={column} key={column}>
                         {column}
-                    </MenuItem>
+                    </option>
                 ))}
             </Select>
 
@@ -100,37 +92,36 @@ export default function MetadataForm({
                 value={dateColumn}
             >
                 {columns.map((column) => (
-                    <MenuItem value={column} key={column}>
+                    <option value={column} key={column}>
                         {column}
-                    </MenuItem>
+                    </option>
                 ))}
             </Select>
 
             <h2>Source</h2>
-            <FormControlLabel
-                control={
-                    <Checkbox
-                        name="Use Existing Source"
-                        value={'id' in source}
-                        onChange={(_, value) =>
-                            dispatch(toggleExistingSource(value ? dataSources[0] : undefined))
-                        }
-                    />
-                }
-                label="Use Existing Source"
-            />
+            <label className="ui-choice">
+                <input
+                    type="checkbox"
+                    className="ui-checkbox"
+                    name="Use Existing Source"
+                    checked={'id' in source}
+                    onChange={(event) =>
+                        dispatch(
+                            toggleExistingSource(event.target.checked ? dataSources[0] : undefined)
+                        )
+                    }
+                />
+                Use Existing Source
+            </label>
 
             {'id' in source && (
-                <Autocomplete
-                    sx={INPUT_MARGIN}
+                <Combobox
+                    label="Name"
+                    style={INPUT_MARGIN}
                     value={source}
-                    getOptionLabel={(option) => option.name}
-                    isOptionEqualToValue={(option, value) => option.id === value.id}
-                    onChange={(_, value) => {
-                        if (value) dispatch(setExistingSource(value))
-                    }}
+                    getLabel={(option) => option.name}
+                    onChange={(value) => dispatch(setExistingSource(value))}
                     options={dataSources}
-                    renderInput={(params) => <TextField {...params} label="Name" />}
                 />
             )}
             {!('id' in source) && <NewSourceInput source={source} />}

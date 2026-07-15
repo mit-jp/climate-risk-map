@@ -2,6 +2,11 @@
     margin: 1em;
 }
 
-.data-description button.shown {
-    color: #fbfbfb;
+.data-description summary {
+    background: #eee;
+}
+
+.description {
+    padding: 0 1em;
+    max-width: 70ch;
 }

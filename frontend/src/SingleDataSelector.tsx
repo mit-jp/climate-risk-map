@@ -1,5 +1,3 @@
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { Accordion, AccordionDetails, AccordionSummary } from '@mui/material'
 import { ChangeEvent } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import css from './DataSelector.module.css'
@@ -8,6 +6,7 @@ import { MapVisualization, MapVisualizationId, GeographyType } from './MapVisual
 import YearSelector, { readable } from './YearSelector'
 import { changeDataSource, changeDateRange, changeMapSelection, selectSelections } from './appSlice'
 import { RootState } from './store'
+import { Accordion } from './ui'
 import { useGetSubcategoriesQuery } from './MapApi'
 
 function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisualization> }) {
@@ -99,17 +98,11 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
                 subcategories
                     .filter((subcategory) => !isEmpty(subcategory.id))
                     .map((subcategory) => (
-                        <Accordion key={subcategory.id} defaultExpanded={false}>
-                            <AccordionSummary
-                                aria-controls={`subcategory-${subcategory.id}-content`}
-                                id={`subcategory-${subcategory.id}-header`}
-                                expandIcon={<ExpandMoreIcon />}
-                            >
-                                <div className={css.subcategoryTitle}>{subcategory.name}</div>
-                            </AccordionSummary>
-                            <AccordionDetails style={{ padding: 0 }}>
-                                {getDataList((map) => map.subcategory === subcategory.id)}
-                            </AccordionDetails>
+                        <Accordion
+                            key={subcategory.id}
+                            summary={<div className={css.subcategoryTitle}>{subcategory.name}</div>}
+                        >
+                            {getDataList((map) => map.subcategory === subcategory.id)}
                         </Accordion>
                     ))}
             {getDataList((map) => map.subcategory == null)}
