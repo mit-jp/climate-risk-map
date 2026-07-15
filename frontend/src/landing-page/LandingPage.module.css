@@ -1,16 +1,12 @@
 .page {
     min-height: calc(100vh - 0px);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     padding: 4rem 1.5rem 5rem;
     background: radial-gradient(circle at top left, rgba(67, 94, 124, 0.14), transparent 40%),
         radial-gradient(circle at bottom right, rgba(165, 194, 166, 0.25), transparent 35%),
         linear-gradient(180deg, #f7f9fb 0%, #eef3f7 100%);
-}
-
-.faqPage {
-    align-items: flex-start;
 }
 
 .container {

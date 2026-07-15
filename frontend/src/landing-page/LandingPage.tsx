@@ -12,12 +12,13 @@ function LandingPage() {
             <main className={css.page}>
                 <Container maxWidth="md" className={css.container}>
                     <Typography variant="h2" component="h1" className={css.title}>
-                        [lorem ipsum dolor sit ametc]
+                        Welcome to the STRESS Platform!
                     </Typography>
                     <Typography variant="h6" component="p" className={css.subtitle}>
-                        [lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-                        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                        quis nostrud]
+                        STRESS is a web-based platform that allows users to explore and visualize
+                        the relative risk of climate change impacts across the United States. To
+                        learn more, feel free to explore using the tabs above! Otherwise, click the
+                        button below to launch STRESS!
                     </Typography>
                     <Button
                         component={RouterLink}
