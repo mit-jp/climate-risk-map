@@ -49,7 +49,6 @@ function OverlaySubControl({ name }: { name: OverlayName }) {
         return (
             <Select
                 label="Type"
-                labelClassName={css.overlayOptionsLabel}
                 value={transmissionLineType}
                 className={css.overlayOptions}
                 onChange={(event) =>
@@ -68,7 +67,6 @@ function OverlaySubControl({ name }: { name: OverlayName }) {
         return (
             <Select
                 label="Tonnage"
-                labelClassName={css.overlayOptionsLabel}
                 value={waterwayValue}
                 className={css.overlayOptions}
                 onChange={(event) =>

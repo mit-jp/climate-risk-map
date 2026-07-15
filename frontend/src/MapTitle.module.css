@@ -1,32 +1,30 @@
 #map-title,
 #no-metric-title {
     font-weight: 400;
-    font-size: 25px;
-    line-height: 48px;
+    font-size: 1.5rem;
+    line-height: 2;
     margin: 15px 0 0 60px;
     width: 82%;
     text-align: center;
 }
 
 .zoom-out-button {
-    width: 100px;
-    height: 30px;
-    border-radius: 4px;
-    font-size: 16px;
-    font-weight: 800;
-    background-color: hsl(215, 22%, 82%);
-    color: black;
-    border: 1px solid black;
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: var(--ui-radius);
+    border: 1px solid var(--ui-primary);
+    background: #fff;
+    color: var(--ui-primary);
     cursor: pointer;
-    transition: background-color 0.2s ease;
     position: absolute;
     left: 20px;
     top: 9px;
 }
 
 .zoom-out-button:hover {
-    background-color: rgb(73, 93, 121);
-    color: white;
+    background: var(--ui-tint);
 }
 
 .mapTitleContainer {

@@ -37,7 +37,7 @@ const checkBox = (
             <label
                 id={map.id.toString()}
                 className="ui-choice"
-                style={{ width: '100%', padding: '0.5em 0' }}
+                style={{ width: '100%', padding: '10px 0' }}
             >
                 <input
                     type="checkbox"

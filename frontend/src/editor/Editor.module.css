@@ -47,7 +47,10 @@
 
 .publish-link {
     display: inline-block;
-    padding: 1em;
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: var(--ui-radius);
     color: inherit;
     background-color: #fff6d0;
     text-decoration: none;
@@ -59,10 +62,13 @@
 
 .delete-tab {
     font: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
     border: none;
+    border-radius: var(--ui-radius);
     display: inline-block;
-    padding: 1em;
-    color: inherit;
+    padding: 8px 16px;
+    color: var(--ui-error);
     background-color: #f7d7d7;
     cursor: pointer;
 }

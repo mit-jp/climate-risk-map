@@ -12,20 +12,26 @@
     --ui-muted: #646464;
     --ui-border: #c4cdd5;
     --ui-bg-subtle: #eee;
+    --ui-bg-hover: #f2f5f8;
+    --ui-tint: rgb(67 94 124 / 0.08);
     --ui-radius: 4px;
     --ui-shadow: 0 1px 4px rgb(0 0 0 / 0.25);
+    /* type scale: 1rem content, 0.875rem controls, 0.75rem labels */
+    --ui-font-control: 0.875rem;
+    --ui-font-label: 0.75rem;
 }
 
-/* Buttons */
+/* Buttons: 36px tall, matching inputs and selects */
 .ui-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     font: inherit;
-    font-size: 0.875rem;
+    font-size: var(--ui-font-control);
     font-weight: 500;
-    padding: 6px 16px;
+    line-height: 1.25;
+    padding: 8px 16px;
     border-radius: var(--ui-radius);
     border: 1px solid transparent;
     background: none;
@@ -36,7 +42,7 @@
     border-color: currentcolor;
 }
 .ui-button.outlined:hover {
-    background: rgb(67 94 124 / 0.08);
+    background: var(--ui-tint);
 }
 .ui-button.contained {
     background: var(--ui-primary);
@@ -66,7 +72,7 @@
     cursor: default;
 }
 .ui-button.text:hover {
-    background: rgb(67 94 124 / 0.08);
+    background: var(--ui-tint);
 }
 
 .ui-icon-button {
@@ -91,15 +97,17 @@
     gap: 4px;
 }
 .ui-field-label {
-    font-size: 0.75rem;
+    font-size: var(--ui-font-label);
     font-weight: 600;
     color: var(--ui-muted);
 }
 .ui-input,
 .ui-select {
     font: inherit;
+    font-size: var(--ui-font-control);
+    line-height: 1.25;
     color: inherit;
-    padding: 8px 10px;
+    padding: 8px 12px;
     border: 1px solid var(--ui-border);
     border-radius: var(--ui-radius);
     background: #fff;
@@ -131,7 +139,7 @@
     gap: 6px;
 }
 .ui-fieldset > legend {
-    font-size: 0.75rem;
+    font-size: var(--ui-font-label);
     font-weight: 600;
     color: var(--ui-muted);
     padding: 0;
@@ -319,12 +327,13 @@
     overflow: auto;
 }
 .ui-combobox-list li {
-    padding: 6px 12px;
+    padding: 8px 12px;
+    font-size: var(--ui-font-control);
     cursor: pointer;
 }
 .ui-combobox-list li:hover,
 .ui-combobox-list li.ui-active {
-    background: var(--ui-bg-subtle);
+    background: var(--ui-bg-hover);
 }
 
 /* Card */

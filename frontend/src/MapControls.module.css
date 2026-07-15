@@ -1,33 +1,29 @@
 #map-controls {
-    margin-left: 1em;
+    margin: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-#map-controls button {
-    margin-right: 1em;
-}
-
-.overlay-options {
-    margin-top: 4px;
-    margin-right: 1em;
-    height: 35px;
-}
-
-.overlay-options-label {
-    margin-top: 5px;
-    margin-left: -5px;
-    background: white;
+#map-controls > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 20px;
 }
 
 .overlays {
-    margin-top: 10px;
+    font-size: 0.875rem;
+}
+
+.overlay-options {
+    max-width: 220px;
 }
 
 #report-card-button {
     background-color: hsl(59, 82%, 82%);
     color: black;
-    text-transform: none;
-    font-weight: 700;
-    font-size: 16px;
+    font-weight: 600;
 }
 
 #report-card-button:hover {
@@ -43,5 +39,5 @@
 }
 
 #report-card-tooltip {
-    margin-left: 5px;
+    margin-left: 4px;
 }
