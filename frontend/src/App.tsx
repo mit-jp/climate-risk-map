@@ -6,12 +6,14 @@ import Editor from './editor/Editor'
 import LandingPage from './landing-page/LandingPage'
 import ReportCard from './report-card/ReportCard'
 import Uploader from './uploader/Uploader'
+import FAQ from './landing-page/FAQ'
 
 function App() {
     return (
         <Router>
             <Routes>
                 <Route path="/landing-page" element={<LandingPage />} />
+                <Route path="/faq" element={<FAQ />} />
                 <Route path="/uploader" element={<Uploader />} />
                 <Route path="/editor" element={<Editor />} />
                 <Route path="/report-card/:category" element={<ReportCard />} />

@@ -11,9 +11,6 @@ function LandingPage() {
             <LandingPageNavbar />
             <main className={css.page}>
                 <Container maxWidth="md" className={css.container}>
-                    <Typography variant="overline" className={css.kicker}>
-                        STRESS Platform
-                    </Typography>
                     <Typography variant="h2" component="h1" className={css.title}>
                         [lorem ipsum dolor sit ametc]
                     </Typography>
