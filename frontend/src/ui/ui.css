@@ -216,6 +216,9 @@ nav {
     overflow-x: auto;
     scrollbar-width: thin;
     border-bottom: 3px solid var(--primary);
+    /* an empty nav holds one tab row of height (line + padding + border)
+       so the page doesn't jump when tabs load in */
+    min-height: calc(1.25em + 2 * var(--size-4xs) + 1px);
 }
 nav a {
     flex-shrink: 0;
