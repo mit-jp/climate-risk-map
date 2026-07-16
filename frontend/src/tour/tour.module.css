@@ -1,4 +1,8 @@
+/* the highlight ring doubles as the popup's anchor: it is a regular CSS
+   box even when the tour targets SVG internals the popup couldn't anchor
+   to directly */
 .tour-highlight {
+    anchor-name: --tour-anchor;
     border: 3px solid #000000;
     border-radius: var(--radius);
     z-index: 10001;
@@ -6,13 +10,45 @@
     box-shadow: 0 0 0 1000vmax rgba(0, 0, 0, 0.6);
 }
 
+/* the popup anchors itself next to the highlighted element and sizes to
+   its content; position-try flips it to whichever side fits */
 .tourPopup {
     position: fixed;
-    transform: translateX(-24%);
+    position-anchor: --tour-anchor;
+    position-area: block-end;
+    /* try the other sides of the target, and when nothing fits (e.g. the
+       target is the whole map) center the popup over it */
+    position-try-fallbacks:
+        flip-block,
+        flip-inline,
+        flip-block flip-inline,
+        --tour-popup-center;
+    margin: var(--size-m);
+    width: min(32em, calc(100vw - 2 * var(--size-m)));
     background: white;
     border-radius: var(--radius);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     z-index: 10002;
+}
+
+@position-try --tour-popup-center {
+    position-area: center;
+}
+
+/* centered in the viewport: for steps whose target is missing, and for
+   browsers without CSS anchor positioning */
+.centered {
+    position-area: none;
+    position-try-fallbacks: none;
+    inset: 50% auto auto 50%;
+    translate: -50% -50%;
+}
+
+@supports not (anchor-name: --tour-anchor) {
+    .tourPopup {
+        inset: 50% auto auto 50%;
+        translate: -50% -50%;
+    }
 }
 
 .popupContent {
@@ -37,22 +73,16 @@
     margin-bottom: var(--size-m);
 }
 
+/* the controls live inside the popup card, below the description */
 .tourControls {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    border-top: 1px solid var(--border);
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    z-index: 10003; /* Above everything else */
-}
-
-.controlsContent {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    padding: var(--size-m) var(--size-5xl);
+    gap: var(--size-4xs) var(--size-m);
+    margin-top: var(--size-m);
+    padding-top: var(--size-m);
+    border-top: 1px solid var(--border);
 }
 
 .progressText {

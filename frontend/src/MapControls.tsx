@@ -1,7 +1,6 @@
 import { csvFormat } from 'd3'
 import { saveAs } from 'file-saver'
 import { Map } from 'immutable'
-import { Fragment } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import COUNTIES from './Counties'
@@ -25,7 +24,8 @@ import {
     stateId,
 } from './appSlice'
 import { RootState } from './store'
-import { Button, HelpOutline, Select, Tooltip } from './ui'
+import TOUR_TARGET from './tour/tourTargets'
+import { Button, HelpOutline, Select } from './ui'
 
 const getFilename = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
     const unitString = getLegendTitle(selectedMaps, isNormalized)
@@ -90,7 +90,7 @@ function OverlayCheckBoxes({ overlays }: { overlays: Record<OverlayName, Overlay
     return (
         <>
             {Object.entries(overlays).map(([overlayName, overlay]) => (
-                <Fragment key={overlayName}>
+                <div key={overlayName} className={css.overlay}>
                     <label>
                         <input
                             type="checkbox"
@@ -107,7 +107,7 @@ function OverlayCheckBoxes({ overlays }: { overlays: Record<OverlayName, Overlay
                         {overlayName}
                     </label>
                     {overlay.shouldShow && <OverlaySubControl name={overlayName as OverlayName} />}
-                </Fragment>
+                </div>
             ))}
         </>
     )
@@ -132,6 +132,9 @@ function MapControls({ data, isNormalized, maps }: Props) {
     const dispatch = useDispatch()
     const overlays = useSelector((state: RootState) => state.app.overlays)
     const detailedView = useSelector((state: RootState) => state.app.detailedView)
+    const activeOverlayCount = Object.values(overlays).filter(
+        (overlay) => overlay.shouldShow
+    ).length
 
     const countyId = useSelector((state: RootState) => state.app.county)
     const geographyType = maps[0]?.geography_type
@@ -197,7 +200,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
     }
 
     const downloadImageSVG = () => {
-        const svg = document.getElementById('map-svg')
+        const svg = document.getElementById(TOUR_TARGET.map)
         if (svg?.outerHTML) {
             const blob = new Blob([svg.outerHTML], { type: 'text/plain' })
             saveAs(blob, `${getFilename(maps, isNormalized)}.svg`)
@@ -205,7 +208,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
     }
 
     const downloadImagePNG = () => {
-        const svg = document.getElementById('map-svg')
+        const svg = document.getElementById(TOUR_TARGET.map)
         if (svg?.outerHTML) {
             const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml;charset=utf-8' })
             const DOMURL = window.URL || window.webkitURL || window
@@ -237,7 +240,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
         <>
             <div id={css.countyControls}>
                 {countyId && (
-                    <div id="report-card-div">
+                    <div id={TOUR_TARGET.reportCard}>
                         <Button
                             id={css.reportCardButton}
                             variant="outlined"
@@ -266,42 +269,68 @@ function MapControls({ data, isNormalized, maps }: Props) {
                 )}
             </div>
             <div id={css.mapControls}>
-                <div className={css.overlays} id="map-overlays">
-                    {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
-                    {isNormalized && data && (
-                        <label>
-                            <input
-                                type="checkbox"
-                                className="ui-switch"
-                                checked={detailedView}
-                                onChange={(event) =>
-                                    dispatch(setDetailedView(event.target.checked))
-                                }
-                                name="detailed-view"
-                            />
-                            Detailed View
-                        </label>
-                    )}
-                </div>
-                <div id="download-buttons">
-                    {data && (
-                        <Button variant="outlined" onClick={downloadData}>
-                            Download Data
+                {region === 'USA' && (
+                    <>
+                        <Button
+                            variant="outlined"
+                            id={TOUR_TARGET.overlays}
+                            popovertarget="map-layers-panel"
+                        >
+                            Map layers
+                            {activeOverlayCount > 0 && ` · ${activeOverlayCount}`} ▾
                         </Button>
-                    )}
-                    {data && (
-                        <Button variant="outlined" onClick={downloadImageSVG}>
-                            Download Image (SVG)
+                        <div id="map-layers-panel" popover="auto">
+                            <OverlayCheckBoxes overlays={overlays} />
+                        </div>
+                    </>
+                )}
+                {isNormalized && data && (
+                    <label>
+                        <input
+                            type="checkbox"
+                            className="ui-switch"
+                            checked={detailedView}
+                            onChange={(event) => dispatch(setDetailedView(event.target.checked))}
+                            name="detailed-view"
+                        />
+                        Detailed View
+                    </label>
+                )}
+                {data && (
+                    <>
+                        <Button
+                            variant="outlined"
+                            className={css.downloadButton}
+                            id={TOUR_TARGET.downloads}
+                            popovertarget="download-panel"
+                        >
+                            Download ▾
                         </Button>
-                    )}
-                    {data && (
-                        <Tooltip tip="Google Chrome is recommended to download PNG images">
-                            <Button variant="outlined" onClick={downloadImagePNG}>
-                                Download Image (PNG)
+                        <div id="download-panel" popover="auto">
+                            <Button
+                                onClick={downloadData}
+                                popovertarget="download-panel"
+                                popovertargetaction="hide"
+                            >
+                                Data (CSV)
                             </Button>
-                        </Tooltip>
-                    )}
-                </div>
+                            <Button
+                                onClick={downloadImageSVG}
+                                popovertarget="download-panel"
+                                popovertargetaction="hide"
+                            >
+                                Image (SVG)
+                            </Button>
+                            <Button
+                                onClick={downloadImagePNG}
+                                popovertarget="download-panel"
+                                popovertargetaction="hide"
+                            >
+                                Image (PNG)
+                            </Button>
+                        </div>
+                    </>
+                )}
             </div>
         </>
     )

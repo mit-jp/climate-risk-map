@@ -1,15 +1,19 @@
 #map-controls {
     margin: 0 var(--size-m);
     display: flex;
-    flex-direction: column;
-    gap: var(--size-m);
-}
-
-#map-controls > div {
-    display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--size-4xs) var(--size-5xl);
+    gap: var(--size-4xs) var(--size-m);
+}
+
+.download-button {
+    margin-left: auto;
+}
+
+/* each overlay keeps its sub-control directly below its checkbox,
+   indented past the checkbox so it reads as its child */
+.overlay > label:has(select) {
+    margin-left: calc(1.125em + var(--size-4xs));
 }
 
 .overlay-options {
@@ -32,6 +36,11 @@
     justify-content: center;
     align-items: center;
     margin-top: var(--size-m);
+}
+
+/* no stray space when no county is selected */
+#county-controls:empty {
+    margin: 0;
 }
 
 #report-card-tooltip {

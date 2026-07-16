@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { Tab } from './MapApi'
 import css from './Navigation.module.css'
 import { isDrafts } from './editor/Editor'
+import TOUR_TARGET from './tour/tourTargets'
 
 function Navigation({
     tabs,
@@ -34,7 +35,7 @@ function Navigation({
     }, [selectedTabId])
 
     return (
-        <nav ref={nav} id="navdiv">
+        <nav ref={nav} id={TOUR_TARGET.navigation}>
             {tabs.map((tab) => (
                 <Link
                     key={tab.id}

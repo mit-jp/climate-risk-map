@@ -87,10 +87,10 @@ test('It shows header and loads data selector', async () => {
         </MemoryRouter>
     )
     expect(screen.getByRole('heading', { level: 1, name: /STRESS/i })).toBeInTheDocument()
-    // map title, data selector, and description expander all have the same text
+    // map title and data selector have the same text
     expect(
         await screen.findAllByText(/Exposure to airborne particulate matter/i, undefined, {
             timeout: 20_000,
         })
-    ).toHaveLength(3)
+    ).toHaveLength(2)
 }, 20_000)

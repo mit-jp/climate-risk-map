@@ -16,6 +16,11 @@
     },
     "rules": {
         "prettier/prettier": ["error"],
+        // the native Popover API attributes are newer than eslint-plugin-react's list
+        "react/no-unknown-property": [
+            "error",
+            { "ignore": ["popover", "popovertarget", "popovertargetaction"] }
+        ],
         "react-hooks/exhaustive-deps": "warn",
         "react-hooks/rules-of-hooks": "error",
         "react/jsx-filename-extension": [1, { "extensions": [".ts", ".tsx"] }],

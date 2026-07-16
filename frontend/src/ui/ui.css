@@ -27,6 +27,7 @@
        font-size, padding, margin, and gap. Sizes compound —
        never set a font-size on an element nested inside another font-size
        increase. */
+    --size-5xs: 0.25em; /* 4px */
     --size-4xs: 0.5em; /* 8px */
     --size-2xs: 0.75em; /* 12px */
     --size-s: 0.9375em; /* 15px */
@@ -166,11 +167,13 @@ input:where([type='checkbox'], [type='radio']) {
     flex-shrink: 0;
 }
 
-/* A label wrapping a checkbox or radio lays out as a row… */
+/* A label wrapping a checkbox or radio lays out as a row, with a little
+   vertical padding so it has a comfortable tap target. */
 label:has(> input[type='checkbox'], > input[type='radio']) {
     display: inline-flex;
     align-items: center;
     gap: var(--size-4xs);
+    padding-block: var(--size-5xs);
     cursor: pointer;
 }
 
@@ -427,6 +430,43 @@ details[open] > summary::after {
 [data-tip]:focus-within::before {
     opacity: 1;
     visibility: visible;
+}
+
+/* Native popovers: pair a button[popovertarget="id"] with a [popover]
+   panel of the same id — toggling, Esc, and click-outside dismissal are
+   all built in. */
+[popover] {
+    border: none;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.3);
+    padding: var(--size-m);
+    width: max-content;
+    max-width: var(--popover-width);
+}
+
+/* A popover of bare buttons is a menu: tight padding, and each button
+   fills its own row */
+[popover]:has(> button) {
+    padding: var(--size-4xs);
+}
+[popover] > button {
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+/* The invoking button is the panel's implicit anchor, so the panel opens
+   below it with no wiring, flipping to whichever side fits. A panel opened
+   from JS instead of a [popovertarget] button has no anchor and must
+   position itself. Browsers without anchor positioning (and jsdom) skip
+   this and show the popover centered. */
+@supports (anchor-name: --anything) {
+    [popover] {
+        inset: auto;
+        position-area: block-end span-inline-end;
+        position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+        margin: var(--size-5xs) 0;
+    }
 }
 
 /* Popover: a <details> that floats its content instead of expanding */

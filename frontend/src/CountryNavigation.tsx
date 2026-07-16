@@ -5,6 +5,7 @@ import { isGeographyType } from './MapVisualization'
 import css from './Navigation.module.css'
 import { Region, REGION_FOR, selectRegion } from './appSlice'
 import { RootState } from './store'
+import TOUR_TARGET from './tour/tourTargets'
 import { Select } from './ui'
 
 export default function RegionNavigation() {
@@ -22,7 +23,7 @@ export default function RegionNavigation() {
     }
 
     return (
-        <nav className={css.regionNav} id="region-selector">
+        <nav className={css.regionNav} id={TOUR_TARGET.regionSelector}>
             <Select
                 label="Region"
                 value={region}
