@@ -24,8 +24,8 @@
 
 .subtitle {
     color: #3c5166;
-    max-width: 42rem;
     margin-bottom: 2rem;
+    padding: 0 0 1rem 0;
 }
 
 .faqList {
@@ -35,6 +35,24 @@
 
 .accordion {
     border-radius: 10px !important;
+}
+
+.rolesList {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2rem;
+}
+
+.roleItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.roleLabel {
+    margin-top: 0.75rem;
+    font-size: 1.3rem !important;
 }
 
 @media (max-width: 600px) {
