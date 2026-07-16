@@ -1,18 +1,16 @@
-/* the left offset and reduced width keep the titles centered next to the
-   absolutely-positioned zoom-out button */
 #map-title {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: var(--size-4xs);
-    margin: var(--size-m) 0 0 3.75em;
-    width: 82%;
+    margin-top: var(--size-m);
+    padding-inline: var(--size-m);
 }
 
 #map-title h3 {
     font-weight: 400;
     font-size: 1.5em;
-    line-height: 2;
+    line-height: 1.25;
     margin: 0;
     text-align: center;
 }
@@ -20,9 +18,7 @@
 #no-metric-title {
     font-weight: 400;
     font-size: 1.5em;
-    line-height: 2;
-    margin: var(--size-m) 0 0 2.5em;
-    width: 82%;
+    margin: var(--size-m) 0;
     text-align: center;
 }
 
@@ -30,16 +26,21 @@
     display: block;
 }
 
-.zoom-out-button {
-    border-color: currentcolor;
-    background: #fff;
-    position: absolute;
-    left: var(--size-m);
-    top: var(--size-4xs);
+/* one centered row under the title: the place name, or the report card
+   button when a county is selected */
+.subtitle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--size-4xs);
+    margin: 0 0 var(--size-m);
 }
 
-.mapTitleContainer {
-    position: relative;
+.report-card-button {
+    --background-color: var(--accent-subtle);
+    --background-color-hover: var(--accent);
+    --color: #000;
+    font-weight: 600;
 }
 
 #stateDataWarning {
@@ -48,8 +49,6 @@
     border-radius: var(--radius);
     padding: var(--size-m);
     margin: var(--size-m) auto;
-    position: relative;
-    right: 3%;
     display: block;
     width: fit-content;
     text-align: center;
@@ -78,11 +77,4 @@
 #stateDataWarningParagraph {
     color: var(--error);
     margin: 0;
-}
-
-#map-subtitle {
-    font-weight: 400;
-    width: 82%;
-    text-align: center;
-    margin: 0 0 var(--size-m) 4.3em;
 }

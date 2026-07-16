@@ -16,7 +16,7 @@ function DataDescription({
                     <p>{description}</p>
                     {dataSource && (
                         <>
-                            <h3>Source: {dataSource.name}</h3>
+                            <h4>Source: {dataSource.name}</h4>
                             <p>{dataSource.description}</p>
                             <p>
                                 <a href={dataSource.link}>{dataSource.name} website</a>

@@ -19,30 +19,3 @@
 .overlay-options {
     max-width: 14em;
 }
-
-#report-card-button {
-    background-color: var(--accent-subtle);
-    color: #000;
-    font-weight: 600;
-}
-
-#report-card-button:hover {
-    background-color: var(--accent);
-}
-
-#county-controls {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    margin-top: var(--size-m);
-}
-
-/* no stray space when no county is selected */
-#county-controls:empty {
-    margin: 0;
-}
-
-#report-card-tooltip {
-    margin-left: var(--size-4xs);
-}

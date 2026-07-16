@@ -2,7 +2,7 @@ header {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--size-4xs) var(--size-5xl);
+    gap: var(--size-s);
     margin: var(--size-4xs) var(--size-m);
 }
 
@@ -17,11 +17,11 @@ header abbr {
     text-decoration: none;
 }
 
-/* the title block yields space to the region selector, ellipsizing its
-   subtitle rather than wrapping the row */
+/* the title block grows to fill the row, but its intrinsic width is just
+   the h1's, so when space runs out the region selector wraps to the next
+   row instead of overlapping the title */
 header > div {
-    flex: 1;
-    min-width: 0;
+    flex: 1 1 auto;
 }
 
 header p {
@@ -31,6 +31,9 @@ header p {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    /* the subtitle ellipsizes into whatever width the title block gets;
+       its long text must not count toward the block's intrinsic width */
+    contain: inline-size;
 }
 
 .cs3-logo {
@@ -39,12 +42,12 @@ header p {
 }
 
 /* drop the subtitle on mobile */
-@media (max-width: 800px) {
-    header p {
-        display: none;
-    }
-
+@media (max-width: 1000px) {
+    /* crop to the MIT mark alone (the left 104px of the 320×59 source
+       image), hiding the center's name to save horizontal space */
     .cs3-logo {
-        height: 32px;
+        width: calc(40px * 104 / 59);
+        object-fit: cover;
+        object-position: left;
     }
 }

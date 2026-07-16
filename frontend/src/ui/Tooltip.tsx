@@ -1,6 +1,27 @@
 import { ReactNode } from 'react'
+import useId from './useId'
 
-/** A pure-CSS tooltip shown on hover or focus; the styling keys off data-tip */
+/**
+ * Clicking the children toggles a dark hint beside them — no JavaScript.
+ * The trigger is a native popover invoker, so the hint renders in the
+ * top layer anchored to it, shifts to stay on screen near viewport
+ * edges, and light-dismisses on outside click or Esc.
+ */
 export default function Tooltip({ tip, children }: { tip: string; children: ReactNode }) {
-    return <span data-tip={tip}>{children}</span>
+    const id = useId('tooltip')
+    return (
+        <>
+            <button
+                type="button"
+                aria-label="more information"
+                popovertarget={id}
+                className="ui-icon-button"
+            >
+                {children}
+            </button>
+            <div id={id} popover="auto" className="ui-tooltip">
+                {tip}
+            </div>
+        </>
+    )
 }

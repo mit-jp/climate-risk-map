@@ -198,7 +198,13 @@ fieldset {
     flex-direction: column;
     gap: var(--size-4xs);
 }
-legend {
+
+/* Small headings (h4 and below) and legends render as the same small
+   uppercase label, marking a subsection inside a larger block */
+legend,
+h4,
+h5,
+h6 {
     font-size: var(--size-2xs);
     font-weight: 700;
     text-transform: uppercase;
@@ -215,7 +221,8 @@ nav {
     display: flex;
     align-items: flex-end;
     gap: var(--size-4xs);
-    padding: var(--size-4xs) var(--size-4xs) 0;
+    /* size-m inline padding aligns the first tab with page content */
+    padding: var(--size-4xs) var(--size-m) 0;
     overflow-x: auto;
     scrollbar-width: thin;
     border-bottom: 3px solid var(--primary);
@@ -386,50 +393,23 @@ details[open] > summary::after {
     margin-bottom: -4px;
 }
 
-/* Tooltip: pure CSS on anything with a data-tip attribute */
-[data-tip] {
-    position: relative;
-}
-[data-tip]::after {
-    content: attr(data-tip);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translate(-50%, -0.375em);
+/* Tooltip (the <Tooltip> ui component): clicking the trigger button
+   toggles a dark hint popover — pure HTML. It centers over the button,
+   shifting inward at viewport edges, and light-dismisses on outside
+   click or Esc. */
+.ui-tooltip {
     background: #222;
     color: #fff;
     font-size: var(--size-s);
-    font-weight: 400;
-    line-height: 1.4;
-    text-align: center;
     padding: var(--size-4xs) var(--size-m);
-    border-radius: var(--radius);
-    width: max-content;
-    max-width: var(--popover-width);
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    z-index: 10;
 }
-[data-tip]::before {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 0.375em solid transparent;
-    border-top-color: #222;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    z-index: 10;
-}
-[data-tip]:hover::after,
-[data-tip]:hover::before,
-[data-tip]:focus-within::after,
-[data-tip]:focus-within::before {
-    opacity: 1;
-    visibility: visible;
+@supports (anchor-name: --anything) {
+    .ui-tooltip {
+        position-area: block-start;
+        justify-self: anchor-center;
+        position-try-fallbacks: flip-block;
+        margin: var(--size-5xs) 0;
+    }
 }
 
 /* Native popovers: pair a button[popovertarget="id"] with a [popover]
@@ -467,32 +447,6 @@ details[open] > summary::after {
         position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
         margin: var(--size-5xs) 0;
     }
-}
-
-/* Popover: a <details> that floats its content instead of expanding */
-.ui-popover {
-    position: relative;
-    display: inline-block;
-    border: none;
-    background: none;
-}
-.ui-popover > summary {
-    padding: 0;
-}
-.ui-popover > summary::after {
-    display: none;
-}
-.ui-popover > div {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    z-index: 20;
-    background: #fff;
-    border-radius: var(--radius);
-    box-shadow: 0 2px 10px rgb(0 0 0 / 0.3);
-    padding: var(--size-m);
-    width: max-content;
-    max-width: var(--popover-width);
 }
 
 /* Combobox: text input with a filtered option list */

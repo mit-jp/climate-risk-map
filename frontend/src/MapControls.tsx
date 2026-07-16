@@ -2,7 +2,6 @@ import { csvFormat } from 'd3'
 import { saveAs } from 'file-saver'
 import { Map } from 'immutable'
 import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
 import COUNTIES from './Counties'
 import { getLegendTitle } from './FullMap'
 import css from './MapControls.module.css'
@@ -17,6 +16,7 @@ import {
     OverlayName,
     REGION_FOR,
     TransmissionLineType,
+    clickMap,
     setDetailedView,
     setShowOverlay,
     setTransmissionLineType,
@@ -25,7 +25,7 @@ import {
 } from './appSlice'
 import { RootState } from './store'
 import TOUR_TARGET from './tour/tourTargets'
-import { Button, HelpOutline, Select } from './ui'
+import { Button, Select } from './ui'
 
 const getFilename = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
     const unitString = getLegendTitle(selectedMaps, isNormalized)
@@ -136,11 +136,9 @@ function MapControls({ data, isNormalized, maps }: Props) {
         (overlay) => overlay.shouldShow
     ).length
 
-    const countyId = useSelector((state: RootState) => state.app.county)
+    const zoomTo = useSelector((state: RootState) => state.app.zoomTo)
     const geographyType = maps[0]?.geography_type
     const region = REGION_FOR[geographyType]
-    const params = useParams()
-    const { tabId } = params
 
     const UsaCsv = (sortedData: Map<number, number> | undefined) => {
         const objectData = sortedData
@@ -237,102 +235,75 @@ function MapControls({ data, isNormalized, maps }: Props) {
     }
 
     return (
-        <>
-            <div id={css.countyControls}>
-                {countyId && (
-                    <div id={TOUR_TARGET.reportCard}>
-                        <Button
-                            id={css.reportCardButton}
-                            variant="outlined"
-                            onClick={() => window.open(`/report-card/${tabId ?? '8'}/${countyId}`)}
-                        >
-                            View report card for {COUNTIES.get(countyId)},{' '}
-                            {states.get(stateId(countyId))}
-                        </Button>
-                        <details className="ui-popover" id={css.reportCardTooltip}>
-                            <summary
-                                className="ui-icon-button"
-                                aria-label="about the report card"
-                                role="button"
-                            >
-                                <HelpOutline size={20} />
-                            </summary>
-                            <div>
-                                <p>
-                                    Shows detailed county information including national and state
-                                    percentiles for all metrics. Higher percentiles indicate higher
-                                    risk.
-                                </p>
-                            </div>
-                        </details>
+        <div id={css.mapControls}>
+            {zoomTo && (
+                <Button variant="outlined" onClick={() => dispatch(clickMap(-1))}>
+                    Zoom Out
+                </Button>
+            )}
+            {region === 'USA' && (
+                <>
+                    <Button
+                        variant="outlined"
+                        id={TOUR_TARGET.overlays}
+                        popovertarget="map-layers-panel"
+                    >
+                        Map layers
+                        {activeOverlayCount > 0 && ` · ${activeOverlayCount}`} ▾
+                    </Button>
+                    <div id="map-layers-panel" popover="auto">
+                        <OverlayCheckBoxes overlays={overlays} />
                     </div>
-                )}
-            </div>
-            <div id={css.mapControls}>
-                {region === 'USA' && (
-                    <>
+                </>
+            )}
+            {isNormalized && data && (
+                <label>
+                    <input
+                        type="checkbox"
+                        className="ui-switch"
+                        checked={detailedView}
+                        onChange={(event) => dispatch(setDetailedView(event.target.checked))}
+                        name="detailed-view"
+                    />
+                    Detailed View
+                </label>
+            )}
+            {data && (
+                <>
+                    <Button
+                        variant="outlined"
+                        className={css.downloadButton}
+                        id={TOUR_TARGET.downloads}
+                        popovertarget="download-panel"
+                    >
+                        Download ▾
+                    </Button>
+                    <div id="download-panel" popover="auto">
                         <Button
-                            variant="outlined"
-                            id={TOUR_TARGET.overlays}
-                            popovertarget="map-layers-panel"
-                        >
-                            Map layers
-                            {activeOverlayCount > 0 && ` · ${activeOverlayCount}`} ▾
-                        </Button>
-                        <div id="map-layers-panel" popover="auto">
-                            <OverlayCheckBoxes overlays={overlays} />
-                        </div>
-                    </>
-                )}
-                {isNormalized && data && (
-                    <label>
-                        <input
-                            type="checkbox"
-                            className="ui-switch"
-                            checked={detailedView}
-                            onChange={(event) => dispatch(setDetailedView(event.target.checked))}
-                            name="detailed-view"
-                        />
-                        Detailed View
-                    </label>
-                )}
-                {data && (
-                    <>
-                        <Button
-                            variant="outlined"
-                            className={css.downloadButton}
-                            id={TOUR_TARGET.downloads}
+                            onClick={downloadData}
                             popovertarget="download-panel"
+                            popovertargetaction="hide"
                         >
-                            Download ▾
+                            Data (CSV)
                         </Button>
-                        <div id="download-panel" popover="auto">
-                            <Button
-                                onClick={downloadData}
-                                popovertarget="download-panel"
-                                popovertargetaction="hide"
-                            >
-                                Data (CSV)
-                            </Button>
-                            <Button
-                                onClick={downloadImageSVG}
-                                popovertarget="download-panel"
-                                popovertargetaction="hide"
-                            >
-                                Image (SVG)
-                            </Button>
-                            <Button
-                                onClick={downloadImagePNG}
-                                popovertarget="download-panel"
-                                popovertargetaction="hide"
-                            >
-                                Image (PNG)
-                            </Button>
-                        </div>
-                    </>
-                )}
-            </div>
-        </>
+                        <Button
+                            onClick={downloadImageSVG}
+                            popovertarget="download-panel"
+                            popovertargetaction="hide"
+                        >
+                            Image (SVG)
+                        </Button>
+                        <Button
+                            onClick={downloadImagePNG}
+                            popovertarget="download-panel"
+                            popovertargetaction="hide"
+                        >
+                            Image (PNG)
+                        </Button>
+                    </div>
+                </>
+            )}
+        </div>
     )
 }
 

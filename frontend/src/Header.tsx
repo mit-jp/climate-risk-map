@@ -14,13 +14,11 @@ function Header({ children }: { children?: ReactNode }) {
             </a>
             <div>
                 <h1>
-                    <abbr title="System for the Triage of Risks from Environmental and Socio-economic Stressors">
+                    <abbr title="System to Triage Risks from Environmental & Socio-economic Stressors">
                         STRESS
                     </abbr>
                 </h1>
-                <p>
-                    System for the Triage of Risks from Environmental and Socio-economic Stressors
-                </p>
+                <p>System to Triage Risks from Environmental & Socio-economic Stressors</p>
             </div>
             {children}
         </header>
