@@ -1,7 +1,5 @@
 #data-selector {
     min-width: 26em;
-    height: 100vh;
-    overflow: auto;
 }
 
 .loading {

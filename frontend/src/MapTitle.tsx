@@ -63,7 +63,7 @@ function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarni
             {countyId ? (
                 <div id={TOUR_TARGET.reportCard} className={css.subtitle}>
                     <Button
-                        className={css.reportCardButton}
+                        color="accent"
                         onClick={() => window.open(`/report-card/${tabId ?? '8'}/${countyId}`)}
                     >
                         View report card for {subtitle}

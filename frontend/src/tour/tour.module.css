@@ -17,7 +17,9 @@
     position-anchor: --tour-anchor;
     position-area: block-end;
     /* try the other sides of the target, and when nothing fits (e.g. the
-       target is the whole map) center the popup over it */
+       target is the whole map or a viewport-tall panel) center the popup
+       in the viewport — this last option always fits, so the popup can
+       never end up off screen */
     position-try-fallbacks:
         flip-block,
         flip-inline,
@@ -32,7 +34,10 @@
 }
 
 @position-try --tour-popup-center {
-    position-area: center;
+    position-area: none;
+    inset: 0;
+    align-self: center;
+    justify-self: center;
 }
 
 /* centered in the viewport: for steps whose target is missing, and for
@@ -57,14 +62,11 @@
 
 .popupTitle {
     margin: 0 0 var(--size-4xs) 0;
-    font-size: 1.25em;
-    font-weight: 600;
 }
 
 .popupDescription {
     margin: 0 0 var(--size-m) 0;
     color: var(--muted);
-    line-height: 1.5;
 }
 
 .popupImage {
@@ -87,7 +89,6 @@
 
 .progressText {
     color: var(--muted);
-    font-weight: 500;
 }
 
 .buttonGroup {

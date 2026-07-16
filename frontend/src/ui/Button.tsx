@@ -3,7 +3,7 @@ import Spinner from './Spinner'
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
     variant?: 'text' | 'outlined' | 'contained'
-    color?: 'primary' | 'secondary' | 'error'
+    color?: 'primary' | 'secondary' | 'error' | 'accent'
     loading?: boolean
 }
 

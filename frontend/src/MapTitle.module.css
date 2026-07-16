@@ -7,17 +7,14 @@
     padding-inline: var(--size-m);
 }
 
+/* the map title is the page's focal heading, so it renders at h1 size */
 #map-title h3 {
-    font-weight: 400;
-    font-size: 1.5em;
-    line-height: 1.25;
+    font-size: var(--size-2xl);
     margin: 0;
     text-align: center;
 }
 
 #no-metric-title {
-    font-weight: 400;
-    font-size: 1.5em;
     margin: var(--size-m) 0;
     text-align: center;
 }
@@ -34,13 +31,6 @@
     justify-content: center;
     gap: var(--size-4xs);
     margin: 0 0 var(--size-m);
-}
-
-.report-card-button {
-    --background-color: var(--accent-subtle);
-    --background-color-hover: var(--accent);
-    --color: #000;
-    font-weight: 600;
 }
 
 #stateDataWarning {
@@ -70,7 +60,6 @@
 
 #stateDataWarningTitle {
     color: var(--error);
-    font-weight: 600;
     margin: 0 0 var(--size-4xs) 0;
 }
 

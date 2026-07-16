@@ -23,16 +23,27 @@
     --radius: 0.25em;
     --shadow: 0 1px 4px rgb(0 0 0 / 0.25);
     --font-size-base: 112.5%;
+
     /* size scale: one em-based ladder shared by
        font-size, padding, margin, and gap. Sizes compound —
        never set a font-size on an element nested inside another font-size
        increase. */
-    --size-5xs: 0.25em; /* 4px */
-    --size-4xs: 0.5em; /* 8px */
-    --size-2xs: 0.75em; /* 12px */
-    --size-s: 0.9375em; /* 15px */
-    --size-m: 1em; /* 16px */
-    --size-5xl: 2em; /* 32px */
+    --size-6xs:	0.125em;	/* 2px */
+    --size-5xs:	0.25em;	/* 4px */
+    --size-4xs:	0.5em;	/* 8px */
+    --size-3xs:	0.6875em;	/* 11px */
+    --size-2xs:	0.75em;	/* 12px */
+    --size-xs:	0.8125em;	/* 13px */
+    --size-s:	0.9375em;	/* 15px */
+    --size-m:	1em;	/* 16px */
+    --size-l:	1.0625em;	/* 17px */
+    --size-xl:	1.1875em;	/* 19px */
+    --size-2xl:	1.3125em;	/* 21px */
+    --size-3xl:	1.5em;	/* 24px */
+    --size-4xl:	1.75em;	/* 28px */
+    --size-5xl:	2em;	/* 32px */
+    --size-6xl:	3em;	/* 48px */
+
     /* flow spacing between blocks of text, matching the line height */
     --space: 1.5em;
     --popover-width: 20em;
@@ -55,9 +66,28 @@ body {
     margin-block-end: 0;
 }
 
-/* Buttons: a bare <button> is the quiet text variant. Variant classes only
-   set the color variables; the base rules do the painting. */
-button {
+/* Large headings (h1–h3) step down the size ladder at one shared weight,
+   so pages get hierarchy without custom font styles. h4 and below render
+   as the small uppercase label further down. */
+h1,
+h2,
+h3 {
+    font-size: var(--size-l);
+    font-weight: 600;
+    line-height: 1.25;
+}
+h1 {
+    font-size: var(--size-2xl);
+}
+h2 {
+    font-size: var(--size-xl);
+}
+
+/* Buttons: a bare <button> is the quiet text variant, and .btn paints any
+   other element (like a link) the same way. Variant classes only set the
+   color variables; the base rules do the painting. */
+button,
+.btn {
     --background-color: transparent;
     --background-color-hover: var(--tint);
     --border-color: transparent;
@@ -75,28 +105,35 @@ button {
     border: 1px solid var(--border-color);
     background: var(--background-color);
     color: var(--color);
+    text-decoration: none;
     cursor: pointer;
 }
-button:hover {
+button:hover,
+.btn:hover {
     background: var(--background-color-hover);
 }
-button.outlined {
+:is(button, .btn).outlined {
     --border-color: currentcolor;
 }
-button.contained {
+:is(button, .btn).contained {
     --background-color: var(--primary);
     --background-color-hover: var(--primary-light);
     --color: #fff;
 }
-button.secondary {
+:is(button, .btn).secondary {
     --background-color: var(--secondary);
     --color: #1c3a1d;
 }
-button.error {
+:is(button, .btn).accent {
+    --background-color: var(--accent-subtle);
+    --background-color-hover: var(--accent);
+    --color: #000;
+}
+:is(button, .btn).error {
     --color: var(--error);
     --background-color-hover: color-mix(in srgb, var(--error) 8%, transparent);
 }
-button.error.contained {
+:is(button, .btn).error.contained {
     --background-color: var(--error);
     --background-color-hover: var(--error-light);
     --color: #fff;
@@ -226,13 +263,16 @@ nav {
     overflow-x: auto;
     scrollbar-width: thin;
     border-bottom: 3px solid var(--primary);
-    /* an empty nav holds one tab row of height (line + padding + border)
-       so the page doesn't jump when tabs load in */
-    min-height: calc(1.25em + 2 * var(--size-4xs) + 1px);
+    /* an empty nav holds one tab row of height so the page doesn't jump
+       when tabs load in: tabs are size-s, so a row is
+       size-s * (1.25 line + 2 * 0.5 padding) plus the 1px border */
+    min-height: calc(2.25 * var(--size-s) + 1px);
 }
+/* tabs share the buttons' typography */
 nav a {
     flex-shrink: 0;
     padding: var(--size-4xs) var(--size-m);
+    font-size: var(--size-s);
     font-weight: 500;
     line-height: 1.25;
     color: var(--muted);
@@ -365,13 +405,16 @@ details {
 details + details {
     border-top: none;
 }
+/* the summary shares the buttons' typography */
 details > summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--size-m);
     padding: var(--size-4xs) var(--size-m);
+    font-size: var(--size-s);
     font-weight: 500;
+    line-height: 1.25;
     cursor: pointer;
     list-style: none;
 }

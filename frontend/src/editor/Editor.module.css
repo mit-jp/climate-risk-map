@@ -40,20 +40,6 @@
     gap: var(--size-m);
 }
 
-.publish-link {
-    display: inline-block;
-    padding: var(--size-4xs) var(--size-m);
-    font-weight: 500;
-    border-radius: var(--radius);
-    color: inherit;
-    background-color: var(--accent-subtle);
-    text-decoration: none;
-}
-
-.publish-link:hover {
-    background-color: var(--accent);
-}
-
 .publish-area {
     display: flex;
     align-items: center;

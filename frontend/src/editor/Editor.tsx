@@ -98,7 +98,7 @@ function Editor() {
 
                     {!isDrafts(tab) && maps && maps.length === 0 && tab && (
                         <div className={editorCss.actions}>
-                            <Link to="/editor/-1" className={editorCss.publishLink}>
+                            <Link to="/editor/-1" className="btn accent">
                                 Publish a draft
                             </Link>
 

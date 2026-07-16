@@ -11,7 +11,6 @@
 .sub-selector p {
     margin: 0;
     font-size: var(--size-2xs);
-    font-weight: 600;
     color: var(--muted);
 }
 
