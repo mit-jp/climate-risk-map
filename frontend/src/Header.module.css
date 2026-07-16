@@ -1,62 +1,38 @@
-.header {
+header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: var(--ui-space-l);
+    margin: var(--ui-space-l);
 }
 
-.header h1 {
-    font-size: 45pt;
-    font-weight: 1000;
-    color: #11598d;
-    font-family: 'Tahoma', sans-serif;
-    margin-top: .25em;
+header h1 {
+    color: var(--ui-primary);
+    margin: 0;
 }
 
-.header p {
-    font-size: larger;
-    margin-top: -1.75em;
-    margin-bottom: 2em;
+header abbr {
+    text-decoration: none;
 }
 
-.header a {
-    margin-right: 5%;
+header p {
+    margin: 0;
 }
 
-.title {
-    display: flex;
-    align-items: center;
-    flex-grow: 1;
-}
-
-.title-and-subtitle {
-    margin-left: 40px;
-}
-
-.CS3-logo {
-    margin: 0 var(--ui-space-l);
+.cs3-logo {
+    height: 46px;
 }
 
 /* stack vertically on mobile */
-@media (max-width: 600px) {
-    .header {
-        align-items: flex-start;
-    }
-    .header h1 {
+@media (max-width: 800px) {
+    header h1 {
         margin: 0;
-        font-size: 30pt;
     }
 
-    .header p {
-        margin: 0;
-        font-size: medium;
-    }
-
-    .title-and-subtitle {
-        margin: var(--ui-space-s) var(--ui-space-l);
-    }
-
-    .joint-program-logo,
-    .mit-logo {
+    header p {
         display: none;
+    }
+
+    .cs3-logo {
+        height: 36px;
     }
 }
