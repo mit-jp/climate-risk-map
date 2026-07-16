@@ -91,10 +91,9 @@ function OverlayCheckBoxes({ overlays }: { overlays: Record<OverlayName, Overlay
         <>
             {Object.entries(overlays).map(([overlayName, overlay]) => (
                 <Fragment key={overlayName}>
-                    <label className="ui-choice">
+                    <label>
                         <input
                             type="checkbox"
-                            className="ui-checkbox"
                             onChange={(event) =>
                                 dispatch(
                                     setShowOverlay({
@@ -255,7 +254,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
                             >
                                 <HelpOutline size={20} />
                             </summary>
-                            <div className="ui-popover-content">
+                            <div>
                                 <p>
                                     Shows detailed county information including national and state
                                     percentiles for all metrics. Higher percentiles indicate higher
@@ -270,7 +269,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
                 <div className={css.overlays} id="map-overlays">
                     {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
                     {isNormalized && data && (
-                        <label className="ui-choice">
+                        <label>
                             <input
                                 type="checkbox"
                                 className="ui-switch"

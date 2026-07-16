@@ -17,6 +17,7 @@ type Props = {
     style?: CSSProperties
 }
 
+/** A stacked label + input/textarea, styled by ui.css with no class names */
 export default function TextField({
     label,
     value,
@@ -33,18 +34,13 @@ export default function TextField({
     className,
     style,
 }: Props) {
-    const classes = ['ui-field', fullWidth ? 'ui-full-width' : '', className]
-        .filter(Boolean)
-        .join(' ')
+    const classes =
+        [fullWidth ? 'ui-full-width' : '', className].filter(Boolean).join(' ') || undefined
     const shared = { value, onChange, onBlur, required, disabled, maxLength, placeholder, id }
     return (
         <label className={classes} style={style}>
-            <span className="ui-field-label">{label}</span>
-            {multiline ? (
-                <textarea className="ui-input" rows={4} {...shared} />
-            ) : (
-                <input className="ui-input" type={type} {...shared} />
-            )}
+            <span>{label}</span>
+            {multiline ? <textarea rows={4} {...shared} /> : <input type={type} {...shared} />}
         </label>
     )
 }

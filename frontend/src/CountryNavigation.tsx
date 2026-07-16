@@ -25,8 +25,6 @@ export default function RegionNavigation() {
         <nav className={css.regionNav} id="region-selector">
             <Select
                 label="Region"
-                labelClassName={css.regionLabel}
-                className={css.regionSelect}
                 value={region}
                 onChange={(event) => {
                     if (region != null) {

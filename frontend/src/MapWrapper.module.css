@@ -1,6 +1,6 @@
 /* prevent the empty map from shrinking which makes loads look smoother */
 .map {
-    min-width: 400px;
+    min-width: 25em;
     width: 100%;
 }
 

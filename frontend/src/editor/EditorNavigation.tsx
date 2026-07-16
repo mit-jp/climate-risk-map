@@ -57,7 +57,7 @@ function EditorNavigation({
                     value={newTabName}
                 />
 
-                <button type="submit" className={css.createTab} disabled={newTabName.length === 0}>
+                <button type="submit" disabled={newTabName.length === 0}>
                     create
                 </button>
             </form>

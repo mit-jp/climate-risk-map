@@ -97,10 +97,9 @@ export default function MetadataForm({
             </Select>
 
             <h2>Source</h2>
-            <label className="ui-choice">
+            <label>
                 <input
                     type="checkbox"
-                    className="ui-checkbox"
                     name="Use Existing Source"
                     checked={'id' in source}
                     onChange={(event) =>

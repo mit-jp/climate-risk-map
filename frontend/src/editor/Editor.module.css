@@ -4,22 +4,23 @@
 }
 
 #map {
-    margin: var(--ui-space-l);
-    min-width: 500px;
+    margin: var(--size-m);
+    min-width: 31em;
     width: 100%;
 }
 
+/* bottoms of the buttons line up with the labeled text field beside them */
 #title-field {
     display: flex;
-    align-items: center;
-    gap: var(--ui-space-s);
+    align-items: flex-end;
+    gap: var(--size-s);
 }
 
 #map-options {
     display: flex;
     flex-direction: column;
-    padding: var(--ui-space-l);
-    min-width: 300px;
+    padding: var(--size-m);
+    min-width: 19em;
 }
 
 #map-visualization-list {
@@ -29,51 +30,34 @@
 }
 
 .publish-button {
-    margin: var(--ui-space-l) 0;
+    margin: var(--size-m) 0;
 }
 
 .actions {
-    margin: var(--ui-space-l);
+    margin: var(--size-m);
     display: flex;
     justify-content: space-between;
-    gap: var(--ui-space-l);
+    gap: var(--size-m);
 }
 
 .publish-link {
     display: inline-block;
-    padding: var(--ui-space-s) var(--ui-space-l);
-    font-size: var(--ui-font-control);
+    padding: var(--size-s) var(--size-m);
+    font-size: var(--font-control);
     font-weight: 500;
-    border-radius: var(--ui-radius);
+    border-radius: var(--radius);
     color: inherit;
-    background-color: #fff6d0;
+    background-color: var(--accent-subtle);
     text-decoration: none;
 }
 
 .publish-link:hover {
-    background-color: #fce995;
-}
-
-.delete-tab {
-    font: inherit;
-    font-size: var(--ui-font-control);
-    font-weight: 500;
-    border: none;
-    border-radius: var(--ui-radius);
-    display: inline-block;
-    padding: var(--ui-space-s) var(--ui-space-l);
-    color: var(--ui-error);
-    background-color: #f7d7d7;
-    cursor: pointer;
-}
-
-.delete-tab:hover {
-    background-color: #f5b0b0;
+    background-color: var(--accent);
 }
 
 .publish-area {
     display: flex;
     align-items: center;
-    gap: var(--ui-space-s);
-    margin: var(--ui-space-l) 0;
+    gap: var(--size-s);
+    margin: var(--size-m) 0;
 }

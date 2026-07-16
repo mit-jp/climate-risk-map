@@ -1,12 +1,12 @@
 .data-description {
-    margin: var(--ui-space-l);
+    margin: var(--size-m);
 }
 
 .data-description summary {
-    background: var(--ui-bg-subtle);
+    background: var(--bg-subtle);
 }
 
 .description {
-    padding: 0 var(--ui-space-l);
+    padding: var(--size-m);
     max-width: 70ch;
 }

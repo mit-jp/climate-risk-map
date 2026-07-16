@@ -6,10 +6,12 @@ function DataSourceDescription({ dataSource }: { dataSource: DataSource }) {
     return (
         <div className={css.dataDescription}>
             <Accordion summary={`About the ${dataSource.name} dataset`}>
-                <p className={css.description}>{dataSource.description}</p>
-                <p className={css.description}>
-                    <a href={dataSource.link}>{dataSource.name} website</a>
-                </p>
+                <div className={css.description}>
+                    <p>{dataSource.description}</p>
+                    <p>
+                        <a href={dataSource.link}>{dataSource.name} website</a>
+                    </p>
+                </div>
             </Accordion>
         </div>
     )

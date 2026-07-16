@@ -1,5 +1,5 @@
 .nav {
-    margin-bottom: var(--ui-space-l);
+    margin-bottom: var(--size-m);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -10,7 +10,7 @@
     display: block;
     color: #000;
     text-decoration: none;
-    padding: var(--ui-space-m) var(--ui-space-l);
+    padding: var(--size-m);
     text-transform: capitalize;
     margin: 0;
     border: none;
@@ -19,78 +19,36 @@
 }
 
 .nav a:hover {
-    background: #e3eaf1;
-    color: var(--ui-primary);
+    background: var(--tint);
+    color: var(--primary);
 }
 
 .nav a.selected {
-    background: var(--ui-primary);
+    background: var(--primary);
     color: #fff;
 }
 
 .nav a.uncategorized {
-    background: #fff6d0;
+    background: var(--accent-subtle);
 }
 
-.nav a.uncategorized:hover {
-    background: #fce995;
-    color: #2c2506;
-}
-
+.nav a.uncategorized:hover,
 .nav a.uncategorized.selected {
-    background: #ffda37;
+    background: var(--accent);
     color: #000;
 }
 
 .region-nav {
-    margin-left: var(--ui-space-xl);
-    margin-right: var(--ui-space-xl);
-    margin-bottom: var(--ui-space-l);
-}
-
-.region-label {
-    color: #000;
-    font-weight: bold;
-}
-
-.region-select {
-    background-color: #d9dee4;
-    color: #000;
-    font-weight: bold;
+    margin: 0 var(--size-l) var(--size-m);
 }
 
 input.new-tab {
-    margin-left: var(--ui-space-2xl);
-    font: inherit;
-    font-size: var(--ui-font-control);
-    padding: var(--ui-space-s) var(--ui-space-m);
-    border: 1px solid var(--ui-border);
-    border-radius: var(--ui-radius);
-}
-
-button.create-tab {
-    border: 1px solid var(--ui-border);
-    border-radius: var(--ui-radius);
-    padding: var(--ui-space-s) var(--ui-space-m);
-    font: inherit;
-    font-size: var(--ui-font-control);
-    cursor: pointer;
-    background-color: #f0f6fc;
-    margin-left: var(--ui-space-xs);
-}
-
-button.create-tab:hover {
-    background: #ddeaf6;
-}
-
-button.create-tab:disabled {
-    cursor: not-allowed;
-    background: #ffffff !important;
+    margin-left: var(--size-l);
 }
 
 /* do not pad region nav so much on small screen sizes */
 @media (max-width: 600px) {
     .region-nav {
-        margin-left: var(--ui-space-l);
+        margin-left: var(--size-m);
     }
 }

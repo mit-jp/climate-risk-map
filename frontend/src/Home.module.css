@@ -3,12 +3,6 @@
     display: flex;
 }
 
-.site-overview {
-    background: var(--ui-bg-subtle);
-    padding: var(--ui-space-xs) var(--ui-space-l);
-    margin-bottom: var(--ui-space-l);
-}
-
 .nav-div {
     display: flex;
     justify-content: space-between;

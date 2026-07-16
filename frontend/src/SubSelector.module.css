@@ -3,17 +3,17 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--ui-space-xs);
-    background: var(--ui-bg-subtle);
-    padding: var(--ui-space-xs) var(--ui-space-l);
-    font-size: var(--ui-font-control);
+    gap: var(--size-s);
+    background: var(--bg-subtle);
+    padding: var(--size-s) var(--size-m);
+    font-size: var(--font-control);
 }
 
 .sub-selector p {
-    margin: 0 var(--ui-space-xs) 0 0;
-    font-size: var(--ui-font-label);
+    margin: 0;
+    font-size: var(--font-label);
     font-weight: 600;
-    color: var(--ui-muted);
+    color: var(--muted);
 }
 
 .sub-selector input {
@@ -21,21 +21,17 @@
 }
 
 .sub-selector label {
-    padding: var(--ui-space-xs) var(--ui-space-s);
-    border-radius: var(--ui-radius);
+    padding: var(--size-s);
+    border-radius: var(--radius);
     cursor: pointer;
-    color: var(--ui-primary);
+    color: var(--primary);
 }
 
 .sub-selector label:hover {
-    background: var(--ui-tint);
+    background: var(--tint);
 }
 
 .sub-selector input:checked + label {
-    background: var(--ui-primary);
+    background: var(--primary);
     color: #fff;
-}
-
-.year-dropdown {
-    margin: var(--ui-space-xs) 0;
 }

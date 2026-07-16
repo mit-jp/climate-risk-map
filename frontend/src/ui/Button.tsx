@@ -7,6 +7,7 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
     loading?: boolean
 }
 
+/** A bare <button> is already styled; this adds variants and a loading state */
 export default function Button({
     variant = 'text',
     color = 'primary',
@@ -17,9 +18,10 @@ export default function Button({
     type = 'button',
     ...rest
 }: Props) {
-    const classes = ['ui-button', variant, color !== 'primary' ? color : '', className]
-        .filter(Boolean)
-        .join(' ')
+    const classes =
+        [variant !== 'text' ? variant : '', color !== 'primary' ? color : '', className]
+            .filter(Boolean)
+            .join(' ') || undefined
     return (
         // eslint-disable-next-line react/button-has-type
         <button type={type} className={classes} disabled={disabled || loading} {...rest}>

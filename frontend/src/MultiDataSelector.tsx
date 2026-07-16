@@ -34,10 +34,9 @@ const checkBox = (
             key={map.id}
             className={shouldBeChecked(map.id) ? `${css.selectedGroup} ${css.padded}` : css.padded}
         >
-            <label id={map.id.toString()} className={`ui-choice ${css.choiceRow}`}>
+            <label id={map.id.toString()} className={css.choiceRow}>
                 <input
                     type="checkbox"
-                    className="ui-checkbox"
                     checked={shouldBeChecked(map.id)}
                     value={map.id}
                     onChange={onSelectionToggled}
@@ -53,7 +52,7 @@ const checkBox = (
                     <div className={css.weightLabel}>Weight: {dataWeights[map.id] ?? 1}</div>
                     <input
                         type="range"
-                        className={`ui-slider ${css.weightSlider}`}
+                        className={css.weightSlider}
                         min={0.1}
                         max={1}
                         step={0.1}
@@ -124,10 +123,7 @@ function MultiDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisua
                 subcategories
                     .filter((subcategory) => !isEmpty(subcategory.id))
                     .map((subcategory) => (
-                        <Accordion
-                            key={subcategory.id}
-                            summary={<div className={css.subcategoryTitle}>{subcategory.name}</div>}
-                        >
+                        <Accordion key={subcategory.id} summary={subcategory.name}>
                             {getDataList((map) => map.subcategory === subcategory.id)}
                         </Accordion>
                     ))}

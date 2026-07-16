@@ -180,13 +180,8 @@ export default function ReportCard() {
                 value={selectedRegion}
             />
             <div id={css.statePercentileCheckbox}>
-                <label className="ui-choice">
-                    <input
-                        type="checkbox"
-                        className="ui-checkbox"
-                        checked={checked}
-                        onChange={handleChange}
-                    />
+                <label>
+                    <input type="checkbox" checked={checked} onChange={handleChange} />
                     Display state-level percentile data
                 </label>
             </div>

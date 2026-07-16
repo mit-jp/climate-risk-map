@@ -98,10 +98,7 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
                 subcategories
                     .filter((subcategory) => !isEmpty(subcategory.id))
                     .map((subcategory) => (
-                        <Accordion
-                            key={subcategory.id}
-                            summary={<div className={css.subcategoryTitle}>{subcategory.name}</div>}
-                        >
+                        <Accordion key={subcategory.id} summary={subcategory.name}>
                             {getDataList((map) => map.subcategory === subcategory.id)}
                         </Accordion>
                     ))}

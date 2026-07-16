@@ -1,12 +1,12 @@
 header {
     display: flex;
     align-items: center;
-    gap: var(--ui-space-l);
-    margin: var(--ui-space-l);
+    gap: var(--size-l);
+    margin: var(--size-l);
 }
 
 header h1 {
-    color: var(--ui-primary);
+    color: var(--primary);
     margin: 0;
 }
 

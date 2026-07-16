@@ -26,10 +26,9 @@ function Radio({
     label: string
 }) {
     return (
-        <label className="ui-choice">
+        <label>
             <input
                 type="radio"
-                className="ui-radio"
                 name={name}
                 value={value}
                 checked={current === value}
@@ -88,7 +87,7 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
 
     return (
         <form id={css.mapOptions}>
-            <fieldset className="ui-fieldset">
+            <fieldset>
                 <legend>Map Type</legend>
                 <Radio
                     name="map-type"
@@ -107,7 +106,7 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
             </fieldset>
             {mapVisualization.map_type === MapType.Choropleth && (
                 <>
-                    <fieldset className="ui-fieldset">
+                    <fieldset>
                         <legend>Color Scheme</legend>
                         {scales && (
                             <Combobox
@@ -134,10 +133,9 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
 
                         <DomainInput mapVisualization={mapVisualization} updateMap={updateMap} />
 
-                        <label className="ui-choice">
+                        <label>
                             <input
                                 type="checkbox"
-                                className="ui-checkbox"
                                 checked={mapVisualization.reverse_scale}
                                 onChange={(event) =>
                                     updateMap({
@@ -150,10 +148,9 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                         </label>
                     </fieldset>
 
-                    <label className="ui-choice">
+                    <label>
                         <input
                             type="checkbox"
-                            className="ui-checkbox"
                             checked={mapVisualization.show_pdf}
                             onChange={(event) =>
                                 updateMap({ ...mapVisualization, show_pdf: event.target.checked })
@@ -164,7 +161,7 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                 </>
             )}
 
-            <fieldset className="ui-fieldset">
+            <fieldset>
                 <legend>Formatter</legend>
                 <Radio
                     name="formatter"
@@ -216,7 +213,7 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
             </fieldset>
 
             {mapVisualization.map_type === MapType.Choropleth && (
-                <fieldset className="ui-fieldset">
+                <fieldset>
                     <legend>Combinatory Metrics</legend>
                     {subcategories && (
                         <Combobox
@@ -240,7 +237,7 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                 </fieldset>
             )}
 
-            <fieldset className="ui-fieldset">
+            <fieldset>
                 <legend>Legend</legend>
                 <TextField
                     label="Custom Legend Tick Count"
@@ -269,10 +266,9 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                     }}
                 />
 
-                <label className="ui-choice">
+                <label>
                     <input
                         type="checkbox"
-                        className="ui-checkbox"
                         checked={
                             mapVisualization.legend_formatter_type !== undefined ||
                             customLegendFormat

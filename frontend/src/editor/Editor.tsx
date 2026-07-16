@@ -102,13 +102,9 @@ function Editor() {
                                 Publish a draft
                             </Link>
 
-                            <button
-                                type="button"
-                                className={editorCss.deleteTab}
-                                onClick={() => deleteTab(tab.id)}
-                            >
+                            <Button color="error" onClick={() => deleteTab(tab.id)}>
                                 delete this tab
-                            </button>
+                            </Button>
                         </div>
                     )}
                     {isDrafts(tab) && (

@@ -1,38 +1,41 @@
-#map-title,
+/* the left offset and reduced width keep the titles centered next to the
+   absolutely-positioned zoom-out button */
+#map-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--size-s);
+    margin: var(--size-m) 0 0 3.75em;
+    width: 82%;
+}
+
+#map-title h3 {
+    font-weight: 400;
+    font-size: 1.5em;
+    line-height: 2;
+    margin: 0;
+    text-align: center;
+}
+
 #no-metric-title {
     font-weight: 400;
-    font-size: 1.5rem;
+    font-size: 1.5em;
     line-height: 2;
-    /* the left offset and reduced width keep the title centered next to the
-       absolutely-positioned zoom-out button */
-    margin: var(--ui-space-l) 0 0 60px;
+    margin: var(--size-m) 0 0 2.5em;
     width: 82%;
     text-align: center;
 }
 
 .info-icon {
-    vertical-align: middle;
-    margin-left: var(--ui-space-s);
-    margin-bottom: 3px;
+    display: block;
 }
 
 .zoom-out-button {
-    font: inherit;
-    font-size: var(--ui-font-control);
-    font-weight: 600;
-    padding: var(--ui-space-s) var(--ui-space-l);
-    border-radius: var(--ui-radius);
-    border: 1px solid var(--ui-primary);
+    border-color: currentcolor;
     background: #fff;
-    color: var(--ui-primary);
-    cursor: pointer;
     position: absolute;
-    left: var(--ui-space-l);
-    top: var(--ui-space-s);
-}
-
-.zoom-out-button:hover {
-    background: var(--ui-tint);
+    left: var(--size-m);
+    top: var(--size-s);
 }
 
 .mapTitleContainer {
@@ -40,11 +43,11 @@
 }
 
 #stateDataWarning {
-    background-color: hsl(351, 100%, 94%);
-    border: 2px solid #f44336;
-    border-radius: var(--ui-radius);
-    padding: var(--ui-space-m);
-    margin: var(--ui-space-l) auto;
+    background-color: color-mix(in srgb, var(--error) 8%, transparent);
+    border: 2px solid var(--error);
+    border-radius: var(--radius);
+    padding: var(--size-m);
+    margin: var(--size-m) auto;
     position: relative;
     right: 3%;
     display: block;
@@ -59,30 +62,28 @@
 @keyframes backgroundFlash {
     0%,
     100% {
-        background-color: hsl(351, 100%, 94%);
-        border: 2px solid #f44336;
+        background-color: color-mix(in srgb, var(--error) 8%, transparent);
     }
     50% {
-        background-color: hsl(351, 100%, 75%);
-        border: 2px solid #000000;
+        background-color: color-mix(in srgb, var(--error) 30%, transparent);
     }
 }
 
 #stateDataWarningTitle {
-    color: hsl(0, 66%, 42%);
+    color: var(--error);
     font-weight: 600;
-    margin: 0 0 var(--ui-space-s) 0;
+    margin: 0 0 var(--size-s) 0;
 }
 
 #stateDataWarningParagraph {
-    color: hsl(0, 66%, 42%);
+    color: var(--error);
     margin: 0;
 }
 
 #map-subtitle {
     font-weight: 400;
-    font-size: var(--ui-font-control);
+    font-size: var(--font-control);
     width: 82%;
     text-align: center;
-    margin: 0 0 var(--ui-space-l) 60px;
+    margin: 0 0 var(--size-m) 4.3em;
 }

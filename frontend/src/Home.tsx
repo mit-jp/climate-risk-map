@@ -96,15 +96,6 @@ function Home() {
                 )}
                 <RegionNavigation />
             </div>
-            {isNormalized && (
-                <aside className={css.siteOverview}>
-                    <p>
-                        Select multiple metrics and adjust their relative importance to view the
-                        combined impact. To see additional and supporting data, select the other
-                        categories.
-                    </p>
-                </aside>
-            )}
             <main className={css.content}>
                 {tabs && mapVisualizations && tab ? (
                     <DataSelector

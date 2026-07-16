@@ -1,10 +1,6 @@
 import { ReactNode } from 'react'
 
-/** A pure-CSS tooltip shown on hover or focus. */
+/** A pure-CSS tooltip shown on hover or focus; the styling keys off data-tip */
 export default function Tooltip({ tip, children }: { tip: string; children: ReactNode }) {
-    return (
-        <span className="ui-tooltip" data-tip={tip}>
-            {children}
-        </span>
-    )
+    return <span data-tip={tip}>{children}</span>
 }

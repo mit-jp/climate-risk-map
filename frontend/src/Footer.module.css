@@ -1,6 +1,6 @@
 #footer {
-    padding: var(--ui-space-l);
-    background: var(--ui-primary);
+    padding: var(--size-m);
+    background: var(--primary);
     color: #fff;
 }
 
@@ -15,7 +15,7 @@
 
 #footer #address {
     float: left;
-    margin-bottom: var(--ui-space-l);
+    margin-bottom: var(--size-m);
 }
 
 #footer #address p {
@@ -25,7 +25,7 @@
 
 #footer li {
     display: inline-block;
-    margin-right: var(--ui-space-l);
+    margin-right: var(--size-m);
 }
 
 #footer ul#social {
@@ -37,5 +37,5 @@
 }
 
 #footer #navigation li {
-    margin-right: var(--ui-space-2xl);
+    margin-right: var(--size-l);
 }

@@ -1,33 +1,33 @@
 #map-controls {
-    margin: 0 var(--ui-space-l);
+    margin: 0 var(--size-m);
     display: flex;
     flex-direction: column;
-    gap: var(--ui-space-m);
+    gap: var(--size-m);
 }
 
 #map-controls > div {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--ui-space-s) var(--ui-space-xl);
+    gap: var(--size-s) var(--size-l);
 }
 
 .overlays {
-    font-size: var(--ui-font-control);
+    font-size: var(--font-control);
 }
 
 .overlay-options {
-    max-width: 220px;
+    max-width: 14em;
 }
 
 #report-card-button {
-    background-color: hsl(59, 82%, 82%);
-    color: black;
+    background-color: var(--accent-subtle);
+    color: #000;
     font-weight: 600;
 }
 
 #report-card-button:hover {
-    background-color: hsl(59, 82%, 91%);
+    background-color: var(--accent);
 }
 
 #county-controls {
@@ -35,9 +35,9 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    margin-top: var(--ui-space-l);
+    margin-top: var(--size-m);
 }
 
 #report-card-tooltip {
-    margin-left: var(--ui-space-xs);
+    margin-left: var(--size-s);
 }

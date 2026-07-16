@@ -16,7 +16,7 @@ export default function DatasetEditor({
     const dispatch = useDispatch()
 
     return (
-        <div className={`ui-card ${css.datasetEditor}`}>
+        <div className={css.datasetEditor}>
             <h3>Column</h3>
             <div>
                 <ColumnEditor

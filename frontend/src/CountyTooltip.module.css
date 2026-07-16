@@ -1,7 +1,7 @@
 #tooltip {
     opacity: .95;
     position: absolute;
-    padding: var(--ui-space-xs);
+    padding: var(--size-s);
     background: white;
     pointer-events: none;
     z-index: 100;

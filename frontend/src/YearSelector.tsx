@@ -22,7 +22,6 @@ function DropdownYearSelector({ years, selectedYear, onChange, id }: Props) {
         <div className={css.subSelector}>
             <p>Year:</p>
             <Select
-                className={css.yearDropdown}
                 value={selectedYear.toISODate()}
                 onChange={(e) => onChange(Interval.fromISO(e.target.value))}
                 id={id}

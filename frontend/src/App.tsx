@@ -23,7 +23,7 @@ function App() {
                 <Route
                     path="*"
                     element={
-                        <div style={{ padding: 'var(--ui-space-l)' }}>
+                        <div style={{ padding: 'var(--size-l)' }}>
                             <h2>There&apos;s nothing here</h2>
                             <p>
                                 <Link to="/">View the maps</Link>

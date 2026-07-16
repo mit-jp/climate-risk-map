@@ -55,14 +55,16 @@ function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarni
                     Zoom Out
                 </button>
             )}
-            <h3 id={css.mapTitle}>
-                {getTitle(selectedMapVisualizations)}
+            {/* the tooltip sits beside the heading, not inside it, so it
+                does not inherit the heading's larger em font size */}
+            <div id={css.mapTitle}>
+                <h3>{getTitle(selectedMapVisualizations)}</h3>
                 {isNormalized && (
                     <Tooltip tip="The normalized value is the percentile of the raw data. If you select multiple data, we take the mean of the ranked values.">
                         <Info className={css.infoIcon} />
                     </Tooltip>
                 )}
-            </h3>
+            </div>
             <p id={css.mapSubtitle}>{getSubtitle(countyId, region)}</p>
             {showStateLevelWarning && (
                 <div id={css.stateDataWarning} className={zoomTo ? css.zoomed : ''}>

@@ -8,8 +8,8 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--ui-space-m);
-    padding: var(--ui-space-l);
+    gap: var(--size-m);
+    padding: var(--size-m);
 }
 
 .map-visualizations ul {
@@ -21,9 +21,9 @@
 .map-visualizations li {
     display: flex;
     align-items: center;
-    margin-bottom: var(--ui-space-s);
+    margin-bottom: var(--size-s);
 }
 
 .map-visualizations li p {
-    margin-right: var(--ui-space-l);
+    margin-right: var(--size-m);
 }

@@ -5,7 +5,9 @@ function DataDescription({ name, description }: { name: string; description: str
     return (
         <div className={css.dataDescription}>
             <Accordion summary={`About the ${name} data`}>
-                <p className={css.description}>{description}</p>
+                <div className={css.description}>
+                    <p>{description}</p>
+                </div>
             </Accordion>
         </div>
     )

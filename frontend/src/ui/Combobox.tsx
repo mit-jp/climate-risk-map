@@ -66,10 +66,9 @@ export default function Combobox<T>({
 
     return (
         <div className="ui-combobox" style={style}>
-            <label className="ui-field">
-                <span className="ui-field-label">{label}</span>
+            <label>
+                <span>{label}</span>
                 <input
-                    className="ui-input"
                     type="text"
                     role="combobox"
                     aria-expanded={open}
@@ -87,13 +86,12 @@ export default function Combobox<T>({
                 />
             </label>
             {open && matches.length > 0 && (
-                <ul className="ui-combobox-list" id={id} role="listbox">
+                <ul id={id} role="listbox">
                     {matches.map((option, index) => (
                         <li
                             key={getLabel(option)}
                             role="option"
-                            aria-selected={option === value}
-                            className={index === highlighted ? 'ui-active' : undefined}
+                            aria-selected={index === highlighted}
                             // mousedown fires before the input's blur
                             onMouseDown={() => select(option)}
                         >

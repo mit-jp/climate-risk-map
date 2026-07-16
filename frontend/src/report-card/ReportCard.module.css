@@ -7,16 +7,16 @@ h1 {
 }
 
 .county-metrics thead {
-    background-color: var(--ui-bg-subtle);
+    background-color: var(--bg-subtle);
     font-weight: bold;
 }
 
 .county-metrics thead td {
-    padding-left: var(--ui-space-xs);
+    padding-left: var(--size-s);
 }
 
 .county-metrics tr:hover {
-    background: var(--ui-bg-hover);
+    background: var(--bg-hover);
 }
 
 .county-metrics td {
@@ -24,14 +24,14 @@ h1 {
 }
 
 .county-metrics td + td {
-    border-left: 2px solid #ddd;
+    border-left: 2px solid var(--border);
 }
 
 .report-card {
-    padding: var(--ui-space-l);
+    padding: var(--size-m);
     display: flex;
     flex-direction: column;
-    gap: var(--ui-space-m);
+    gap: var(--size-m);
 }
 
 .report-card h1 {
@@ -42,29 +42,29 @@ h1 {
     background-color: #000000;
     height: 10px;
     width: 0%;
-    margin: var(--ui-space-s) 0;
+    margin: var(--size-s) 0;
     border: 1px solid #000000;
 }
 
 .county-metrics .percentile-bar-column {
     padding-left: 0;
     border-left-style: hidden !important;
-    padding-right: var(--ui-space-s);
+    padding-right: var(--size-s);
     width: 15%;
 }
 
 .county-metrics .percentile-column {
     width: 2em;
-    padding-right: var(--ui-space-s);
-    padding-left: var(--ui-space-xs);
+    padding-right: var(--size-s);
+    padding-left: var(--size-s);
 }
 
 .county-metrics .raw-val-column {
-    padding-left: var(--ui-space-xs);
+    padding-left: var(--size-s);
 }
 
 .county-metrics .metric-column {
-    padding-left: var(--ui-space-xs);
+    padding-left: var(--size-s);
 }
 
 #statePercentileCheckbox {

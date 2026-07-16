@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { TourStep, TourStepData } from './TourStep'
-import TourControls from './TourControls'
-import { RootState } from '../store'
 import { setTourActive } from '../appSlice'
+import { RootState } from '../store'
+import TourControls from './TourControls'
+import { TourStep, TourStepData } from './TourStep'
 
 function TourPlanner() {
     const [currentStepNum, setCurrentStepNum] = useState(0)
