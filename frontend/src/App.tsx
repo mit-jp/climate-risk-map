@@ -7,12 +7,18 @@ import LandingPage from './landing-page/LandingPage'
 import ReportCard from './report-card/ReportCard'
 import Uploader from './uploader/Uploader'
 import FAQ from './landing-page/FAQ'
+import SupportersCollaborators from './landing-page/SupportersCollaborators'
+import TutorialsAndUseCases from './landing-page/TutorialsAndUseCases'
+import PublicationsAndNews from './landing-page/PublicationsAndNews'
 
 function App() {
     return (
         <Router>
             <Routes>
                 <Route path="/landing-page" element={<LandingPage />} />
+                <Route path="/supporters-and-collaborators" element={<SupportersCollaborators />} />
+                <Route path="/tutorials-and-use-cases" element={<TutorialsAndUseCases />} />
+                <Route path="/publications-and-news" element={<PublicationsAndNews />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/uploader" element={<Uploader />} />
                 <Route path="/editor" element={<Editor />} />
