@@ -1,12 +1,15 @@
 header {
     display: flex;
     align-items: center;
-    gap: var(--size-l);
-    margin: var(--size-l);
+    flex-wrap: wrap;
+    gap: var(--size-4xs) var(--size-5xl);
+    margin: var(--size-4xs) var(--size-m);
 }
 
 header h1 {
     color: var(--primary);
+    font-size: 1.5em;
+    line-height: 1.2;
     margin: 0;
 }
 
@@ -14,25 +17,34 @@ header abbr {
     text-decoration: none;
 }
 
+/* the title block yields space to the region selector, ellipsizing its
+   subtitle rather than wrapping the row */
+header > div {
+    flex: 1;
+    min-width: 0;
+}
+
 header p {
     margin: 0;
+    font-size: var(--size-2xs);
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .cs3-logo {
-    height: 46px;
+    display: block;
+    height: 40px;
 }
 
-/* stack vertically on mobile */
+/* drop the subtitle on mobile */
 @media (max-width: 800px) {
-    header h1 {
-        margin: 0;
-    }
-
     header p {
         display: none;
     }
 
     .cs3-logo {
-        height: 36px;
+        height: 32px;
     }
 }

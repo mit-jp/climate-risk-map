@@ -12,7 +12,7 @@ h1 {
 }
 
 .county-metrics thead td {
-    padding-left: var(--size-s);
+    padding-left: var(--size-4xs);
 }
 
 .county-metrics tr:hover {
@@ -42,29 +42,29 @@ h1 {
     background-color: #000000;
     height: 10px;
     width: 0%;
-    margin: var(--size-s) 0;
+    margin: var(--size-4xs) 0;
     border: 1px solid #000000;
 }
 
 .county-metrics .percentile-bar-column {
     padding-left: 0;
     border-left-style: hidden !important;
-    padding-right: var(--size-s);
+    padding-right: var(--size-4xs);
     width: 15%;
 }
 
 .county-metrics .percentile-column {
     width: 2em;
-    padding-right: var(--size-s);
-    padding-left: var(--size-s);
+    padding-right: var(--size-4xs);
+    padding-left: var(--size-4xs);
 }
 
 .county-metrics .raw-val-column {
-    padding-left: var(--size-s);
+    padding-left: var(--size-4xs);
 }
 
 .county-metrics .metric-column {
-    padding-left: var(--size-s);
+    padding-left: var(--size-4xs);
 }
 
 #statePercentileCheckbox {

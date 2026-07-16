@@ -3,16 +3,8 @@
     display: flex;
 }
 
-.nav-div {
-    display: flex;
-    justify-content: space-between;
-}
-
 @media (max-width: 1000px) {
     .content {
-        flex-direction: column-reverse;
-    }
-    .nav-div {
         flex-direction: column-reverse;
     }
 }

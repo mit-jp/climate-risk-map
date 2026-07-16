@@ -9,11 +9,7 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--size-s) var(--size-l);
-}
-
-.overlays {
-    font-size: var(--font-control);
+    gap: var(--size-4xs) var(--size-5xl);
 }
 
 .overlay-options {
@@ -39,5 +35,5 @@
 }
 
 #report-card-tooltip {
-    margin-left: var(--size-s);
+    margin-left: var(--size-4xs);
 }

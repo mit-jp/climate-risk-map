@@ -23,15 +23,15 @@
     --radius: 0.25em;
     --shadow: 0 1px 4px rgb(0 0 0 / 0.25);
     --font-size-base: 112.5%;
-    /* type scale: 1em content, smaller controls and labels. Everything is
-       em, so sizes compound — never set a font-size on an element nested
-       inside another font-size increase */
-    --font-control: 0.875em;
-    --font-label: 0.75em;
-    /* size scale: use these for every padding, margin, and gap */
-    --size-s: 0.5em;
-    --size-m: 1em;
-    --size-l: 2em;
+    /* size scale: one em-based ladder shared by
+       font-size, padding, margin, and gap. Sizes compound —
+       never set a font-size on an element nested inside another font-size
+       increase. */
+    --size-4xs: 0.5em; /* 8px */
+    --size-2xs: 0.75em; /* 12px */
+    --size-s: 0.9375em; /* 15px */
+    --size-m: 1em; /* 16px */
+    --size-5xl: 2em; /* 32px */
     /* flow spacing between blocks of text, matching the line height */
     --space: 1.5em;
     --popover-width: 20em;
@@ -64,12 +64,12 @@ button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--size-s);
+    gap: var(--size-4xs);
     font: inherit;
-    font-size: var(--font-control);
+    font-size: var(--size-s);
     font-weight: 500;
     line-height: 1.25;
-    padding: var(--size-s) var(--size-m);
+    padding: var(--size-4xs) var(--size-m);
     border-radius: var(--radius);
     border: 1px solid var(--border-color);
     background: var(--background-color);
@@ -112,7 +112,7 @@ button:disabled {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: var(--size-s);
+    padding: var(--size-4xs);
     border: none;
     border-radius: 50%;
     background: none;
@@ -128,10 +128,10 @@ input:where([type='text'], [type='url'], [type='number'], [type='email'], [type=
 textarea,
 select {
     font: inherit;
-    font-size: var(--font-control);
+    font-size: var(--size-s);
     line-height: 1.25;
     color: inherit;
-    padding: var(--size-s) var(--size-m);
+    padding: var(--size-4xs) var(--size-m);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: #fff;
@@ -170,7 +170,7 @@ input:where([type='checkbox'], [type='radio']) {
 label:has(> input[type='checkbox'], > input[type='radio']) {
     display: inline-flex;
     align-items: center;
-    gap: var(--size-s);
+    gap: var(--size-4xs);
     cursor: pointer;
 }
 
@@ -179,10 +179,10 @@ label:has(> input[type='checkbox'], > input[type='radio']) {
 label:has(> input:not([type='checkbox'], [type='radio']), > select, > textarea) {
     display: flex;
     flex-direction: column;
-    gap: var(--size-s);
+    gap: var(--size-4xs);
 }
 label:has(> input:not([type='checkbox'], [type='radio']), > select, > textarea) > span {
-    font-size: var(--font-label);
+    font-size: var(--size-2xs);
     color: var(--muted);
 }
 
@@ -193,16 +193,121 @@ fieldset {
     margin: var(--size-m) 0;
     display: flex;
     flex-direction: column;
-    gap: var(--size-s);
+    gap: var(--size-4xs);
 }
 legend {
-    font-size: var(--font-label);
+    font-size: var(--size-2xs);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--muted);
     padding: 0;
-    margin-bottom: var(--size-s);
+    margin-bottom: var(--size-4xs);
+}
+
+/* A bare <nav> is a row of folder tabs sitting on a shelf. Mark the
+   current page's link with aria-current="page". When the row is too
+   wide it scrolls horizontally instead of wrapping. */
+nav {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--size-4xs);
+    padding: var(--size-4xs) var(--size-4xs) 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    border-bottom: 3px solid var(--primary);
+}
+nav a {
+    flex-shrink: 0;
+    padding: var(--size-4xs) var(--size-m);
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: capitalize;
+    cursor: pointer;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: var(--radius) var(--radius) 0 0;
+    box-shadow: inset 0 1px 0 #fff;
+}
+nav a:hover {
+    background: var(--tint);
+    color: var(--primary);
+}
+/* controls in a nav sit in a row beside the tabs */
+nav form {
+    display: flex;
+    align-items: center;
+    gap: var(--size-4xs);
+    flex-shrink: 0;
+    padding-bottom: var(--size-4xs);
+}
+nav a[aria-current] {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    box-shadow: none;
+}
+/* floating chevrons hint at tabs hidden beyond either edge. They fade
+   with scroll-driven animations and stay hidden in browsers without
+   support, which fall back to the clipped tab and thin scrollbar. */
+nav::before,
+nav::after {
+    position: sticky;
+    z-index: 1;
+    flex: none;
+    align-self: center;
+    display: grid;
+    place-items: center;
+    width: 1.25em;
+    height: 1.25em;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: var(--shadow);
+    color: var(--muted);
+    line-height: 1;
+    pointer-events: none;
+    opacity: 0;
+}
+nav::before {
+    content: '‹';
+    left: var(--size-4xs);
+    margin-right: calc(-1.25em - var(--size-4xs));
+}
+nav::after {
+    content: '›';
+    right: var(--size-4xs);
+    margin-left: calc(-1.25em - var(--size-4xs));
+}
+@supports (animation-timeline: scroll()) {
+    nav::before {
+        animation: nav-hint-start linear both;
+        animation-timeline: scroll(nearest inline);
+    }
+    nav::after {
+        animation: nav-hint-end linear both;
+        animation-timeline: scroll(nearest inline);
+    }
+}
+@keyframes nav-hint-start {
+    0% {
+        opacity: 0;
+    }
+    5%,
+    100% {
+        opacity: 1;
+    }
+}
+@keyframes nav-hint-end {
+    0%,
+    95% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
 }
 
 .ui-full-width {
@@ -252,7 +357,7 @@ details > summary {
     align-items: center;
     justify-content: space-between;
     gap: var(--size-m);
-    padding: var(--size-s) var(--size-m);
+    padding: var(--size-4xs) var(--size-m);
     font-weight: 500;
     cursor: pointer;
     list-style: none;
@@ -287,11 +392,11 @@ details[open] > summary::after {
     transform: translate(-50%, -0.375em);
     background: #222;
     color: #fff;
-    font-size: var(--font-control);
+    font-size: var(--size-s);
     font-weight: 400;
     line-height: 1.4;
     text-align: center;
-    padding: var(--size-s) var(--size-m);
+    padding: var(--size-4xs) var(--size-m);
     border-radius: var(--radius);
     width: max-content;
     max-width: var(--popover-width);
@@ -357,8 +462,8 @@ details[open] > summary::after {
     left: 0;
     right: 0;
     z-index: 30;
-    margin: var(--size-s) 0 0;
-    padding: var(--size-s) 0;
+    margin: var(--size-4xs) 0 0;
+    padding: var(--size-4xs) 0;
     list-style: none;
     background: #fff;
     border-radius: var(--radius);
@@ -367,8 +472,8 @@ details[open] > summary::after {
     overflow: auto;
 }
 .ui-combobox li {
-    padding: var(--size-s) var(--size-m);
-    font-size: var(--font-control);
+    padding: var(--size-4xs) var(--size-m);
+    font-size: var(--size-s);
     cursor: pointer;
 }
 .ui-combobox li:hover,

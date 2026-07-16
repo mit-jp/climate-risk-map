@@ -8,7 +8,7 @@
 }
 
 #csv-preview table th {
-    padding: var(--size-s) var(--size-m) 0 0;
+    padding: var(--size-4xs) var(--size-m) 0 0;
 }
 
 .id-column {
@@ -67,7 +67,7 @@
 
 .column-editor {
     display: flex;
-    gap: var(--size-s);
+    gap: var(--size-4xs);
 }
 
 .column-editor > .column-select {

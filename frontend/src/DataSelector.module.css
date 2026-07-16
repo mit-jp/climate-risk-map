@@ -11,12 +11,11 @@
     justify-content: center;
     gap: var(--size-m);
     color: var(--muted);
-    padding: var(--size-l);
+    padding: var(--size-5xl);
 }
 
 .loading p {
     margin: 0;
-    font-size: var(--font-control);
 }
 
 .loading [role='progressbar'] {
@@ -34,17 +33,17 @@
 
 .choice-row {
     width: 100%;
-    padding: var(--size-s) 0;
+    padding: var(--size-4xs) 0;
 }
 
 .label {
-    padding: var(--size-s) var(--size-m);
+    padding: var(--size-4xs) var(--size-m);
     margin: 0;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    gap: var(--size-s);
+    gap: var(--size-4xs);
 }
 
 .label:hover {
@@ -57,12 +56,12 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    gap: var(--size-s);
+    gap: var(--size-4xs);
     flex: 1;
 }
 
 .year {
-    font-size: var(--font-label);
+    font-size: var(--size-2xs);
     color: var(--muted);
     white-space: nowrap;
 }
@@ -84,13 +83,13 @@
 
 .weight {
     display: flex;
-    margin: 0 0 0 var(--size-l);
-    padding-bottom: var(--size-s);
+    margin: 0 0 0 var(--size-5xl);
+    padding-bottom: var(--size-4xs);
 }
 
 .weight-label {
     align-self: center;
-    font-size: var(--font-label);
+    font-size: var(--size-2xs);
     color: var(--muted);
     white-space: nowrap;
 }

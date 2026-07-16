@@ -83,19 +83,18 @@ function Home() {
     return (
         <>
             <TourPlanner />
-            <Header />
-            <div className={css.navDiv} id="navdiv">
-                {tabs ? (
-                    <Navigation
-                        tabs={displayedTabs}
-                        onTabClick={(tab) => dispatch(setTab(tab))}
-                        selectedTabId={tab?.id}
-                    />
-                ) : (
-                    <EmptyNavigation />
-                )}
+            <Header>
                 <RegionNavigation />
-            </div>
+            </Header>
+            {tabs ? (
+                <Navigation
+                    tabs={displayedTabs}
+                    onTabClick={(tab) => dispatch(setTab(tab))}
+                    selectedTabId={tab?.id}
+                />
+            ) : (
+                <EmptyNavigation />
+            )}
             <main className={css.content}>
                 {tabs && mapVisualizations && tab ? (
                     <DataSelector

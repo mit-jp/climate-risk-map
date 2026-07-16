@@ -3,15 +3,14 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: var(--size-s);
+    gap: var(--size-4xs);
     background: var(--bg-subtle);
-    padding: var(--size-s) var(--size-m);
-    font-size: var(--font-control);
+    padding: var(--size-4xs) var(--size-m);
 }
 
 .sub-selector p {
     margin: 0;
-    font-size: var(--font-label);
+    font-size: var(--size-2xs);
     font-weight: 600;
     color: var(--muted);
 }
@@ -21,7 +20,7 @@
 }
 
 .sub-selector label {
-    padding: var(--size-s);
+    padding: var(--size-4xs);
     border-radius: var(--radius);
     cursor: pointer;
     color: var(--primary);

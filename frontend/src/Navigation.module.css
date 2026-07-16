@@ -1,54 +1,29 @@
-.nav {
-    margin-bottom: var(--size-m);
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.nav a {
-    cursor: pointer;
-    display: block;
-    color: #000;
-    text-decoration: none;
-    padding: var(--size-m);
-    text-transform: capitalize;
-    margin: 0;
-    border: none;
-    font-size: inherit;
-    background: none;
-}
-
-.nav a:hover {
-    background: var(--tint);
-    color: var(--primary);
-}
-
-.nav a.selected {
-    background: var(--primary);
-    color: #fff;
-}
-
-.nav a.uncategorized {
+/* the drafts tab stands out in accent yellow */
+nav a.uncategorized {
     background: var(--accent-subtle);
 }
 
-.nav a.uncategorized:hover,
-.nav a.uncategorized.selected {
+nav a.uncategorized:hover,
+nav a.uncategorized[aria-current] {
     background: var(--accent);
+    border-color: var(--accent);
     color: #000;
 }
 
+/* the region selector is a nav without tabs: no shelf, and it sits at
+   the far end of the header */
 .region-nav {
-    margin: 0 var(--size-l) var(--size-m);
+    margin-left: auto;
+    padding: 0;
+    border-bottom: none;
+    overflow: visible;
+}
+
+.region-nav::before,
+.region-nav::after {
+    content: none;
 }
 
 input.new-tab {
-    margin-left: var(--size-l);
-}
-
-/* do not pad region nav so much on small screen sizes */
-@media (max-width: 600px) {
-    .region-nav {
-        margin-left: var(--size-m);
-    }
+    margin-left: var(--size-5xl);
 }

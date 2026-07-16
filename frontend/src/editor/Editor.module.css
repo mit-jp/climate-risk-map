@@ -13,7 +13,7 @@
 #title-field {
     display: flex;
     align-items: flex-end;
-    gap: var(--size-s);
+    gap: var(--size-4xs);
 }
 
 #map-options {
@@ -42,8 +42,7 @@
 
 .publish-link {
     display: inline-block;
-    padding: var(--size-s) var(--size-m);
-    font-size: var(--font-control);
+    padding: var(--size-4xs) var(--size-m);
     font-weight: 500;
     border-radius: var(--radius);
     color: inherit;
@@ -58,6 +57,6 @@
 .publish-area {
     display: flex;
     align-items: center;
-    gap: var(--size-s);
+    gap: var(--size-4xs);
     margin: var(--size-m) 0;
 }

@@ -21,7 +21,7 @@
 .map-visualizations li {
     display: flex;
     align-items: center;
-    margin-bottom: var(--size-s);
+    margin-bottom: var(--size-4xs);
 }
 
 .map-visualizations li p {

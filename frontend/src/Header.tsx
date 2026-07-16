@@ -1,7 +1,8 @@
+import { ReactNode } from 'react'
 import CS3Logo from './CS3-logo.png'
 import css from './Header.module.css'
 
-function Header() {
+function Header({ children }: { children?: ReactNode }) {
     return (
         <header>
             <a href="https://globalchange.mit.edu/">
@@ -21,6 +22,7 @@ function Header() {
                     System for the Triage of Risks from Environmental and Socio-economic Stressors
                 </p>
             </div>
+            {children}
         </header>
     )
 }
