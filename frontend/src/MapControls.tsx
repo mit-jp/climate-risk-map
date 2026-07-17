@@ -236,11 +236,6 @@ function MapControls({ data, isNormalized, maps }: Props) {
 
     return (
         <div id={css.mapControls}>
-            {zoomTo && (
-                <Button variant="outlined" onClick={() => dispatch(clickMap(-1))}>
-                    Zoom Out
-                </Button>
-            )}
             {region === 'USA' && (
                 <>
                     <Button
@@ -272,7 +267,6 @@ function MapControls({ data, isNormalized, maps }: Props) {
                 <>
                     <Button
                         variant="outlined"
-                        className={css.downloadButton}
                         id={TOUR_TARGET.downloads}
                         popovertarget="download-panel"
                     >
@@ -302,6 +296,11 @@ function MapControls({ data, isNormalized, maps }: Props) {
                         </Button>
                     </div>
                 </>
+            )}
+            {zoomTo && (
+                <Button variant="outlined" onClick={() => dispatch(clickMap(-1))}>
+                    Zoom Out
+                </Button>
             )}
         </div>
     )

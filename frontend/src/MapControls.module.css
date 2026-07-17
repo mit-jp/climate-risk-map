@@ -6,10 +6,6 @@
     gap: var(--size-4xs) var(--size-m);
 }
 
-.download-button {
-    margin-left: auto;
-}
-
 /* each overlay keeps its sub-control directly below its checkbox,
    indented past the checkbox so it reads as its child */
 .overlay > label:has(select) {
