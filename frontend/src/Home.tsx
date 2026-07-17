@@ -82,7 +82,6 @@ function Home() {
 
     return (
         <>
-            <TourPlanner />
             <Header>
                 <RegionNavigation />
             </Header>
@@ -117,6 +116,9 @@ function Home() {
                     !(tabs && mapVisualizations && tab) && <p className={mapCss.map}>No Map</p>}
             </main>
             <ViewTourButton />
+            {/* a CSS anchor must be laid out before the element anchored to
+                it, so the tour must come after every element it targets */}
+            <TourPlanner />
         </>
     )
 }

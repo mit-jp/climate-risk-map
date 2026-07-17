@@ -23,7 +23,8 @@ function TourPlanner() {
             name: 'The Relative Risk Tool',
             description:
                 'For each metric in the ‘combinatory metrics’ tab, each county is given a relative risk score from. 0-100 based on how that county’s raw value for a metric, such as temperature, compares to all other counties across the country or state, depending on the view. This is a percentile ranking. Note that 100 does not mean an absolutely high risk and blue does not mean no risk, red and blue just refer to relatively high and low risk respectively.',
-            targetElement: `#${TOUR_TARGET.legend}`,
+            // the legend lives inside the map SVG, which CSS anchors can't
+            // target, so this step shows a centered popup with no highlight
         },
         {
             name: 'The sidebar can be used to select and combine metrics shown on the map',
@@ -135,7 +136,7 @@ function TourPlanner() {
     }
 
     useEffect(() => {
-        if (isTourActive) {
+        if (isTourActive && currentStep.targetElement) {
             const element = document.querySelector(currentStep.targetElement)
             if (element) {
                 element.scrollIntoView({

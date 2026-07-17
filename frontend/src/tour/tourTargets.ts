@@ -4,7 +4,6 @@
  */
 const TOUR_TARGET = {
     map: 'map-svg',
-    legend: 'map-legend',
     dataSelector: 'data-selector',
     reportCard: 'report-card-div',
     overlays: 'map-overlays',

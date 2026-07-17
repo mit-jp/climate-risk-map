@@ -1,6 +1,5 @@
 import * as d3 from 'd3'
 import LegendTicks from './LegendTicks'
-import TOUR_TARGET from './tour/tourTargets'
 
 type Props = {
     colorScheme: any
@@ -120,7 +119,6 @@ function Legend({
 
     return (
         <svg
-            id={TOUR_TARGET.legend}
             x={x}
             y={y}
             width={width}

@@ -1,8 +1,15 @@
-/* the highlight ring doubles as the popup's anchor: it is a regular CSS
-   box even when the tour targets SVG internals the popup couldn't anchor
-   to directly */
+/* the highlight ring pins itself to whichever element currently carries
+   anchor-name: --tour-target (tagged by TourStep) — the browser keeps it
+   glued to the target through scrolling, resizing, and reflows. */
 .tour-highlight {
-    anchor-name: --tour-anchor;
+    position: fixed;
+    position-anchor: --tour-target;
+    top: anchor(top);
+    left: anchor(left);
+    right: anchor(right);
+    bottom: anchor(bottom);
+    /* sit just outside the target's edges */
+    margin: -4px;
     border: 3px solid #000000;
     border-radius: var(--radius);
     z-index: 10001;
@@ -10,21 +17,26 @@
     box-shadow: 0 0 0 1000vmax rgba(0, 0, 0, 0.6);
 }
 
-/* the popup anchors itself next to the highlighted element and sizes to
-   its content; position-try flips it to whichever side fits */
+@supports not (anchor-name: --tour-target) {
+    .tour-highlight {
+        display: none;
+    }
+}
+
+/* the popup anchors itself directly to the tour target (not to the ring:
+   scroll tracking and fallback re-evaluation only follow the scroll
+   containers between an element and its anchor, and a fixed-position ring
+   has none, so a popup anchored to the ring would keep a stale position
+   while the page scrolls). position-try flips it to whichever side fits. */
 .tourPopup {
     position: fixed;
-    position-anchor: --tour-anchor;
+    position-anchor: --tour-target;
     position-area: block-end;
     /* try the other sides of the target, and when nothing fits (e.g. the
        target is the whole map or a viewport-tall panel) center the popup
        in the viewport — this last option always fits, so the popup can
        never end up off screen */
-    position-try-fallbacks:
-        flip-block,
-        flip-inline,
-        flip-block flip-inline,
-        --tour-popup-center;
+    position-try-fallbacks: block-start, inline-start, inline-end, --tour-popup-center;
     margin: var(--size-m);
     width: min(32em, calc(100vw - 2 * var(--size-m)));
     background: white;
@@ -49,7 +61,7 @@
     translate: -50% -50%;
 }
 
-@supports not (anchor-name: --tour-anchor) {
+@supports not (anchor-name: --tour-target) {
     .tourPopup {
         inset: 50% auto auto 50%;
         translate: -50% -50%;
