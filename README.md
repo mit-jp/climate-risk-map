@@ -30,7 +30,7 @@ In order to show the map on the frontend, you need to create a topojson file for
 2. It must be projected and sized appropriately for the svg viewing area 1175x610.
 3. If it's intended to be overlaid on top of an existing topojson file, you must use the same projection as the existing topojson file to get them to line up.
 
-You will probably have access to a shape file, and need to convert it to topojson. Look at the `map-data-cleaning` repo for examples of converting shape files to topojson, projecting them, and sizing them appropriately. It's full of example scripts. They all use the d3 command line tools that you can install with npm. Read more about how to use them in this trio of blog posts [Command Line Cartography](https://medium.com/@mbostock/command-line-cartography-part-1-897aa8f8ca2c#.8jny46gjo), then read the scripts to understand them.
+You will probably have access to a shape file, and need to convert it to topojson. Look at the [`map-data-cleaning`](https://github.com/mit-jp/map-data-cleaning) repo for examples of converting shape files to topojson, projecting them, and sizing them appropriately. It's full of example scripts. They all use the d3 command line tools that you can install with npm. Read more about how to use them in this trio of blog posts [Command Line Cartography](https://medium.com/@mbostock/command-line-cartography-part-1-897aa8f8ca2c#.8jny46gjo), then read the scripts to understand them.
 
 Here's an example
 
@@ -50,7 +50,7 @@ geo2topo -n overlay=temp-map.ndjson | # convert the geojson file to a topojson f
     topoquantize 1e5 >critical-habitats-topo.json # truncate all the sig figs past 5. e.g. 1.00000000000000000001 becomes 1.00000 (more space efficient)
 ```
 
-You should play around with `toposimplify` and `topoquantize` in order to find a good balance of space efficiency and resolution. Once you have the topojson file exported, you can copy it to `frontend/public/` and load it up in the frontend code.
+You should play around with `toposimplify` and `topoquantize` in order to find a good balance of space efficiency and resolution. Once you have the topojson file exported, you can copy it to [`frontend/public/`](frontend/public/) and load it up in the frontend code.
 
 ### Frontend
 
