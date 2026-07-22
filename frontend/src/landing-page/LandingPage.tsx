@@ -20,13 +20,7 @@ function LandingPage() {
                         learn more, feel free to explore using the tabs above! Otherwise, click the
                         button below to launch STRESS!
                     </Typography>
-                    <Button
-                        component={RouterLink}
-                        to="/"
-                        variant="contained"
-                        size="large"
-                        className={css.cta}
-                    >
+                    <Button component={RouterLink} to="/" variant="contained" size="large">
                         Launch the STRESS Platform
                     </Button>
                 </Container>

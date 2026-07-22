@@ -1,7 +1,7 @@
 .nav {
-    margin-bottom: 1em;
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .nav a {
@@ -15,6 +15,14 @@
     border: none;
     font-size: inherit;
     background: none;
+}
+
+.navbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1em;
 }
 
 .nav a:hover {
