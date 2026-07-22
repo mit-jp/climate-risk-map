@@ -1,7 +1,17 @@
+/* Year and source pickers nested under a selected metric */
 .sub-selector {
     display: flex;
-    background: #eee;
-    padding: 0 0 0 1em;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--size-4xs);
+    background: var(--bg-subtle);
+    padding: var(--size-4xs) var(--size-m);
+}
+
+.sub-selector p {
+    margin: 0;
+    font-size: var(--size-2xs);
+    color: var(--muted);
 }
 
 .sub-selector input {
@@ -9,16 +19,17 @@
 }
 
 .sub-selector label {
-    display: block;
-    border: 1px;
-    padding: 1em 0.5em 1em 0.5em;
+    padding: var(--size-4xs);
+    border-radius: var(--radius);
     cursor: pointer;
+    color: var(--primary);
 }
 
-.sub-selector label:hover,
-.sub-selector input:checked + label {
-    text-decoration: underline;
+.sub-selector label:hover {
+    background: var(--tint);
 }
-.year-dropdown {
-    margin-left: 1em;
+
+.sub-selector input:checked + label {
+    background: var(--primary);
+    color: #fff;
 }

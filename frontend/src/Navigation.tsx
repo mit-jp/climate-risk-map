@@ -1,9 +1,9 @@
-import classNames from 'classnames'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Tab } from './MapApi'
 import css from './Navigation.module.css'
 import { isDrafts } from './editor/Editor'
+import TOUR_TARGET from './tour/tourTargets'
 
 function Navigation({
     tabs,
@@ -18,6 +18,7 @@ function Navigation({
 }) {
     const params = useParams()
     const urlTab = Number(params.tabId)
+    const nav = useRef<HTMLElement>(null)
 
     useEffect(() => {
         const tab = tabs.find((t) => t.id === urlTab)
@@ -26,15 +27,20 @@ function Navigation({
         }
     }, [urlTab, tabs, onTabClick])
 
+    // keep the selected tab in view when the nav scrolls horizontally
+    useEffect(() => {
+        nav.current
+            ?.querySelector('[aria-current]')
+            ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' })
+    }, [selectedTabId])
+
     return (
-        <nav className={css.nav}>
+        <nav ref={nav} id={TOUR_TARGET.navigation}>
             {tabs.map((tab) => (
                 <Link
                     key={tab.id}
-                    className={classNames({
-                        [css.selected]: selectedTabId === tab.id,
-                        [css.uncategorized]: isDrafts(tab),
-                    })}
+                    className={isDrafts(tab) ? css.uncategorized : undefined}
+                    aria-current={selectedTabId === tab.id ? 'page' : undefined}
                     to={root + tab.id}
                 >
                     {tab.name}

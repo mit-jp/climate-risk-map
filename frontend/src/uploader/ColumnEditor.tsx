@@ -1,5 +1,5 @@
-import { MenuItem, Select } from '@mui/material'
 import { useDispatch } from 'react-redux'
+import { Select } from '../ui'
 import css from './Uploader.module.css'
 import { selectColumn } from './uploaderSlice'
 
@@ -30,9 +30,9 @@ export default function ColumnEditor({
             >
                 {possibleColumns.map((columnChoice) => {
                     return (
-                        <MenuItem value={columnChoice} key={columnChoice}>
+                        <option value={columnChoice} key={columnChoice}>
                             {columnChoice}
-                        </MenuItem>
+                        </option>
                     )
                 })}
             </Select>

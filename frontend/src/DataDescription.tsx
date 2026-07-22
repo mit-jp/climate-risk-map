@@ -1,28 +1,29 @@
-import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
-import { ExpandMore } from '@mui/icons-material'
 import css from './DataDescription.module.css'
+import { DataSource } from './MapVisualization'
+import { Accordion } from './ui'
 
-function DataDescription({ name, description }: { name: string; description: string }) {
+function DataDescription({
+    description,
+    dataSource,
+}: {
+    description: string
+    dataSource?: DataSource
+}) {
     return (
         <div className={css.dataDescription}>
-            <Accordion
-                sx={{
-                    width: 'fit-content',
-                }}
-            >
-                <AccordionSummary
-                    expandIcon={<ExpandMore />}
-                    sx={{
-                        backgroundColor: 'rgb(238, 238, 238)',
-                        fontWeight: '400',
-                        minHeight: '40px',
-                    }}
-                >
-                    About the {name} data
-                </AccordionSummary>
-                <AccordionDetails>
+            <Accordion summary="About the data">
+                <div className={css.description}>
                     <p>{description}</p>
-                </AccordionDetails>
+                    {dataSource && (
+                        <>
+                            <h4>Source: {dataSource.name}</h4>
+                            <p>{dataSource.description}</p>
+                            <p>
+                                <a href={dataSource.link}>{dataSource.name} website</a>
+                            </p>
+                        </>
+                    )}
+                </div>
             </Accordion>
         </div>
     )

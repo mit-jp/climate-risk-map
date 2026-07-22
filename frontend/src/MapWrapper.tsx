@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import Color from './Color'
 import DataDescription from './DataDescription'
 import DataProcessor, { getDomain } from './DataProcessor'
-import DataSourceDescription from './DataSourceDescription'
 import EmptyMap from './EmptyMap'
 import { getLegendFormatter, getUnitString } from './Formatter'
 import FullMap from './FullMap'
@@ -19,6 +18,7 @@ import Overlays from './Overlays'
 import ProbabilityDensity from './ProbabilityDensity'
 import { clickMap, selectMapTransform, selectSelections, stateId } from './appSlice'
 import { RootState } from './store'
+import TOUR_TARGET from './tour/tourTargets'
 
 export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
 
@@ -162,7 +162,7 @@ function MapWrapper({
                     <EmptyMapTitle />
                 )}
                 <svg
-                    id="map-svg"
+                    id={TOUR_TARGET.map}
                     version="1.1"
                     baseProfile="full"
                     xmlns="http://www.w3.org/2000/svg"
@@ -245,14 +245,13 @@ function MapWrapper({
                 {map && (
                     <MapControls data={processedData} isNormalized={isNormalized} maps={maps} />
                 )}
-                <div className={css.dataDescriptions} id="data-desc">
+                <div id={TOUR_TARGET.dataDescription}>
                     {maps[0] && (
                         <DataDescription
-                            name={maps[0].displayName}
                             description={maps[0].description}
+                            dataSource={dataSource}
                         />
                     )}
-                    {dataSource && <DataSourceDescription dataSource={dataSource} />}
                 </div>
             </div>
             <MapTooltip

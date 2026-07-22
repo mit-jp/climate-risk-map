@@ -1,5 +1,4 @@
-import classNames from 'classnames'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { Tab, useCreateTabMutation } from '../MapApi'
 import css from '../Navigation.module.css'
@@ -20,6 +19,7 @@ function EditorNavigation({
     const params = useParams()
     const urlTab = Number(params.tabId)
     const [newTabName, setNewTabName] = useState('')
+    const nav = useRef<HTMLElement>(null)
 
     useEffect(() => {
         const tab = tabs.find((t) => t.id === urlTab)
@@ -28,15 +28,20 @@ function EditorNavigation({
         }
     }, [urlTab, tabs, onTabClick])
 
+    // keep the selected tab in view when the nav scrolls horizontally
+    useEffect(() => {
+        nav.current
+            ?.querySelector('[aria-current]')
+            ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' })
+    }, [selectedTabId])
+
     return (
-        <nav className={css.nav}>
+        <nav ref={nav}>
             {tabs.map((tab) => (
                 <Link
                     key={tab.id}
-                    className={classNames({
-                        [css.selected]: selectedTabId === tab.id,
-                        [css.uncategorized]: isDrafts(tab),
-                    })}
+                    className={isDrafts(tab) ? css.uncategorized : undefined}
+                    aria-current={selectedTabId === tab.id ? 'page' : undefined}
                     to={root + tab.id}
                 >
                     {tab.name}
@@ -57,7 +62,7 @@ function EditorNavigation({
                     value={newTabName}
                 />
 
-                <button type="submit" className={css.createTab} disabled={newTabName.length === 0}>
+                <button type="submit" disabled={newTabName.length === 0}>
                     create
                 </button>
             </form>

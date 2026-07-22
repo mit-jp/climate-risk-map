@@ -1,13 +1,9 @@
 /* prevent the empty map from shrinking which makes loads look smoother */
 .map {
-    min-width: 400px;
+    min-width: 25em;
     width: 100%;
 }
 
-.data-descriptions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-}
 
 /* no min width if screen is small */
 @media (max-width: 600px) {

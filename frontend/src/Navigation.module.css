@@ -1,82 +1,29 @@
-.nav {
-    margin-bottom: 1em;
-    display: flex;
-    flex-wrap: wrap;
+/* the drafts tab stands out in accent yellow */
+nav a.uncategorized {
+    background: var(--accent-subtle);
 }
 
-.nav a {
-    cursor: pointer;
-    display: block;
-    color: #000;
-    text-decoration: none;
-    padding: 1em;
-    text-transform: capitalize;
-    margin: 0;
-    border: none;
-    font-size: inherit;
-    background: none;
-}
-
-.nav a:hover {
-    background: #e3eaf1;
-    color: #435e7c;
-}
-
-.nav a.selected {
-    background: #435e7c;
-    color: #fff;
-}
-
-.nav a.uncategorized {
-    background: #fff6d0;
-}
-
-.nav a.uncategorized:hover {
-    background: #fce995;
-    color: #2c2506;
-}
-
-.nav a.uncategorized.selected {
-    background: #ffda37;
+nav a.uncategorized:hover,
+nav a.uncategorized[aria-current] {
+    background: var(--accent);
+    border-color: var(--accent);
     color: #000;
 }
 
+/* the region selector is a nav without tabs: no shelf, and it sits at
+   the far end of the header */
 .region-nav {
-    margin-left: 40px;
-    margin-right: 40px;
-    margin-bottom: 1em;
+    margin-left: auto;
+    padding: 0;
+    border-bottom: none;
+    overflow: visible;
+}
+
+.region-nav::before,
+.region-nav::after {
+    content: none;
 }
 
 input.new-tab {
-    margin-left: 2em;
-    font: inherit;
-    padding: 1em;
-    border: 1px solid #ccc;
-}
-
-button.create-tab {
-    background: #fff;
-    border: none;
-    padding: 1em;
-    font: inherit;
-    cursor: pointer;
-    background-color: #f0f6fc;
-    margin-left: 5px;
-    border: 1px solid #ccc;
-}
-
-button.create-tab:hover {
-    background: #ddeaf6;
-}
-
-button.create-tab:disabled {
-    cursor: not-allowed;
-    background: #ffffff !important;
-}
-
-/* do not pad region nav so much on small screen sizes */
-@media (max-width: 600px) {
-    .region-nav {
-        margin-left: 1em;
-    }
+    margin-left: var(--size-5xl);
 }

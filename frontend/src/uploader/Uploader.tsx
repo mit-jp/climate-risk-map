@@ -1,4 +1,3 @@
-import { LoadingButton } from '@mui/lab'
 import Papa from 'papaparse'
 import React, { FormEvent, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -9,6 +8,7 @@ import {
     useGetGeographyTypesQuery,
     useUploadMutation,
 } from '../MapApi'
+import { Button } from '../ui'
 import CsvPreview from './CsvPreview'
 import MetadataForm from './MetadataForm'
 import UploadData, { FormData, uploadDataFromForm } from './UploadData'
@@ -44,7 +44,8 @@ function Error({
     geographyTypes?: GeographyType[]
     geographyType?: number
 }) {
-    const idName = `${geographyTypes?.find((g) => g.id === geographyType)?.name} ID` ?? 'Geo ID'
+    const geographyName = geographyTypes?.find((g) => g.id === geographyType)?.name
+    const idName = geographyName ? `${geographyName} ID` : 'Geo ID'
     const details = (e: UploadError) => {
         switch (e.name) {
             case 'InvalidCsv':
@@ -215,14 +216,9 @@ function Uploader() {
                     />
                 )}
                 {metadata && dataSources && (
-                    <LoadingButton
-                        variant="contained"
-                        id={css.submit}
-                        type="submit"
-                        loading={isLoading}
-                    >
+                    <Button variant="contained" type="submit" loading={isLoading}>
                         Submit
-                    </LoadingButton>
+                    </Button>
                 )}
                 {isSuccess && (
                     <div className={css.success}>

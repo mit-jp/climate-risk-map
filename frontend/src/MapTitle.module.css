@@ -1,46 +1,44 @@
-#map-title,
-#no-metric-title {
-    font-weight: 400;
-    font-size: 25px;
-    line-height: 48px;
-    margin: 15px 0 0 60px;
-    width: 82%;
+#map-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--size-4xs);
+    margin-top: var(--size-m);
+    padding-inline: var(--size-m);
+}
+
+/* the map title is the page's focal heading, so it renders at h1 size */
+#map-title h3 {
+    font-size: var(--size-2xl);
+    margin: 0;
     text-align: center;
 }
 
-.zoom-out-button {
-    width: 100px;
-    height: 30px;
-    border-radius: 4px;
-    font-size: 16px;
-    font-weight: 800;
-    background-color: hsl(215, 22%, 82%);
-    color: black;
-    border: 1px solid black;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    position: absolute;
-    left: 20px;
-    top: 9px;
+#no-metric-title {
+    margin: var(--size-m) 0;
+    text-align: center;
 }
 
-.zoom-out-button:hover {
-    background-color: rgb(73, 93, 121);
-    color: white;
+.info-icon {
+    display: block;
 }
 
-.mapTitleContainer {
-    position: relative;
+/* one centered row under the title: the place name, or the report card
+   button when a county is selected */
+.subtitle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--size-4xs);
+    margin: 0 0 var(--size-m);
 }
 
 #stateDataWarning {
-    background-color: hsl(351, 100%, 94%);
-    border: 2px solid #f44336;
-    border-radius: 4px;
-    padding: 12px;
-    margin: 16px auto;
-    position: relative;
-    right: 3%;
+    background-color: color-mix(in srgb, var(--error) 8%, transparent);
+    border: 2px solid var(--error);
+    border-radius: var(--radius);
+    padding: var(--size-m);
+    margin: var(--size-m) auto;
     display: block;
     width: fit-content;
     text-align: center;
@@ -53,30 +51,19 @@
 @keyframes backgroundFlash {
     0%,
     100% {
-        background-color: hsl(351, 100%, 94%);
-        border: 2px solid #f44336;
+        background-color: color-mix(in srgb, var(--error) 8%, transparent);
     }
     50% {
-        background-color: hsl(351, 100%, 75%);
-        border: 2px solid #000000;
+        background-color: color-mix(in srgb, var(--error) 30%, transparent);
     }
 }
 
 #stateDataWarningTitle {
-    color: hsl(0, 66%, 42%);
-    font-weight: 600;
-    margin: 0 0 8px 0;
+    color: var(--error);
+    margin: 0 0 var(--size-4xs) 0;
 }
 
 #stateDataWarningParagraph {
-    color: hsl(0, 66%, 42%);
+    color: var(--error);
     margin: 0;
-}
-
-#map-subtitle {
-    font-weight: 400;
-    font-size: 15px;
-    width: 82%;
-    text-align: center;
-    margin: 0 0 15px 60px;
 }

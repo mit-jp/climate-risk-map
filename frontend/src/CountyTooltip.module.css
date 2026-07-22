@@ -1,7 +1,7 @@
 #tooltip {
     opacity: .95;
     position: absolute;
-    padding: 4px;
+    padding: var(--size-4xs);
     background: white;
     pointer-events: none;
     z-index: 100;

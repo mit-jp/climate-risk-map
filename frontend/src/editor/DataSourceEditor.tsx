@@ -1,5 +1,3 @@
-import { LoadingButton } from '@mui/lab'
-import { TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
 import {
     DataSource,
@@ -8,6 +6,7 @@ import {
     useUpdateDataSourceMutation,
 } from '../MapApi'
 import SelectorList, { EmptySelectorList } from '../SelectorList'
+import { Button, TextField } from '../ui'
 import css from './DatasetEditor.module.css'
 
 function DataSourceOptions({ dataSource }: { dataSource: DataSource }) {
@@ -57,15 +56,10 @@ function DataSourceOptions({ dataSource }: { dataSource: DataSource }) {
                 onChange={(e) => setLink(e.target.value)}
                 label="link"
             />
-            <LoadingButton
-                variant="contained"
-                type="submit"
-                loading={isLoading}
-                disabled={noDiff()}
-            >
+            <Button variant="contained" type="submit" loading={isLoading} disabled={noDiff()}>
                 Save
-            </LoadingButton>
-            <LoadingButton
+            </Button>
+            <Button
                 variant="contained"
                 type="button"
                 loading={isDeleting}
@@ -73,7 +67,7 @@ function DataSourceOptions({ dataSource }: { dataSource: DataSource }) {
                 color="error"
             >
                 Delete
-            </LoadingButton>
+            </Button>
         </form>
     )
 }

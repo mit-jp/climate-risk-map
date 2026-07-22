@@ -1,5 +1,5 @@
-import css from './Navigation.module.css'
+import TOUR_TARGET from './tour/tourTargets'
 
 export default function EmptyNavigation() {
-    return <nav className={css.nav} />
+    return <nav id={TOUR_TARGET.navigation} />
 }

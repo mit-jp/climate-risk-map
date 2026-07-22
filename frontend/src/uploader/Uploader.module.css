@@ -1,5 +1,5 @@
 #csv-preview {
-    border: 1px solid #ccc;
+    border: 1px solid var(--border);
     overflow-x: auto;
 }
 
@@ -8,7 +8,7 @@
 }
 
 #csv-preview table th {
-    padding: 0.5em 1em 0 0;
+    padding: var(--size-4xs) var(--size-m) 0 0;
 }
 
 .id-column {
@@ -23,63 +23,69 @@
     background-color: rgb(234, 247, 232);
 }
 
+/* a card: every field spans the form column so the page reads as one grid */
 .dataset-editor {
-    margin-bottom: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-m);
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: var(--size-m);
 }
 
-.dataset-editor label {
-    display: block;
-}
-
-.dataset-editor label.column-label {
-    display: inline;
+.dataset-editor h3 {
+    margin: 0;
 }
 
 .delete-button {
-    float: right;
+    align-self: flex-end;
 }
 
 #uploader {
-    padding: 1em;
+    padding: var(--size-m);
     min-height: 50vh;
 }
 
 #uploader form {
-    max-width: 600px;
+    max-width: 40em;
     display: flex;
     flex-direction: column;
+    gap: var(--size-m);
+}
+
+/* buttons and checkboxes keep their natural width */
+#uploader form > button,
+#uploader form > label:has(> input[type='checkbox']) {
+    align-self: flex-start;
+}
+
+#uploader h2 {
+    margin: var(--size-m) 0 0;
 }
 
 .column-editor {
-    margin: 0.5em 0;
     display: flex;
-}
-
-.column-editor > * {
-    margin-right: 0.5em;
+    gap: var(--size-4xs);
 }
 
 .column-editor > .column-select {
     flex-grow: 2;
 }
 
-#submit {
-    margin-top: 1em;
-}
-
 .error,
 .success {
-    padding: 12px;
-    margin-top: 1em;
-    border-radius: 5px;
+    padding: var(--size-m);
+    border-radius: var(--radius);
 }
 
 .error {
-    background: rgb(255, 238, 238);
-    border: 3px solid rgb(214, 1, 1);
+    background: color-mix(in srgb, var(--error) 8%, transparent);
+    border: 2px solid var(--error);
 }
 
 .success {
-    background-color: rgb(238, 238, 255);
-    border: 3px solid rgb(142, 142, 255);
+    background-color: color-mix(in srgb, var(--secondary) 25%, transparent);
+    border: 2px solid var(--secondary);
 }

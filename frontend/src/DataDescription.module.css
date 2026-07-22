@@ -1,7 +1,12 @@
 .data-description {
-    margin: 1em;
+    margin: var(--size-m);
 }
 
-.data-description button.shown {
-    color: #fbfbfb;
+.data-description summary {
+    background: var(--bg-subtle);
+}
+
+.description {
+    padding: var(--size-m);
+    max-width: 70ch;
 }

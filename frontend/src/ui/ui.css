@@ -1,0 +1,545 @@
+/*
+ * A tiny, dependency-free design system.
+ * 1. plain HTML elements (button, input, select, details, fieldset…) are
+ *    styled and on-brand with no class names at all
+ * 2. small utility classes handle the variants
+ * 3. everything is in em so it scales with font size
+ */
+:root {
+    /* colors */
+    --primary: #435e7c;
+    --primary-light: #56779c;
+    --secondary: #a5c2a6;
+    --error: #b3261e;
+    --error-light: #d3392f;
+    --accent: #ffda37;
+    --accent-subtle: #fff6d0;
+    --muted: #646464;
+    --border: #c4cdd5;
+    --bg-subtle: #eee;
+    --bg-hover: #f2f5f8;
+    --tint: color-mix(in srgb, var(--primary) 8%, transparent);
+    /* shape */
+    --radius: 0.25em;
+    --shadow: 0 1px 4px rgb(0 0 0 / 0.25);
+    --font-size-base: 112.5%;
+
+    /* size scale: one em-based ladder shared by
+       font-size, padding, margin, and gap. Sizes compound —
+       never set a font-size on an element nested inside another font-size
+       increase. */
+    --size-6xs:	0.125em;	/* 2px */
+    --size-5xs:	0.25em;	/* 4px */
+    --size-4xs:	0.5em;	/* 8px */
+    --size-3xs:	0.6875em;	/* 11px */
+    --size-2xs:	0.75em;	/* 12px */
+    --size-xs:	0.8125em;	/* 13px */
+    --size-s:	0.9375em;	/* 15px */
+    --size-m:	1em;	/* 16px */
+    --size-l:	1.0625em;	/* 17px */
+    --size-xl:	1.1875em;	/* 19px */
+    --size-2xl:	1.3125em;	/* 21px */
+    --size-3xl:	1.5em;	/* 24px */
+    --size-4xl:	1.75em;	/* 28px */
+    --size-5xl:	2em;	/* 32px */
+    --size-6xl:	3em;	/* 48px */
+
+    /* flow spacing between blocks of text, matching the line height */
+    --space: 1.5em;
+    --popover-width: 20em;
+}
+
+html {
+    font-size: var(--font-size-base);
+}
+
+/* Text breathes at 1.5 line height, and native block elements space
+   themselves with a matching block-end margin — no classes needed.
+   :where() keeps these at zero specificity so any other rule wins. */
+body {
+    line-height: 1.5;
+}
+:where(h1, h2, h3, h4, h5, h6, p, ul, ol, dl, figure, blockquote, table, pre, hr) {
+    margin-block: 0 var(--space);
+}
+:where(h1, h2, h3, h4, h5, h6, p, ul, ol, dl, figure, blockquote, table, pre, hr):last-child {
+    margin-block-end: 0;
+}
+
+/* Large headings (h1–h3) step down the size ladder at one shared weight,
+   so pages get hierarchy without custom font styles. h4 and below render
+   as the small uppercase label further down. */
+h1,
+h2,
+h3 {
+    font-size: var(--size-l);
+    font-weight: 600;
+    line-height: 1.25;
+}
+h1 {
+    font-size: var(--size-2xl);
+}
+h2 {
+    font-size: var(--size-xl);
+}
+
+/* Buttons: a bare <button> is the quiet text variant, and .btn paints any
+   other element (like a link) the same way. Variant classes only set the
+   color variables; the base rules do the painting. */
+button,
+.btn {
+    --background-color: transparent;
+    --background-color-hover: var(--tint);
+    --border-color: transparent;
+    --color: var(--primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--size-4xs);
+    font: inherit;
+    font-size: var(--size-s);
+    font-weight: 500;
+    line-height: 1.25;
+    padding: var(--size-4xs) var(--size-m);
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    background: var(--background-color);
+    color: var(--color);
+    text-decoration: none;
+    cursor: pointer;
+}
+button:hover,
+.btn:hover {
+    background: var(--background-color-hover);
+}
+:is(button, .btn).outlined {
+    --border-color: currentcolor;
+}
+:is(button, .btn).contained {
+    --background-color: var(--primary);
+    --background-color-hover: var(--primary-light);
+    --color: #fff;
+}
+:is(button, .btn).secondary {
+    --background-color: var(--secondary);
+    --color: #1c3a1d;
+}
+:is(button, .btn).accent {
+    --background-color: var(--accent-subtle);
+    --background-color-hover: var(--accent);
+    --color: #000;
+}
+:is(button, .btn).error {
+    --color: var(--error);
+    --background-color-hover: color-mix(in srgb, var(--error) 8%, transparent);
+}
+:is(button, .btn).error.contained {
+    --background-color: var(--error);
+    --background-color-hover: var(--error-light);
+    --color: #fff;
+}
+button:disabled {
+    --background-color: rgb(0 0 0 / 0.08);
+    --background-color-hover: rgb(0 0 0 / 0.08);
+    --border-color: transparent;
+    --color: rgb(0 0 0 / 0.35);
+    cursor: default;
+}
+
+.ui-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--size-4xs);
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+}
+.ui-icon-button:hover {
+    background: rgb(0 0 0 / 0.08);
+}
+
+/* Text inputs, textareas, and selects need no class names */
+input:where([type='text'], [type='url'], [type='number'], [type='email'], [type='search']),
+textarea,
+select {
+    font: inherit;
+    font-size: var(--size-s);
+    line-height: 1.25;
+    color: inherit;
+    padding: var(--size-4xs) var(--size-m);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: #fff;
+    min-width: 0;
+}
+input:where([type='text'], [type='url'], [type='number'], [type='email'], [type='search']):hover,
+textarea:hover,
+select:hover {
+    border-color: var(--muted);
+}
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+}
+input:disabled,
+textarea:disabled,
+select:disabled {
+    background: var(--bg-subtle);
+    color: var(--muted);
+}
+
+/* Checkboxes, radios, and sliders lean on the browser's own rendering */
+input:where([type='checkbox'], [type='radio'], [type='range']) {
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+input:where([type='checkbox'], [type='radio']) {
+    width: 1.125em;
+    height: 1.125em;
+    flex-shrink: 0;
+}
+
+/* A label wrapping a checkbox or radio lays out as a row, with a little
+   vertical padding so it has a comfortable tap target. */
+label:has(> input[type='checkbox'], > input[type='radio']) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--size-4xs);
+    padding-block: var(--size-5xs);
+    cursor: pointer;
+}
+
+/* …while a label wrapping a text input or select stacks, with its
+   leading <span> as a small field label */
+label:has(> input:not([type='checkbox'], [type='radio']), > select, > textarea) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-4xs);
+}
+label:has(> input:not([type='checkbox'], [type='radio']), > select, > textarea) > span {
+    font-size: var(--size-2xs);
+    color: var(--muted);
+}
+
+/* Fieldsets group a run of related fields under a stronger legend */
+fieldset {
+    border: none;
+    padding: 0;
+    margin: var(--size-m) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-4xs);
+}
+
+/* Small headings (h4 and below) and legends render as the same small
+   uppercase label, marking a subsection inside a larger block */
+legend,
+h4,
+h5,
+h6 {
+    font-size: var(--size-2xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    padding: 0;
+    margin-bottom: var(--size-4xs);
+}
+
+/* A bare <nav> is a row of folder tabs sitting on a shelf. Mark the
+   current page's link with aria-current="page". When the row is too
+   wide it scrolls horizontally instead of wrapping. */
+nav {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--size-4xs);
+    /* size-m inline padding aligns the first tab with page content */
+    padding: var(--size-4xs) var(--size-m) 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    border-bottom: 3px solid var(--primary);
+    /* an empty nav holds one tab row of height so the page doesn't jump
+       when tabs load in: tabs are size-s, so a row is
+       size-s * (1.25 line + 2 * 0.5 padding) plus the 1px border */
+    min-height: calc(2.25 * var(--size-s) + 1px);
+}
+/* tabs share the buttons' typography */
+nav a {
+    flex-shrink: 0;
+    padding: var(--size-4xs) var(--size-m);
+    font-size: var(--size-s);
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: capitalize;
+    cursor: pointer;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-bottom: none;
+    border-radius: var(--radius) var(--radius) 0 0;
+    box-shadow: inset 0 1px 0 #fff;
+}
+nav a:hover {
+    background: var(--tint);
+    color: var(--primary);
+}
+/* controls in a nav sit in a row beside the tabs */
+nav form {
+    display: flex;
+    align-items: center;
+    gap: var(--size-4xs);
+    flex-shrink: 0;
+    padding-bottom: var(--size-4xs);
+}
+nav a[aria-current] {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    box-shadow: none;
+}
+/* floating chevrons hint at tabs hidden beyond either edge. They fade
+   with scroll-driven animations and stay hidden in browsers without
+   support, which fall back to the clipped tab and thin scrollbar. */
+nav::before,
+nav::after {
+    position: sticky;
+    z-index: 1;
+    flex: none;
+    align-self: center;
+    display: grid;
+    place-items: center;
+    width: 1.25em;
+    height: 1.25em;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: var(--shadow);
+    color: var(--muted);
+    line-height: 1;
+    pointer-events: none;
+    opacity: 0;
+}
+nav::before {
+    content: '‹';
+    left: var(--size-4xs);
+    margin-right: calc(-1.25em - var(--size-4xs));
+}
+nav::after {
+    content: '›';
+    right: var(--size-4xs);
+    margin-left: calc(-1.25em - var(--size-4xs));
+}
+@supports (animation-timeline: scroll()) {
+    nav::before {
+        animation: nav-hint-start linear both;
+        animation-timeline: scroll(nearest inline);
+    }
+    nav::after {
+        animation: nav-hint-end linear both;
+        animation-timeline: scroll(nearest inline);
+    }
+}
+@keyframes nav-hint-start {
+    0% {
+        opacity: 0;
+    }
+    5%,
+    100% {
+        opacity: 1;
+    }
+}
+@keyframes nav-hint-end {
+    0%,
+    95% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.ui-full-width {
+    width: 100%;
+}
+
+/* Switch: a restyled checkbox */
+input.ui-switch {
+    appearance: none;
+    width: 2.25em;
+    height: 1.25em;
+    border-radius: 0.625em;
+    background: #9aa5b1;
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+input.ui-switch::before {
+    content: '';
+    position: absolute;
+    top: 0.125em;
+    left: 0.125em;
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+    background: #fff;
+    transition: left 0.15s;
+}
+input.ui-switch:checked {
+    background: var(--primary);
+}
+input.ui-switch:checked::before {
+    left: calc(100% - 1.125em);
+}
+
+/* A bare <details> is an accordion */
+details {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+details + details {
+    border-top: none;
+}
+/* the summary shares the buttons' typography */
+details > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--size-m);
+    padding: var(--size-4xs) var(--size-m);
+    font-size: var(--size-s);
+    font-weight: 500;
+    line-height: 1.25;
+    cursor: pointer;
+    list-style: none;
+}
+details > summary::-webkit-details-marker {
+    display: none;
+}
+details > summary::after {
+    content: '';
+    width: 0.5em;
+    height: 0.5em;
+    border-right: 2px solid var(--muted);
+    border-bottom: 2px solid var(--muted);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+    margin-bottom: 2px;
+}
+details[open] > summary::after {
+    transform: rotate(-135deg);
+    margin-bottom: -4px;
+}
+
+/* Tooltip (the <Tooltip> ui component): clicking the trigger button
+   toggles a dark hint popover — pure HTML. It centers over the button,
+   shifting inward at viewport edges, and light-dismisses on outside
+   click or Esc. */
+.ui-tooltip {
+    background: #222;
+    color: #fff;
+    font-size: var(--size-s);
+    padding: var(--size-4xs) var(--size-m);
+}
+@supports (anchor-name: --anything) {
+    .ui-tooltip {
+        position-area: block-start;
+        justify-self: anchor-center;
+        position-try-fallbacks: flip-block;
+        margin: var(--size-5xs) 0;
+    }
+}
+
+/* Native popovers: pair a button[popovertarget="id"] with a [popover]
+   panel of the same id — toggling, Esc, and click-outside dismissal are
+   all built in. */
+[popover] {
+    border: none;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.3);
+    padding: var(--size-m);
+    width: max-content;
+    max-width: var(--popover-width);
+}
+
+/* A popover of bare buttons is a menu: tight padding, and each button
+   fills its own row */
+[popover]:has(> button) {
+    padding: var(--size-4xs);
+}
+[popover] > button {
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+/* The invoking button is the panel's implicit anchor, so the panel opens
+   below it with no wiring, flipping to whichever side fits. A panel opened
+   from JS instead of a [popovertarget] button has no anchor and must
+   position itself. Browsers without anchor positioning (and jsdom) skip
+   this and show the popover centered. */
+@supports (anchor-name: --anything) {
+    [popover] {
+        inset: auto;
+        position-area: block-end span-inline-end;
+        position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+        margin: var(--size-5xs) 0;
+    }
+}
+
+/* Combobox: text input with a filtered option list */
+.ui-combobox {
+    position: relative;
+}
+.ui-combobox ul {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    margin: var(--size-4xs) 0 0;
+    padding: var(--size-4xs) 0;
+    list-style: none;
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.25);
+    max-height: 20em;
+    overflow: auto;
+}
+.ui-combobox li {
+    padding: var(--size-4xs) var(--size-m);
+    font-size: var(--size-s);
+    cursor: pointer;
+}
+.ui-combobox li:hover,
+.ui-combobox li[aria-selected='true'] {
+    background: var(--bg-hover);
+}
+
+/* Spinner */
+[role='progressbar'] {
+    display: inline-block;
+    width: 2.5em;
+    height: 2.5em;
+    border: 3px solid rgb(0 0 0 / 0.15);
+    border-top-color: currentcolor;
+    border-radius: 50%;
+    color: var(--primary);
+    animation: ui-spin 0.8s linear infinite;
+}
+@keyframes ui-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+button [role='progressbar'] {
+    width: 1em;
+    height: 1em;
+    border-width: 2px;
+    color: inherit;
+}

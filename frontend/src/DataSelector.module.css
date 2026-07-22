@@ -1,23 +1,51 @@
 #data-selector {
-    min-width: 410px;
-    height: 100vh;
-    overflow: auto;
+    min-width: 26em;
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--size-m);
+    color: var(--muted);
+    padding: var(--size-5xl);
+}
+
+.loading p {
+    margin: 0;
+}
+
+.loading [role='progressbar'] {
+    color: var(--muted);
 }
 
 .selected-group {
-    background: #eee;
+    background: var(--bg-subtle);
+    box-shadow: inset 3px 0 0 var(--primary);
 }
 
 .padded {
-    padding: 0em 12px 0em 12px;
+    padding: 0 var(--size-m);
+}
+
+.choice-row {
+    width: 100%;
+    padding: var(--size-4xs) 0;
 }
 
 .label {
-    padding: 1em 1em;
+    padding: var(--size-4xs) var(--size-m);
     margin: 0;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
+    align-items: baseline;
+    gap: var(--size-4xs);
+}
+
+.label:hover {
+    background: var(--bg-hover);
 }
 
 .label-multi {
@@ -25,11 +53,15 @@
     cursor: pointer;
     display: flex;
     justify-content: space-between;
+    align-items: baseline;
+    gap: var(--size-4xs);
+    flex: 1;
 }
 
 .year {
-    font-size: 0.875rem;
-    color: #646464;
+    font-size: var(--size-2xs);
+    color: var(--muted);
+    white-space: nowrap;
 }
 
 .input {
@@ -37,37 +69,27 @@
 }
 
 .input:checked + .label {
-    background: #eee;
-}
-
-.label .name,
-.label:hover .name {
-    text-decoration: underline;
-}
-
-.label .year {
-    font-size: 0.875rem;
-    color: #646464;
+    background: var(--bg-subtle);
+    box-shadow: inset 3px 0 0 var(--primary);
 }
 
 .weight-slider {
-    margin: 0 1em !important;
-    padding-bottom: 2em !important;
-    display: block !important;
-    width: auto !important;
-    color: #435e7c !important;
+    margin: 0 var(--size-m);
     flex-grow: 1;
+    min-width: 0;
 }
 
 .weight {
     display: flex;
-    margin: 0 0 0 30px;
-    padding-bottom: 12px;
+    margin: 0 0 0 var(--size-5xl);
+    padding-bottom: var(--size-4xs);
 }
 
 .weight-label {
     align-self: center;
-    font-size: 0.875rem;
+    font-size: var(--size-2xs);
+    color: var(--muted);
+    white-space: nowrap;
 }
 
 /* no min width if screen is small */
@@ -75,9 +97,4 @@
     #data-selector {
         min-width: auto;
     }
-}
-
-.subcategoryTitle {
-    font-weight: 700;
-    font-size: calc(1rem + 2px);
 }
