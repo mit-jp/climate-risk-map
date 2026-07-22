@@ -10,7 +10,7 @@ function LandingPage() {
             <Header />
             <LandingPageNavbar />
             <main className={css.page}>
-                <Container maxWidth="md" className={css.container}>
+                <Container className={css.container}>
                     <Typography variant="h2" component="h1" className={css.title}>
                         Welcome to the STRESS Platform!
                     </Typography>

@@ -36,7 +36,9 @@ function TutorialsAndUseCases() {
                         sources are linked in STRESS and can be explored further.
                     </Typography>
                     <Typography variant="h4" component="p" className={css.subtitle}>
-                        Explore STRESS through the lens of different careers!
+                        Explore STRESS through the lens of different stakeholder! TODO: Have all of
+                        these on one page and jump to them Another TODO: Add a button to top right
+                        to launch STRESS
                     </Typography>
                     <div className={css.rolesList}>
                         <div className={css.roleItem}>

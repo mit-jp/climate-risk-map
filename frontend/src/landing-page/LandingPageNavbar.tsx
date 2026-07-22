@@ -5,7 +5,7 @@ function LandingPageNavbar() {
     return (
         <nav className={css.nav}>
             <Link to="/landing-page" className={css.a}>
-                Launch STRESS
+                About
             </Link>
             <Link to="/supporters-and-collaborators" className={css.a}>
                 Supporters and Collaborators
@@ -13,8 +13,8 @@ function LandingPageNavbar() {
             <Link to="/tutorials-and-use-cases" className={css.a}>
                 Tutorials and Use Cases
             </Link>
-            <Link to="/publications-and-news" className={css.a}>
-                Publications and News
+            <Link to="/resources" className={css.a}>
+                Resources
             </Link>
             <Link to="/faq" className={css.a}>
                 FAQ

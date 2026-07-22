@@ -3,7 +3,7 @@ import css from './LandingPage.module.css'
 import Header from '../Header'
 import LandingPageNavbar from './LandingPageNavbar'
 
-function PublicationsAndNews() {
+function Resources() {
     return (
         <div>
             <Header />
@@ -11,7 +11,7 @@ function PublicationsAndNews() {
             <main className={css.page}>
                 <Container maxWidth="md" className={css.container}>
                     <Typography variant="h2" component="h1" className={css.title}>
-                        Publications and News
+                        Resources
                     </Typography>
                     <Typography variant="h6" component="p" className={css.subtitle}>
                         lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
@@ -31,4 +31,4 @@ function PublicationsAndNews() {
     )
 }
 
-export default PublicationsAndNews
+export default Resources

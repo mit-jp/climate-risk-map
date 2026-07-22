@@ -11,7 +11,8 @@ function SupportersCollaborators() {
             <main className={css.page}>
                 <Container maxWidth="md" className={css.container}>
                     <Typography variant="h2" component="h1" className={css.title}>
-                        Supporters and Collaborators
+                        Supporters and Collaborators TODO: Get collage of logos of supporters and
+                        collaborators and add here
                     </Typography>
                     <Typography variant="h6" component="p" className={css.subtitle}>
                         lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
