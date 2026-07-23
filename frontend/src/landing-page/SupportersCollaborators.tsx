@@ -1,5 +1,9 @@
 import { Container, Typography } from '@mui/material'
 import css from './LandingPage.module.css'
+import epaLogo from './images/EPA.png'
+import doeLogo from './images/DOE_logo.jpg'
+import nasaLogo from './images/nasa.png'
+import congressBudgetLogo from './images/congress_budget.png'
 import Header from '../Header'
 import LandingPageNavbar from './LandingPageNavbar'
 
@@ -28,6 +32,32 @@ function SupportersCollaborators() {
                         Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum. Maecenas
                         adipiscing ante non diam sodales hendrerit.
                     </Typography>
+                    <div className={css.supportersLogos}>
+                        <div className={css.roleItem}>
+                            <img src={epaLogo} alt="EPA logo" />
+                            <Typography variant="subtitle1" className={css.roleLabel}>
+                                U.S. Environmental Protection Agency (EPA)
+                            </Typography>
+                        </div>
+                        <div className={css.roleItem}>
+                            <img src={doeLogo} alt="DOE logo" />
+                            <Typography variant="subtitle1" className={css.roleLabel}>
+                                U.S. Department of Energy (DOE)
+                            </Typography>
+                        </div>
+                        <div className={css.roleItem}>
+                            <img src={nasaLogo} alt="NASA logo" />
+                            <Typography variant="subtitle1" className={css.roleLabel}>
+                                U.S. National Aeronautics and Space Administration (NASA)
+                            </Typography>
+                        </div>
+                        <div className={css.roleItem}>
+                            <img src={congressBudgetLogo} alt="Congress Budget logo" />
+                            <Typography variant="subtitle1" className={css.roleLabel}>
+                                U.S. Congress Budget Office
+                            </Typography>
+                        </div>
+                    </div>
                 </Container>
             </main>
         </div>
