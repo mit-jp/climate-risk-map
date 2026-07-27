@@ -32,13 +32,11 @@
     position: fixed;
     position-anchor: --tour-target;
     position-area: block-end;
-    /* flip above the target, and when neither side fits (e.g. the
+    /* try the other sides of the target, and when no side fits (e.g. the
        target is the whole map or a viewport-tall panel) center the popup
        in the viewport — this last option always fits, so the popup can
-       never end up off screen. Keep this list minimal: inline flips are
-       no-ops for a block-end area, and with them in the list Chrome
-       skipped fallbacks that fit and jumped straight to the centered one */
-    position-try-fallbacks: flip-block, --tour-popup-center;
+       never end up off screen */
+    position-try-fallbacks: block-start, inline-start, inline-end, --tour-popup-center;
     margin: var(--size-m);
     width: min(32em, calc(100vw - 2 * var(--size-m)));
     background: white;

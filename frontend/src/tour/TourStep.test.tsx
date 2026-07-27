@@ -142,11 +142,10 @@ describe('tour.module.css anchor contract', () => {
         expect(css).not.toContain('--tour-anchor')
     })
 
-    test('the popup fallback chain is exactly flip-block, then centered in the viewport', () => {
-        // keep this list minimal: inline flips are no-ops for a block-end
-        // area, and with them in the list Chrome skipped fallbacks that
-        // fit and jumped straight to the centered one
-        expect(css).toMatch(/position-try-fallbacks: flip-block, --tour-popup-center;/)
+    test('the popup fallback chain tries every side of the target, then centers in the viewport', () => {
+        expect(css).toMatch(
+            /position-try-fallbacks: block-start, inline-start, inline-end, --tour-popup-center;/
+        )
         expect(css).toContain('@position-try --tour-popup-center')
     })
 })
