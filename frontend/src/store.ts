@@ -16,27 +16,23 @@ export const store = configureStore({
             serializableCheck: false,
         }).concat(mapApi.middleware),
     devTools: {
-        stateSanitizer: (state: any) => {
-            return {
-                ...state,
-                app: {
-                    ...state.app,
-                    data: state.app.data ? '<Large data not displayed to save memory>' : undefined,
-                    map: state.app.map ? '<Large map not displayed to save memory>' : undefined,
-                    overlays: '<Large data not displayed to save memory>',
-                },
-                editor: {
-                    ...state.editor,
-                    map: state.editor.map ? '<Large map not displayed to save memory>' : undefined,
-                },
-                uploader: {
-                    ...state.uploader,
-                    csv: state.uploader.csv
-                        ? '<Large csv not displayed to save memory>'
-                        : undefined,
-                },
-            }
-        },
+        stateSanitizer: (state: any) => ({
+            ...state,
+            app: {
+                ...state.app,
+                data: state.app.data ? '<Large data not displayed to save memory>' : undefined,
+                map: state.app.map ? '<Large map not displayed to save memory>' : undefined,
+                overlays: '<Large data not displayed to save memory>',
+            },
+            editor: {
+                ...state.editor,
+                map: state.editor.map ? '<Large map not displayed to save memory>' : undefined,
+            },
+            uploader: {
+                ...state.uploader,
+                csv: state.uploader.csv ? '<Large csv not displayed to save memory>' : undefined,
+            },
+        }),
         actionsBlacklist: ['app/hoverCounty', 'app/hoverPosition'],
     },
 })

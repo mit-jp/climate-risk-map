@@ -37,8 +37,8 @@ function DropdownYearSelector({ years, selectedYear, onChange, id }: Props) {
 }
 
 function ButtonsYearSelector({ years, selectedYear, onChange, id }: Props) {
-    const getYears = () => {
-        return years.map((year) => (
+    const getYears = () =>
+        years.map((year) => (
             <Fragment key={year.toISODate()}>
                 <input
                     type="radio"
@@ -50,7 +50,6 @@ function ButtonsYearSelector({ years, selectedYear, onChange, id }: Props) {
                 <label htmlFor={id + year.toISODate()}>{readable(year)}</label>
             </Fragment>
         ))
-    }
     return (
         <div className={css.subSelector}>
             <p>Year:</p>

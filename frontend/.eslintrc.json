@@ -15,10 +15,6 @@
         }
     },
     "rules": {
-        // these two autofix into code Prettier may reformat differently, so
-        // plugin:prettier/recommended kept them off; preserve that
-        "arrow-body-style": "off",
-        "prefer-arrow-callback": "off",
         // TypeScript itself checks undefined identifiers, including ambient
         // types and test globals; the core rule false-positives on both.
         // https://typescript-eslint.io/troubleshooting/faqs/eslint/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined

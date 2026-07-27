@@ -80,14 +80,11 @@ function DatasetOptions({ dataset }: { dataset: Dataset }) {
         setShortName(dataset.short_name)
     }, [dataset])
 
-    const noDiff = () => {
-        return (
-            name === dataset.name &&
-            description === dataset.description &&
-            units === dataset.units &&
-            shortName === dataset.short_name
-        )
-    }
+    const noDiff = () =>
+        name === dataset.name &&
+        description === dataset.description &&
+        units === dataset.units &&
+        shortName === dataset.short_name
 
     return (
         <form

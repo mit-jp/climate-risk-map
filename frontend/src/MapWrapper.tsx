@@ -70,12 +70,14 @@ function MapWrapper({
     const selections = useSelector(selectSelections)
     const region = useSelector((rootState: RootState) => rootState.app.region)
     const tab = useSelector((state: RootState) => state.app.tab?.name ?? '')
-    const maps = useMemo(() => {
-        return selections
-            .map((selection) => selection.mapVisualization)
-            .map((id) => allMapVisualizations[id])
-            .filter((mapVisualization) => mapVisualization !== undefined)
-    }, [allMapVisualizations, selections])
+    const maps = useMemo(
+        () =>
+            selections
+                .map((selection) => selection.mapVisualization)
+                .map((id) => allMapVisualizations[id])
+                .filter((mapVisualization) => mapVisualization !== undefined),
+        [allMapVisualizations, selections]
+    )
     const queryParams: DataQueryParams[] | undefined =
         Object.entries(selections).length > 0
             ? selections.map((selection) => ({
@@ -104,9 +106,9 @@ function MapWrapper({
                     countryMap.get(stateId).push(value)
                 })
 
-                const allValuesSame = Array.from(countryMap.values()).every((state) => {
-                    return state.every((val: number) => val === state[0])
-                })
+                const allValuesSame = Array.from(countryMap.values()).every((state) =>
+                    state.every((val: number) => val === state[0])
+                )
 
                 // to prevent the warning from flashing when loading a new map
                 if (valueSet.size === 0) {

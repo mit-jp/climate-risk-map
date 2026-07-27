@@ -22,13 +22,10 @@ function DataSourceOptions({ dataSource }: { dataSource: DataSource }) {
         setLink(dataSource.link)
     }, [dataSource])
 
-    const noDiff = () => {
-        return (
-            name === dataSource.name &&
-            description === dataSource.description &&
-            link === dataSource.link
-        )
-    }
+    const noDiff = () =>
+        name === dataSource.name &&
+        description === dataSource.description &&
+        link === dataSource.link
 
     return (
         <form

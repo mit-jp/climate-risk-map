@@ -28,13 +28,11 @@ export default function ColumnEditor({
                     )
                 }
             >
-                {possibleColumns.map((columnChoice) => {
-                    return (
-                        <option value={columnChoice} key={columnChoice}>
-                            {columnChoice}
-                        </option>
-                    )
-                })}
+                {possibleColumns.map((columnChoice) => (
+                    <option value={columnChoice} key={columnChoice}>
+                        {columnChoice}
+                    </option>
+                ))}
             </Select>
         </div>
     )
