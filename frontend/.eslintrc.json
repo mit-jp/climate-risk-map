@@ -2,20 +2,23 @@
     "parser": "@typescript-eslint/parser",
     "extends": [
         "airbnb",
-        "plugin:prettier/recommended",
         "plugin:react/recommended",
         "plugin:react-hooks/recommended",
         "plugin:jsx-a11y/recommended",
-        "plugin:react/jsx-runtime"
+        "plugin:react/jsx-runtime",
+        "prettier"
     ],
-    "plugins": ["prettier", "react", "@typescript-eslint", "testing-library"],
+    "plugins": ["react", "@typescript-eslint", "testing-library"],
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
         }
     },
     "rules": {
-        "prettier/prettier": ["error"],
+        // these two autofix into code Prettier may reformat differently, so
+        // plugin:prettier/recommended kept them off; preserve that
+        "arrow-body-style": "off",
+        "prefer-arrow-callback": "off",
         // TypeScript itself checks undefined identifiers, including ambient
         // types and test globals; the core rule false-positives on both.
         // https://typescript-eslint.io/troubleshooting/faqs/eslint/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined
