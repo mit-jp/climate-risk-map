@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
         "target": "es6",
-        "downlevelIteration": true,
         "importHelpers": true,
         "lib": ["dom", "dom.iterable", "esnext"],
         "allowJs": true,
