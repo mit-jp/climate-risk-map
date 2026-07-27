@@ -1,11 +1,11 @@
 #footer {
     padding: var(--size-m);
     background: var(--primary);
-    color: #fff;
+    color: var(--color-on-primary);
 }
 
 #footer a {
-    color: #fff;
+    color: var(--color-on-primary);
 }
 
 #footer ul {

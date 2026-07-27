@@ -7,7 +7,7 @@ h1 {
 }
 
 .county-metrics thead {
-    background-color: var(--bg-subtle);
+    background-color: var(--color-fill-muted);
     font-weight: bold;
 }
 
@@ -16,7 +16,7 @@ h1 {
 }
 
 .county-metrics tr:hover {
-    background: var(--bg-hover);
+    background: var(--color-fill-hover);
 }
 
 .county-metrics td {
@@ -24,7 +24,7 @@ h1 {
 }
 
 .county-metrics td + td {
-    border-left: 2px solid var(--border);
+    border-left: 2px solid var(--color-border);
 }
 
 .report-card {
@@ -39,11 +39,11 @@ h1 {
 }
 
 .percentile-bar {
-    background-color: #000000;
+    background-color: var(--color-text-normal);
     height: 10px;
     width: 0%;
     margin: var(--size-4xs) 0;
-    border: 1px solid #000000;
+    border: 1px solid var(--color-text-normal);
 }
 
 .county-metrics .percentile-bar-column {

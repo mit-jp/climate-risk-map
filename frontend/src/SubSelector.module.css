@@ -4,14 +4,14 @@
     align-items: center;
     flex-wrap: wrap;
     gap: var(--size-4xs);
-    background: var(--bg-subtle);
+    background: var(--color-fill-muted);
     padding: var(--size-4xs) var(--size-m);
 }
 
 .sub-selector p {
     margin: 0;
     font-size: var(--size-2xs);
-    color: var(--muted);
+    color: var(--color-text-muted);
 }
 
 /* the radio itself is .ui-sr-only (accessible but invisible); the
@@ -23,7 +23,7 @@
     padding-block: max(var(--control-pad-block), (var(--target-min) - 1lh) / 2);
     border-radius: var(--radius);
     cursor: pointer;
-    color: var(--primary);
+    color: var(--color-text-primary);
 }
 
 .sub-selector label:hover {
@@ -32,5 +32,5 @@
 
 .sub-selector input:checked + label {
     background: var(--primary);
-    color: #fff;
+    color: var(--color-on-primary);
 }

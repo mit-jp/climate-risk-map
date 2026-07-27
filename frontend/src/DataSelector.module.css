@@ -8,7 +8,7 @@
     align-items: center;
     justify-content: center;
     gap: var(--size-m);
-    color: var(--muted);
+    color: var(--color-text-muted);
     padding: var(--size-5xl);
 }
 
@@ -17,12 +17,12 @@
 }
 
 .loading [role='progressbar'] {
-    color: var(--muted);
+    color: var(--color-text-muted);
 }
 
 .selected-group {
-    background: var(--bg-subtle);
-    box-shadow: inset 3px 0 0 var(--primary);
+    background: var(--color-fill-muted);
+    box-shadow: inset 3px 0 0 var(--color-text-primary);
 }
 
 .padded {
@@ -48,7 +48,7 @@
 }
 
 .label:hover {
-    background: var(--bg-hover);
+    background: var(--color-fill-hover);
 }
 
 .label-multi {
@@ -63,15 +63,15 @@
 
 .year {
     font-size: var(--size-2xs);
-    color: var(--muted);
+    color: var(--color-text-muted);
     white-space: nowrap;
 }
 
 /* the radio itself is .ui-sr-only (accessible but invisible); the
    label draws the row and shows the checked state */
 input:checked + .label {
-    background: var(--bg-subtle);
-    box-shadow: inset 3px 0 0 var(--primary);
+    background: var(--color-fill-muted);
+    box-shadow: inset 3px 0 0 var(--color-text-primary);
 }
 
 .weight-slider {
@@ -89,7 +89,7 @@ input:checked + .label {
 .weight-label {
     align-self: center;
     font-size: var(--size-2xs);
-    color: var(--muted);
+    color: var(--color-text-muted);
     white-space: nowrap;
 }
 
