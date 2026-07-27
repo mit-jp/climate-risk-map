@@ -111,6 +111,7 @@ jobs:
           yarn install --immutable
           yarn lint
           yarn format:check
+          yarn knip
           yarn build
         working-directory: frontend
 

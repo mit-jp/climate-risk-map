@@ -22,7 +22,7 @@ import TOUR_TARGET from './tour/tourTargets'
 
 export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
 
-export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
+const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
     const dataDefinition = selectedMaps[0]
     const unitString = getUnitString({ units: dataDefinition.units, isNormalized })
 
