@@ -1,6 +1,5 @@
 import './ui.css'
 
-export { default as Accordion } from './Accordion'
 export { default as Button } from './Button'
 export { default as Combobox } from './Combobox'
 export { default as Select } from './Select'

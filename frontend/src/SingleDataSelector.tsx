@@ -6,7 +6,6 @@ import { MapVisualization, MapVisualizationId, GeographyType } from './MapVisual
 import YearSelector, { readable } from './YearSelector'
 import { changeDataSource, changeDateRange, changeMapSelection, selectSelections } from './appSlice'
 import { RootState } from './store'
-import { Accordion } from './ui'
 import { useGetSubcategoriesQuery } from './MapApi'
 
 function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisualization> }) {
@@ -98,9 +97,10 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
                 subcategories
                     .filter((subcategory) => !isEmpty(subcategory.id))
                     .map((subcategory) => (
-                        <Accordion key={subcategory.id} summary={subcategory.name}>
+                        <details key={subcategory.id}>
+                            <summary>{subcategory.name}</summary>
                             {getDataList((map) => map.subcategory === subcategory.id)}
-                        </Accordion>
+                        </details>
                     ))}
             {getDataList((map) => map.subcategory == null)}
             {!shouldShowSubcategories && getDataList((map) => map.subcategory != null)}

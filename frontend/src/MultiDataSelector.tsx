@@ -12,12 +12,9 @@ import {
 } from './MapVisualization'
 import { changeWeight, selectSelections, setMapSelections } from './appSlice'
 import { RootState, store } from './store'
-import { Accordion } from './ui'
 import { readable } from './YearSelector'
 
-const multipleChecked = (selections: MapSelection[]) => {
-    return selections.length > 1
-}
+const multipleChecked = (selections: MapSelection[]) => selections.length > 1
 
 const checkBox = (
     map: MapVisualization,
@@ -95,9 +92,7 @@ function MultiDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisua
         dispatch(setMapSelections(Array.from(changedSelections.values())))
     }
 
-    const shouldBeChecked = (mapId: MapVisualizationId) => {
-        return selectionMap.has(mapId)
-    }
+    const shouldBeChecked = (mapId: MapVisualizationId) => selectionMap.has(mapId)
 
     const getDataList = (dataFilter: (map: MapVisualization) => boolean) =>
         Object.values(maps)
@@ -123,9 +118,10 @@ function MultiDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisua
                 subcategories
                     .filter((subcategory) => !isEmpty(subcategory.id))
                     .map((subcategory) => (
-                        <Accordion key={subcategory.id} summary={subcategory.name}>
+                        <details key={subcategory.id}>
+                            <summary>{subcategory.name}</summary>
                             {getDataList((map) => map.subcategory === subcategory.id)}
-                        </Accordion>
+                        </details>
                     ))}
             {getDataList((map) => map.subcategory == null)}
         </form>
