@@ -14,7 +14,7 @@ body {
 #root {
     width: 100%;
     max-width: 2800px;
-    background: #fff;
+    background: var(--surface);
     display: flex;
     flex-direction: column;
 }

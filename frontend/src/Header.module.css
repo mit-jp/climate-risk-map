@@ -39,6 +39,14 @@ header p {
     height: 40px;
 }
 
+/* the logo is black-on-transparent artwork; flip it to white when the
+   theme resolves its light-dark() colors to the dark scheme */
+@media (prefers-color-scheme: dark) {
+    .cs3-logo {
+        filter: invert(1);
+    }
+}
+
 /* drop the subtitle on mobile */
 @media (max-width: 1000px) {
     /* crop to the MIT mark alone (the left 104px of the 320×59 source
