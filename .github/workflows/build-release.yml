@@ -114,6 +114,10 @@ jobs:
           yarn build
         working-directory: frontend
 
+      - name: 🎭 Install Playwright browsers
+        run: yarn playwright install --with-deps chromium
+        working-directory: frontend
+
       - name: 🧪 Test
         run: yarn test
         working-directory: frontend
