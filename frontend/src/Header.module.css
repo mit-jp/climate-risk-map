@@ -7,7 +7,7 @@ header {
 }
 
 header h1 {
-    color: var(--primary);
+    color: var(--color-text-primary);
     margin: 0;
 }
 

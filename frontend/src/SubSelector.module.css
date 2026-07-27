@@ -22,7 +22,7 @@
     padding: var(--size-4xs);
     border-radius: var(--radius);
     cursor: pointer;
-    color: var(--primary);
+    color: var(--color-text-primary);
 }
 
 .sub-selector label:hover {

@@ -22,7 +22,7 @@
 
 .selected-group {
     background: var(--color-fill-muted);
-    box-shadow: inset 3px 0 0 var(--primary);
+    box-shadow: inset 3px 0 0 var(--color-text-primary);
 }
 
 .padded {
@@ -70,7 +70,7 @@
 
 .input:checked + .label {
     background: var(--color-fill-muted);
-    box-shadow: inset 3px 0 0 var(--primary);
+    box-shadow: inset 3px 0 0 var(--color-text-primary);
 }
 
 .weight-slider {
