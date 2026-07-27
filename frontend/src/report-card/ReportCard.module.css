@@ -54,7 +54,7 @@ h1 {
 }
 
 .county-metrics .percentile-column {
-    width: 2em;
+    width: var(--size-5xl);
     padding-right: var(--size-4xs);
     padding-left: var(--size-4xs);
 }

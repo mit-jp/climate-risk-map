@@ -235,9 +235,15 @@ input:where([type='checkbox'], [type='radio'], [type='range']) {
     cursor: pointer;
 }
 input:where([type='checkbox'], [type='radio']) {
-    width: 1.125em;
-    height: 1.125em;
+    --box-size: var(--size-l);
+    width: var(--box-size);
+    height: var(--box-size);
     flex-shrink: 0;
+}
+/* the slider's hit area spans its whole box, so the box gets the
+   touch-target floor while the browser keeps the track centered */
+input:where([type='range']) {
+    min-block-size: var(--target-min);
 }
 
 /* A label wrapping a checkbox or radio lays out as a row, with a little
@@ -353,14 +359,15 @@ nav a[aria-current] {
    support, which fall back to the clipped tab and thin scrollbar. */
 nav::before,
 nav::after {
+    --hint-size: var(--size-xl);
     position: sticky;
     z-index: 1;
     flex: none;
     align-self: center;
     display: grid;
     place-items: center;
-    width: 1.25em;
-    height: 1.25em;
+    width: var(--hint-size);
+    height: var(--hint-size);
     border-radius: 50%;
     background: var(--surface);
     box-shadow: var(--shadow);
@@ -372,12 +379,12 @@ nav::after {
 nav::before {
     content: '‹';
     left: var(--size-4xs);
-    margin-right: calc(-1.25em - var(--size-4xs));
+    margin-right: calc(-1 * var(--hint-size) - var(--size-4xs));
 }
 nav::after {
     content: '›';
     right: var(--size-4xs);
-    margin-left: calc(-1.25em - var(--size-4xs));
+    margin-left: calc(-1 * var(--hint-size) - var(--size-4xs));
 }
 @supports (animation-timeline: scroll()) {
     nav::before {
@@ -421,12 +428,38 @@ footer li > a {
     width: 100%;
 }
 
-/* Switch: a restyled checkbox */
+/* Visually hidden but still focusable and announced — for custom-styled
+   controls where a sibling label draws the whole UI. Unlike
+   display: none, the input keeps its place in the tab order and the
+   accessibility tree; the label carries the focus ring on its behalf.
+   The 1px box is the standard screen-reader-only recipe, not a layout
+   size. */
+.ui-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    clip-path: inset(50%);
+    overflow: hidden;
+    white-space: nowrap;
+}
+.ui-sr-only:focus-visible + label {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+}
+
+/* Switch: a restyled checkbox. All geometry derives from the knob size
+   and its inset: the track is two knobs wide and pill-shaped. */
 input.ui-switch {
+    --knob-size: var(--size-m);
+    --knob-inset: var(--size-6xs);
+    --track-height: calc(var(--knob-size) + 2 * var(--knob-inset));
     appearance: none;
-    width: 2.25em;
-    height: 1.25em;
-    border-radius: 0.625em;
+    width: calc(2 * var(--knob-size) + 2 * var(--knob-inset));
+    height: var(--track-height);
+    border-radius: calc(var(--track-height) / 2);
     background: light-dark(#9aa5b1, #5b6673);
     position: relative;
     flex-shrink: 0;
@@ -435,10 +468,10 @@ input.ui-switch {
 input.ui-switch::before {
     content: '';
     position: absolute;
-    top: 0.125em;
-    left: 0.125em;
-    width: 1em;
-    height: 1em;
+    top: var(--knob-inset);
+    left: var(--knob-inset);
+    width: var(--knob-size);
+    height: var(--knob-size);
     border-radius: 50%;
     background: #fff;
     transition: left 0.15s;
@@ -447,7 +480,7 @@ input.ui-switch:checked {
     background: var(--primary);
 }
 input.ui-switch:checked::before {
-    left: calc(100% - 1.125em);
+    left: calc(100% - var(--knob-size) - var(--knob-inset));
 }
 
 /* A bare <details> is an accordion */
@@ -478,8 +511,8 @@ details > summary::-webkit-details-marker {
 }
 details > summary::after {
     content: '';
-    width: 0.5em;
-    height: 0.5em;
+    width: var(--size-4xs);
+    height: var(--size-4xs);
     border-right: 2px solid var(--muted);
     border-bottom: 2px solid var(--muted);
     transform: rotate(45deg);
@@ -583,9 +616,10 @@ details[open] > summary::after {
 
 /* Spinner */
 [role='progressbar'] {
+    --spinner-size: calc(2.5 * var(--size-m));
     display: inline-block;
-    width: 2.5em;
-    height: 2.5em;
+    width: var(--spinner-size);
+    height: var(--spinner-size);
     border: 3px solid light-dark(rgb(0 0 0 / 0.15), rgb(255 255 255 / 0.2));
     border-top-color: currentcolor;
     border-radius: 50%;
@@ -598,8 +632,7 @@ details[open] > summary::after {
     }
 }
 button [role='progressbar'] {
-    width: 1em;
-    height: 1em;
+    --spinner-size: var(--size-m);
     border-width: 2px;
     color: inherit;
 }

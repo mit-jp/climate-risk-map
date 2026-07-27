@@ -35,8 +35,11 @@ header p {
 }
 
 .cs3-logo {
+    /* the logo artwork is a fixed-height bitmap, not text, so it sizes
+       in px; the mobile crop below derives its width from this */
+    --logo-height: 40px;
     display: block;
-    height: 40px;
+    height: var(--logo-height);
 }
 
 /* the logo is black-on-transparent artwork; flip it to white when the
@@ -52,7 +55,7 @@ header p {
     /* crop to the MIT mark alone (the left 104px of the 320×59 source
        image), hiding the center's name to save horizontal space */
     .cs3-logo {
-        width: calc(40px * 104 / 59);
+        width: calc(var(--logo-height) * 104 / 59);
         object-fit: cover;
         object-position: left;
     }

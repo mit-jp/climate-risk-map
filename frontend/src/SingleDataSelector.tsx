@@ -51,7 +51,7 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
     const renderMapEntry = (map: MapVisualization) => (
         <div key={map.id}>
             <input
-                className={css.input}
+                className="ui-sr-only"
                 id={map.id.toString()}
                 checked={selection?.mapVisualization === map.id}
                 type="radio"

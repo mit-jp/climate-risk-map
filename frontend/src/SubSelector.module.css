@@ -14,12 +14,13 @@
     color: var(--muted);
 }
 
-.sub-selector input {
-    display: none;
-}
-
+/* the radio itself is .ui-sr-only (accessible but invisible); the
+   label draws the pill and shows the checked state */
 .sub-selector label {
-    padding: var(--size-4xs);
+    padding: var(--control-pad-block) var(--size-4xs);
+    /* keep the text line centered while filling the pointer-adaptive
+       touch-target floor; browsers without lh keep the padding above */
+    padding-block: max(var(--control-pad-block), (var(--target-min) - 1lh) / 2);
     border-radius: var(--radius);
     cursor: pointer;
     color: var(--primary);

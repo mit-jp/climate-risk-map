@@ -41,6 +41,7 @@ function ButtonsYearSelector({ years, selectedYear, onChange, id }: Props) {
         years.map((year) => (
             <Fragment key={year.toISODate()}>
                 <input
+                    className="ui-sr-only"
                     type="radio"
                     value={year.toISODate()}
                     id={id + year.toISODate()}

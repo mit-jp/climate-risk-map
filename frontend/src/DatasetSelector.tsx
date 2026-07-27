@@ -14,6 +14,7 @@ function DataSourceSelector({ id, dataSources, selectedDataSource, onSelectionCh
         dataSources.map((dataSource) => (
             <Fragment key={dataSource.id}>
                 <input
+                    className="ui-sr-only"
                     type="radio"
                     value={dataSource.id}
                     id={id + dataSource.id}

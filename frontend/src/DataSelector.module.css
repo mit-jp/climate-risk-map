@@ -31,11 +31,14 @@
 
 .choice-row {
     width: 100%;
-    padding: var(--size-4xs) 0;
+    padding: var(--control-pad-block) 0;
 }
 
 .label {
-    padding: var(--size-4xs) var(--size-m);
+    padding: var(--control-pad-block) var(--control-pad-inline);
+    /* keep the text line centered while filling the pointer-adaptive
+       touch-target floor; browsers without lh keep the padding above */
+    padding-block: max(var(--control-pad-block), (var(--target-min) - 1lh) / 2);
     margin: 0;
     cursor: pointer;
     display: flex;
@@ -64,11 +67,9 @@
     white-space: nowrap;
 }
 
-.input {
-    display: none;
-}
-
-.input:checked + .label {
+/* the radio itself is .ui-sr-only (accessible but invisible); the
+   label draws the row and shows the checked state */
+input:checked + .label {
     background: var(--bg-subtle);
     box-shadow: inset 3px 0 0 var(--primary);
 }
