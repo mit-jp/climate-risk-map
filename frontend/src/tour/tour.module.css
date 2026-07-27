@@ -10,7 +10,7 @@
     bottom: anchor(bottom);
     /* sit just outside the target's edges */
     margin: -4px;
-    border: 3px solid #000000;
+    border: 3px solid var(--color-text-normal);
     border-radius: var(--radius);
     z-index: 10001;
     pointer-events: none;
@@ -41,9 +41,9 @@
     position-try-fallbacks: flip-block, --tour-popup-center;
     margin: var(--size-m);
     width: min(32em, calc(100vw - 2 * var(--size-m)));
-    background: white;
+    background: var(--color-background);
     border-radius: var(--radius);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 40px light-dark(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7));
     z-index: 10002;
 }
 
@@ -80,7 +80,7 @@
 
 .popupDescription {
     margin: 0 0 var(--size-m) 0;
-    color: var(--muted);
+    color: var(--color-text-muted);
 }
 
 .popupImage {
@@ -98,11 +98,11 @@
     gap: var(--size-4xs) var(--size-m);
     margin-top: var(--size-m);
     padding-top: var(--size-m);
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--color-border);
 }
 
 .progressText {
-    color: var(--muted);
+    color: var(--color-text-muted);
 }
 
 .buttonGroup {

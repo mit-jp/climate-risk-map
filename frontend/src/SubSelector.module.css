@@ -4,14 +4,14 @@
     align-items: center;
     flex-wrap: wrap;
     gap: var(--size-4xs);
-    background: var(--bg-subtle);
+    background: var(--color-fill-muted);
     padding: var(--size-4xs) var(--size-m);
 }
 
 .sub-selector p {
     margin: 0;
     font-size: var(--size-2xs);
-    color: var(--muted);
+    color: var(--color-text-muted);
 }
 
 .sub-selector input {
@@ -31,5 +31,5 @@
 
 .sub-selector input:checked + label {
     background: var(--primary);
-    color: #fff;
+    color: var(--color-on-primary);
 }

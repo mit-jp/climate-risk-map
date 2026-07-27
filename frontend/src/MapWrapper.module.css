@@ -4,7 +4,6 @@
     width: 100%;
 }
 
-
 /* no min width if screen is small */
 @media (max-width: 600px) {
     .map {

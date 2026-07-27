@@ -7,7 +7,7 @@ nav a.uncategorized:hover,
 nav a.uncategorized[aria-current] {
     background: var(--accent);
     border-color: var(--accent);
-    color: #000;
+    color: var(--color-on-accent);
 }
 
 /* the region selector is a nav without tabs: no shelf, and it sits at
