@@ -47,6 +47,29 @@
     /* flow spacing between blocks of text, matching the line height */
     --space: 1.5em;
     --popover-width: 20em;
+
+    /* pointer-adaptive control sizing: touch-first defaults keep every
+       control at the 44px touch target (Apple HIG / WCAG 2.5.5). The
+       any-pointer override below compacts controls when a mouse or
+       trackpad is present; browsers re-evaluate the query live, so
+       plugging or unplugging a mouse on a touchscreen resizes the UI
+       with no reload. */
+    --target-min: 44px; /* a physical-size floor, deliberately not em */
+    --control-pad-block: var(--size-4xs);
+    --control-pad-inline: var(--size-m);
+    --control-gap: var(--size-4xs);
+    --check-label-pad-block: var(--size-5xs);
+}
+
+@media (any-pointer: fine) {
+    :root {
+        /* mouse targets still keep the 24px WCAG 2.5.8 minimum */
+        --target-min: 24px;
+        --control-pad-block: var(--size-5xs);
+        --control-pad-inline: var(--size-2xs);
+        --control-gap: var(--size-5xs);
+        --check-label-pad-block: 0em;
+    }
 }
 
 html {
@@ -100,7 +123,9 @@ button,
     font-size: var(--size-s);
     font-weight: 500;
     line-height: 1.25;
-    padding: var(--size-4xs) var(--size-m);
+    padding: var(--control-pad-block) var(--control-pad-inline);
+    min-block-size: var(--target-min);
+    box-sizing: border-box;
     border-radius: var(--radius);
     border: 1px solid var(--border-color);
     background: var(--background-color);
@@ -151,6 +176,9 @@ button:disabled {
     align-items: center;
     justify-content: center;
     padding: var(--size-4xs);
+    min-block-size: var(--target-min);
+    min-inline-size: var(--target-min);
+    box-sizing: border-box;
     border: none;
     border-radius: 50%;
     background: none;
@@ -169,7 +197,9 @@ select {
     font-size: var(--size-s);
     line-height: 1.25;
     color: inherit;
-    padding: var(--size-4xs) var(--size-m);
+    padding: var(--control-pad-block) var(--control-pad-inline);
+    min-block-size: var(--target-min);
+    box-sizing: border-box;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     background: #fff;
@@ -210,7 +240,9 @@ label:has(> input[type='checkbox'], > input[type='radio']) {
     display: inline-flex;
     align-items: center;
     gap: var(--size-4xs);
-    padding-block: var(--size-5xs);
+    padding-block: var(--check-label-pad-block);
+    min-block-size: var(--target-min);
+    box-sizing: border-box;
     cursor: pointer;
 }
 
@@ -233,7 +265,7 @@ fieldset {
     margin: var(--size-m) 0;
     display: flex;
     flex-direction: column;
-    gap: var(--size-4xs);
+    gap: var(--control-gap);
 }
 
 /* Small headings (h4 and below) and legends render as the same small
@@ -264,14 +296,21 @@ nav {
     scrollbar-width: thin;
     border-bottom: 3px solid var(--primary);
     /* an empty nav holds one tab row of height so the page doesn't jump
-       when tabs load in: tabs are size-s, so a row is
-       size-s * (1.25 line + 2 * 0.5 padding) plus the 1px border */
-    min-height: calc(2.25 * var(--size-s) + 1px);
+       when tabs load in: a size-s line plus the tab padding and 1px
+       border, or the touch-target floor, whichever is taller */
+    min-height: max(
+        var(--target-min),
+        calc(1.25 * var(--size-s) + 2 * var(--control-pad-block) + 1px)
+    );
 }
 /* tabs share the buttons' typography */
 nav a {
     flex-shrink: 0;
-    padding: var(--size-4xs) var(--size-m);
+    display: flex;
+    align-items: center;
+    padding: var(--control-pad-block) var(--control-pad-inline);
+    min-block-size: var(--target-min);
+    box-sizing: border-box;
     font-size: var(--size-s);
     font-weight: 500;
     line-height: 1.25;
@@ -363,6 +402,15 @@ nav::after {
     }
 }
 
+/* a link standing alone in a footer list is a target, not prose, so it
+   gets the touch-target floor (inline links in sentences are exempt
+   per WCAG 2.5.8) */
+footer li > a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--target-min);
+}
+
 .ui-full-width {
     width: 100%;
 }
@@ -410,7 +458,9 @@ details > summary {
     align-items: center;
     justify-content: space-between;
     gap: var(--size-m);
-    padding: var(--size-4xs) var(--size-m);
+    padding: var(--control-pad-block) var(--control-pad-inline);
+    min-block-size: var(--target-min);
+    box-sizing: border-box;
     font-size: var(--size-s);
     font-weight: 500;
     line-height: 1.25;
@@ -511,7 +561,11 @@ details[open] > summary::after {
     overflow: auto;
 }
 .ui-combobox li {
-    padding: var(--size-4xs) var(--size-m);
+    display: flex;
+    align-items: center;
+    padding: var(--control-pad-block) var(--control-pad-inline);
+    min-block-size: var(--target-min);
+    box-sizing: border-box;
     font-size: var(--size-s);
     cursor: pointer;
 }
