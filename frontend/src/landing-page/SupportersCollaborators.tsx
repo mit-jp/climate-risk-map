@@ -1,9 +1,10 @@
 import { Container, Typography } from '@mui/material'
 import css from './LandingPage.module.css'
-import epaLogo from './images/EPA.png'
-import doeLogo from './images/DOE_logo.jpg'
+import biogenlogo from './images/biogen.png'
+import doeLogo from './images/DOE_logo.png'
 import nasaLogo from './images/nasa.png'
-import congressBudgetLogo from './images/congress_budget.png'
+import eccf from './images/eccf.png'
+import novartis from './images/novartis.png'
 import Header from '../Header'
 import LandingPageNavbar from './LandingPageNavbar'
 
@@ -15,8 +16,7 @@ function SupportersCollaborators() {
             <main className={css.page}>
                 <Container maxWidth="md" className={css.container}>
                     <Typography variant="h2" component="h1" className={css.title}>
-                        Supporters and Collaborators TODO: Get collage of logos of supporters and
-                        collaborators and add here
+                        Supporters and Collaborators
                     </Typography>
                     <Typography variant="h6" component="p" className={css.subtitle}>
                         lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
@@ -34,27 +34,38 @@ function SupportersCollaborators() {
                     </Typography>
                     <div className={css.supportersLogos}>
                         <div className={css.roleItem}>
-                            <img src={epaLogo} alt="EPA logo" />
+                            <img src={biogenlogo} alt="Biogen logo" className={css.logoimg} />
                             <Typography variant="subtitle1" className={css.roleLabel}>
-                                U.S. Environmental Protection Agency (EPA)
+                                Biogen
                             </Typography>
                         </div>
                         <div className={css.roleItem}>
-                            <img src={doeLogo} alt="DOE logo" />
+                            <img src={doeLogo} alt="DOE logo" className={css.logoimg} />
                             <Typography variant="subtitle1" className={css.roleLabel}>
                                 U.S. Department of Energy (DOE)
                             </Typography>
                         </div>
                         <div className={css.roleItem}>
-                            <img src={nasaLogo} alt="NASA logo" />
+                            <img
+                                src={nasaLogo}
+                                alt="NASA logo"
+                                className={css.logoimg}
+                                style={{ transform: 'scale(1.2)' }}
+                            />
                             <Typography variant="subtitle1" className={css.roleLabel}>
                                 U.S. National Aeronautics and Space Administration (NASA)
                             </Typography>
                         </div>
                         <div className={css.roleItem}>
-                            <img src={congressBudgetLogo} alt="Congress Budget logo" />
+                            <img src={eccf} alt="ECCF logo" className={css.logoimg} />
                             <Typography variant="subtitle1" className={css.roleLabel}>
-                                U.S. Congress Budget Office
+                                Environmental and Climate Change Foundation (ECCF)
+                            </Typography>
+                        </div>
+                        <div className={css.roleItem}>
+                            <img src={novartis} alt="Novartis logo" className={css.logoimg} />
+                            <Typography variant="subtitle1" className={css.roleLabel}>
+                                Novartis
                             </Typography>
                         </div>
                     </div>
