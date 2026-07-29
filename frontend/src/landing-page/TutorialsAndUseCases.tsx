@@ -8,6 +8,13 @@ import Header from '../Header'
 import LandingPageNavbar from './LandingPageNavbar'
 
 function TutorialsAndUseCases() {
+    const scrollToSection = (id: string) => {
+        const element = document.getElementById(id)
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+    }
+
     return (
         <div>
             <Header />
@@ -37,35 +44,82 @@ function TutorialsAndUseCases() {
                     </Typography>
                     <Typography variant="h4" component="p" className={css.subtitle}>
                         Explore STRESS through the lens of different stakeholder! TODO: Have all of
-                        these on one page and jump to them Another TODO: Add a button to top right
-                        to launch STRESS
+                        these on one page and jump to them
                     </Typography>
                     <div className={css.rolesList}>
-                        <div className={css.roleItem}>
+                        <div
+                            className={css.roleItem}
+                            onClick={() => scrollToSection('scientists-section')}
+                            style={{ cursor: 'pointer' }}
+                        >
                             <ScienceIcon sx={{ fontSize: 90 }} />
                             <Typography variant="subtitle1" className={css.roleLabel}>
                                 Scientists
                             </Typography>
                         </div>
-                        <div className={css.roleItem}>
+                        <div
+                            className={css.roleItem}
+                            onClick={() => scrollToSection('policy-makers-section')}
+                            style={{ cursor: 'pointer' }}
+                        >
                             <PolicyIcon sx={{ fontSize: 90 }} />
                             <Typography variant="subtitle1" className={css.roleLabel}>
                                 State Policy Makers
                             </Typography>
                         </div>
-                        <div className={css.roleItem}>
+                        <div
+                            className={css.roleItem}
+                            onClick={() => scrollToSection('community-group-members-section')}
+                            style={{ cursor: 'pointer' }}
+                        >
                             <PeopleIcon sx={{ fontSize: 90 }} />
                             <Typography variant="subtitle1" className={css.roleLabel}>
                                 Community Group Members
                             </Typography>
                         </div>
-                        <div className={css.roleItem}>
+                        <div
+                            className={css.roleItem}
+                            onClick={() => scrollToSection('business-owners-section')}
+                            style={{ cursor: 'pointer' }}
+                        >
                             <BusinessCenterIcon sx={{ fontSize: 90 }} />
                             <Typography variant="subtitle1" className={css.roleLabel}>
                                 Business Owners
                             </Typography>
                         </div>
                     </div>
+                    <Typography
+                        variant="h4"
+                        component="h3"
+                        className={css.subtitle}
+                        id="scientists-section"
+                    >
+                        Scientists
+                    </Typography>
+                    <Typography
+                        variant="h4"
+                        component="h3"
+                        className={css.subtitle}
+                        id="policy-makers-section"
+                    >
+                        Policy Makers
+                    </Typography>
+                    <Typography
+                        variant="h4"
+                        component="h3"
+                        className={css.subtitle}
+                        id="community-group-members-section"
+                    >
+                        Community Group Members
+                    </Typography>
+                    <Typography
+                        variant="h4"
+                        component="h3"
+                        className={css.subtitle}
+                        id="business-owners-section"
+                    >
+                        Business Owners
+                    </Typography>
                 </Container>
             </main>
         </div>
