@@ -43,50 +43,49 @@ function TutorialsAndUseCases() {
                         sources are linked in STRESS and can be explored further.
                     </Typography>
                     <Typography variant="h4" component="p" className={css.subtitle}>
-                        Explore STRESS through the lens of different stakeholder! TODO: Have all of
-                        these on one page and jump to them
+                        Explore STRESS through the lens of different stakeholder!
                     </Typography>
                     <div className={css.rolesList}>
-                        <div
+                        <button
+                            type="button"
                             className={css.roleItem}
                             onClick={() => scrollToSection('scientists-section')}
-                            style={{ cursor: 'pointer' }}
                         >
                             <ScienceIcon sx={{ fontSize: 90 }} />
                             <Typography variant="subtitle1" className={css.roleLabel}>
                                 Scientists
                             </Typography>
-                        </div>
-                        <div
+                        </button>
+                        <button
+                            type="button"
                             className={css.roleItem}
                             onClick={() => scrollToSection('policy-makers-section')}
-                            style={{ cursor: 'pointer' }}
                         >
                             <PolicyIcon sx={{ fontSize: 90 }} />
                             <Typography variant="subtitle1" className={css.roleLabel}>
                                 State Policy Makers
                             </Typography>
-                        </div>
-                        <div
+                        </button>
+                        <button
+                            type="button"
                             className={css.roleItem}
                             onClick={() => scrollToSection('community-group-members-section')}
-                            style={{ cursor: 'pointer' }}
                         >
                             <PeopleIcon sx={{ fontSize: 90 }} />
                             <Typography variant="subtitle1" className={css.roleLabel}>
                                 Community Group Members
                             </Typography>
-                        </div>
-                        <div
+                        </button>
+                        <button
+                            type="button"
                             className={css.roleItem}
                             onClick={() => scrollToSection('business-owners-section')}
-                            style={{ cursor: 'pointer' }}
                         >
                             <BusinessCenterIcon sx={{ fontSize: 90 }} />
                             <Typography variant="subtitle1" className={css.roleLabel}>
                                 Business Owners
                             </Typography>
-                        </div>
+                        </button>
                     </div>
                     <Typography
                         variant="h4"
