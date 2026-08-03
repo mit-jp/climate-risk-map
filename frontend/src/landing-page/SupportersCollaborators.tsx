@@ -19,18 +19,28 @@ function SupportersCollaborators() {
                         Supporters and Collaborators
                     </Typography>
                     <Typography variant="h6" component="p" className={css.subtitle}>
-                        lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
-                        Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies
-                        sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a,
-                        semper congue, euismod non, mi. Proin porttitor, orci nec nonummy molestie,
-                        enim est eleifend mi, non fermentum diam nisl sit amet erat. Duis semper.
-                        Duis arcu massa, scelerisque vitae, consequat in, pretium a, enim.
-                        Pellentesque congue. Ut in risus volutpat libero pharetra tempor. Cras
-                        vestibulum bibendum augue. Praesent egestas leo in pede. Praesent blandit
-                        odio eu enim. Pellentesque sed dui ut augue blandit sodales. Vestibulum ante
-                        ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;
-                        Aliquam nibh. Mauris ac mauris sed pede pellentesque fermentum. Maecenas
-                        adipiscing ante non diam sodales hendrerit.
+                        STRESS was created by researchers at and affiliates of MIT’s Center for
+                        Sustainability Science and Strategy (formerly MIT’s Joint Program on the
+                        Science and Policy of Global Change and MIT’s Center for Global Change
+                        Science) and is funded by the DOE Multisector Dynamics Program. STRESS has
+                        brought together researchers from fields including economics, computer
+                        science, climate science, and science & technology studies. <br /> <br />
+                        STRESS originated from an industry partner’s interest in identifying
+                        locations with relatively low risks for siting operations. Since its
+                        inception, STRESS has grown as a public-science tool. Recently we
+                        collaborated with Essex County Community Foundation to explore how STRESS
+                        could provide higher-granularity data to facilitate local decision-making
+                        and communication around climate risks. Current partnerships across MIT are
+                        working to integrate STRESS into projects on air pollution, extreme heat,
+                        and flooding in partnership with researchers ranging from earth & planetary
+                        scientists to urban planners. <br /> <br />
+                        STRESS is an ongoing project and we seek new collaborators from all academic
+                        disciplines, the public sector, and the private sector to iterate and
+                        innovate. We are continually developing STRESS through diversifying and
+                        updating datasets, improving the user interface, transparently communicating
+                        STRESS’s capabilities and limits, and better integrating STRESS into current
+                        communication of and decision making surrounding socioeconomic and
+                        environmental risk; we welcome all partners in this work.
                     </Typography>
                     <div className={css.supportersLogos}>
                         <div className={css.roleItem}>
