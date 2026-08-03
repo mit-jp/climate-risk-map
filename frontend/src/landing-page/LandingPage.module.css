@@ -2,14 +2,19 @@
     min-height: 100vh;
     display: flex;
     align-items: flex-start;
+    flex-direction: column;
+}
+
+.stressBackground {
     background-image: url('./images/STRESS_Screenshot.png');
-    background-size: auto 100%;
+    background-size: auto 350%;
     background-repeat: no-repeat;
-    background-position: center;
+    background-position: bottom -80px left -150px;
 }
 
 .container {
     width: 100vw;
+    padding: 2rem;
 }
 
 .title {
