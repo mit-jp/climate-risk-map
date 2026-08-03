@@ -9,7 +9,7 @@ import Uploader from './uploader/Uploader'
 import FAQ from './landing-page/FAQ'
 import SupportersCollaborators from './landing-page/SupportersCollaborators'
 import TutorialsAndUseCases from './landing-page/TutorialsAndUseCases'
-import Resources from './landing-page/PublicationsAndNews'
+import Resources from './landing-page/Resources'
 
 function App() {
     return (
