@@ -74,6 +74,82 @@
     gap: 2rem;
     justify-content: center;
 }
+.sectionBlock {
+    background: linear-gradient(135deg, #f6fbff 0%, #eef5fb 100%);
+    border: 1px solid #d7e4f1;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.githubLink,
+.resourceLink {
+    color: #111111;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.githubLink:hover,
+.resourceLink:hover {
+    text-decoration: underline;
+}
+
+.resourceList {
+    display: grid;
+    gap: 1.25rem;
+    padding: 0.85rem 0 0 0;
+}
+
+.resourceCard {
+    display: grid;
+    grid-template-columns: 1.7fr 1fr;
+    gap: 1rem;
+    padding: 0.25rem 0 1rem;
+    background: transparent;
+    border-radius: 10px;
+}
+
+.resourceMain {
+    min-width: 0;
+}
+
+.resourceMeta {
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    padding: 0;
+    align-self: start;
+}
+
+.resourceTitle {
+    color: #12324a;
+    margin-bottom: 0.35rem;
+    line-height: 1.25;
+}
+
+.resourceSummary {
+    color: #33495d;
+}
+
+.resourceCitation {
+    color: #445a6f;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    font-style: italic;
+    line-height: 1.45;
+}
+
+@media (max-width: 900px) {
+    .resourceCard {
+        grid-template-columns: 1fr;
+    }
+
+    .resourceMeta {
+        align-self: start;
+        align-items: flex-start;
+        text-align: left;
+    }
+}
 
 @media (max-width: 600px) {
     .page {
