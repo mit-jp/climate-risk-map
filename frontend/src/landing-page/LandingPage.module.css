@@ -84,9 +84,10 @@
 
 .githubLink,
 .resourceLink {
-    color: #111111;
-    font-weight: 600;
+    color: rgb(65, 82, 111);
+    font-weight: 700;
     text-decoration: none;
+    padding: 10px 0;
 }
 
 .githubLink:hover,

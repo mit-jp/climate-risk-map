@@ -24,70 +24,75 @@ function TutorialsAndUseCases() {
                     <Typography variant="h2" component="h1" className={css.title}>
                         Tutorials and Use Cases
                     </Typography>
-                    <Typography variant="h4" component="h3" className={css.subtitle}>
-                        General Uses
-                    </Typography>
-                    <Typography variant="h6" component="p" className={css.subtitle}>
-                        STRESS is intended for a wide range of users including: citizens,
-                        scientists, businesses, community organizations, and policy makers at
-                        various levels. Although all may be broadly interested in understanding and
-                        mitigating social and environmental risk, this broad user base will have
-                        heterogenous values, goals, interests, and capacities to respond. Below are
-                        some brief examples of ways in which STRESS could conceivably assist
-                        different users in the types of tasks they ordinarily perform. This is by no
-                        means exhaustive, and users’ needs may overlap the provided examples, but
-                        the examples aim to illustrate potential uses. In addition to the
-                        combinatory metrics, STRESS aims to provide accessible data visualizations
-                        for over 100 metrics. Images can be saved and used in reports if desired,
-                        and data can be downloaded for further analysis if desired. Original data
-                        sources are linked in STRESS and can be explored further.
-                    </Typography>
-                    <Typography variant="h4" component="p" className={css.subtitle}>
-                        Explore STRESS through the lens of different stakeholders!
-                    </Typography>
-                    <div className={css.rolesList}>
-                        {/* Todo: Split each of these off into their own typescript files */}
-                        <button
-                            type="button"
-                            className={css.roleItem}
-                            onClick={() => scrollToSection('scientists-section')}
-                        >
-                            <ScienceIcon sx={{ fontSize: 90 }} />
-                            <Typography variant="subtitle1" className={css.roleLabel}>
-                                Scientists
-                            </Typography>
-                        </button>
-                        <button
-                            type="button"
-                            className={css.roleItem}
-                            onClick={() => scrollToSection('policy-makers-section')}
-                        >
-                            <PolicyIcon sx={{ fontSize: 90 }} />
-                            <Typography variant="subtitle1" className={css.roleLabel}>
-                                State Policy Makers
-                            </Typography>
-                        </button>
-                        <button
-                            type="button"
-                            className={css.roleItem}
-                            onClick={() => scrollToSection('community-group-members-section')}
-                        >
-                            <PeopleIcon sx={{ fontSize: 90 }} />
-                            <Typography variant="subtitle1" className={css.roleLabel}>
-                                Community Group Members
-                            </Typography>
-                        </button>
-                        <button
-                            type="button"
-                            className={css.roleItem}
-                            onClick={() => scrollToSection('business-owners-section')}
-                        >
-                            <BusinessCenterIcon sx={{ fontSize: 90 }} />
-                            <Typography variant="subtitle1" className={css.roleLabel}>
-                                Business Owners
-                            </Typography>
-                        </button>
-                    </div>
+                    <section className={css.sectionBlock}>
+                        <Typography variant="h4" component="h3" className={css.subtitle}>
+                            General Uses
+                        </Typography>
+                        <Typography variant="h6" component="p" className={css.subtitle}>
+                            STRESS is intended for a wide range of users including: citizens,
+                            scientists, businesses, community organizations, and policy makers at
+                            various levels. Although all may be broadly interested in understanding
+                            and mitigating social and environmental risk, this broad user base will
+                            have heterogenous values, goals, interests, and capacities to respond.
+                            Below are some brief examples of ways in which STRESS could conceivably
+                            assist different users in the types of tasks they ordinarily perform.
+                            This is by no means exhaustive, and users’ needs may overlap the
+                            provided examples, but the examples aim to illustrate potential uses. In
+                            addition to the combinatory metrics, STRESS aims to provide accessible
+                            data visualizations for over 100 metrics. Images can be saved and used
+                            in reports if desired, and data can be downloaded for further analysis
+                            if desired. Original data sources are linked in STRESS and can be
+                            explored further.
+                        </Typography>
+                    </section>
+                    <section className={css.sectionBlock}>
+                        <Typography variant="h4" component="p" className={css.subtitle}>
+                            Explore STRESS through the lens of different stakeholders!
+                        </Typography>
+                        <div className={css.rolesList}>
+                            {/* Todo: Split each of these off into their own typescript files */}
+                            <button
+                                type="button"
+                                className={css.roleItem}
+                                onClick={() => scrollToSection('scientists-section')}
+                            >
+                                <ScienceIcon sx={{ fontSize: 90 }} />
+                                <Typography variant="subtitle1" className={css.roleLabel}>
+                                    Scientists
+                                </Typography>
+                            </button>
+                            <button
+                                type="button"
+                                className={css.roleItem}
+                                onClick={() => scrollToSection('policy-makers-section')}
+                            >
+                                <PolicyIcon sx={{ fontSize: 90 }} />
+                                <Typography variant="subtitle1" className={css.roleLabel}>
+                                    State Policy Makers
+                                </Typography>
+                            </button>
+                            <button
+                                type="button"
+                                className={css.roleItem}
+                                onClick={() => scrollToSection('community-group-members-section')}
+                            >
+                                <PeopleIcon sx={{ fontSize: 90 }} />
+                                <Typography variant="subtitle1" className={css.roleLabel}>
+                                    Community Group Members
+                                </Typography>
+                            </button>
+                            <button
+                                type="button"
+                                className={css.roleItem}
+                                onClick={() => scrollToSection('business-owners-section')}
+                            >
+                                <BusinessCenterIcon sx={{ fontSize: 90 }} />
+                                <Typography variant="subtitle1" className={css.roleLabel}>
+                                    Business Owners
+                                </Typography>
+                            </button>
+                        </div>
+                    </section>
                     <Typography
                         variant="h4"
                         component="h3"
