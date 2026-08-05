@@ -103,7 +103,7 @@ function Resources() {
             <Header />
             <LandingPageNavbar />
             <main className={css.page}>
-                <Container maxWidth="lg" className={css.container}>
+                <Container className={css.container}>
                     <Typography variant="h2" component="h1" className={css.title}>
                         Resources
                     </Typography>

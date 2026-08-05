@@ -51,25 +51,26 @@ function FAQ() {
             <Header />
             <LandingPageNavbar />
             <main className={css.page}>
-                <Container maxWidth="md" className={css.container}>
+                <Container className={css.container}>
                     <Typography variant="h2" component="h1" className={css.title}>
                         Frequently Asked Questions
                     </Typography>
-
-                    <div className={css.faqList}>
-                        {faqItems.map((faqItem) => (
-                            <Accordion key={faqItem.question} className={css.accordion}>
-                                <AccordionSummary expandIcon={<ExpandMore />}>
-                                    <Typography variant="subtitle1" component="span">
-                                        {faqItem.question}
-                                    </Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                    <Typography variant="body1">{faqItem.answer}</Typography>
-                                </AccordionDetails>
-                            </Accordion>
-                        ))}
-                    </div>
+                    <section className={css.sectionBlock}>
+                        <div className={css.faqList}>
+                            {faqItems.map((faqItem) => (
+                                <Accordion key={faqItem.question} className={css.accordion}>
+                                    <AccordionSummary expandIcon={<ExpandMore />}>
+                                        <Typography variant="subtitle1" component="span">
+                                            {faqItem.question}
+                                        </Typography>
+                                    </AccordionSummary>
+                                    <AccordionDetails>
+                                        <Typography variant="body1">{faqItem.answer}</Typography>
+                                    </AccordionDetails>
+                                </Accordion>
+                            ))}
+                        </div>
+                    </section>
                 </Container>
             </main>
         </div>

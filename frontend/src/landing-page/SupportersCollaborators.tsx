@@ -14,7 +14,7 @@ function SupportersCollaborators() {
             <Header />
             <LandingPageNavbar />
             <main className={css.page}>
-                <Container maxWidth="md" className={css.container}>
+                <Container className={css.container}>
                     <Typography variant="h2" component="h1" className={css.title}>
                         Supporters and Collaborators
                     </Typography>
@@ -42,43 +42,45 @@ function SupportersCollaborators() {
                         communication of and decision making surrounding socioeconomic and
                         environmental risk; we welcome all partners in this work.
                     </Typography>
-                    <div className={css.supportersLogos}>
-                        <div className={css.roleItem}>
-                            <img src={biogenlogo} alt="Biogen logo" className={css.logoimg} />
-                            <Typography variant="subtitle1" className={css.roleLabel}>
-                                Biogen
-                            </Typography>
+                    <section className={css.sectionBlock}>
+                        <div className={css.supportersLogos}>
+                            <div className={css.roleItem}>
+                                <img src={biogenlogo} alt="Biogen logo" className={css.logoimg} />
+                                <Typography variant="subtitle1" className={css.roleLabel}>
+                                    Biogen
+                                </Typography>
+                            </div>
+                            <div className={css.roleItem}>
+                                <img src={doeLogo} alt="DOE logo" className={css.logoimg} />
+                                <Typography variant="subtitle1" className={css.roleLabel}>
+                                    U.S. Department of Energy (DOE)
+                                </Typography>
+                            </div>
+                            <div className={css.roleItem}>
+                                <img
+                                    src={nasaLogo}
+                                    alt="NASA logo"
+                                    className={css.logoimg}
+                                    style={{ transform: 'scale(1.2)' }}
+                                />
+                                <Typography variant="subtitle1" className={css.roleLabel}>
+                                    U.S. National Aeronautics and Space Administration (NASA)
+                                </Typography>
+                            </div>
+                            <div className={css.roleItem}>
+                                <img src={eccf} alt="ECCF logo" className={css.logoimg} />
+                                <Typography variant="subtitle1" className={css.roleLabel}>
+                                    Environmental and Climate Change Foundation (ECCF)
+                                </Typography>
+                            </div>
+                            <div className={css.roleItem}>
+                                <img src={novartis} alt="Novartis logo" className={css.logoimg} />
+                                <Typography variant="subtitle1" className={css.roleLabel}>
+                                    Novartis
+                                </Typography>
+                            </div>
                         </div>
-                        <div className={css.roleItem}>
-                            <img src={doeLogo} alt="DOE logo" className={css.logoimg} />
-                            <Typography variant="subtitle1" className={css.roleLabel}>
-                                U.S. Department of Energy (DOE)
-                            </Typography>
-                        </div>
-                        <div className={css.roleItem}>
-                            <img
-                                src={nasaLogo}
-                                alt="NASA logo"
-                                className={css.logoimg}
-                                style={{ transform: 'scale(1.2)' }}
-                            />
-                            <Typography variant="subtitle1" className={css.roleLabel}>
-                                U.S. National Aeronautics and Space Administration (NASA)
-                            </Typography>
-                        </div>
-                        <div className={css.roleItem}>
-                            <img src={eccf} alt="ECCF logo" className={css.logoimg} />
-                            <Typography variant="subtitle1" className={css.roleLabel}>
-                                Environmental and Climate Change Foundation (ECCF)
-                            </Typography>
-                        </div>
-                        <div className={css.roleItem}>
-                            <img src={novartis} alt="Novartis logo" className={css.logoimg} />
-                            <Typography variant="subtitle1" className={css.roleLabel}>
-                                Novartis
-                            </Typography>
-                        </div>
-                    </div>
+                    </section>
                 </Container>
             </main>
         </div>

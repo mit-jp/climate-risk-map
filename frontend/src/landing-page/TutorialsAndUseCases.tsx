@@ -20,7 +20,7 @@ function TutorialsAndUseCases() {
             <Header />
             <LandingPageNavbar />
             <main className={css.page}>
-                <Container maxWidth="md" className={css.container}>
+                <Container className={css.container}>
                     <Typography variant="h2" component="h1" className={css.title}>
                         Tutorials and Use Cases
                     </Typography>
@@ -43,7 +43,7 @@ function TutorialsAndUseCases() {
                         sources are linked in STRESS and can be explored further.
                     </Typography>
                     <Typography variant="h4" component="p" className={css.subtitle}>
-                        Explore STRESS through the lens of different stakeholder!
+                        Explore STRESS through the lens of different stakeholders!
                     </Typography>
                     <div className={css.rolesList}>
                         {/* Todo: Split each of these off into their own typescript files */}
