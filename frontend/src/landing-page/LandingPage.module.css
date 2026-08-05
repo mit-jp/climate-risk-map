@@ -87,7 +87,7 @@
     color: rgb(65, 82, 111);
     font-weight: 700;
     text-decoration: none;
-    padding: 10px 0;
+    padding: 10px 0 0 0;
 }
 
 .githubLink:hover,

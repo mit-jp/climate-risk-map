@@ -44,6 +44,10 @@ function TutorialsAndUseCases() {
                         Tutorials and Use Cases
                     </Typography>
 
+                    <a className={css.resourceLink} href="/">
+                        Learn how to use the STRESS platform through a guided tour!
+                    </a>
+
                     <section className={css.sectionBlock}>
                         <Typography variant="h4" component="p" className={css.subtitle}>
                             Explore STRESS through the lens of different stakeholders!

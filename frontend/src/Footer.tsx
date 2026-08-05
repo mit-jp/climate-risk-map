@@ -49,7 +49,11 @@ function Footer() {
             </ul>
             <ul id={css.navigation}>
                 <li>
-                    <a href="https://cs3.mit.edu/about-us/our-purpose/contact-us">Contact Us</a>
+                    <a href="/landing-page">About</a>
+                </li>
+                <li>
+                    {/** This email is a placeholder (my alt account); will change to the STRESS email once we have it */}
+                    <a href="mailto:alienalienhaha123@gmail.com">Contact Us</a>
                 </li>
                 <li>
                     <a href="https://cs3.mit.edu/about-us/personnel">CS3 Staff &amp; Students</a>
