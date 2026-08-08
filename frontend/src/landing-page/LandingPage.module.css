@@ -22,8 +22,7 @@
     font-family: 'Tahoma', sans-serif;
     font-weight: 800;
     line-height: 1.05;
-    margin-bottom: 1rem;
-    padding: 2rem 0 1rem 0;
+    padding: 2rem 0 0.5rem 0;
 }
 
 .subtitle {
@@ -54,6 +53,11 @@
     text-align: center;
     background: none;
     border: none;
+}
+
+.roleItem:hover {
+    cursor: pointer;
+    background-color: rgba(67, 94, 124, 0.1);
 }
 
 .logoimg {
@@ -93,6 +97,21 @@
 .githubLink:hover,
 .resourceLink:hover {
     text-decoration: underline;
+}
+
+.guidedTourButton {
+    background-color: rgb(67, 94, 124);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-bottom: 1rem;
+}
+
+.guidedTourButton:hover {
+    background-color: rgb(46, 65, 86);
 }
 
 .resourceList {

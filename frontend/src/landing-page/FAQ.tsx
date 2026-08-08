@@ -60,7 +60,11 @@ function FAQ() {
                             {faqItems.map((faqItem) => (
                                 <Accordion key={faqItem.question} className={css.accordion}>
                                     <AccordionSummary expandIcon={<ExpandMore />}>
-                                        <Typography variant="subtitle1" component="span">
+                                        <Typography
+                                            variant="subtitle1"
+                                            component="span"
+                                            sx={{ fontWeight: 'bold' }}
+                                        >
                                             {faqItem.question}
                                         </Typography>
                                     </AccordionSummary>

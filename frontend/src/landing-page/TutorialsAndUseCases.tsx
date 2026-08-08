@@ -4,9 +4,12 @@ import ScienceIcon from '@mui/icons-material/Science'
 import PolicyIcon from '@mui/icons-material/Policy'
 import PeopleIcon from '@mui/icons-material/People'
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter'
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import css from './LandingPage.module.css'
 import Header from '../Header'
 import LandingPageNavbar from './LandingPageNavbar'
+import { setTourActive } from '../appSlice'
 
 type Stakeholder = 'scientists' | 'policy-makers' | 'community-group-members' | 'business-owners'
 
@@ -26,6 +29,13 @@ function StakeholderView({ title }: StakeholderViewProps) {
 
 function TutorialsAndUseCases() {
     const [activeStakeholder, setActiveStakeholder] = useState<Stakeholder>('scientists')
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+
+    const handleGuidedTourClick = () => {
+        dispatch(setTourActive(true))
+        navigate('/')
+    }
 
     const stakeholderViews: Record<Stakeholder, React.ReactNode> = {
         scientists: <StakeholderView title="Scientists" />,
@@ -44,9 +54,13 @@ function TutorialsAndUseCases() {
                         Tutorials and Use Cases
                     </Typography>
 
-                    <a className={css.resourceLink} href="/">
+                    <button
+                        type="button"
+                        onClick={handleGuidedTourClick}
+                        className={css.guidedTourButton}
+                    >
                         Learn how to use the STRESS platform through a guided tour!
-                    </a>
+                    </button>
 
                     <section className={css.sectionBlock}>
                         <Typography variant="h4" component="p" className={css.subtitle}>
