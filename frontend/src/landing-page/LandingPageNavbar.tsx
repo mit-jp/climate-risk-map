@@ -21,6 +21,9 @@ function LandingPageNavbar() {
                 <Link to="/faq" className={css.a}>
                     FAQ
                 </Link>
+                <Link to="/methodology" className={css.a}>
+                    Methodology
+                </Link>
             </nav>
             <Button component={Link} to="/" variant="contained" size="large">
                 Launch the STRESS Platform
