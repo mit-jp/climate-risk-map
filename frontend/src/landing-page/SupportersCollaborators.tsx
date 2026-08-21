@@ -24,23 +24,13 @@ function SupportersCollaborators() {
                         Science and Policy of Global Change and MIT’s Center for Global Change
                         Science) and is funded by the DOE Multisector Dynamics Program. STRESS has
                         brought together researchers from fields including economics, computer
-                        science, climate science, and science & technology studies. <br /> <br />
+                        science, climate science, and science & technology studies. <br /> <br />{' '}
                         STRESS originated from an industry partner’s interest in identifying
                         locations with relatively low risks for siting operations. Since its
                         inception, STRESS has grown as a public-science tool. Recently we
                         collaborated with Essex County Community Foundation to explore how STRESS
                         could provide higher-granularity data to facilitate local decision-making
-                        and communication around climate risks. Current partnerships across MIT are
-                        working to integrate STRESS into projects on air pollution, extreme heat,
-                        and flooding in partnership with researchers ranging from earth & planetary
-                        scientists to urban planners. <br /> <br />
-                        STRESS is an ongoing project and we seek new collaborators from all academic
-                        disciplines, the public sector, and the private sector to iterate and
-                        innovate. We are continually developing STRESS through diversifying and
-                        updating datasets, improving the user interface, transparently communicating
-                        STRESS’s capabilities and limits, and better integrating STRESS into current
-                        communication of and decision making surrounding socioeconomic and
-                        environmental risk; we welcome all partners in this work.
+                        and communication around climate risks.
                     </Typography>
                     <section className={css.sectionBlock}>
                         <div className={css.supportersLogos}>
@@ -80,6 +70,14 @@ function SupportersCollaborators() {
                                 </Typography>
                             </div>
                         </div>
+                    </section>
+                    <Typography variant="h6" component="p" className={css.subtitle}>
+                        Current partnerships across MIT are working to integrate STRESS into
+                        projects on air pollution, extreme heat, and flooding in partnership with
+                        researchers ranging from earth & planetary scientists to urban planners.
+                    </Typography>
+                    <section className={css.sectionBlock}>
+                        <br />
                     </section>
                 </Container>
             </main>
