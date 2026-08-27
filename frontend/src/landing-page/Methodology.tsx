@@ -39,32 +39,15 @@ function Methodology() {
                         </ol>
                     </Typography>
                     <Typography variant="body1" className={css.subtitle}>
-                        <br />
-                        Data comes from various sources (listed below each map), and some datasets
-                        require cleaning, reformatting, or aggregation. <br /> <br />
-                        Click below for more detailed information on how we address data
-                        limitations:
-                    </Typography>{' '}
-                    <Accordion>
-                        <AccordionSummary expandIcon={<ExpandMore />}>
-                            <Typography variant="h6">
-                                Data Cleaning and Aggregation Details
-                            </Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                            <Typography variant="body1">
-                                Sometimes, even when it is the correct granularity, there is a
-                                mismatch between the geographic boundaries in STRESS and the
-                                geographies associated with the data. This can happen if geographic
-                                units, such as counties, are redefined over time: newer data can be
-                                associated with new county codes while STRESS has the old county
-                                codes. If this happens there are two options: we can fully remove
-                                these counties from the dataset, or if more granular data is
-                                available (e.g. census tract data) we can download that and use a
-                                ‘crosswalk’ to aggregate it to the county codes that are in STRESS.
-                            </Typography>
-                        </AccordionDetails>
-                    </Accordion>
+                        County-level USA-wide data that is uploaded can then be included in the
+                        ‘combinatory metrics’ tab. The combinatory metrics tab shows ‘relative risk’
+                        values, not the data in its native units. For each metric m, each county c
+                        is given a ‘relative risk score’ which is calculated as its percentile when
+                        compared to all other counties in the country:
+                        <br /> <br /> relative riskm,c=percentilem,c = pm,c = rankm,cn*100
+                        <br /> <br /> where rank is defined as the number of counties with values
+                        less than or equal to county c and n is the total number of counties.
+                    </Typography>
                 </Container>
             </main>
         </div>

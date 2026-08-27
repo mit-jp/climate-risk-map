@@ -76,16 +76,18 @@ function LandingPage() {
                         relative risk scores now calculated only relative to other counties in the
                         same state and they can view a ‘report card’ for their county
                     </Typography>
-                    <img
-                        src={landingpage3}
-                        alt="Different maps aggregated into one"
-                        className={css.aboutUsImg}
-                    />
-                    <img
-                        src={landingpage4}
-                        alt="Different maps aggregated into one"
-                        className={css.aboutUsImg}
-                    />
+                    <div className={css.imageRow}>
+                        <img
+                            src={landingpage3}
+                            alt="Different maps aggregated into one"
+                            className={css.aboutUsImg}
+                        />
+                        <img
+                            src={landingpage4}
+                            alt="Different maps aggregated into one"
+                            className={css.aboutUsImg}
+                        />
+                    </div>
                     <Typography variant="h6" component="p" className={css.subtitle}>
                         In addition to allowing users to combine metrics, STRESS provides a
                         centralized platform where users can easily view over 100 USA wide

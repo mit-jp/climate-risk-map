@@ -69,9 +69,21 @@
 
 .aboutUsImg {
     display: block;
-    width: 70vw;
+    width: 100%;
     height: auto;
-    margin: 0 auto;
+    border: 2px solid black;
+    margin: 5px;
+}
+
+.imageRow {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.imageRow .aboutUsImg {
+    width: calc(50% - 5px);
+    margin: 0;
 }
 
 .roleLabel {

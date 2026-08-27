@@ -10,6 +10,8 @@ import css from './LandingPage.module.css'
 import Header from '../Header'
 import LandingPageNavbar from './LandingPageNavbar'
 import { setTourActive } from '../appSlice'
+import Scientists from './stakeholders/Scientists'
+import Citizen from './stakeholders/Citizen'
 
 type Stakeholder = 'scientists' | 'policy-makers' | 'community-group-members' | 'business-owners'
 
@@ -38,9 +40,9 @@ function TutorialsAndUseCases() {
     }
 
     const stakeholderViews: Record<Stakeholder, React.ReactNode> = {
-        scientists: <StakeholderView title="Scientists" />,
+        scientists: <Scientists />,
         'policy-makers': <StakeholderView title="State Policy Makers" />,
-        'community-group-members': <StakeholderView title="Community Group Members" />,
+        'community-group-members': <Citizen />,
         'business-owners': <StakeholderView title="Business Owners" />,
     }
 
@@ -97,7 +99,7 @@ function TutorialsAndUseCases() {
                             >
                                 <PeopleIcon sx={{ fontSize: 90 }} />
                                 <Typography variant="subtitle1" className={css.roleLabel}>
-                                    Community Group Members
+                                    Concerned Citizens
                                 </Typography>
                             </button>
 
