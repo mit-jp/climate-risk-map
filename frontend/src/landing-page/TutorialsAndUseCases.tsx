@@ -12,6 +12,7 @@ import LandingPageNavbar from './LandingPageNavbar'
 import { setTourActive } from '../appSlice'
 import Scientists from './stakeholders/Scientists'
 import Citizen from './stakeholders/Citizen'
+import Business from './stakeholders/Business'
 
 type Stakeholder = 'scientists' | 'policy-makers' | 'community-group-members' | 'business-owners'
 
@@ -43,7 +44,7 @@ function TutorialsAndUseCases() {
         scientists: <Scientists />,
         'policy-makers': <StakeholderView title="State Policy Makers" />,
         'community-group-members': <Citizen />,
-        'business-owners': <StakeholderView title="Business Owners" />,
+        'business-owners': <Business />,
     }
 
     return (
