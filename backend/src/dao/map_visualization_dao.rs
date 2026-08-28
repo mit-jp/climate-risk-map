@@ -173,7 +173,7 @@ impl<'c> Table<'c, MapVisualization> {
     }
 
     pub async fn delete_by_dataset(&self, dataset_id: i32) -> Result<PgQueryResult, sqlx::Error> {
-        sqlx::query!("DELETE FROM map_visualization WHERE id = $1", dataset_id)
+        sqlx::query!("DELETE FROM map_visualization WHERE dataset = $1", dataset_id)
             .execute(&*self.pool)
             .await
     }
