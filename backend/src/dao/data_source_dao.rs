@@ -71,9 +71,20 @@ impl<'c> Table<'c, DataSource> {
         .await;
     }
 
-    pub async fn delete(&self, id: i32) -> Result<PgQueryResult, sqlx::Error> {
+    pub async fn delete_cascading(&self, id: i32) -> Result<(), sqlx::Error> {
+        let mut transaction = self.pool.begin().await?;
+        sqlx::query!(
+            "UPDATE map_visualization SET default_source = NULL WHERE default_source = $1",
+            id
+        )
+        .execute(&mut transaction)
+        .await?;
+        sqlx::query!("DELETE FROM data WHERE source = $1", id)
+            .execute(&mut transaction)
+            .await?;
         sqlx::query!("DELETE FROM data_source WHERE id = $1", id)
-            .execute(&*self.pool)
-            .await
+            .execute(&mut transaction)
+            .await?;
+        transaction.commit().await
     }
 }
