@@ -166,16 +166,27 @@ impl<'c> Table<'c, MapVisualization> {
         .await
     }
 
-    pub async fn delete(&self, id: i32) -> Result<PgQueryResult, sqlx::Error> {
+    pub async fn delete(&self, id: i32) -> Result<(), sqlx::Error> {
+        let mut transaction = self.pool.begin().await?;
+        sqlx::query!(
+            "DELETE FROM map_visualization_collection WHERE map_visualization = $1",
+            id
+        )
+        .execute(&mut transaction)
+        .await?;
         sqlx::query!("DELETE FROM map_visualization WHERE id = $1", id)
-            .execute(&*self.pool)
-            .await
+            .execute(&mut transaction)
+            .await?;
+        transaction.commit().await
     }
 
     pub async fn delete_by_dataset(&self, dataset_id: i32) -> Result<PgQueryResult, sqlx::Error> {
-        sqlx::query!("DELETE FROM map_visualization WHERE dataset = $1", dataset_id)
-            .execute(&*self.pool)
-            .await
+        sqlx::query!(
+            "DELETE FROM map_visualization WHERE dataset = $1",
+            dataset_id
+        )
+        .execute(&*self.pool)
+        .await
     }
 
     pub async fn get_by_dataset(
