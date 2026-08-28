@@ -39,30 +39,12 @@ async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
 
 #[delete("/data-source/{id}")]
 async fn delete(id: web::Path<i32>, app_state: web::Data<AppState<'_>>) -> Result<String, Error> {
-    let id = id.into_inner();
-    let mut transaction = app_state
+    app_state
         .database
         .data_source
-        .pool
-        .begin()
+        .delete_cascading(id.into_inner())
         .await
         .map_err(Error)?;
-    sqlx::query!(
-        "UPDATE map_visualization SET default_source = NULL WHERE default_source = $1",
-        id
-    )
-    .execute(&mut transaction)
-    .await
-    .map_err(Error)?;
-    sqlx::query!("DELETE FROM data WHERE source = $1", id)
-        .execute(&mut transaction)
-        .await
-        .map_err(Error)?;
-    sqlx::query!("DELETE FROM data_source WHERE id = $1", id)
-        .execute(&mut transaction)
-        .await
-        .map_err(Error)?;
-    transaction.commit().await.map_err(Error)?;
     Ok("deleted".to_string())
 }
 

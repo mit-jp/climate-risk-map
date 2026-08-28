@@ -1,6 +1,7 @@
 use super::Table;
 use crate::model::data_source::{self, DataSource};
 use sqlx::postgres::PgQueryResult;
+use sqlx::{Acquire, Postgres};
 
 impl<'c> Table<'c, DataSource> {
     pub async fn all(&self) -> Result<Vec<DataSource>, sqlx::Error> {
@@ -71,9 +72,29 @@ impl<'c> Table<'c, DataSource> {
         .await;
     }
 
-    pub async fn delete(&self, id: i32) -> Result<PgQueryResult, sqlx::Error> {
+    pub async fn delete_cascading(&self, id: i32) -> Result<(), sqlx::Error> {
+        self.delete_cascading_in(&*self.pool, id).await
+    }
+
+    /// Runs inside `conn`: a pool gets its own transaction, an open
+    /// transaction nests via savepoint and the caller decides the final commit.
+    pub async fn delete_cascading_in<'a, A>(&self, conn: A, id: i32) -> Result<(), sqlx::Error>
+    where
+        A: Acquire<'a, Database = Postgres>,
+    {
+        let mut transaction = conn.begin().await?;
+        sqlx::query!(
+            "UPDATE map_visualization SET default_source = NULL WHERE default_source = $1",
+            id
+        )
+        .execute(&mut transaction)
+        .await?;
+        sqlx::query!("DELETE FROM data WHERE source = $1", id)
+            .execute(&mut transaction)
+            .await?;
         sqlx::query!("DELETE FROM data_source WHERE id = $1", id)
-            .execute(&*self.pool)
-            .await
+            .execute(&mut transaction)
+            .await?;
+        transaction.commit().await
     }
 }
