@@ -119,7 +119,6 @@ function Legend({
 
     return (
         <svg
-            id="map-legend"
             x={x}
             y={y}
             width={width}
@@ -127,9 +126,13 @@ function Legend({
             viewBox={`0 0 ${width} ${height}`}
             overflow="visible"
             display="block"
-            style={{ backgroundColor: 'white' }}
+            style={{ backgroundColor: 'var(--color-background)' }}
         >
-            <rect width="100%" height="100%" fill="rgba(255, 255, 255, 0.8)" />
+            <rect
+                width="100%"
+                height="100%"
+                style={{ fill: 'color-mix(in srgb, var(--color-background) 80%, transparent)' }}
+            />
             {legend}
             <LegendTicks
                 height={height}

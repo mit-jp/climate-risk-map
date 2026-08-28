@@ -1,5 +1,3 @@
-import { LoadingButton } from '@mui/lab'
-import { Button, TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { Dataset } from '../Dataset'
 import {
@@ -13,6 +11,7 @@ import {
 } from '../MapApi'
 import { MapVisualization } from '../MapVisualization'
 import SelectorList, { EmptySelectorList } from '../SelectorList'
+import { Button, TextField } from '../ui'
 import css from './DatasetEditor.module.css'
 
 function MapVisualizations({
@@ -81,14 +80,11 @@ function DatasetOptions({ dataset }: { dataset: Dataset }) {
         setShortName(dataset.short_name)
     }, [dataset])
 
-    const noDiff = () => {
-        return (
-            name === dataset.name &&
-            description === dataset.description &&
-            units === dataset.units &&
-            shortName === dataset.short_name
-        )
-    }
+    const noDiff = () =>
+        name === dataset.name &&
+        description === dataset.description &&
+        units === dataset.units &&
+        shortName === dataset.short_name
 
     return (
         <form
@@ -113,15 +109,10 @@ function DatasetOptions({ dataset }: { dataset: Dataset }) {
                 multiline
             />
             <TextField value={units} onChange={(e) => setUnits(e.target.value)} label="units" />
-            <LoadingButton
-                variant="contained"
-                type="submit"
-                loading={isLoading}
-                disabled={noDiff()}
-            >
+            <Button variant="contained" type="submit" loading={isLoading} disabled={noDiff()}>
                 Save
-            </LoadingButton>
-            <LoadingButton
+            </Button>
+            <Button
                 type="button"
                 variant="contained"
                 loading={isDeleting}
@@ -130,7 +121,7 @@ function DatasetOptions({ dataset }: { dataset: Dataset }) {
                 disabled={!mapVisualizations || !tabs || Object.keys(mapVisualizations).length > 0}
             >
                 Delete
-            </LoadingButton>
+            </Button>
             {(!mapVisualizations || !tabs) && <p>loading maps...</p>}
             {tabs && mapVisualizations && Object.keys(mapVisualizations).length > 0 && (
                 <MapVisualizations mapVisualizations={mapVisualizations} tabs={tabs} />

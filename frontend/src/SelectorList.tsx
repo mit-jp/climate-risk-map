@@ -19,7 +19,7 @@ function SelectorList<Item, Id extends Key>({
             {items.map((item) => (
                 <div key={id(item)}>
                     <input
-                        className={css.input}
+                        className="ui-sr-only"
                         id={id(item).toString()}
                         checked={selectedId === id(item)}
                         type="radio"

@@ -10,10 +10,11 @@ type Props = {
 }
 
 function DataSourceSelector({ id, dataSources, selectedDataSource, onSelectionChange }: Props) {
-    const getDataSources = () => {
-        return dataSources.map((dataSource) => (
+    const getDataSources = () =>
+        dataSources.map((dataSource) => (
             <Fragment key={dataSource.id}>
                 <input
+                    className="ui-sr-only"
                     type="radio"
                     value={dataSource.id}
                     id={id + dataSource.id}
@@ -23,7 +24,6 @@ function DataSourceSelector({ id, dataSources, selectedDataSource, onSelectionCh
                 <label htmlFor={id + dataSource.id}>{dataSource.name}</label>
             </Fragment>
         ))
-    }
     return (
         <div className={css.subSelector}>
             <p>Source:</p>

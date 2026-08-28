@@ -1,0 +1,665 @@
+/*
+ * A tiny, dependency-free design system.
+ * 1. plain HTML elements (button, input, select, details, fieldset…) are
+ *    styled and on-brand with no class names at all
+ * 2. small utility classes handle the variants
+ * 3. everything is in em so it scales with font size
+ */
+:root {
+    /* Theme, in the style of Kelp (kelpui.com/docs/customizing/css-variables):
+       a brand palette plus semantic page/text/fill/border roles. Components
+       and app styles reference these — never raw color values — so a theme
+       change here restyles everything. Each token resolves its own dark
+       variant via light-dark(), following the OS/browser preference. */
+    color-scheme: light dark;
+
+    /* brand palette. The dark --primary stays dark enough that
+       --color-on-primary text on it keeps working. */
+    --primary: light-dark(#435e7c, #47688f);
+    --primary-light: light-dark(#56779c, #587fa8);
+    /* primary as *text* on the page background (Kelp's text-link role):
+       the fill above stays dark enough for --color-on-primary text, so
+       the text role lightens in dark mode to keep its own contrast */
+    --color-text-primary: light-dark(#435e7c, #7fa3c7);
+    --secondary: light-dark(#a5c2a6, #46684a);
+    --error: light-dark(#b3261e, #e26a63);
+    --error-light: light-dark(#d3392f, #eb8a84);
+    /* the accents stay bright in both schemes — everything painted with
+       them uses --color-on-accent, which reads fine on yellow either way */
+    --accent: #ffda37;
+    --accent-subtle: #fff6d0;
+
+    /* page & text */
+    --color-background: light-dark(#fff, #16191d);
+    --color-background-inverted: light-dark(#222, #e9edf1);
+    --color-text-normal: canvastext;
+    --color-text-muted: light-dark(#646464, #a5adb5);
+    --color-text-inverted: light-dark(#fff, #111417);
+    --color-text-disabled: color-mix(in srgb, var(--color-text-normal) 35%, transparent);
+
+    /* text painted on top of brand-colored fills */
+    --color-on-primary: #fff;
+    --color-on-secondary: light-dark(#1c3a1d, #dcecdc);
+    --color-on-accent: #000;
+    --color-on-error: light-dark(#fff, #300604);
+
+    /* fills & borders */
+    --color-fill-muted: light-dark(#eee, #1f2328);
+    --color-fill-hover: light-dark(#f2f5f8, #262b31);
+    --color-fill-disabled: color-mix(in srgb, var(--color-text-normal) 8%, transparent);
+    --color-border: light-dark(#c4cdd5, #3a424b);
+    --tint: color-mix(in srgb, var(--primary) 8%, transparent);
+
+    /* shape */
+    --radius: 0.25em;
+    --shadow: 0 1px 4px light-dark(rgb(0 0 0 / 0.25), rgb(0 0 0 / 0.6));
+    --shadow-strong: 0 4px 12px light-dark(rgb(0 0 0 / 0.3), rgb(0 0 0 / 0.7));
+    --font-size-base: 112.5%;
+
+    /* size scale: one em-based ladder shared by
+       font-size, padding, margin, and gap. Sizes compound —
+       never set a font-size on an element nested inside another font-size
+       increase. */
+    --size-6xs: 0.125em; /* 2px */
+    --size-5xs: 0.25em; /* 4px */
+    --size-4xs: 0.5em; /* 8px */
+    --size-3xs: 0.6875em; /* 11px */
+    --size-2xs: 0.75em; /* 12px */
+    --size-xs: 0.8125em; /* 13px */
+    --size-s: 0.9375em; /* 15px */
+    --size-m: 1em; /* 16px */
+    --size-l: 1.0625em; /* 17px */
+    --size-xl: 1.1875em; /* 19px */
+    --size-2xl: 1.3125em; /* 21px */
+    --size-3xl: 1.5em; /* 24px */
+    --size-4xl: 1.75em; /* 28px */
+    --size-5xl: 2em; /* 32px */
+    --size-6xl: 3em; /* 48px */
+
+    /* flow spacing between blocks of text, matching the line height */
+    --space: 1.5em;
+    --popover-width: 20em;
+
+    /* pointer-adaptive control sizing: touch-first defaults keep every
+       control at the 44px touch target (Apple HIG / WCAG 2.5.5). The
+       any-pointer override below compacts controls when a mouse or
+       trackpad is present; browsers re-evaluate the query live, so
+       plugging or unplugging a mouse on a touchscreen resizes the UI
+       with no reload. */
+    --target-min: 44px; /* a physical-size floor, deliberately not em */
+    --control-pad-block: var(--size-4xs);
+    --control-pad-inline: var(--size-m);
+    --control-gap: var(--size-4xs);
+    --check-label-pad-block: var(--size-5xs);
+}
+
+@media (any-pointer: fine) {
+    :root {
+        /* mouse targets still keep the 24px WCAG 2.5.8 minimum */
+        --target-min: 24px;
+        --control-pad-block: var(--size-5xs);
+        --control-pad-inline: var(--size-2xs);
+        --control-gap: var(--size-5xs);
+        --check-label-pad-block: 0em;
+    }
+}
+
+html {
+    font-size: var(--font-size-base);
+}
+
+/* Text breathes at 1.5 line height, and native block elements space
+   themselves with a matching block-end margin — no classes needed.
+   :where() keeps these at zero specificity so any other rule wins. */
+body {
+    line-height: 1.5;
+    color: var(--color-text-normal);
+}
+:where(h1, h2, h3, h4, h5, h6, p, ul, ol, dl, figure, blockquote, table, pre, hr) {
+    margin-block: 0 var(--space);
+}
+:where(h1, h2, h3, h4, h5, h6, p, ul, ol, dl, figure, blockquote, table, pre, hr):last-child {
+    margin-block-end: 0;
+}
+
+/* Large headings (h1–h3) step down the size ladder at one shared weight,
+   so pages get hierarchy without custom font styles. h4 and below render
+   as the small uppercase label further down. */
+h1,
+h2,
+h3 {
+    font-size: var(--size-l);
+    font-weight: 600;
+    line-height: 1.25;
+}
+h1 {
+    font-size: var(--size-2xl);
+}
+h2 {
+    font-size: var(--size-xl);
+}
+
+/* Buttons: a bare <button> is the quiet text variant, and .btn paints any
+   other element (like a link) the same way. Variant classes only set the
+   color variables; the base rules do the painting. */
+button,
+.btn {
+    --background-color: transparent;
+    --background-color-hover: var(--tint);
+    --border-color: transparent;
+    --color: var(--color-text-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--size-4xs);
+    font: inherit;
+    font-size: var(--size-s);
+    font-weight: 500;
+    line-height: 1.25;
+    padding: var(--control-pad-block) var(--control-pad-inline);
+    min-block-size: var(--target-min);
+    box-sizing: border-box;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-color);
+    background: var(--background-color);
+    color: var(--color);
+    text-decoration: none;
+    cursor: pointer;
+}
+button:hover,
+.btn:hover {
+    background: var(--background-color-hover);
+}
+:is(button, .btn).outlined {
+    --border-color: currentcolor;
+}
+:is(button, .btn).contained {
+    --background-color: var(--primary);
+    --background-color-hover: var(--primary-light);
+    --color: var(--color-on-primary);
+}
+:is(button, .btn).secondary {
+    --background-color: var(--secondary);
+    --color: var(--color-on-secondary);
+}
+:is(button, .btn).accent {
+    --background-color: var(--accent-subtle);
+    --background-color-hover: var(--accent);
+    --color: var(--color-on-accent);
+}
+:is(button, .btn).error {
+    --color: var(--error);
+    --background-color-hover: color-mix(in srgb, var(--error) 8%, transparent);
+}
+:is(button, .btn).error.contained {
+    --background-color: var(--error);
+    --background-color-hover: var(--error-light);
+    --color: var(--color-on-error);
+}
+button:disabled {
+    --background-color: var(--color-fill-disabled);
+    --background-color-hover: var(--color-fill-disabled);
+    --border-color: transparent;
+    --color: var(--color-text-disabled);
+    cursor: default;
+}
+
+.ui-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--size-4xs);
+    min-block-size: var(--target-min);
+    min-inline-size: var(--target-min);
+    box-sizing: border-box;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+}
+.ui-icon-button:hover {
+    background: var(--color-fill-disabled);
+}
+
+/* Text inputs, textareas, and selects need no class names */
+input:where([type='text'], [type='url'], [type='number'], [type='email'], [type='search']),
+textarea,
+select {
+    font: inherit;
+    font-size: var(--size-s);
+    line-height: 1.25;
+    color: inherit;
+    padding: var(--control-pad-block) var(--control-pad-inline);
+    min-block-size: var(--target-min);
+    box-sizing: border-box;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-background);
+    min-width: 0;
+}
+input:where([type='text'], [type='url'], [type='number'], [type='email'], [type='search']):hover,
+textarea:hover,
+select:hover {
+    border-color: var(--color-text-muted);
+}
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--color-text-primary);
+    outline-offset: 1px;
+}
+input:disabled,
+textarea:disabled,
+select:disabled {
+    background: var(--color-fill-muted);
+    color: var(--color-text-muted);
+}
+
+/* Checkboxes, radios, and sliders lean on the browser's own rendering */
+input:where([type='checkbox'], [type='radio'], [type='range']) {
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+input:where([type='checkbox'], [type='radio']) {
+    --box-size: var(--size-l);
+    width: var(--box-size);
+    height: var(--box-size);
+    flex-shrink: 0;
+}
+/* the slider's hit area spans its whole box, so the box gets the
+   touch-target floor while the browser keeps the track centered */
+input:where([type='range']) {
+    min-block-size: var(--target-min);
+}
+
+/* A label wrapping a checkbox or radio lays out as a row, with a little
+   vertical padding so it has a comfortable tap target. */
+label:has(> input[type='checkbox'], > input[type='radio']) {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--size-4xs);
+    padding-block: var(--check-label-pad-block);
+    min-block-size: var(--target-min);
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+/* …while a label wrapping a text input or select stacks, with its
+   leading <span> as a small field label */
+label:has(> input:not([type='checkbox'], [type='radio']), > select, > textarea) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-4xs);
+}
+label:has(> input:not([type='checkbox'], [type='radio']), > select, > textarea) > span {
+    font-size: var(--size-2xs);
+    color: var(--color-text-muted);
+}
+
+/* Fieldsets group a run of related fields under a stronger legend */
+fieldset {
+    border: none;
+    padding: 0;
+    margin: var(--size-m) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--control-gap);
+}
+
+/* Small headings (h4 and below) and legends render as the same small
+   uppercase label, marking a subsection inside a larger block */
+legend,
+h4,
+h5,
+h6 {
+    font-size: var(--size-2xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    padding: 0;
+    margin-bottom: var(--size-4xs);
+}
+
+/* A bare <nav> is a row of folder tabs sitting on a shelf. Mark the
+   current page's link with aria-current="page". When the row is too
+   wide it scrolls horizontally instead of wrapping. */
+nav {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--size-4xs);
+    /* size-m inline padding aligns the first tab with page content */
+    padding: var(--size-4xs) var(--size-m) 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    border-bottom: 3px solid var(--primary);
+    /* an empty nav holds one tab row of height so the page doesn't jump
+       when tabs load in: a size-s line plus the tab padding and 1px
+       border, or the touch-target floor, whichever is taller */
+    min-height: max(
+        var(--target-min),
+        calc(1.25 * var(--size-s) + 2 * var(--control-pad-block) + 1px)
+    );
+}
+/* tabs share the buttons' typography */
+nav a {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: var(--control-pad-block) var(--control-pad-inline);
+    min-block-size: var(--target-min);
+    box-sizing: border-box;
+    font-size: var(--size-s);
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    text-transform: capitalize;
+    cursor: pointer;
+    background: var(--color-fill-muted);
+    border: 1px solid var(--color-border);
+    border-bottom: none;
+    border-radius: var(--radius) var(--radius) 0 0;
+    box-shadow: inset 0 1px 0 var(--color-background);
+}
+nav a:hover {
+    background: var(--tint);
+    color: var(--color-text-primary);
+}
+/* controls in a nav sit in a row beside the tabs */
+nav form {
+    display: flex;
+    align-items: center;
+    gap: var(--size-4xs);
+    flex-shrink: 0;
+    padding-bottom: var(--size-4xs);
+}
+nav a[aria-current] {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: var(--color-on-primary);
+    box-shadow: none;
+}
+/* floating chevrons hint at tabs hidden beyond either edge. They fade
+   with scroll-driven animations and stay hidden in browsers without
+   support, which fall back to the clipped tab and thin scrollbar. */
+nav::before,
+nav::after {
+    --hint-size: var(--size-xl);
+    position: sticky;
+    z-index: 1;
+    flex: none;
+    align-self: center;
+    display: grid;
+    place-items: center;
+    width: var(--hint-size);
+    height: var(--hint-size);
+    border-radius: 50%;
+    background: var(--color-background);
+    box-shadow: var(--shadow);
+    color: var(--color-text-muted);
+    line-height: 1;
+    pointer-events: none;
+    opacity: 0;
+}
+nav::before {
+    content: '‹';
+    left: var(--size-4xs);
+    margin-right: calc(-1 * var(--hint-size) - var(--size-4xs));
+}
+nav::after {
+    content: '›';
+    right: var(--size-4xs);
+    margin-left: calc(-1 * var(--hint-size) - var(--size-4xs));
+}
+@supports (animation-timeline: scroll()) {
+    nav::before {
+        animation: nav-hint-start linear both;
+        animation-timeline: scroll(nearest inline);
+    }
+    nav::after {
+        animation: nav-hint-end linear both;
+        animation-timeline: scroll(nearest inline);
+    }
+}
+@keyframes nav-hint-start {
+    0% {
+        opacity: 0;
+    }
+    5%,
+    100% {
+        opacity: 1;
+    }
+}
+@keyframes nav-hint-end {
+    0%,
+    95% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+/* a link standing alone in a footer list is a target, not prose, so it
+   gets the touch-target floor (inline links in sentences are exempt
+   per WCAG 2.5.8) */
+footer li > a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: var(--target-min);
+}
+
+.ui-full-width {
+    width: 100%;
+}
+
+/* Visually hidden but still focusable and announced — for custom-styled
+   controls where a sibling label draws the whole UI. Unlike
+   display: none, the input keeps its place in the tab order and the
+   accessibility tree; the label carries the focus ring on its behalf.
+   The 1px box is the standard screen-reader-only recipe, not a layout
+   size. */
+.ui-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    clip-path: inset(50%);
+    overflow: hidden;
+    white-space: nowrap;
+}
+.ui-sr-only:focus-visible + label {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+}
+
+/* Switch: a restyled checkbox. All geometry derives from the knob size
+   and its inset: the track is two knobs wide and pill-shaped. */
+input.ui-switch {
+    --knob-size: var(--size-m);
+    --knob-inset: var(--size-6xs);
+    --track-height: calc(var(--knob-size) + 2 * var(--knob-inset));
+    appearance: none;
+    width: calc(2 * var(--knob-size) + 2 * var(--knob-inset));
+    height: var(--track-height);
+    border-radius: calc(var(--track-height) / 2);
+    background: var(--color-border);
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+input.ui-switch::before {
+    content: '';
+    position: absolute;
+    top: var(--knob-inset);
+    left: var(--knob-inset);
+    width: var(--knob-size);
+    height: var(--knob-size);
+    border-radius: 50%;
+    background: var(--color-on-primary);
+    transition: left 0.15s;
+}
+input.ui-switch:checked {
+    background: var(--primary);
+}
+input.ui-switch:checked::before {
+    left: calc(100% - var(--knob-size) - var(--knob-inset));
+}
+
+/* A bare <details> is an accordion */
+details {
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+}
+details + details {
+    border-top: none;
+}
+/* the summary shares the buttons' typography */
+details > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--size-m);
+    padding: var(--control-pad-block) var(--control-pad-inline);
+    min-block-size: var(--target-min);
+    box-sizing: border-box;
+    font-size: var(--size-s);
+    font-weight: 500;
+    line-height: 1.25;
+    cursor: pointer;
+    list-style: none;
+}
+details > summary::-webkit-details-marker {
+    display: none;
+}
+details > summary::after {
+    content: '';
+    width: var(--size-4xs);
+    height: var(--size-4xs);
+    border-right: 2px solid var(--color-text-muted);
+    border-bottom: 2px solid var(--color-text-muted);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+    margin-bottom: 2px;
+}
+details[open] > summary::after {
+    transform: rotate(-135deg);
+    margin-bottom: -4px;
+}
+
+/* Tooltip (the <Tooltip> ui component): clicking the trigger button
+   toggles a dark hint popover — pure HTML. It centers over the button,
+   shifting inward at viewport edges, and light-dismisses on outside
+   click or Esc. */
+.ui-tooltip {
+    /* inverted relative to the page in both schemes */
+    background: var(--color-background-inverted);
+    color: var(--color-text-inverted);
+    font-size: var(--size-s);
+    padding: var(--size-4xs) var(--size-m);
+}
+@supports (anchor-name: --anything) {
+    .ui-tooltip {
+        position-area: block-start;
+        justify-self: anchor-center;
+        position-try-fallbacks: flip-block;
+        margin: var(--size-5xs) 0;
+    }
+}
+
+/* Native popovers: pair a button[popovertarget="id"] with a [popover]
+   panel of the same id — toggling, Esc, and click-outside dismissal are
+   all built in. */
+[popover] {
+    border: none;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-strong);
+    padding: var(--size-m);
+    width: max-content;
+    max-width: var(--popover-width);
+}
+
+/* A popover of bare buttons is a menu: tight padding, and each button
+   fills its own row */
+[popover]:has(> button) {
+    padding: var(--size-4xs);
+}
+[popover] > button {
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+/* The invoking button is the panel's implicit anchor, so the panel opens
+   below it with no wiring, flipping to whichever side fits. A panel opened
+   from JS instead of a [popovertarget] button has no anchor and must
+   position itself. Browsers without anchor positioning (and jsdom) skip
+   this and show the popover centered. */
+@supports (anchor-name: --anything) {
+    [popover] {
+        inset: auto;
+        position-area: block-end span-inline-end;
+        position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+        margin: var(--size-5xs) 0;
+    }
+}
+
+/* Combobox: text input with a filtered option list */
+.ui-combobox {
+    position: relative;
+}
+.ui-combobox ul {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    margin: var(--size-4xs) 0 0;
+    padding: var(--size-4xs) 0;
+    list-style: none;
+    background: var(--color-background);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-strong);
+    max-height: 20em;
+    overflow: auto;
+}
+.ui-combobox li {
+    display: flex;
+    align-items: center;
+    padding: var(--control-pad-block) var(--control-pad-inline);
+    min-block-size: var(--target-min);
+    box-sizing: border-box;
+    font-size: var(--size-s);
+    cursor: pointer;
+}
+.ui-combobox li:hover,
+.ui-combobox li[aria-selected='true'] {
+    background: var(--color-fill-hover);
+}
+
+/* Spinner */
+[role='progressbar'] {
+    --spinner-size: calc(2.5 * var(--size-m));
+    display: inline-block;
+    width: var(--spinner-size);
+    height: var(--spinner-size);
+    border: 3px solid color-mix(in srgb, var(--color-text-normal) 15%, transparent);
+    border-top-color: currentcolor;
+    border-radius: 50%;
+    color: var(--color-text-primary);
+    animation: ui-spin 0.8s linear infinite;
+}
+@keyframes ui-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+button [role='progressbar'] {
+    --spinner-size: var(--size-m);
+    border-width: 2px;
+    color: inherit;
+}

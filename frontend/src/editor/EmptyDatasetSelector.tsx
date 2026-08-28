@@ -1,11 +1,14 @@
-import { Autocomplete, TextField } from '@mui/material'
+import { Combobox } from '../ui'
 
 export default function EmptyDatasetSelector() {
     return (
-        <Autocomplete
+        <Combobox
             disabled
+            label="Dataset"
             options={[]}
-            renderInput={(params) => <TextField {...params} label="Dataset" />}
+            value={null}
+            onChange={() => {}}
+            getLabel={() => ''}
         />
     )
 }

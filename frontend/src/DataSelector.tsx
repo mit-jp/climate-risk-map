@@ -2,6 +2,7 @@ import { Interval } from 'luxon'
 import MultiDataSelector from './MultiDataSelector'
 import SingleDataSelector from './SingleDataSelector'
 import { MapVisualization, MapVisualizationId } from './MapVisualization'
+import TOUR_TARGET from './tour/tourTargets'
 
 function DataSelector({
     isNormalized,
@@ -11,7 +12,7 @@ function DataSelector({
     maps: Record<number, MapVisualization>
 }) {
     return (
-        <div id="data-selector">
+        <div id={TOUR_TARGET.dataSelector}>
             {isNormalized ? <MultiDataSelector maps={maps} /> : <SingleDataSelector maps={maps} />}
         </div>
     )

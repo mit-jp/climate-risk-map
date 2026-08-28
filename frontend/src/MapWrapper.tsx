@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import Color from './Color'
 import DataDescription from './DataDescription'
 import DataProcessor, { getDomain } from './DataProcessor'
-import DataSourceDescription from './DataSourceDescription'
 import EmptyMap from './EmptyMap'
 import { getLegendFormatter, getUnitString } from './Formatter'
 import FullMap from './FullMap'
@@ -19,10 +18,11 @@ import Overlays from './Overlays'
 import ProbabilityDensity from './ProbabilityDensity'
 import { clickMap, selectMapTransform, selectSelections, stateId } from './appSlice'
 import { RootState } from './store'
+import TOUR_TARGET from './tour/tourTargets'
 
 export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
 
-export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
+const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
     const dataDefinition = selectedMaps[0]
     const unitString = getUnitString({ units: dataDefinition.units, isNormalized })
 
@@ -70,12 +70,14 @@ function MapWrapper({
     const selections = useSelector(selectSelections)
     const region = useSelector((rootState: RootState) => rootState.app.region)
     const tab = useSelector((state: RootState) => state.app.tab?.name ?? '')
-    const maps = useMemo(() => {
-        return selections
-            .map((selection) => selection.mapVisualization)
-            .map((id) => allMapVisualizations[id])
-            .filter((mapVisualization) => mapVisualization !== undefined)
-    }, [allMapVisualizations, selections])
+    const maps = useMemo(
+        () =>
+            selections
+                .map((selection) => selection.mapVisualization)
+                .map((id) => allMapVisualizations[id])
+                .filter((mapVisualization) => mapVisualization !== undefined),
+        [allMapVisualizations, selections]
+    )
     const queryParams: DataQueryParams[] | undefined =
         Object.entries(selections).length > 0
             ? selections.map((selection) => ({
@@ -104,9 +106,9 @@ function MapWrapper({
                     countryMap.get(stateId).push(value)
                 })
 
-                const allValuesSame = Array.from(countryMap.values()).every((state) => {
-                    return state.every((val: number) => val === state[0])
-                })
+                const allValuesSame = Array.from(countryMap.values()).every((state) =>
+                    state.every((val: number) => val === state[0])
+                )
 
                 // to prevent the warning from flashing when loading a new map
                 if (valueSet.size === 0) {
@@ -162,7 +164,7 @@ function MapWrapper({
                     <EmptyMapTitle />
                 )}
                 <svg
-                    id="map-svg"
+                    id={TOUR_TARGET.map}
                     version="1.1"
                     baseProfile="full"
                     xmlns="http://www.w3.org/2000/svg"
@@ -245,14 +247,13 @@ function MapWrapper({
                 {map && (
                     <MapControls data={processedData} isNormalized={isNormalized} maps={maps} />
                 )}
-                <div className={css.dataDescriptions} id="data-desc">
+                <div id={TOUR_TARGET.dataDescription}>
                     {maps[0] && (
                         <DataDescription
-                            name={maps[0].displayName}
                             description={maps[0].description}
+                            dataSource={dataSource}
                         />
                     )}
-                    {dataSource && <DataSourceDescription dataSource={dataSource} />}
                 </div>
             </div>
             <MapTooltip

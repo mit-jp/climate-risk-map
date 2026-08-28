@@ -1,12 +1,13 @@
-import { Info } from '@mui/icons-material'
-import { styled, Tooltip, tooltipClasses, TooltipProps } from '@mui/material'
-import { useDispatch, useSelector } from 'react-redux'
-import { clickMap, Region, stateId } from './appSlice'
+import { useSelector } from 'react-redux'
+import { useParams } from 'react-router-dom'
+import { Region, stateId } from './appSlice'
 import COUNTIES from './Counties'
 import css from './MapTitle.module.css'
 import { MapVisualization } from './MapVisualization'
 import states from './States'
 import { RootState } from './store'
+import TOUR_TARGET from './tour/tourTargets'
+import { Button, Info, Tooltip } from './ui'
 
 const getTitle = (selectedMaps: MapVisualization[]) => {
     if (selectedMaps.length > 1) {
@@ -38,55 +39,42 @@ type Props = {
     showStateLevelWarning: boolean
 }
 
-const BigTooltip = styled(({ className, ...props }: TooltipProps) => (
-    <Tooltip {...props} arrow placement="top" classes={{ popper: className }} />
-))(({ theme }) => ({
-    [`& .${tooltipClasses.arrow}`]: {
-        color: theme.palette.common.black,
-    },
-    [`& .${tooltipClasses.tooltip}`]: {
-        backgroundColor: theme.palette.common.black,
-        fontSize: theme.typography.fontSize,
-    },
-}))
-
 function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarning }: Props) {
     const zoomTo = useSelector((state: RootState) => state.app.zoomTo)
-    const dispatch = useDispatch()
     const countyId = useSelector((state: RootState) => state.app.county)
     const region = useSelector((state: RootState) => state.app.region)
+    const { tabId } = useParams()
+    const subtitle = getSubtitle(countyId, region)
 
     return (
-        <div className={css.mapTitleContainer}>
-            {zoomTo && (
-                // creates a button that zooms back out if zoomed into a state or country
-                <button
-                    type="button"
-                    className={css.zoomOutButton}
-                    onClick={() => dispatch(clickMap(-1))}
-                >
-                    Zoom Out
-                </button>
-            )}
-            <h3 id={css.mapTitle}>
-                {getTitle(selectedMapVisualizations)}
+        <>
+            {/* the tooltip sits beside the heading, not inside it, so it
+                does not inherit the heading's larger em font size */}
+            <div id={css.mapTitle}>
+                <h3>{getTitle(selectedMapVisualizations)}</h3>
                 {isNormalized && (
-                    <BigTooltip
-                        title="The normalized value is the percentile
-                of the raw data. If you select multiple data,
-                we take the mean of the ranked values."
-                    >
-                        <Info
-                            sx={{
-                                verticalAlign: 'middle',
-                                marginLeft: '8px',
-                                marginBottom: '3px',
-                            }}
-                        />
-                    </BigTooltip>
+                    <Tooltip tip="The normalized value is the percentile of the raw data. If you select multiple data, we take the mean of the ranked values.">
+                        <Info className={css.infoIcon} />
+                    </Tooltip>
                 )}
-            </h3>
-            <p id={css.mapSubtitle}>{getSubtitle(countyId, region)}</p>
+            </div>
+            {/* the subtitle names the selected place; with a county selected
+                it doubles as the link to that county's report card */}
+            {countyId ? (
+                <div id={TOUR_TARGET.reportCard} className={css.subtitle}>
+                    <Button
+                        color="accent"
+                        onClick={() => window.open(`/report-card/${tabId ?? '8'}/${countyId}`)}
+                    >
+                        View report card for {subtitle}
+                    </Button>
+                    <Tooltip tip="Shows detailed county information including national and state percentiles for all metrics. Higher percentiles indicate higher risk.">
+                        <Info />
+                    </Tooltip>
+                </div>
+            ) : (
+                <p className={css.subtitle}>{subtitle}</p>
+            )}
             {showStateLevelWarning && (
                 <div id={css.stateDataWarning} className={zoomTo ? css.zoomed : ''}>
                     {' '}
@@ -97,26 +85,11 @@ function MapTitle({ selectedMapVisualizations, isNormalized, showStateLevelWarni
                     </p>
                 </div>
             )}
-        </div>
+        </>
     )
 }
 
 export function EmptyMapTitle() {
-    const dispatch = useDispatch()
-    const zoomTo = useSelector((state: RootState) => state.app.zoomTo)
-    return (
-        <div className={css.mapTitleContainer}>
-            {zoomTo && (
-                <button
-                    type="button"
-                    className={css.zoomOutButton}
-                    onClick={() => dispatch(clickMap(-1))}
-                >
-                    Zoom Out
-                </button>
-            )}
-            <h1 id={css.noMetricTitle}>No metric selected</h1>
-        </div>
-    )
+    return <h1 id={css.noMetricTitle}>No metric selected</h1>
 }
 export default MapTitle

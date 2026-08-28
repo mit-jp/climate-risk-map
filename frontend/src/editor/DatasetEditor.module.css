@@ -7,10 +7,9 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-}
-
-.dataset-options > * {
-    margin: 1em !important;
+    align-items: flex-start;
+    gap: var(--size-m);
+    padding: var(--size-m);
 }
 
 .map-visualizations ul {
@@ -22,9 +21,9 @@
 .map-visualizations li {
     display: flex;
     align-items: center;
-    margin-bottom: 0.5em;
+    margin-bottom: var(--size-4xs);
 }
 
 .map-visualizations li p {
-    margin-right: 1em;
+    margin-right: var(--size-m);
 }

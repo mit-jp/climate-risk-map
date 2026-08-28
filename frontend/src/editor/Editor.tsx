@@ -1,4 +1,3 @@
-import { Button } from '@mui/material'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { json } from 'd3'
 import { useEffect } from 'react'
@@ -17,6 +16,7 @@ import SelectorList, { EmptySelectorList } from '../SelectorList'
 import { TopoJson } from '../TopoJson'
 import { REGION_FOR } from '../appSlice'
 import { RootState } from '../store'
+import { Button } from '../ui'
 import editorCss from './Editor.module.css'
 import EditorMap from './EditorMap'
 import EditorNavigation from './EditorNavigation'
@@ -98,17 +98,13 @@ function Editor() {
 
                     {!isDrafts(tab) && maps && maps.length === 0 && tab && (
                         <div className={editorCss.actions}>
-                            <Link to="/editor/-1" className={editorCss.publishLink}>
+                            <Link to="/editor/-1" className="btn accent">
                                 Publish a draft
                             </Link>
 
-                            <button
-                                type="button"
-                                className={editorCss.deleteTab}
-                                onClick={() => deleteTab(tab.id)}
-                            >
+                            <Button color="error" onClick={() => deleteTab(tab.id)}>
                                 delete this tab
-                            </button>
+                            </Button>
                         </div>
                     )}
                     {isDrafts(tab) && (

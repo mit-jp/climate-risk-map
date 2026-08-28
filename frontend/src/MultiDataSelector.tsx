@@ -1,12 +1,3 @@
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import {
-    Accordion,
-    AccordionDetails,
-    AccordionSummary,
-    Checkbox,
-    FormControlLabel,
-} from '@mui/material'
-import Slider from '@mui/material/Slider'
 import { Map } from 'immutable'
 import { ChangeEvent } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -23,14 +14,7 @@ import { changeWeight, selectSelections, setMapSelections } from './appSlice'
 import { RootState, store } from './store'
 import { readable } from './YearSelector'
 
-const multipleChecked = (selections: MapSelection[]) => {
-    return selections.length > 1
-}
-
-const marks = [
-    { value: 0.1, label: 'min' },
-    { value: 1, label: 'max' },
-]
+const multipleChecked = (selections: MapSelection[]) => selections.length > 1
 
 const checkBox = (
     map: MapVisualization,
@@ -47,52 +31,37 @@ const checkBox = (
             key={map.id}
             className={shouldBeChecked(map.id) ? `${css.selectedGroup} ${css.padded}` : css.padded}
         >
-            <FormControlLabel
-                id={map.id.toString()}
-                control={
-                    <Checkbox
-                        checked={shouldBeChecked(map.id)}
-                        value={map.id}
-                        onChange={onSelectionToggled}
-                        name="mapId"
-                        color="primary"
-                    />
-                }
-                label={
-                    <div className={css.labelMulti}>
-                        {map.displayName}
-                        {selection && (
-                            <div className={css.year}>{readable(selection.dateRange)}</div>
-                        )}
-                    </div>
-                }
-                sx={{
-                    width: '100%',
-                    '& .MuiFormControlLabel-label': {
-                        width: '100%',
-                    },
-                }}
-            />
+            <label id={map.id.toString()} className={css.choiceRow}>
+                <input
+                    type="checkbox"
+                    checked={shouldBeChecked(map.id)}
+                    value={map.id}
+                    onChange={onSelectionToggled}
+                    name="mapId"
+                />
+                <div className={css.labelMulti}>
+                    {map.displayName}
+                    {selection && <div className={css.year}>{readable(selection.dateRange)}</div>}
+                </div>
+            </label>
             {shouldBeChecked(map.id) && multipleChecked(selections) && (
                 <div className={css.weight}>
-                    <div className={css.weightLabel}>Weight</div>
-                    <Slider
-                        size="small"
+                    <div className={css.weightLabel}>Weight: {dataWeights[map.id] ?? 1}</div>
+                    <input
+                        type="range"
                         className={css.weightSlider}
                         min={0.1}
                         max={1}
                         step={0.1}
-                        marks={marks}
-                        valueLabelDisplay="auto"
-                        onChange={(_, weight) =>
+                        value={dataWeights[map.id] ?? 1}
+                        onChange={(event) =>
                             dispatch(
                                 changeWeight({
                                     mapVisualizationId: map.id,
-                                    weight: weight as number,
+                                    weight: Number(event.target.value),
                                 })
                             )
                         }
-                        value={dataWeights[map.id] ?? 1}
                     />
                 </div>
             )}
@@ -123,9 +92,7 @@ function MultiDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisua
         dispatch(setMapSelections(Array.from(changedSelections.values())))
     }
 
-    const shouldBeChecked = (mapId: MapVisualizationId) => {
-        return selectionMap.has(mapId)
-    }
+    const shouldBeChecked = (mapId: MapVisualizationId) => selectionMap.has(mapId)
 
     const getDataList = (dataFilter: (map: MapVisualization) => boolean) =>
         Object.values(maps)
@@ -151,18 +118,10 @@ function MultiDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisua
                 subcategories
                     .filter((subcategory) => !isEmpty(subcategory.id))
                     .map((subcategory) => (
-                        <Accordion key={subcategory.id} defaultExpanded={false}>
-                            <AccordionSummary
-                                aria-controls="panel1a-content"
-                                id="panel1a-header"
-                                expandIcon={<ExpandMoreIcon />}
-                            >
-                                <div className={css.subcategoryTitle}>{subcategory.name}</div>
-                            </AccordionSummary>
-                            <AccordionDetails style={{ padding: 0 }}>
-                                {getDataList((map) => map.subcategory === subcategory.id)}
-                            </AccordionDetails>
-                        </Accordion>
+                        <details key={subcategory.id}>
+                            <summary>{subcategory.name}</summary>
+                            {getDataList((map) => map.subcategory === subcategory.id)}
+                        </details>
                     ))}
             {getDataList((map) => map.subcategory == null)}
         </form>

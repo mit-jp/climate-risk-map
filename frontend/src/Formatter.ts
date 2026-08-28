@@ -10,10 +10,9 @@ type FormatterParams = {
 
 export type Formatter = (n: number | { valueOf(): number }) => string
 
-export const riskMetricFormatter = (d: number | { valueOf(): number }) =>
-    format('.0%')(d).slice(0, -1)
+const riskMetricFormatter = (d: number | { valueOf(): number }) => format('.0%')(d).slice(0, -1)
 
-export const createFormatter = ({
+const createFormatter = ({
     isNormalized,
     type,
     decimals,
