@@ -52,7 +52,10 @@ pub struct Database<'c> {
 
 impl Database<'_> {
     pub async fn new(sql_url: &str) -> Database<'_> {
-        let pool = PgPool::connect(sql_url).await.unwrap();
+        Database::from_pool(PgPool::connect(sql_url).await.unwrap())
+    }
+
+    pub fn from_pool<'c>(pool: PgPool) -> Database<'c> {
         let pool = Arc::new(pool);
 
         Database {

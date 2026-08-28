@@ -203,3 +203,99 @@ async fn delete(id: web::Path<i32>, app_state: web::Data<AppState<'_>>) -> impl 
         Ok(_) => HttpResponse::Ok().finish(),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{dao::Database, AppState};
+    use actix_web::{test, web, App};
+    use sqlx::{PgPool, Row};
+    use std::sync::{Arc, Mutex};
+
+    async fn count(pool: &PgPool, query: &str, id: i32) -> i64 {
+        sqlx::query(query)
+            .bind(id)
+            .fetch_one(pool)
+            .await
+            .unwrap()
+            .get(0)
+    }
+
+    #[sqlx::test]
+    async fn delete_published_map_removes_collection_rows(pool: PgPool) {
+        let dataset_id: i32 = sqlx::query(
+            "INSERT INTO dataset (short_name, name, description, units, geography_type)
+            VALUES ('mapviz_cascade_test', 'Mapviz Cascade Test', 't', 't', 1) RETURNING id",
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap()
+        .get(0);
+        let map_id: i32 = sqlx::query(
+            "INSERT INTO map_visualization (dataset, map_type, color_palette, scale_type, formatter_type)
+            VALUES ($1, 1, 1, 2, 3) RETURNING id",
+        )
+        .bind(dataset_id)
+        .fetch_one(&pool)
+        .await
+        .unwrap()
+        .get(0);
+        let category_id: i32 = sqlx::query("SELECT id FROM data_category LIMIT 1")
+            .fetch_one(&pool)
+            .await
+            .unwrap()
+            .get(0);
+        sqlx::query(
+            "INSERT INTO map_visualization_collection (map_visualization, category, \"order\")
+            VALUES ($1, $2, 99)",
+        )
+        .bind(map_id)
+        .bind(category_id)
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        let app_state = web::Data::new(AppState {
+            connections: Mutex::new(0),
+            database: Arc::new(Database::from_pool(pool.clone())),
+        });
+        let app =
+            test::init_service(App::new().app_data(app_state).configure(super::init_editor)).await;
+        let request = test::TestRequest::delete()
+            .uri(&format!("/map-visualization/{map_id}"))
+            .to_request();
+        let response = test::call_service(&app, request).await;
+
+        assert!(
+            response.status().is_success(),
+            "delete failed with status {}",
+            response.status()
+        );
+        assert_eq!(
+            count(
+                &pool,
+                "SELECT count(*) FROM map_visualization WHERE id = $1",
+                map_id
+            )
+            .await,
+            0
+        );
+        assert_eq!(
+            count(
+                &pool,
+                "SELECT count(*) FROM map_visualization_collection WHERE map_visualization = $1",
+                map_id
+            )
+            .await,
+            0
+        );
+        assert_eq!(
+            count(
+                &pool,
+                "SELECT count(*) FROM data_category WHERE id = $1",
+                category_id
+            )
+            .await,
+            1
+        );
+    }
+}
