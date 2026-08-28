@@ -27,30 +27,24 @@ function MapVisualizations({
 
     return (
         <div className={css.mapVisualizations}>
-            <p>
-                You cannot delete a dataset while published maps exist. Unpublish these if you want
-                to delete the dataset:
-            </p>
+            <p>Map visualizations that use this dataset:</p>
             <ul>
                 {Object.entries(mapVisualizations).map(([tabId, mapVisualizations]) =>
                     Object.values(mapVisualizations).map((mapVisualization) => (
                         <li key={`${tabId} ${mapVisualization.id}`}>
-                            <p>
-                                <a href={`/editor/${tabId}`} target="_blank" rel="noreferrer">
-                                    {tabName(tabs, Number(tabId))}
-                                </a>
+                            <a href={`/editor/${tabId}`} target="_blank" rel="noreferrer">
+                                {tabName(tabs, Number(tabId))}
                                 {' > '}
                                 {mapVisualization.displayName}
-                            </p>
+                            </a>
                             <Button
                                 className={css.publishButton}
-                                onClick={() => {
-                                    const id = {
+                                onClick={() =>
+                                    unpublish({
                                         map_visualization: mapVisualization.id,
                                         category: Number(tabId),
-                                    }
-                                    unpublish(id)
-                                }}
+                                    })
+                                }
                                 variant="contained"
                                 color="error"
                             >
@@ -60,6 +54,10 @@ function MapVisualizations({
                     ))
                 )}
             </ul>
+            <p>
+                You cannot delete a dataset while published maps exist. Unpublish them if you want
+                to delete the dataset.
+            </p>
         </div>
     )
 }
