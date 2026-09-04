@@ -120,13 +120,15 @@
 
 .guidedTourButton {
     background-color: rgb(67, 94, 124);
+    text-decoration: none;
     color: #fff;
     border: none;
     border-radius: 5px;
     padding: 0.5rem 1rem;
+    display: inline-block;
+    margin-bottom: 1rem;
     font-size: 1rem;
     cursor: pointer;
-    margin-bottom: 1rem;
 }
 
 .guidedTourButton:hover {
