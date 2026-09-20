@@ -1,8 +1,8 @@
-import { Accordion, AccordionDetails, AccordionSummary, Container, Typography } from '@mui/material'
-import { ExpandMore } from '@mui/icons-material'
+import { Container, Typography } from '@mui/material'
 import css from './LandingPage.module.css'
 import Header from '../Header'
 import LandingPageNavbar from './LandingPageNavbar'
+import RiskFormula from './RiskFormula'
 
 function Methodology() {
     return (
@@ -44,9 +44,9 @@ function Methodology() {
                         values, not the data in its native units. For each metric m, each county c
                         is given a ‘relative risk score’ which is calculated as its percentile when
                         compared to all other counties in the country:
-                        <br /> <br /> relative riskm,c=percentilem,c = pm,c = rankm,cn*100
-                        <br /> <br /> where rank is defined as the number of counties with values
-                        less than or equal to county c and n is the total number of counties.
+                        <RiskFormula />
+                        where rank is defined as the number of counties with values less than or
+                        equal to county c and n is the total number of counties.
                     </Typography>
                 </Container>
             </main>
