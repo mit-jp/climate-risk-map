@@ -31,6 +31,15 @@
     padding: 0 0 1rem 0;
 }
 
+.caption {
+    color: #445a6f;
+    font-size: 0.95rem;
+    font-style: italic;
+    line-height: 1.45;
+    display: flex;
+    justify-content: center;
+}
+
 .faqList {
     display: grid;
     gap: 1rem;
