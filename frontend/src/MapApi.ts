@@ -16,10 +16,8 @@ import {
 import { GeoId } from './appSlice'
 import UploadData from './uploader/UploadData'
 
-export type DatasetId = number
+type DatasetId = number
 export type TabId = number
-export type Data = Record<GeoId, number | null>
-export type DataByMapVisualization = Record<MapVisualizationId, Data>
 export type DataQueryParams = {
     mapVisualization: number
     source: number
@@ -463,7 +461,6 @@ export const mapApi = createApi({
 })
 
 export const {
-    useLazyGetDataQuery,
     useGetDataQuery,
     useGetMapVisualizationsQuery,
     useGetTabsQuery,
@@ -480,7 +477,6 @@ export const {
     useGetSubcategoriesQuery,
     useUnpublishMapVisualizationMutation,
     usePublishMapVisualizationMutation,
-    useUpdateTabMutation,
     useCreateTabMutation,
     useDeleteTabMutation,
     useUpdateDatasetMutation,

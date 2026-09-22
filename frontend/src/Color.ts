@@ -13,13 +13,13 @@ import {
 } from 'd3'
 import { MapVisualization } from './MapVisualization'
 
-export type ColorScheme =
+type ColorScheme =
     | ScaleSequential<string, never>
     | ScaleThreshold<number, string, never>
     | ScaleDiverging<string, never>
 
 const redBlueContinuous = scaleSequential<string>((x) => interpolateRdYlBu(1 - x))
-export const redBlue = scaleThreshold<number, string, never>(
+const redBlue = scaleThreshold<number, string, never>(
     [0.05, 0.25, 0.75, 0.95],
     [...schemeRdYlBu[5]].reverse()
 )

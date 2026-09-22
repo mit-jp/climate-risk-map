@@ -19,10 +19,6 @@ export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: b
     return unitString
 }
 
-export enum Aggregation {
-    State = 'state',
-    County = 'county',
-}
 type Props = {
     map: GeoMap
     selectedMapVisualizations: MapVisualization[]

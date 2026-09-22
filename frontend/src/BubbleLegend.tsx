@@ -7,7 +7,7 @@ function drawBubbleLegend(
     title: string
 ) {
     const legend = g
-        .attr('fill', '#777')
+        .style('fill', 'var(--color-text-muted)')
         .attr('transform', 'translate(915,508)')
         .attr('text-anchor', 'middle')
         .style('font', '10px sans-serif')
@@ -26,7 +26,7 @@ function drawBubbleLegend(
     legend
         .append('circle')
         .attr('fill', 'none')
-        .attr('stroke', '#ccc')
+        .style('stroke', 'var(--color-border)')
         .attr('cy', (d) => -radius(d))
         .attr('r', radius)
 

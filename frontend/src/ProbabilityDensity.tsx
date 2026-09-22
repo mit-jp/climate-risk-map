@@ -120,7 +120,7 @@ function ProbabilityDensity({
         svg.select('#kde')
             .datum(density)
             .attr('fill', 'none')
-            .attr('stroke', '#000')
+            .attr('stroke', 'currentColor')
             .attr('stroke-width', 1.5)
             .attr('stroke-linejoin', 'round')
             .attr('d', kdeLine)
@@ -162,7 +162,11 @@ function ProbabilityDensity({
             x={locX}
             y={locY}
         >
-            <rect width="100%" height="100%" fill="rgba(255, 255, 255, 0.8)" />
+            <rect
+                width="100%"
+                height="100%"
+                style={{ fill: 'color-mix(in srgb, var(--color-background) 80%, transparent)' }}
+            />
             <g id="histogram" />
             <path id="kde" />
             <g id="xAxis" />

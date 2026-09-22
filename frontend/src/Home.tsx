@@ -82,28 +82,17 @@ function Home() {
 
     return (
         <>
-            <TourPlanner />
-            <Header />
-            <div className={css.navDiv} id="navdiv">
-                {tabs ? (
-                    <Navigation
-                        tabs={displayedTabs}
-                        onTabClick={(tab) => dispatch(setTab(tab))}
-                        selectedTabId={tab?.id}
-                    />
-                ) : (
-                    <EmptyNavigation />
-                )}
+            <Header>
                 <RegionNavigation />
-            </div>
-            {isNormalized && (
-                <aside className={css.siteOverview}>
-                    <p>
-                        Select multiple metrics and adjust their relative importance to view the
-                        combined impact. To see additional and supporting data, select the other
-                        categories.
-                    </p>
-                </aside>
+            </Header>
+            {tabs ? (
+                <Navigation
+                    tabs={displayedTabs}
+                    onTabClick={(tab) => dispatch(setTab(tab))}
+                    selectedTabId={tab?.id}
+                />
+            ) : (
+                <EmptyNavigation />
             )}
             <main className={css.content}>
                 {tabs && mapVisualizations && tab ? (
@@ -127,6 +116,9 @@ function Home() {
                     !(tabs && mapVisualizations && tab) && <p className={mapCss.map}>No Map</p>}
             </main>
             <ViewTourButton />
+            {/* a CSS anchor must be laid out before the element anchored to
+                it, so the tour must come after every element it targets */}
+            <TourPlanner />
         </>
     )
 }

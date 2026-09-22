@@ -1,24 +1,7 @@
-import { HelpOutline } from '@mui/icons-material'
-import {
-    Button,
-    Checkbox,
-    FormControl,
-    FormControlLabel,
-    IconButton,
-    InputLabel,
-    MenuItem,
-    Popover,
-    Select,
-    Switch,
-    Tooltip,
-    Typography,
-} from '@mui/material'
 import { csvFormat } from 'd3'
 import { saveAs } from 'file-saver'
 import { Map } from 'immutable'
-import { Fragment, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
 import COUNTIES from './Counties'
 import { getLegendTitle } from './FullMap'
 import css from './MapControls.module.css'
@@ -33,6 +16,7 @@ import {
     OverlayName,
     REGION_FOR,
     TransmissionLineType,
+    clickMap,
     setDetailedView,
     setShowOverlay,
     setTransmissionLineType,
@@ -40,6 +24,8 @@ import {
     stateId,
 } from './appSlice'
 import { RootState } from './store'
+import TOUR_TARGET from './tour/tourTargets'
+import { Button, Select } from './ui'
 
 const getFilename = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
     const unitString = getLegendTitle(selectedMaps, isNormalized)
@@ -61,50 +47,38 @@ function OverlaySubControl({ name }: { name: OverlayName }) {
     const transmissionLineType = useSelector((state: RootState) => state.app.transmissionLineType)
     if (name === 'Transmission lines') {
         return (
-            <FormControl>
-                <InputLabel shrink className={css.overlayOptionsLabel} id="transmission-lines-type">
-                    Type
-                </InputLabel>
-                <Select
-                    labelId="transmission-lines-type"
-                    value={transmissionLineType}
-                    className={css.overlayOptions}
-                    onChange={(event) =>
-                        dispatch(
-                            setTransmissionLineType(event.target.value as TransmissionLineType)
-                        )
-                    }
-                >
-                    {transmissionLinesTypes.map((value) => (
-                        <MenuItem key={value} value={value}>
-                            {value}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
+            <Select
+                label="Type"
+                value={transmissionLineType}
+                className={css.overlayOptions}
+                onChange={(event) =>
+                    dispatch(setTransmissionLineType(event.target.value as TransmissionLineType))
+                }
+            >
+                {transmissionLinesTypes.map((value) => (
+                    <option key={value} value={value}>
+                        {value}
+                    </option>
+                ))}
+            </Select>
         )
     }
     if (name === 'Marine highways') {
         return (
-            <FormControl>
-                <InputLabel shrink className={css.overlayOptionsLabel} id="waterway-type">
-                    Tonnage
-                </InputLabel>
-                <Select
-                    labelId="waterway-type"
-                    value={waterwayValue}
-                    className={css.overlayOptions}
-                    onChange={(event) =>
-                        dispatch(setWaterwayValue(event.target.value as WaterwayValue))
-                    }
-                >
-                    {waterwayTypes.map(({ name, value }) => (
-                        <MenuItem key={value} value={value}>
-                            {name}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
+            <Select
+                label="Tonnage"
+                value={waterwayValue}
+                className={css.overlayOptions}
+                onChange={(event) =>
+                    dispatch(setWaterwayValue(event.target.value as WaterwayValue))
+                }
+            >
+                {waterwayTypes.map(({ name, value }) => (
+                    <option key={value} value={value}>
+                        {name}
+                    </option>
+                ))}
+            </Select>
         )
     }
     return null
@@ -116,26 +90,24 @@ function OverlayCheckBoxes({ overlays }: { overlays: Record<OverlayName, Overlay
     return (
         <>
             {Object.entries(overlays).map(([overlayName, overlay]) => (
-                <Fragment key={overlayName}>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                onChange={(_, value) =>
-                                    dispatch(
-                                        setShowOverlay({
-                                            name: overlayName as OverlayName,
-                                            shouldShow: value,
-                                        })
-                                    )
-                                }
-                                title={overlayName}
-                                color="primary"
-                            />
-                        }
-                        label={overlayName}
-                    />
+                <div key={overlayName} className={css.overlay}>
+                    <label>
+                        <input
+                            type="checkbox"
+                            onChange={(event) =>
+                                dispatch(
+                                    setShowOverlay({
+                                        name: overlayName as OverlayName,
+                                        shouldShow: event.target.checked,
+                                    })
+                                )
+                            }
+                            title={overlayName}
+                        />
+                        {overlayName}
+                    </label>
                     {overlay.shouldShow && <OverlaySubControl name={overlayName as OverlayName} />}
-                </Fragment>
+                </div>
             ))}
         </>
     )
@@ -160,13 +132,13 @@ function MapControls({ data, isNormalized, maps }: Props) {
     const dispatch = useDispatch()
     const overlays = useSelector((state: RootState) => state.app.overlays)
     const detailedView = useSelector((state: RootState) => state.app.detailedView)
+    const activeOverlayCount = Object.values(overlays).filter(
+        (overlay) => overlay.shouldShow
+    ).length
 
-    const countyId = useSelector((state: RootState) => state.app.county)
+    const zoomTo = useSelector((state: RootState) => state.app.zoomTo)
     const geographyType = maps[0]?.geography_type
     const region = REGION_FOR[geographyType]
-    const params = useParams()
-    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-    const { tabId } = params
 
     const UsaCsv = (sortedData: Map<number, number> | undefined) => {
         const objectData = sortedData
@@ -226,7 +198,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
     }
 
     const downloadImageSVG = () => {
-        const svg = document.getElementById('map-svg')
+        const svg = document.getElementById(TOUR_TARGET.map)
         if (svg?.outerHTML) {
             const blob = new Blob([svg.outerHTML], { type: 'text/plain' })
             saveAs(blob, `${getFilename(maps, isNormalized)}.svg`)
@@ -234,7 +206,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
     }
 
     const downloadImagePNG = () => {
-        const svg = document.getElementById('map-svg')
+        const svg = document.getElementById(TOUR_TARGET.map)
         if (svg?.outerHTML) {
             const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml;charset=utf-8' })
             const DOMURL = window.URL || window.webkitURL || window
@@ -263,79 +235,74 @@ function MapControls({ data, isNormalized, maps }: Props) {
     }
 
     return (
-        <>
-            <div id={css.countyControls}>
-                {countyId && (
-                    <div id="report-card-div">
-                        <Button
-                            id={css.reportCardButton}
-                            variant="outlined"
-                            onClick={() => window.open(`/report-card/${tabId ?? '8'}/${countyId}`)}
-                        >
-                            View report card for {COUNTIES.get(countyId)},{' '}
-                            {states.get(stateId(countyId))}
-                        </Button>
-                        <IconButton
-                            onClick={(event) => setAnchorEl(event.currentTarget)}
-                            size="small"
-                            id={css.reportCardTooltip}
-                        >
-                            <HelpOutline />
-                        </IconButton>
-                        <Popover
-                            open={Boolean(anchorEl)}
-                            anchorEl={anchorEl}
-                            onClose={() => setAnchorEl(null)}
-                            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                            transformOrigin={{ vertical: 'top', horizontal: 'center' }}
-                        >
-                            <Typography sx={{ p: 2, maxWidth: 300 }}>
-                                Shows detailed county information including national and state
-                                percentiles for all metrics. Higher percentiles indicate higher
-                                risk.
-                            </Typography>
-                        </Popover>
+        <div id={css.mapControls}>
+            {region === 'USA' && (
+                <>
+                    <Button
+                        variant="outlined"
+                        id={TOUR_TARGET.overlays}
+                        popovertarget="map-layers-panel"
+                    >
+                        Map layers
+                        {activeOverlayCount > 0 && ` · ${activeOverlayCount}`} ▾
+                    </Button>
+                    <div id="map-layers-panel" popover="auto">
+                        <OverlayCheckBoxes overlays={overlays} />
                     </div>
-                )}
-            </div>
-            <div id={css.mapControls}>
-                <div className={css.overlays} id="map-overlays">
-                    {region === 'USA' && <OverlayCheckBoxes overlays={overlays} />}
-                    {isNormalized && data && (
-                        <FormControlLabel
-                            control={
-                                <Switch
-                                    checked={detailedView}
-                                    onChange={(_, value) => dispatch(setDetailedView(value))}
-                                    name="detailed-view"
-                                    color="primary"
-                                />
-                            }
-                            label="Detailed View"
-                        />
-                    )}
-                </div>
-                <div id="download-buttons">
-                    {data && (
-                        <Button variant="outlined" onClick={downloadData}>
-                            Download Data
+                </>
+            )}
+            {isNormalized && data && (
+                <label>
+                    <input
+                        type="checkbox"
+                        className="ui-switch"
+                        checked={detailedView}
+                        onChange={(event) => dispatch(setDetailedView(event.target.checked))}
+                        name="detailed-view"
+                    />
+                    Detailed View
+                </label>
+            )}
+            {data && (
+                <>
+                    <Button
+                        variant="outlined"
+                        id={TOUR_TARGET.downloads}
+                        popovertarget="download-panel"
+                    >
+                        Download ▾
+                    </Button>
+                    <div id="download-panel" popover="auto">
+                        <Button
+                            onClick={downloadData}
+                            popovertarget="download-panel"
+                            popovertargetaction="hide"
+                        >
+                            Data (CSV)
                         </Button>
-                    )}
-                    {data && (
-                        <Button variant="outlined" onClick={downloadImageSVG}>
-                            Download Image (SVG)
+                        <Button
+                            onClick={downloadImageSVG}
+                            popovertarget="download-panel"
+                            popovertargetaction="hide"
+                        >
+                            Image (SVG)
                         </Button>
-                    )}
-                    {data && (
-                        <Tooltip title="Google Chrome is recommended to download PNG images" arrow>
-                            <Button variant="outlined" onClick={downloadImagePNG}>
-                                Download Image (PNG)
-                            </Button>
-                        </Tooltip>
-                    )}
-                </div>
-            </div>
-        </>
+                        <Button
+                            onClick={downloadImagePNG}
+                            popovertarget="download-panel"
+                            popovertargetaction="hide"
+                        >
+                            Image (PNG)
+                        </Button>
+                    </div>
+                </>
+            )}
+            {zoomTo && (
+                <Button variant="outlined" onClick={() => dispatch(clickMap(-1))}>
+                    Zoom Out
+                </Button>
+            )}
+        </div>
     )
 }
 

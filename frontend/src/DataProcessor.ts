@@ -4,7 +4,6 @@ import { Data2 } from './MapApi'
 import { MapVisualizationId } from './MapVisualization'
 import { GeoId } from './appSlice'
 
-export type ProcessedData = Map<string, number | undefined>
 type Params = {
     mapId: number
     weight?: number

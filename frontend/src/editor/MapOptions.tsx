@@ -1,15 +1,5 @@
-import {
-    Autocomplete,
-    Checkbox,
-    FormControl,
-    FormControlLabel,
-    FormLabel,
-    Radio,
-    RadioGroup,
-    TextField,
-} from '@mui/material'
 import { ascending } from 'd3'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
     useGetColorPalettesQuery,
     useGetScaleTypesQuery,
@@ -17,9 +7,71 @@ import {
     useGetSubcategoriesQuery,
 } from '../MapApi'
 import { FormatterType, MapType, MapVisualization } from '../MapVisualization'
+import { Combobox, TextField } from '../ui'
 import css from './Editor.module.css'
 
-const INPUT_MARGIN = { margin: '0.5em 0' }
+type UpdateMap = (mapVisualization: MapVisualization) => void
+
+function Radio({
+    name,
+    value,
+    current,
+    onChange,
+    label,
+}: {
+    name: string
+    value: number
+    current: number | undefined
+    onChange: (value: number) => void
+    label: string
+}) {
+    return (
+        <label>
+            <input
+                type="radio"
+                name={name}
+                value={value}
+                checked={current === value}
+                onChange={(event) => onChange(parseInt(event.target.value, 10))}
+            />
+            {label}
+        </label>
+    )
+}
+
+/** Comma-separated numbers, committed when the field loses focus */
+function DomainInput({
+    mapVisualization,
+    updateMap,
+}: {
+    mapVisualization: MapVisualization
+    updateMap: UpdateMap
+}) {
+    const domain = mapVisualization.color_domain.join(', ')
+    const [text, setText] = useState(domain)
+    useEffect(() => setText(domain), [domain])
+
+    return (
+        <TextField
+            label="Domain"
+            placeholder="e.g. 0, 50, 100"
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            onBlur={() =>
+                updateMap({
+                    ...mapVisualization,
+                    color_domain: text
+                        .split(',')
+                        .map((value) => value.trim())
+                        .filter((value) => value !== '')
+                        .map(Number)
+                        .filter(Number.isFinite)
+                        .sort(ascending),
+                })
+            }
+        />
+    )
+}
 
 function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }) {
     const { data: colorPalettes } = useGetColorPalettesQuery(undefined)
@@ -28,151 +80,128 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
     const [updateMap] = useUpdateMapVisualizationMutation()
     const [customLegendFormat, setCustomLegendFormat] = useState<boolean>(false)
 
+    const subcategoryOptions: { id: number | null; name: string }[] = [
+        { id: null, name: 'None' },
+        ...(subcategories ?? []),
+    ]
+
     return (
         <form id={css.mapOptions}>
-            <FormControl component="fieldset">
-                <FormLabel component="legend">Map Type</FormLabel>
-                <RadioGroup
-                    aria-label="map-type"
-                    value={mapVisualization.map_type}
+            <fieldset>
+                <legend>Map Type</legend>
+                <Radio
                     name="map-type"
-                    onChange={(_, mapType) =>
-                        updateMap({ ...mapVisualization, map_type: parseInt(mapType, 10) })
-                    }
-                >
-                    <FormControlLabel
-                        value={MapType.Choropleth}
-                        control={<Radio />}
-                        label="Choropleth"
-                    />
-                    <FormControlLabel value={MapType.Bubble} control={<Radio />} label="Bubble" />
-                </RadioGroup>
-            </FormControl>
+                    value={MapType.Choropleth}
+                    current={mapVisualization.map_type}
+                    onChange={(mapType) => updateMap({ ...mapVisualization, map_type: mapType })}
+                    label="Choropleth"
+                />
+                <Radio
+                    name="map-type"
+                    value={MapType.Bubble}
+                    current={mapVisualization.map_type}
+                    onChange={(mapType) => updateMap({ ...mapVisualization, map_type: mapType })}
+                    label="Bubble"
+                />
+            </fieldset>
             {mapVisualization.map_type === MapType.Choropleth && (
                 <>
-                    <FormControl component="fieldset">
-                        <FormLabel component="legend">Color Scheme</FormLabel>
+                    <fieldset>
+                        <legend>Color Scheme</legend>
                         {scales && (
-                            <Autocomplete
-                                disablePortal
+                            <Combobox
+                                label="Scale"
                                 value={mapVisualization.scale_type}
                                 options={scales}
-                                getOptionLabel={(option) => option.name}
-                                isOptionEqualToValue={(option, value) => option.id === value.id}
-                                sx={INPUT_MARGIN}
-                                renderInput={(params) => <TextField {...params} label="Scale" />}
-                                onChange={(_, scaleType) =>
-                                    scaleType &&
+                                getLabel={(option) => option.name}
+                                onChange={(scaleType) =>
                                     updateMap({ ...mapVisualization, scale_type: scaleType })
                                 }
                             />
                         )}
                         {colorPalettes && (
-                            <Autocomplete
-                                disablePortal
+                            <Combobox
+                                label="Color Palette"
                                 value={mapVisualization.color_palette}
                                 options={colorPalettes}
-                                onChange={(_, colorPalette) =>
-                                    colorPalette &&
+                                getLabel={(option) => option.name}
+                                onChange={(colorPalette) =>
                                     updateMap({ ...mapVisualization, color_palette: colorPalette })
                                 }
-                                getOptionLabel={(option) => option.name}
-                                isOptionEqualToValue={(option, value) => option.id === value.id}
-                                sx={INPUT_MARGIN}
-                                renderInput={(params) => (
-                                    <TextField {...params} label="Color Palette" />
-                                )}
                             />
                         )}
 
-                        <Autocomplete
-                            multiple
-                            freeSolo
-                            sx={INPUT_MARGIN}
-                            value={mapVisualization.color_domain.map((d) => d.toString())}
-                            options={[]}
-                            renderInput={(params) => <TextField {...params} label="Domain" />}
-                            onChange={(_, colorDomain) => {
-                                updateMap({
-                                    ...mapVisualization,
-                                    color_domain: colorDomain
-                                        .map(Number)
-                                        .filter(Number.isFinite)
-                                        .sort(ascending),
-                                })
-                            }}
-                        />
+                        <DomainInput mapVisualization={mapVisualization} updateMap={updateMap} />
 
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={mapVisualization.reverse_scale}
-                                    onChange={(_, reverseScale) =>
-                                        updateMap({
-                                            ...mapVisualization,
-                                            reverse_scale: reverseScale,
-                                        })
-                                    }
-                                />
-                            }
-                            label="Invert"
-                        />
-                    </FormControl>
-
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={mapVisualization.show_pdf}
-                                onChange={(_, showPdf) =>
-                                    updateMap({ ...mapVisualization, show_pdf: showPdf })
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={mapVisualization.reverse_scale}
+                                onChange={(event) =>
+                                    updateMap({
+                                        ...mapVisualization,
+                                        reverse_scale: event.target.checked,
+                                    })
                                 }
                             />
-                        }
-                        label="Show Probability Density"
-                    />
+                            Invert
+                        </label>
+                    </fieldset>
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            checked={mapVisualization.show_pdf}
+                            onChange={(event) =>
+                                updateMap({ ...mapVisualization, show_pdf: event.target.checked })
+                            }
+                        />
+                        Show Probability Density
+                    </label>
                 </>
             )}
 
-            <FormControl component="fieldset">
-                <FormLabel component="legend">Formatter</FormLabel>
-                <RadioGroup
-                    aria-label="formatter"
-                    value={mapVisualization.formatter_type}
+            <fieldset>
+                <legend>Formatter</legend>
+                <Radio
                     name="formatter"
-                    onChange={(_, formatterType) =>
-                        updateMap({
-                            ...mapVisualization,
-                            formatter_type: parseInt(formatterType, 10),
-                        })
+                    value={FormatterType.DEFAULT}
+                    current={mapVisualization.formatter_type}
+                    onChange={(formatterType) =>
+                        updateMap({ ...mapVisualization, formatter_type: formatterType })
                     }
-                >
-                    <FormControlLabel
-                        value={FormatterType.DEFAULT}
-                        control={<Radio />}
-                        label="Default"
-                    />
-                    <FormControlLabel
-                        value={FormatterType.MONEY}
-                        control={<Radio />}
-                        label="Money"
-                    />
-                    <FormControlLabel
-                        value={FormatterType.NEAREST_SI_UNIT}
-                        control={<Radio />}
-                        label="Nearest SI Unit"
-                    />
-                    <FormControlLabel
-                        value={FormatterType.PERCENT}
-                        control={<Radio />}
-                        label="Percent"
-                    />
-                </RadioGroup>
+                    label="Default"
+                />
+                <Radio
+                    name="formatter"
+                    value={FormatterType.MONEY}
+                    current={mapVisualization.formatter_type}
+                    onChange={(formatterType) =>
+                        updateMap({ ...mapVisualization, formatter_type: formatterType })
+                    }
+                    label="Money"
+                />
+                <Radio
+                    name="formatter"
+                    value={FormatterType.NEAREST_SI_UNIT}
+                    current={mapVisualization.formatter_type}
+                    onChange={(formatterType) =>
+                        updateMap({ ...mapVisualization, formatter_type: formatterType })
+                    }
+                    label="Nearest SI Unit"
+                />
+                <Radio
+                    name="formatter"
+                    value={FormatterType.PERCENT}
+                    current={mapVisualization.formatter_type}
+                    onChange={(formatterType) =>
+                        updateMap({ ...mapVisualization, formatter_type: formatterType })
+                    }
+                    label="Percent"
+                />
                 <TextField
                     label="Decimal places"
                     type="number"
-                    InputLabelProps={{
-                        shrink: true,
-                    }}
                     value={mapVisualization.decimals ?? ''}
                     onChange={(e) => {
                         const decimals = parseInt(e.target.value, 10)
@@ -181,51 +210,38 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                         }
                     }}
                 />
-            </FormControl>
+            </fieldset>
 
             {mapVisualization.map_type === MapType.Choropleth && (
-                <FormControl component="fieldset">
-                    <FormLabel component="legend">Combinatory Metrics</FormLabel>
+                <fieldset>
+                    <legend>Combinatory Metrics</legend>
                     {subcategories && (
-                        <Autocomplete
-                            disablePortal
+                        <Combobox
+                            label="Subcategory"
                             value={
-                                // include a "None" option with id null so the selected value can show "None"
-                                (
-                                    [{ id: null, name: 'None' }, ...(subcategories ?? [])] as any
-                                ).find((o: any) => o.id === mapVisualization.subcategory) ?? null
+                                subcategoryOptions.find(
+                                    (option) => option.id === mapVisualization.subcategory
+                                ) ?? null
                             }
-                            options={[{ id: null, name: 'None' }, ...(subcategories ?? [])]}
-                            getOptionLabel={(option: any) => option.name ?? ''}
-                            isOptionEqualToValue={(option: any, value: any) =>
-                                option.id === value?.id
-                            }
-                            sx={INPUT_MARGIN}
-                            renderInput={(params) => <TextField {...params} label="Subcategory" />}
-                            onChange={(_, subcategory) =>
-                                // subcategory can be the "None" option (id === null) or a real subcategory object
+                            options={subcategoryOptions}
+                            getLabel={(option) => option.name}
+                            onChange={(subcategory) =>
                                 updateMap({
                                     ...mapVisualization,
-                                    subcategory:
-                                        subcategory && (subcategory as any).id != null
-                                            ? (subcategory as any).id
-                                            : null,
+                                    // null (not undefined) so the server clears the subcategory
+                                    subcategory: subcategory.id as number | undefined,
                                 })
                             }
                         />
                     )}
-                </FormControl>
+                </fieldset>
             )}
 
-            <FormControl component="fieldset">
-                <FormLabel component="legend">Legend</FormLabel>
+            <fieldset>
+                <legend>Legend</legend>
                 <TextField
-                    sx={INPUT_MARGIN}
                     label="Custom Legend Tick Count"
                     type="number"
-                    InputLabelProps={{
-                        shrink: true,
-                    }}
                     value={mapVisualization.legend_ticks ?? ''}
                     onChange={(e) => {
                         let legendTicks: number | undefined = parseInt(e.target.value, 10)
@@ -237,12 +253,8 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                     }}
                 />
                 <TextField
-                    sx={INPUT_MARGIN}
                     label="Decimal places"
                     type="number"
-                    InputLabelProps={{
-                        shrink: true,
-                    }}
                     value={mapVisualization.legend_decimals ?? mapVisualization.decimals}
                     onChange={(e) => {
                         let legendDecimals: number | undefined = parseInt(e.target.value, 10)
@@ -254,60 +266,70 @@ function MapOptions({ mapVisualization }: { mapVisualization: MapVisualization }
                     }}
                 />
 
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={
-                                mapVisualization.legend_formatter_type !== undefined ||
-                                customLegendFormat
-                            }
-                            onChange={(_, shouldCustomize) => {
-                                setCustomLegendFormat(shouldCustomize)
-                                shouldCustomize
-                                    ? updateMap({
-                                          ...mapVisualization,
-                                          legend_formatter_type:
-                                              mapVisualization.legend_formatter_type,
-                                      })
-                                    : updateMap({
-                                          ...mapVisualization,
-                                          legend_formatter_type: undefined,
-                                      })
-                            }}
-                        />
-                    }
-                    label="Custom legend format"
-                />
-                {(customLegendFormat || mapVisualization.legend_formatter_type) && (
-                    <RadioGroup
-                        aria-label="legend-formatter"
-                        value={mapVisualization.legend_formatter_type}
-                        name="legend-formatter"
-                        onChange={(_, legendFormatterType) =>
-                            updateMap({
-                                ...mapVisualization,
-                                legend_formatter_type: parseInt(legendFormatterType, 10),
-                            })
+                <label>
+                    <input
+                        type="checkbox"
+                        checked={
+                            mapVisualization.legend_formatter_type !== undefined ||
+                            customLegendFormat
                         }
-                    >
-                        <FormControlLabel
+                        onChange={(event) => {
+                            const shouldCustomize = event.target.checked
+                            setCustomLegendFormat(shouldCustomize)
+                            shouldCustomize
+                                ? updateMap({
+                                      ...mapVisualization,
+                                      legend_formatter_type: mapVisualization.legend_formatter_type,
+                                  })
+                                : updateMap({
+                                      ...mapVisualization,
+                                      legend_formatter_type: undefined,
+                                  })
+                        }}
+                    />
+                    Custom legend format
+                </label>
+                {(customLegendFormat || mapVisualization.legend_formatter_type) && (
+                    <>
+                        <Radio
+                            name="legend-formatter"
                             value={FormatterType.DEFAULT}
-                            control={<Radio />}
+                            current={mapVisualization.legend_formatter_type}
+                            onChange={(legendFormatterType) =>
+                                updateMap({
+                                    ...mapVisualization,
+                                    legend_formatter_type: legendFormatterType,
+                                })
+                            }
                             label="Default"
                         />
-                        <FormControlLabel
+                        <Radio
+                            name="legend-formatter"
                             value={FormatterType.MONEY}
-                            control={<Radio />}
+                            current={mapVisualization.legend_formatter_type}
+                            onChange={(legendFormatterType) =>
+                                updateMap({
+                                    ...mapVisualization,
+                                    legend_formatter_type: legendFormatterType,
+                                })
+                            }
                             label="Money"
                         />
-                        <FormControlLabel
+                        <Radio
+                            name="legend-formatter"
                             value={FormatterType.NEAREST_SI_UNIT}
-                            control={<Radio />}
+                            current={mapVisualization.legend_formatter_type}
+                            onChange={(legendFormatterType) =>
+                                updateMap({
+                                    ...mapVisualization,
+                                    legend_formatter_type: legendFormatterType,
+                                })
+                            }
                             label="Nearest SI Unit"
                         />
-                    </RadioGroup>
+                    </>
                 )}
-            </FormControl>
+            </fieldset>
         </form>
     )
 }

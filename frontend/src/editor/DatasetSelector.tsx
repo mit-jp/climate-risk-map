@@ -1,7 +1,7 @@
-import { Autocomplete, TextField } from '@mui/material'
 import { Dataset } from '../Dataset'
 import { useUpdateMapVisualizationMutation } from '../MapApi'
 import { MapVisualization } from '../MapVisualization'
+import { Combobox } from '../ui'
 
 export default function DatasetSelector({
     mapVisualization,
@@ -13,14 +13,12 @@ export default function DatasetSelector({
     const [updateMap] = useUpdateMapVisualizationMutation()
 
     return (
-        <Autocomplete
-            renderInput={(params) => <TextField {...params} label="Dataset" />}
+        <Combobox
+            label="Dataset"
             options={datasets}
-            getOptionLabel={(dataset) => dataset.name}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            value={datasets.find((dataset) => dataset.id === mapVisualization.dataset)}
-            onChange={(_, dataset) =>
-                dataset &&
+            getLabel={(dataset) => dataset.name}
+            value={datasets.find((dataset) => dataset.id === mapVisualization.dataset) ?? null}
+            onChange={(dataset) =>
                 updateMap({
                     ...mapVisualization,
                     dataset: dataset.id,

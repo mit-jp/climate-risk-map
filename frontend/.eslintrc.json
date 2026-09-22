@@ -2,20 +2,28 @@
     "parser": "@typescript-eslint/parser",
     "extends": [
         "airbnb",
-        "plugin:prettier/recommended",
         "plugin:react/recommended",
         "plugin:react-hooks/recommended",
         "plugin:jsx-a11y/recommended",
-        "plugin:react/jsx-runtime"
+        "plugin:react/jsx-runtime",
+        "prettier"
     ],
-    "plugins": ["prettier", "react", "@typescript-eslint", "testing-library"],
+    "plugins": ["react", "@typescript-eslint", "testing-library"],
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
         }
     },
     "rules": {
-        "prettier/prettier": ["error"],
+        // TypeScript itself checks undefined identifiers, including ambient
+        // types and test globals; the core rule false-positives on both.
+        // https://typescript-eslint.io/troubleshooting/faqs/eslint/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined
+        "no-undef": "off",
+        // the native Popover API attributes are newer than eslint-plugin-react's list
+        "react/no-unknown-property": [
+            "error",
+            { "ignore": ["popover", "popovertarget", "popovertargetaction"] }
+        ],
         "react-hooks/exhaustive-deps": "warn",
         "react-hooks/rules-of-hooks": "error",
         "react/jsx-filename-extension": [1, { "extensions": [".ts", ".tsx"] }],
@@ -69,13 +77,12 @@
     "settings": {
         // https://stackoverflow.com/a/55280867/382892
         "import/resolver": {
-            "node": {
-                "extensions": [".js", ".jsx", ".ts", ".tsx"]
-            }
+            "typescript": {}
         }
     },
     "env": {
-        "browser": true
+        "browser": true,
+        "es2021": true
     },
     "overrides": [
         {
@@ -89,15 +96,19 @@
             "extends": ["plugin:testing-library/react"],
             "rules": {
                 "import/no-extraneous-dependencies": ["error", { "devDependencies": true }]
-            },
-            "env": {
-                "jest": true
             }
         },
         {
-            "files": ["vite.config.ts"],
+            "files": ["vite.config.ts", "vitest.config.ts"],
             "rules": {
                 "import/no-extraneous-dependencies": ["error", { "devDependencies": true }]
+            }
+        },
+        {
+            // design-system wrappers exist to forward props to native elements
+            "files": ["src/ui/**"],
+            "rules": {
+                "react/jsx-props-no-spreading": "off"
             }
         }
     ]

@@ -1,26 +1,10 @@
-import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { render, RenderOptions } from '@testing-library/react'
 import { ReactElement } from 'react'
 import { Provider } from 'react-redux'
 import { store } from './store'
 
-const theme = createTheme({
-    palette: {
-        primary: {
-            main: '#435e7c',
-        },
-        secondary: {
-            main: '#A5C2A6',
-        },
-    },
-})
-
 function AllTheProviders({ children }: { children: any }) {
-    return (
-        <ThemeProvider theme={theme}>
-            <Provider store={store}>{children}</Provider>
-        </ThemeProvider>
-    )
+    return <Provider store={store}>{children}</Provider>
 }
 
 const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) =>

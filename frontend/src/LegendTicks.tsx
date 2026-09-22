@@ -83,11 +83,11 @@ function LegendTicks({
                     return (
                         // eslint-disable-next-line react/no-array-index-key
                         <Fragment key={i}>
-                            <line x1={x} x2={x} y1={y1} y2={y2} stroke="black" />
+                            <line x1={x} x2={x} y1={y1} y2={y2} stroke="currentColor" />
                             <text
                                 x={x}
                                 y={y2 + tickSize + 5}
-                                fill="black"
+                                fill="currentColor"
                                 textAnchor="middle"
                                 fontSize={10}
                             >
