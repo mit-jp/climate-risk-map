@@ -104,6 +104,9 @@ function MultiDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisua
 
     const onSelectionToggled = (event: ChangeEvent<HTMLInputElement>) => {
         const map = maps[parseInt(event.target.value, 10)]
+        if (map === undefined) {
+            return
+        }
         const { checked } = event.target
         let changedSelections
         if (checked) {

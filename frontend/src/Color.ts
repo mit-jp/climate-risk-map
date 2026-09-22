@@ -18,14 +18,22 @@ export type ColorScheme =
     | ScaleThreshold<number, string, never>
     | ScaleDiverging<string, never>
 
+const blueYellowRed = (count: number) => {
+    const scheme = schemeRdYlBu[count]
+    if (scheme === undefined) {
+        throw new Error(`d3 has no RdYlBu scheme with ${count} colors`)
+    }
+    return [...scheme].reverse()
+}
+
 const redBlueContinuous = scaleSequential<string>((x) => interpolateRdYlBu(1 - x))
 export const redBlue = scaleThreshold<number, string, never>(
     [0.05, 0.25, 0.75, 0.95],
-    [...schemeRdYlBu[5]].reverse()
+    blueYellowRed(5)
 )
 export const redBlueReportCard = scaleThreshold<number, string, never>(
     [0.01, 0.05, 0.25, 0.33, 0.5, 0.66, 0.75, 0.95, 0.99],
-    [...schemeRdYlBu[10]].reverse()
+    blueYellowRed(10)
 )
 
 const colorScheme = (

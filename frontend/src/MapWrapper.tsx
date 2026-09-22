@@ -6,14 +6,20 @@ import DataDescription from './DataDescription'
 import DataProcessor, { getDomain } from './DataProcessor'
 import DataSourceDescription from './DataSourceDescription'
 import EmptyMap from './EmptyMap'
-import { getLegendFormatter, getUnitString } from './Formatter'
-import FullMap from './FullMap'
+import { getLegendFormatter } from './Formatter'
+import FullMap, { getLegendTitle } from './FullMap'
 import Legend from './Legend'
 import { DataQueryParams, useGetDataQuery } from './MapApi'
 import MapControls from './MapControls'
 import MapTitle, { EmptyMapTitle } from './MapTitle'
 import MapTooltip from './MapTooltip'
-import { MapType, MapVisualization, MapVisualizationId } from './MapVisualization'
+import {
+    isNonEmpty,
+    MapType,
+    MapVisualization,
+    MapVisualizationId,
+    NonEmptyArray,
+} from './MapVisualization'
 import css from './MapWrapper.module.css'
 import Overlays from './Overlays'
 import ProbabilityDensity from './ProbabilityDensity'
@@ -21,19 +27,6 @@ import { clickMap, selectMapTransform, selectSelections, stateId } from './appSl
 import { RootState } from './store'
 
 export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
-
-export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
-    const dataDefinition = selectedMaps[0]
-    const unitString = getUnitString({ units: dataDefinition.units, isNormalized })
-
-    if (isNormalized) {
-        if (selectedMaps.some((value) => value.subcategory === 1)) {
-            return selectedMaps.length > 1 ? 'Combined Relative Risk' : 'Relative Risk'
-        }
-        return 'Scaled Value'
-    }
-    return unitString
-}
 
 function getPdfDomain(selectedMaps: MapVisualization[]) {
     const firstSelection = selectedMaps[0]
@@ -150,7 +143,7 @@ function MapWrapper({
         maps[0] && selectedDataSourceId !== undefined
             ? maps[0].sources[selectedDataSourceId]
             : undefined
-    const getLegendTicks = (selectedMaps: MapVisualization[], isNormalized: boolean) =>
+    const getLegendTicks = (selectedMaps: NonEmptyArray<MapVisualization>, isNormalized: boolean) =>
         isNormalized ? undefined : selectedMaps[0].legend_ticks
 
     if (map === undefined) {
@@ -191,7 +184,7 @@ function MapWrapper({
                         onClick={() => dispatch(clickMap(Number(-1)))}
                         style={{ opacity: 0 }}
                     />
-                    {processedData ? (
+                    {processedData && isNonEmpty(maps) ? (
                         <FullMap
                             ref={mapRef}
                             map={map}
@@ -207,6 +200,7 @@ function MapWrapper({
                     )}
                     <Overlays />
                     {processedData &&
+                        isNonEmpty(maps) &&
                         (() => {
                             // JavaScript goes here
                             const legendTitle = getLegendTitle(maps, isNormalized)

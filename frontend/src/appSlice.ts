@@ -7,8 +7,11 @@ import type { GeometryCollection } from 'topojson-specification'
 import { MapSelection } from './DataSelector'
 import { mapApi, Tab, TabId } from './MapApi'
 import {
+    findSourceDateRanges,
     GeographyType,
     getDefaultSelection,
+    getDefaultSourceDateRanges,
+    last,
     MapType,
     MapVisualization,
     MapVisualizationId,
@@ -152,25 +155,25 @@ export const appSlice = createSlice({
             const mapVisualization = action.payload
             const selections = state.mapSelections[state.region][state.tab.id] ?? []
             const previous = selections[0]
+            // keep the previous source and date range when the newly
+            // selected visualization also has them
+            const source =
+                findSourceDateRanges(mapVisualization, previous?.dataSource) ??
+                getDefaultSourceDateRanges(mapVisualization)
             let selection: MapSelection
-            if (!mapVisualization.hasData || previous === undefined) {
+            if (previous === undefined || source === undefined) {
                 selection = getDefaultSelection(mapVisualization)
             } else {
-                // keep the previous source and date range when the newly
-                // selected visualization also has them
-                const possibleDataSources = Object.values(mapVisualization.sources).map((s) => s.id)
-                const dataSource =
-                    previous.dataSource !== undefined &&
-                    possibleDataSources.includes(previous.dataSource)
-                        ? previous.dataSource
-                        : mapVisualization.default_source ?? possibleDataSources[0]
-                const possibleDates = mapVisualization.date_ranges_by_source[dataSource]
                 const dateRange =
-                    previous.dateRange !== undefined && possibleDates.includes(previous.dateRange)
+                    previous.dateRange !== undefined &&
+                    source.dateRanges.includes(previous.dateRange)
                         ? previous.dateRange
-                        : mapVisualization.default_date_range ??
-                          possibleDates[possibleDates.length - 1]
-                selection = { mapVisualization: mapVisualization.id, dataSource, dateRange }
+                        : mapVisualization.default_date_range ?? last(source.dateRanges)
+                selection = {
+                    mapVisualization: mapVisualization.id,
+                    dataSource: source.id,
+                    dateRange,
+                }
             }
             state.mapSelections[state.region][state.tab.id] = [selection, ...selections.slice(1)]
 
@@ -318,8 +321,12 @@ const generateMapTransform = (zoomTo: number | undefined, map: GeoMap | undefine
     // topoJson city id: "01260", city id: 1260
     const idLength = { USA: 2, World: 3, EssexMassachusetts: 10 }[map.region]
     const zoomToId = String(zoomTo).padStart(idLength, '0')
+    const zoomToFeature = features[zoomToId]
+    if (zoomToFeature === undefined) {
+        return undefined
+    }
 
-    const bounds = geoPath().bounds(features[zoomToId])
+    const bounds = geoPath().bounds(zoomToFeature)
     const dx = bounds[1][0] - bounds[0][0]
     const dy = bounds[1][1] - bounds[0][1]
     const x = (bounds[0][0] + bounds[1][0]) / 2

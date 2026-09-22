@@ -69,6 +69,12 @@ export interface MapVisualizationPatch {
 
 export type NonEmptyArray<T> = [T, ...T[]]
 
+export const isNonEmpty = <T>(array: T[]): array is NonEmptyArray<T> => array.length > 0
+
+export const last = <T>(array: NonEmptyArray<T>): T => array[array.length - 1] ?? array[0]
+
+export type SourceDateRanges = { id: number; dateRanges: NonEmptyArray<Interval> }
+
 interface MapVisualizationBase {
     id: MapVisualizationId
     dataset: number
@@ -160,22 +166,11 @@ const intervalFromJson = (json: { start_date: string; end_date: string }) =>
     Interval.fromISO(`${json.start_date}/${json.end_date}`)
 
 export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualization => {
-    // keep only sources that appear in both maps with at least one date range,
-    // so MapVisualizationWithData's guarantees hold: every date-range array is
-    // non-empty, and sources and date_ranges_by_source have the same keys
     const dateRangesBySource: { [key: number]: NonEmptyArray<Interval> } = {}
     Object.entries(json.date_ranges_by_source).forEach(([sourceId, dateRanges]) => {
-        const id = parseInt(sourceId, 10)
         const intervals = dateRanges.map((dateRange) => intervalFromJson(dateRange))
-        if (intervals.length > 0 && id in json.sources) {
-            dateRangesBySource[id] = intervals as NonEmptyArray<Interval>
-        }
-    })
-    const sources: { [key: number]: DataSource } = {}
-    Object.entries(json.sources).forEach(([sourceId, source]) => {
-        const id = parseInt(sourceId, 10)
-        if (id in dateRangesBySource) {
-            sources[id] = source
+        if (isNonEmpty(intervals)) {
+            dateRangesBySource[parseInt(sourceId, 10)] = intervals
         }
     })
     const defaultDateRange =
@@ -208,7 +203,7 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
         geography_type: json.geography_type,
         bubble_color: json.bubble_color,
     }
-    if (Object.keys(sources).length === 0) {
+    if (Object.keys(dateRangesBySource).length === 0) {
         return {
             ...base,
             hasData: false,
@@ -221,55 +216,68 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
         ...base,
         hasData: true,
         date_ranges_by_source: dateRangesBySource,
-        sources,
-        // partial data deletion can leave default_source pointing at a source
-        // with no data for this dataset; drop it so consumers can rely on it
-        default_source:
-            json.default_source !== null && json.default_source in sources
-                ? json.default_source
-                : undefined,
+        sources: json.sources,
+        default_source: json.default_source ?? undefined,
     }
 }
 
-export const getDefaultSource = (mapVisualization: MapVisualizationWithData): number =>
-    mapVisualization.default_source ??
-    Object.keys(mapVisualization.date_ranges_by_source).map((key) => parseInt(key, 10))[0]
-
-export const getDefaultDateRange = (mapVisualization: MapVisualizationWithData): Interval => {
-    if (mapVisualization.default_date_range) {
-        return mapVisualization.default_date_range
+export const findSourceDateRanges = (
+    mapVisualization: MapVisualization,
+    source: number | undefined
+): SourceDateRanges | undefined => {
+    if (source === undefined) {
+        return undefined
     }
-    const dateRanges = mapVisualization.date_ranges_by_source[getDefaultSource(mapVisualization)]
-    return dateRanges[dateRanges.length - 1]
+    const dateRanges = mapVisualization.date_ranges_by_source[source]
+    return dateRanges && { id: source, dateRanges }
+}
+
+/** The configured default source, or else the first source; undefined if there's no data */
+export const getDefaultSourceDateRanges = (
+    mapVisualization: MapVisualization
+): SourceDateRanges | undefined => {
+    const [first] = Object.keys(mapVisualization.date_ranges_by_source)
+    return (
+        findSourceDateRanges(mapVisualization, mapVisualization.default_source) ??
+        findSourceDateRanges(
+            mapVisualization,
+            first === undefined ? undefined : parseInt(first, 10)
+        )
+    )
+}
+
+export const getDefaultSelection = (mapVisualization: MapVisualization): MapSelection => {
+    const source = getDefaultSourceDateRanges(mapVisualization)
+    if (source === undefined) {
+        return {
+            mapVisualization: mapVisualization.id,
+            dataSource: undefined,
+            dateRange: undefined,
+        }
+    }
+    return {
+        mapVisualization: mapVisualization.id,
+        dataSource: source.id,
+        dateRange: mapVisualization.default_date_range ?? last(source.dateRanges),
+    }
 }
 
 export const getDataQueryParams = (
-    mapVisualization: MapVisualizationWithData
-): DataQueryParams[] => {
-    const source = getDefaultSource(mapVisualization)
-    const dateRange = getDefaultDateRange(mapVisualization)
+    mapVisualization: MapVisualization
+): DataQueryParams[] | undefined => {
+    const selection = getDefaultSelection(mapVisualization)
+    if (selection.dataSource === undefined) {
+        return undefined
+    }
     return [
         {
             mapVisualization: mapVisualization.id,
-            source,
-            startDate: dateRange.start.toISODate(),
-            endDate: dateRange.end.toISODate(),
+            source: selection.dataSource,
+            startDate: selection.dateRange.start.toISODate(),
+            endDate: selection.dateRange.end.toISODate(),
         },
     ]
 }
-
-export const getDefaultSelection = (mapVisualization: MapVisualization): MapSelection =>
-    mapVisualization.hasData
-        ? {
-              mapVisualization: mapVisualization.id,
-              dataSource: getDefaultSource(mapVisualization),
-              dateRange: getDefaultDateRange(mapVisualization),
-          }
-        : {
-              mapVisualization: mapVisualization.id,
-              dataSource: undefined,
-              dateRange: undefined,
-          }
 
 export const fetchMapVisualization = async (id: number): Promise<MapVisualization> => {
     const rawJson = await loadJson<MapVisualizationJson>(`/api/map-visualization/${id}`)

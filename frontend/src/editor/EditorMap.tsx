@@ -34,7 +34,7 @@ type Props = {
 
 function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Props) {
     const queryParams = useMemo(
-        () => (selection?.hasData ? getDataQueryParams(selection) : undefined),
+        () => (selection ? getDataQueryParams(selection) : undefined),
         [selection]
     )
     const [deleteMap] = useDeleteMapVisualizationMutation()
@@ -42,7 +42,7 @@ function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Pr
     const [unpublish] = useUnpublishMapVisualizationMutation()
     const { data: datasets } = useGetDatasetsQuery(undefined)
     const { data } = useGetDataQuery(queryParams ?? skipToken)
-    const [publishTo, setPublishTo] = useState(tabs[0].id)
+    const [publishTo, setPublishTo] = useState(tabs[0]?.id)
     const processedData = useMemo(
         () =>
             data && selection
@@ -103,7 +103,7 @@ function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Pr
                     <div className={css.publishArea}>
                         {isDraft && (
                             <Select
-                                value={publishTo}
+                                value={publishTo ?? ''}
                                 onChange={(event) => setPublishTo(event.target.value as number)}
                             >
                                 {tabs.map(({ id, name }) => (
@@ -115,11 +115,13 @@ function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Pr
                         )}
                         <Button
                             className={css.publishButton}
+                            disabled={isDraft && publishTo === undefined}
                             onClick={() => {
-                                const id = {
-                                    map_visualization: selection.id,
-                                    category: isDraft ? publishTo : tab.id,
+                                const category = isDraft ? publishTo : tab.id
+                                if (category === undefined) {
+                                    return
                                 }
+                                const id = { map_visualization: selection.id, category }
                                 isDraft ? publish(id) : unpublish(id)
                             }}
                             variant="contained"

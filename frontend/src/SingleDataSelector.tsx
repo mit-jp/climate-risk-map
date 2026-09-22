@@ -23,8 +23,10 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
         dispatch(changeDataSource(dataset))
     }
     const onMapSelectionChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const mapVisualizationId = parseInt(event.target.value, 10)
-        dispatch(changeMapSelection(maps[mapVisualizationId]))
+        const map = maps[parseInt(event.target.value, 10)]
+        if (map !== undefined) {
+            dispatch(changeMapSelection(map))
+        }
     }
 
     // the selected data source can be missing from a map's date ranges when the

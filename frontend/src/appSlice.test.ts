@@ -23,7 +23,7 @@ const stateWithSelection = () => {
 }
 
 const firstSelection = (state: ReturnType<typeof reducer>) =>
-    state.mapSelections[state.region][tab.id][0]
+    state.mapSelections[state.region][tab.id]?.[0]
 
 describe('changeMapSelection', () => {
     test('clears the source and date range when the map has no data', () => {
