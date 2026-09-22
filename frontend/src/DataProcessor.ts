@@ -24,9 +24,13 @@ const normalizeData = (params: Params, totalWeight: number, valueByGeoId: Map<nu
         ...normalizedValueByGeoId.valueSeq().filter((value) => value !== 0),
     ].sort((a, b) => a - b)
 
+    if (sortedValues.length === 1) {
+        // every value is 0
+        return normalizedValueByGeoId.map(() => 0)
+    }
     // every value is in sortedValues, so its percentile is its sorted position
-    return normalizedValueByGeoId.map((value) =>
-        value === 0 ? 0 : (sortedValues.indexOf(value) / (sortedValues.length - 1)) * weight
+    return normalizedValueByGeoId.map(
+        (value) => (sortedValues.indexOf(value) / (sortedValues.length - 1)) * weight
     )
 }
 
