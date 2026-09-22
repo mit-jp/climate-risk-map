@@ -1,7 +1,7 @@
 import { Interval } from 'luxon'
+import { MapVisualization, MapVisualizationId } from './MapVisualization'
 import MultiDataSelector from './MultiDataSelector'
 import SingleDataSelector from './SingleDataSelector'
-import { MapVisualization, MapVisualizationId } from './MapVisualization'
 
 function DataSelector({
     isNormalized,
@@ -17,9 +17,6 @@ function DataSelector({
     )
 }
 
-// dataSource and dateRange are either both set (a visualization with data) or
-// both unset (a visualization whose dataset has no data rows), so checking one
-// narrows the other.
 export type MapSelection =
     | {
           mapVisualization: MapVisualizationId
