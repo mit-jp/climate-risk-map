@@ -105,11 +105,6 @@ export interface MapVisualizationWithData extends MapVisualizationBase {
     default_source?: number
 }
 
-// The backend derives sources and date ranges from existing data rows, so a
-// visualization whose dataset has no data (none uploaded yet, or deleted)
-// comes back with both empty. `jsonToMapVisualization` tags which case we're
-// in so consumers are forced to render an empty state instead of assuming a
-// source exists.
 export interface MapVisualizationWithoutData extends MapVisualizationBase {
     hasData: false
     date_ranges_by_source: Record<number, never>
