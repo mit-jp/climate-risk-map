@@ -34,7 +34,7 @@ type Props = {
 
 function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Props) {
     const queryParams = useMemo(
-        () => (selection ? getDataQueryParams(selection) : undefined),
+        () => (selection?.hasData ? getDataQueryParams(selection) : undefined),
         [selection]
     )
     const [deleteMap] = useDeleteMapVisualizationMutation()
@@ -73,6 +73,9 @@ function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Pr
                 <EditorMapTitle mapVisualization={selection} key={selection.id} />
             ) : (
                 <EmptyMapTitle />
+            )}
+            {selection && !selection.hasData && (
+                <p className={css.noData}>No data available for this map yet.</p>
             )}
             <svg viewBox="0, 0, 1175, 610">
                 {processedData && selection ? (

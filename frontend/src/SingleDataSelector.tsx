@@ -27,15 +27,22 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
         dispatch(changeMapSelection(maps[mapVisualizationId]))
     }
 
+    // the selected data source can be missing from a map's date ranges when the
+    // map's dataset has no data rows
+    const selectedDateRanges = (map: MapVisualization) =>
+        selection?.dataSource !== undefined
+            ? map.date_ranges_by_source[selection.dataSource] ?? []
+            : []
+
     const shouldShowYearSelector = (map: MapVisualization) =>
         selection !== undefined &&
         selection.mapVisualization === map.id &&
-        map.date_ranges_by_source[selection.dataSource].length > 1
+        selectedDateRanges(map).length > 1
 
     const shouldShowYearLabel = (map: MapVisualization) =>
         selection !== undefined &&
         selection.mapVisualization === map.id &&
-        map.date_ranges_by_source[selection.dataSource].length === 1
+        selectedDateRanges(map).length === 1
 
     const shouldShowDatasets = (map: MapVisualization) =>
         selection !== undefined &&
@@ -63,19 +70,19 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
             />
             <label className={css.label} htmlFor={map.id.toString()}>
                 <div className={css.name}>{map.displayName}</div>
-                {selection !== undefined && shouldShowYearLabel(map) && (
+                {selection?.dateRange !== undefined && shouldShowYearLabel(map) && (
                     <div className={css.year}>{readable(selection.dateRange)}</div>
                 )}
             </label>
-            {selection !== undefined && shouldShowYearSelector(map) && (
+            {selection?.dateRange !== undefined && shouldShowYearSelector(map) && (
                 <YearSelector
                     id={map.id.toString()}
-                    years={map.date_ranges_by_source[selection.dataSource]}
+                    years={selectedDateRanges(map)}
                     selectedYear={selection.dateRange}
                     onChange={(dateRange) => dispatch(changeDateRange(dateRange))}
                 />
             )}
-            {selection !== undefined && shouldShowDatasets(map) && (
+            {selection?.dataSource !== undefined && shouldShowDatasets(map) && (
                 <DataSourceSelector
                     id={map.id.toString()}
                     dataSources={Object.values(map.sources)}

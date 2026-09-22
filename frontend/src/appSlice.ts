@@ -129,33 +129,50 @@ export const appSlice = createSlice({
             if (state.tab === undefined) {
                 return
             }
-            state.mapSelections[state.region][state.tab.id][0].dateRange = action.payload
+            const selection = state.mapSelections[state.region][state.tab.id]?.[0]
+            // a visualization with no data has no date ranges to change to
+            if (selection?.dateRange !== undefined) {
+                selection.dateRange = action.payload
+            }
         },
         changeDataSource: (state, action: PayloadAction<number>) => {
             if (state.tab === undefined) {
                 return
             }
-            state.mapSelections[state.region][state.tab.id][0].dataSource = action.payload
+            const selection = state.mapSelections[state.region][state.tab.id]?.[0]
+            // a visualization with no data has no sources to change to
+            if (selection?.dataSource !== undefined) {
+                selection.dataSource = action.payload
+            }
         },
         changeMapSelection: (state, action: PayloadAction<MapVisualization>) => {
             if (state.tab === undefined) {
                 return
             }
-            const selection = state.mapSelections[state.region][state.tab.id][0]
             const mapVisualization = action.payload
-            selection.mapVisualization = mapVisualization.id
-            const possibleDataSources = Object.values(mapVisualization.sources).map((s) => s.id)
-            if (!possibleDataSources.includes(selection.dataSource)) {
-                selection.dataSource = mapVisualization?.default_source ?? possibleDataSources[0]
+            const selections = state.mapSelections[state.region][state.tab.id] ?? []
+            const previous = selections[0]
+            let selection: MapSelection
+            if (!mapVisualization.hasData || previous === undefined) {
+                selection = getDefaultSelection(mapVisualization)
+            } else {
+                // keep the previous source and date range when the newly
+                // selected visualization also has them
+                const possibleDataSources = Object.values(mapVisualization.sources).map((s) => s.id)
+                const dataSource =
+                    previous.dataSource !== undefined &&
+                    possibleDataSources.includes(previous.dataSource)
+                        ? previous.dataSource
+                        : mapVisualization.default_source ?? possibleDataSources[0]
+                const possibleDates = mapVisualization.date_ranges_by_source[dataSource]
+                const dateRange =
+                    previous.dateRange !== undefined && possibleDates.includes(previous.dateRange)
+                        ? previous.dateRange
+                        : mapVisualization.default_date_range ??
+                          possibleDates[possibleDates.length - 1]
+                selection = { mapVisualization: mapVisualization.id, dataSource, dateRange }
             }
-            const possibleDates = mapVisualization.date_ranges_by_source[selection.dataSource] ?? []
-            if (selection.dateRange && !possibleDates.includes(selection.dateRange)) {
-                if (mapVisualization.default_date_range) {
-                    selection.dateRange = mapVisualization.default_date_range
-                } else {
-                    selection.dateRange = possibleDates.at(-1)!
-                }
-            }
+            state.mapSelections[state.region][state.tab.id] = [selection, ...selections.slice(1)]
 
             if (mapVisualization?.map_type === MapType.Bubble) {
                 // don't zoom in to state on bubble map. it's unsupported right now

@@ -76,15 +76,22 @@ function MapWrapper({
             .map((id) => allMapVisualizations[id])
             .filter((mapVisualization) => mapVisualization !== undefined)
     }, [allMapVisualizations, selections])
+    // selections without a data source belong to visualizations whose dataset
+    // has no data rows, so there is nothing to fetch for them
+    const completeQueryParams: DataQueryParams[] = selections.flatMap((selection) =>
+        selection.dataSource === undefined
+            ? []
+            : [
+                  {
+                      mapVisualization: selection.mapVisualization,
+                      source: selection.dataSource,
+                      startDate: selection.dateRange.start.toISODate(),
+                      endDate: selection.dateRange.end.toISODate(),
+                  },
+              ]
+    )
     const queryParams: DataQueryParams[] | undefined =
-        Object.entries(selections).length > 0
-            ? selections.map((selection) => ({
-                  mapVisualization: selection.mapVisualization,
-                  source: selection.dataSource,
-                  startDate: selection.dateRange.start.toISODate(),
-                  endDate: selection.dateRange.end.toISODate(),
-              }))
-            : undefined
+        completeQueryParams.length > 0 ? completeQueryParams : undefined
     const { data } = useGetDataQuery(queryParams ?? skipToken)
     const mapRef = useRef<SVGGElement>(null)
     const isStateLevelOnlyData = useMemo(() => {
@@ -138,8 +145,11 @@ function MapWrapper({
                 : undefined,
         [data, maps, dataWeights, zoomTo, isNormalized, region, isStateLevelOnlyData]
     )
+    const selectedDataSourceId = selections[0]?.dataSource
     const dataSource =
-        maps[0] && selections[0] ? maps[0].sources[selections[0].dataSource] : undefined
+        maps[0] && selectedDataSourceId !== undefined
+            ? maps[0].sources[selectedDataSourceId]
+            : undefined
     const getLegendTicks = (selectedMaps: MapVisualization[], isNormalized: boolean) =>
         isNormalized ? undefined : selectedMaps[0].legend_ticks
 
@@ -160,6 +170,9 @@ function MapWrapper({
                     />
                 ) : (
                     <EmptyMapTitle />
+                )}
+                {maps.length > 0 && queryParams === undefined && (
+                    <p className={css.noData}>No data available for this map yet.</p>
                 )}
                 <svg
                     id="map-svg"

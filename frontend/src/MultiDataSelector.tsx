@@ -13,12 +13,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { MapSelection } from './DataSelector'
 import css from './DataSelector.module.css'
 import { useGetSubcategoriesQuery } from './MapApi'
-import {
-    MapVisualization,
-    MapVisualizationId,
-    getDefaultDateRange,
-    getDefaultSource,
-} from './MapVisualization'
+import { MapVisualization, MapVisualizationId, getDefaultSelection } from './MapVisualization'
 import { changeWeight, selectSelections, setMapSelections } from './appSlice'
 import { RootState, store } from './store'
 import { readable } from './YearSelector'
@@ -61,7 +56,7 @@ const checkBox = (
                 label={
                     <div className={css.labelMulti}>
                         {map.displayName}
-                        {selection && (
+                        {selection?.dateRange !== undefined && (
                             <div className={css.year}>{readable(selection.dateRange)}</div>
                         )}
                     </div>
@@ -112,11 +107,7 @@ function MultiDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisua
         const { checked } = event.target
         let changedSelections
         if (checked) {
-            changedSelections = selectionMap.set(map.id, {
-                mapVisualization: map.id,
-                dataSource: getDefaultSource(map),
-                dateRange: getDefaultDateRange(map),
-            })
+            changedSelections = selectionMap.set(map.id, getDefaultSelection(map))
         } else {
             changedSelections = selectionMap.delete(map.id)
         }
