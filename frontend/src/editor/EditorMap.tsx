@@ -14,7 +14,7 @@ import {
 } from '../MapApi'
 import { EmptyMapTitle } from '../MapTitle'
 import MapTooltip from '../MapTooltip'
-import { MapVisualization, getDataQueryParams } from '../MapVisualization'
+import { MapVisualization, getDataQueryParams, resolveSelection } from '../MapVisualization'
 import { GeoMap } from '../appSlice'
 import DatasetSelector from './DatasetSelector'
 import { isDrafts } from './Editor'
@@ -34,7 +34,7 @@ type Props = {
 
 function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Props) {
     const queryParams = useMemo(
-        () => (selection ? getDataQueryParams(selection) : undefined),
+        () => (selection ? getDataQueryParams([resolveSelection(selection)]) : undefined),
         [selection]
     )
     const [deleteMap] = useDeleteMapVisualizationMutation()

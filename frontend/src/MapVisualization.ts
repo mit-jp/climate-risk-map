@@ -255,53 +255,77 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
 /** The preferred date range if the source has it, or else the source's default */
 export const selectDateRange = (
     source: SourceDateRanges,
-    preferred: Interval | undefined
+    /** ISO interval, as stored in a MapSelection */
+    preferred: string | undefined
 ): DataSelection => ({
     source,
     dateRange:
-        source.dateRanges.find(
-            (dateRange) => preferred !== undefined && dateRange.equals(preferred)
-        ) ?? source.defaultDateRange,
+        source.dateRanges.find((dateRange) => dateRange.toISODate() === preferred) ??
+        source.defaultDateRange,
 })
 
 /** The preferred source and date range where the map has them, or else its defaults */
-export const selectData = (
+const selectData = (
     data: MapVisualizationData,
-    preferred: { source?: number; dateRange?: Interval } = {}
+    preferred: { dataSource?: number; dateRange?: string } = {}
 ): DataSelection =>
     selectDateRange(
-        (preferred.source === undefined ? undefined : data.sources[preferred.source]) ??
+        (preferred.dataSource === undefined ? undefined : data.sources[preferred.dataSource]) ??
             data.defaultSource,
         preferred.dateRange
     )
 
-export const getDefaultSelection = (mapVisualization: MapVisualization): MapSelection => {
-    if (mapVisualization.data === undefined) {
-        return {
-            mapVisualization: mapVisualization.id,
-            dataSource: undefined,
-            dateRange: undefined,
-        }
-    }
-    const { source, dateRange } = selectData(mapVisualization.data)
-    return { mapVisualization: mapVisualization.id, dataSource: source.id, dateRange }
+/** A map selection checked against its map visualization, so it can't be invalid */
+export type ResolvedSelection = {
+    readonly mapVisualization: MapVisualization
+    /** undefined when the map visualization has no data */
+    readonly data: DataSelection | undefined
 }
 
+export const resolveSelection = (
+    mapVisualization: MapVisualization,
+    selection?: MapSelection
+): ResolvedSelection => ({
+    mapVisualization,
+    data: mapVisualization.data && selectData(mapVisualization.data, selection),
+})
+
+/** Resolves each selection whose map visualization is loaded */
+export const resolveSelections = (
+    mapVisualizations: Readonly<Record<MapVisualizationId, MapVisualization>>,
+    selections: MapSelection[]
+): ResolvedSelection[] =>
+    selections.flatMap((selection) => {
+        const mapVisualization = mapVisualizations[selection.mapVisualization]
+        return mapVisualization ? [resolveSelection(mapVisualization, selection)] : []
+    })
+
+export const toMapSelection = ({ mapVisualization, data }: ResolvedSelection): MapSelection => ({
+    mapVisualization: mapVisualization.id,
+    dataSource: data?.source.id,
+    dateRange: data?.dateRange.toISODate(),
+})
+
+export const getDefaultSelection = (mapVisualization: MapVisualization): MapSelection =>
+    toMapSelection(resolveSelection(mapVisualization))
+
+/** undefined when none of the selections have data */
 export const getDataQueryParams = (
-    mapVisualization: MapVisualization
+    selections: ResolvedSelection[]
 ): DataQueryParams[] | undefined => {
-    if (mapVisualization.data === undefined) {
-        return undefined
-    }
-    const { source, dateRange } = selectData(mapVisualization.data)
-    return [
-        {
-            mapVisualization: mapVisualization.id,
-            source: source.id,
-            startDate: dateRange.start.toISODate(),
-            endDate: dateRange.end.toISODate(),
-        },
-    ]
+    const params = selections.flatMap(({ mapVisualization, data }) =>
+        data === undefined
+            ? []
+            : [
+                  {
+                      mapVisualization: mapVisualization.id,
+                      source: data.source.id,
+                      startDate: data.dateRange.start.toISODate(),
+                      endDate: data.dateRange.end.toISODate(),
+                  },
+              ]
+    )
+    return isNonEmpty(params) ? params : undefined
 }
 
 export const fetchMapVisualization = async (id: number): Promise<MapVisualization> => {

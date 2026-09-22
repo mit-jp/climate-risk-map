@@ -12,7 +12,10 @@ import {
     MapType,
     MapVisualization,
     MapVisualizationId,
-    selectData,
+    resolveSelection,
+    selectDateRange,
+    SourceDateRanges,
+    toMapSelection,
 } from './MapVisualization'
 import { State } from './States'
 import { RootState } from './store'
@@ -131,19 +134,20 @@ export const appSlice = createSlice({
                 return
             }
             const selection = state.mapSelections[state.region][state.tab.id]?.[0]
-            // a visualization with no data has no date ranges to change to
-            if (selection?.dateRange !== undefined) {
-                selection.dateRange = action.payload
+            if (selection !== undefined) {
+                selection.dateRange = action.payload.toISODate()
             }
         },
-        changeDataSource: (state, action: PayloadAction<number>) => {
+        /** Selects a source of the selected map, keeping the date range if the source has it */
+        changeDataSource: (state, action: PayloadAction<SourceDateRanges>) => {
             if (state.tab === undefined) {
                 return
             }
             const selection = state.mapSelections[state.region][state.tab.id]?.[0]
-            // a visualization with no data has no sources to change to
-            if (selection?.dataSource !== undefined) {
-                selection.dataSource = action.payload
+            if (selection !== undefined) {
+                const { source, dateRange } = selectDateRange(action.payload, selection.dateRange)
+                selection.dataSource = source.id
+                selection.dateRange = dateRange.toISODate()
             }
         },
         changeMapSelection: (state, action: PayloadAction<MapVisualization>) => {
@@ -152,23 +156,9 @@ export const appSlice = createSlice({
             }
             const mapVisualization = action.payload
             const selections = state.mapSelections[state.region][state.tab.id] ?? []
-            const previous = selections[0]
-            let selection: MapSelection
-            if (mapVisualization.data === undefined) {
-                selection = getDefaultSelection(mapVisualization)
-            } else {
-                // keep the previous source and date range when the newly
-                // selected visualization also has them
-                const { source, dateRange } = selectData(mapVisualization.data, {
-                    source: previous?.dataSource,
-                    dateRange: previous?.dateRange,
-                })
-                selection = {
-                    mapVisualization: mapVisualization.id,
-                    dataSource: source.id,
-                    dateRange,
-                }
-            }
+            // keep the previous source and date range when the newly
+            // selected visualization also has them
+            const selection = toMapSelection(resolveSelection(mapVisualization, selections[0]))
             state.mapSelections[state.region][state.tab.id] = [selection, ...selections.slice(1)]
 
             if (mapVisualization?.map_type === MapType.Bubble) {

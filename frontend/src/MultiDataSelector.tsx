@@ -13,7 +13,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { MapSelection } from './DataSelector'
 import css from './DataSelector.module.css'
 import { useGetSubcategoriesQuery } from './MapApi'
-import { MapVisualization, MapVisualizationId, getDefaultSelection } from './MapVisualization'
+import {
+    MapVisualization,
+    MapVisualizationId,
+    getDefaultSelection,
+    resolveSelection,
+} from './MapVisualization'
 import { changeWeight, selectSelections, setMapSelections } from './appSlice'
 import { RootState, store } from './store'
 import { readable } from './YearSelector'
@@ -36,6 +41,7 @@ const checkBox = (
     dispatch: typeof store.dispatch
 ) => {
     const selection = selections.find((s) => s.mapVisualization === map.id)
+    const data = selection && resolveSelection(map, selection).data
 
     return (
         <div
@@ -56,9 +62,7 @@ const checkBox = (
                 label={
                     <div className={css.labelMulti}>
                         {map.displayName}
-                        {selection?.dateRange !== undefined && (
-                            <div className={css.year}>{readable(selection.dateRange)}</div>
-                        )}
+                        {data && <div className={css.year}>{readable(data.dateRange)}</div>}
                     </div>
                 }
                 sx={{

@@ -4,7 +4,12 @@ import { ChangeEvent } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import css from './DataSelector.module.css'
 import DataSourceSelector from './DatasetSelector'
-import { MapVisualization, MapVisualizationId, GeographyType } from './MapVisualization'
+import {
+    GeographyType,
+    MapVisualization,
+    MapVisualizationId,
+    resolveSelection,
+} from './MapVisualization'
 import YearSelector, { readable } from './YearSelector'
 import { changeDataSource, changeDateRange, changeMapSelection, selectSelections } from './appSlice'
 import { RootState } from './store'
@@ -18,9 +23,14 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
     const dispatch = useDispatch()
     const { data: subcategories } = useGetSubcategoriesQuery(undefined)
 
+    const selectedMap = selection && maps[selection.mapVisualization]
+    const resolved = selectedMap && resolveSelection(selectedMap, selection)
+
     const onDataSourceChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const dataset = parseInt(event.target.value, 10)
-        dispatch(changeDataSource(dataset))
+        const source = selectedMap?.data?.sources[parseInt(event.target.value, 10)]
+        if (source !== undefined) {
+            dispatch(changeDataSource(source))
+        }
     }
     const onMapSelectionChange = (event: ChangeEvent<HTMLInputElement>) => {
         const map = maps[parseInt(event.target.value, 10)]
@@ -28,28 +38,6 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
             dispatch(changeMapSelection(map))
         }
     }
-
-    // the selected data source can be missing from a map's date ranges when the
-    // map's dataset has no data rows
-    const selectedDateRanges = (map: MapVisualization) =>
-        selection?.dataSource !== undefined
-            ? map.data?.sources[selection.dataSource]?.dateRanges ?? []
-            : []
-
-    const shouldShowYearSelector = (map: MapVisualization) =>
-        selection !== undefined &&
-        selection.mapVisualization === map.id &&
-        selectedDateRanges(map).length > 1
-
-    const shouldShowYearLabel = (map: MapVisualization) =>
-        selection !== undefined &&
-        selection.mapVisualization === map.id &&
-        selectedDateRanges(map).length === 1
-
-    const shouldShowDatasets = (map: MapVisualization) =>
-        selection !== undefined &&
-        selection.mapVisualization === map.id &&
-        Object.keys(map.data?.sources ?? {}).length > 1
 
     const isEmpty = (subcategoryId: number) =>
         Object.values(maps).filter((map) => map.subcategory === subcategoryId).length === 0
@@ -59,41 +47,45 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
         Object.values(maps).length > 0 &&
         Object.values(maps).every((m) => m.geography_type === GeographyType.World)
 
-    const renderMapEntry = (map: MapVisualization) => (
-        <div key={map.id}>
-            <input
-                className={css.input}
-                id={map.id.toString()}
-                checked={selection?.mapVisualization === map.id}
-                type="radio"
-                value={map.id}
-                onChange={onMapSelectionChange}
-                name="dataGroup"
-            />
-            <label className={css.label} htmlFor={map.id.toString()}>
-                <div className={css.name}>{map.displayName}</div>
-                {selection?.dateRange !== undefined && shouldShowYearLabel(map) && (
-                    <div className={css.year}>{readable(selection.dateRange)}</div>
+    const renderMapEntry = (map: MapVisualization) => {
+        // only the selected map shows its source and date range
+        const data = resolved?.mapVisualization.id === map.id ? resolved.data : undefined
+        return (
+            <div key={map.id}>
+                <input
+                    className={css.input}
+                    id={map.id.toString()}
+                    checked={selection?.mapVisualization === map.id}
+                    type="radio"
+                    value={map.id}
+                    onChange={onMapSelectionChange}
+                    name="dataGroup"
+                />
+                <label className={css.label} htmlFor={map.id.toString()}>
+                    <div className={css.name}>{map.displayName}</div>
+                    {data && data.source.dateRanges.length === 1 && (
+                        <div className={css.year}>{readable(data.dateRange)}</div>
+                    )}
+                </label>
+                {data && data.source.dateRanges.length > 1 && (
+                    <YearSelector
+                        id={map.id.toString()}
+                        years={data.source.dateRanges}
+                        selectedYear={data.dateRange}
+                        onChange={(dateRange) => dispatch(changeDateRange(dateRange))}
+                    />
                 )}
-            </label>
-            {selection?.dateRange !== undefined && shouldShowYearSelector(map) && (
-                <YearSelector
-                    id={map.id.toString()}
-                    years={selectedDateRanges(map)}
-                    selectedYear={selection.dateRange}
-                    onChange={(dateRange) => dispatch(changeDateRange(dateRange))}
-                />
-            )}
-            {selection?.dataSource !== undefined && map.data && shouldShowDatasets(map) && (
-                <DataSourceSelector
-                    id={map.id.toString()}
-                    dataSources={Object.values(map.data.sources)}
-                    selectedDataSource={selection.dataSource}
-                    onSelectionChange={onDataSourceChange}
-                />
-            )}
-        </div>
-    )
+                {data && map.data && Object.keys(map.data.sources).length > 1 && (
+                    <DataSourceSelector
+                        id={map.id.toString()}
+                        dataSources={Object.values(map.data.sources)}
+                        selectedDataSource={data.source.id}
+                        onSelectionChange={onDataSourceChange}
+                    />
+                )}
+            </div>
+        )
+    }
 
     const getDataList = (filterFn: (map: MapVisualization) => boolean) =>
         Object.values(maps)

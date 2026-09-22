@@ -9,16 +9,18 @@ import EmptyMap from './EmptyMap'
 import { getLegendFormatter } from './Formatter'
 import FullMap, { getLegendTitle } from './FullMap'
 import Legend from './Legend'
-import { DataQueryParams, useGetDataQuery } from './MapApi'
+import { useGetDataQuery } from './MapApi'
 import MapControls from './MapControls'
 import MapTitle, { EmptyMapTitle } from './MapTitle'
 import MapTooltip from './MapTooltip'
 import {
+    getDataQueryParams,
     isNonEmpty,
     MapType,
     MapVisualization,
     MapVisualizationId,
     NonEmptyArray,
+    resolveSelections,
 } from './MapVisualization'
 import css from './MapWrapper.module.css'
 import Overlays from './Overlays'
@@ -63,28 +65,16 @@ function MapWrapper({
     const selections = useSelector(selectSelections)
     const region = useSelector((rootState: RootState) => rootState.app.region)
     const tab = useSelector((state: RootState) => state.app.tab?.name ?? '')
-    const maps = useMemo(() => {
-        return selections
-            .map((selection) => selection.mapVisualization)
-            .map((id) => allMapVisualizations[id])
-            .filter((mapVisualization) => mapVisualization !== undefined)
-    }, [allMapVisualizations, selections])
-    // selections without a data source belong to visualizations whose dataset
-    // has no data rows, so there is nothing to fetch for them
-    const completeQueryParams: DataQueryParams[] = selections.flatMap((selection) =>
-        selection.dataSource === undefined
-            ? []
-            : [
-                  {
-                      mapVisualization: selection.mapVisualization,
-                      source: selection.dataSource,
-                      startDate: selection.dateRange.start.toISODate(),
-                      endDate: selection.dateRange.end.toISODate(),
-                  },
-              ]
+    const resolvedSelections = useMemo(
+        () => resolveSelections(allMapVisualizations, selections),
+        [allMapVisualizations, selections]
     )
-    const queryParams: DataQueryParams[] | undefined =
-        completeQueryParams.length > 0 ? completeQueryParams : undefined
+    const maps = useMemo(
+        () => resolvedSelections.map(({ mapVisualization }) => mapVisualization),
+        [resolvedSelections]
+    )
+    // undefined when none of the selected visualizations' datasets have data
+    const queryParams = useMemo(() => getDataQueryParams(resolvedSelections), [resolvedSelections])
     const { data } = useGetDataQuery(queryParams ?? skipToken)
     const mapRef = useRef<SVGGElement>(null)
     const isStateLevelOnlyData = useMemo(() => {
@@ -138,11 +128,7 @@ function MapWrapper({
                 : undefined,
         [data, maps, dataWeights, zoomTo, isNormalized, region, isStateLevelOnlyData]
     )
-    const selectedDataSourceId = selections[0]?.dataSource
-    const dataSource =
-        selectedDataSourceId !== undefined
-            ? maps[0]?.data?.sources[selectedDataSourceId]
-            : undefined
+    const dataSource = resolvedSelections[0]?.data?.source
     const getLegendTicks = (selectedMaps: NonEmptyArray<MapVisualization>, isNormalized: boolean) =>
         isNormalized ? undefined : selectedMaps[0].legend_ticks
 

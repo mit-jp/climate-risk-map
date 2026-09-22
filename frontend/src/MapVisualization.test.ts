@@ -5,11 +5,13 @@ import {
     getDefaultSelection,
     jsonToMapVisualization,
     MapVisualization,
-    selectData,
+    resolveSelection,
+    resolveSelections,
 } from './MapVisualization'
 import {
     dateRangeJson,
     interval,
+    isoInterval,
     makeEmptyMapVisualization,
     makeMapVisualization,
     makeMapVisualizationJson,
@@ -49,7 +51,7 @@ describe('a map visualization with data', () => {
         expect(getDefaultSelection(mapVisualization)).toEqual({
             mapVisualization: 71,
             dataSource: 12,
-            dateRange: interval(2015, 2015),
+            dateRange: isoInterval(2015, 2015),
         })
     })
 
@@ -61,12 +63,12 @@ describe('a map visualization with data', () => {
         expect(getDefaultSelection(withDefaults)).toEqual({
             mapVisualization: 71,
             dataSource: 13,
-            dateRange: interval(2010, 2010),
+            dateRange: isoInterval(2010, 2010),
         })
     })
 
     test('builds data query params', () => {
-        expect(getDataQueryParams(mapVisualization)).toEqual([
+        expect(getDataQueryParams([resolveSelection(mapVisualization)])).toEqual([
             {
                 mapVisualization: 71,
                 source: 12,
@@ -79,7 +81,7 @@ describe('a map visualization with data', () => {
 
 describe('a map visualization whose dataset has no data rows', () => {
     test('has no data query params', () => {
-        expect(getDataQueryParams(makeEmptyMapVisualization())).toBeUndefined()
+        expect(getDataQueryParams([resolveSelection(makeEmptyMapVisualization())])).toBeUndefined()
     })
 
     test('has a default selection without a source or date range', () => {
@@ -134,37 +136,66 @@ describe('jsonToMapVisualization', () => {
     })
 })
 
-describe('selectData', () => {
-    const data = dataOf(makeTwoSourceMapVisualization())
+describe('resolveSelection', () => {
+    const mapVisualization = makeTwoSourceMapVisualization()
+    const data = dataOf(mapVisualization)
 
-    test('uses the preferred source and date range when the map has them', () => {
-        const { source: selected, dateRange } = selectData(data, {
-            source: 13,
-            dateRange: interval(2010, 2010),
+    test('uses the selected source and date range when the map has them', () => {
+        const resolved = resolveSelection(mapVisualization, {
+            mapVisualization: 71,
+            dataSource: 13,
+            dateRange: isoInterval(2010, 2010),
         })
-        expect(selected.id).toEqual(13)
-        expect(dateRange).toEqual(interval(2010, 2010))
+        expect(resolved.data?.source.id).toEqual(13)
+        expect(resolved.data?.dateRange).toEqual(interval(2010, 2010))
     })
 
-    test('matches date ranges by value, not by reference', () => {
-        const other = dataOf(makeMapVisualization({ id: 72 }))
-        const previous = selectData(other, { dateRange: interval(2014, 2014) }).dateRange
-        expect(selectData(data, { source: 12, dateRange: previous }).dateRange).toEqual(
-            interval(2014, 2014)
-        )
-    })
-
-    test("falls back to the source's default date range when it lacks the preferred one", () => {
-        const { source: selected, dateRange } = selectData(data, {
-            source: 13,
-            dateRange: interval(2015, 2015),
+    test("falls back to the source's default date range when it lacks the selected one", () => {
+        const resolved = resolveSelection(mapVisualization, {
+            mapVisualization: 71,
+            dataSource: 13,
+            dateRange: isoInterval(2015, 2015),
         })
-        expect(selected.id).toEqual(13)
-        expect(dateRange).toEqual(interval(2011, 2011))
+        expect(resolved.data?.source.id).toEqual(13)
+        expect(resolved.data?.dateRange).toEqual(interval(2011, 2011))
     })
 
-    test('falls back to the default source when the map lacks the preferred one', () => {
-        expect(selectData(data, { source: 99 }).source).toBe(data.defaultSource)
+    test('falls back to the default source when the map lacks the selected one', () => {
+        const resolved = resolveSelection(mapVisualization, {
+            mapVisualization: 71,
+            dataSource: 99,
+        })
+        expect(resolved.data?.source).toBe(data.defaultSource)
+    })
+
+    test('has no data when the map has none, whatever was selected', () => {
+        const resolved = resolveSelection(makeEmptyMapVisualization(), {
+            mapVisualization: 71,
+            dataSource: 12,
+            dateRange: isoInterval(2015, 2015),
+        })
+        expect(resolved.data).toBeUndefined()
+    })
+})
+
+describe('resolveSelections', () => {
+    test('skips selections whose map visualization is not loaded', () => {
+        const mapVisualization = makeMapVisualization()
+        const resolved = resolveSelections({ 71: mapVisualization }, [
+            { mapVisualization: 71 },
+            { mapVisualization: 72 },
+        ])
+        expect(resolved.map((selection) => selection.mapVisualization)).toEqual([mapVisualization])
+    })
+})
+
+describe('getDataQueryParams', () => {
+    test('skips selections without data', () => {
+        const params = getDataQueryParams([
+            resolveSelection(makeEmptyMapVisualization({ id: 72 })),
+            resolveSelection(makeMapVisualization()),
+        ])
+        expect(params?.map((param) => param.mapVisualization)).toEqual([71])
     })
 })
 

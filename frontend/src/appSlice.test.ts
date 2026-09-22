@@ -1,6 +1,18 @@
 import { Tab } from './MapApi'
-import reducer, { changeDateRange, changeMapSelection, setMapSelections, setTab } from './appSlice'
-import { interval, makeEmptyMapVisualization, makeMapVisualization } from './test-fixtures'
+import reducer, {
+    changeDataSource,
+    changeDateRange,
+    changeMapSelection,
+    setMapSelections,
+    setTab,
+} from './appSlice'
+import {
+    dateRangeJson,
+    interval,
+    isoInterval,
+    makeEmptyMapVisualization,
+    makeMapVisualization,
+} from './test-fixtures'
 
 const tab: Tab = { id: 9, name: 'health', normalized: false, order: 1 }
 
@@ -15,7 +27,7 @@ const stateWithSelection = () => {
             {
                 mapVisualization: mapVisualizationWithData.id,
                 dataSource: 12,
-                dateRange: interval(2015, 2015),
+                dateRange: isoInterval(2015, 2015),
             },
         ])
     )
@@ -41,7 +53,7 @@ describe('changeMapSelection', () => {
         expect(firstSelection(state)).toEqual({
             mapVisualization: mapVisualizationWithData.id,
             dataSource: 12,
-            dateRange: interval(2015, 2015),
+            dateRange: isoInterval(2015, 2015),
         })
     })
 
@@ -52,7 +64,7 @@ describe('changeMapSelection', () => {
         expect(firstSelection(state)).toEqual({
             mapVisualization: mapVisualizationWithData.id,
             dataSource: 12,
-            dateRange: interval(2015, 2015),
+            dateRange: isoInterval(2015, 2015),
         })
     })
     test('keeps the previous date range when the new map also has it', () => {
@@ -61,7 +73,7 @@ describe('changeMapSelection', () => {
         expect(firstSelection(state)).toEqual({
             mapVisualization: 73,
             dataSource: 12,
-            dateRange: interval(2014, 2014),
+            dateRange: isoInterval(2014, 2014),
         })
     })
 })
@@ -72,5 +84,44 @@ describe('changeDateRange', () => {
         state = reducer(state, setMapSelections([]))
         state = reducer(state, changeDateRange(interval(2015, 2015)))
         expect(state.mapSelections[state.region][tab.id]).toEqual([])
+    })
+})
+
+describe('changeDataSource', () => {
+    const twoSources = makeMapVisualization({
+        sources: {
+            12: { id: 12, name: 'Source 12', description: '', link: '' },
+            13: { id: 13, name: 'Source 13', description: '', link: '' },
+        },
+        date_ranges_by_source: {
+            12: [dateRangeJson(2014, 2014), dateRangeJson(2015, 2015)],
+            13: [dateRangeJson(2015, 2015), dateRangeJson(2016, 2016)],
+        },
+    })
+    const source = (id: number) => {
+        const found = twoSources.data?.sources[id]
+        if (found === undefined) {
+            throw new Error(`expected source ${id}`)
+        }
+        return found
+    }
+
+    test('keeps the date range when the new source has it', () => {
+        const state = reducer(stateWithSelection(), changeDataSource(source(13)))
+        expect(firstSelection(state)).toEqual({
+            mapVisualization: mapVisualizationWithData.id,
+            dataSource: 13,
+            dateRange: isoInterval(2015, 2015),
+        })
+    })
+
+    test("uses the new source's default date range when it lacks the current one", () => {
+        let state = reducer(stateWithSelection(), changeDateRange(interval(2014, 2014)))
+        state = reducer(state, changeDataSource(source(13)))
+        expect(firstSelection(state)).toEqual({
+            mapVisualization: mapVisualizationWithData.id,
+            dataSource: 13,
+            dateRange: isoInterval(2016, 2016),
+        })
     })
 })

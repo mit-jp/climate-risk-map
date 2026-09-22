@@ -11,6 +11,10 @@ import {
 export const interval = (startYear: number, endYear: number): Interval =>
     Interval.fromISO(`${startYear}-01-01/${endYear}-12-31`)
 
+/** A date range as stored in a MapSelection */
+export const isoInterval = (startYear: number, endYear: number): string =>
+    interval(startYear, endYear).toISODate()
+
 export const dateRangeJson = (startYear: number, endYear: number) => ({
     start_date: `${startYear}-01-01`,
     end_date: `${endYear}-12-31`,
