@@ -140,8 +140,8 @@ function MapWrapper({
     )
     const selectedDataSourceId = selections[0]?.dataSource
     const dataSource =
-        maps[0] && selectedDataSourceId !== undefined
-            ? maps[0].sources[selectedDataSourceId]
+        selectedDataSourceId !== undefined
+            ? maps[0]?.data?.sources[selectedDataSourceId]
             : undefined
     const getLegendTicks = (selectedMaps: NonEmptyArray<MapVisualization>, isNormalized: boolean) =>
         isNormalized ? undefined : selectedMaps[0].legend_ticks

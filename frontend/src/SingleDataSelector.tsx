@@ -33,7 +33,7 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
     // map's dataset has no data rows
     const selectedDateRanges = (map: MapVisualization) =>
         selection?.dataSource !== undefined
-            ? map.date_ranges_by_source[selection.dataSource] ?? []
+            ? map.data?.sources[selection.dataSource]?.dateRanges ?? []
             : []
 
     const shouldShowYearSelector = (map: MapVisualization) =>
@@ -49,7 +49,7 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
     const shouldShowDatasets = (map: MapVisualization) =>
         selection !== undefined &&
         selection.mapVisualization === map.id &&
-        Object.keys(map.sources).length > 1
+        Object.keys(map.data?.sources ?? {}).length > 1
 
     const isEmpty = (subcategoryId: number) =>
         Object.values(maps).filter((map) => map.subcategory === subcategoryId).length === 0
@@ -84,10 +84,10 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
                     onChange={(dateRange) => dispatch(changeDateRange(dateRange))}
                 />
             )}
-            {selection?.dataSource !== undefined && shouldShowDatasets(map) && (
+            {selection?.dataSource !== undefined && map.data && shouldShowDatasets(map) && (
                 <DataSourceSelector
                     id={map.id.toString()}
-                    dataSources={Object.values(map.sources)}
+                    dataSources={Object.values(map.data.sources)}
                     selectedDataSource={selection.dataSource}
                     onSelectionChange={onDataSourceChange}
                 />

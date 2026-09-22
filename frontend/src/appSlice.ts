@@ -7,14 +7,12 @@ import type { GeometryCollection } from 'topojson-specification'
 import { MapSelection } from './DataSelector'
 import { mapApi, Tab, TabId } from './MapApi'
 import {
-    findSourceDateRanges,
     GeographyType,
     getDefaultSelection,
-    getDefaultSourceDateRanges,
-    last,
     MapType,
     MapVisualization,
     MapVisualizationId,
+    selectData,
 } from './MapVisualization'
 import { State } from './States'
 import { RootState } from './store'
@@ -155,20 +153,16 @@ export const appSlice = createSlice({
             const mapVisualization = action.payload
             const selections = state.mapSelections[state.region][state.tab.id] ?? []
             const previous = selections[0]
-            // keep the previous source and date range when the newly
-            // selected visualization also has them
-            const source =
-                findSourceDateRanges(mapVisualization, previous?.dataSource) ??
-                getDefaultSourceDateRanges(mapVisualization)
             let selection: MapSelection
-            if (previous === undefined || source === undefined) {
+            if (mapVisualization.data === undefined) {
                 selection = getDefaultSelection(mapVisualization)
             } else {
-                const dateRange =
-                    previous.dateRange !== undefined &&
-                    source.dateRanges.includes(previous.dateRange)
-                        ? previous.dateRange
-                        : mapVisualization.default_date_range ?? last(source.dateRanges)
+                // keep the previous source and date range when the newly
+                // selected visualization also has them
+                const { source, dateRange } = selectData(mapVisualization.data, {
+                    source: previous?.dataSource,
+                    dateRange: previous?.dateRange,
+                })
                 selection = {
                     mapVisualization: mapVisualization.id,
                     dataSource: source.id,

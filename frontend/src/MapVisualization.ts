@@ -73,9 +73,26 @@ export const isNonEmpty = <T>(array: T[]): array is NonEmptyArray<T> => array.le
 
 export const last = <T>(array: NonEmptyArray<T>): T => array[array.length - 1] ?? array[0]
 
-export type SourceDateRanges = { id: number; dateRanges: NonEmptyArray<Interval> }
+/** A source with its date ranges, which the backend guarantees are non-empty */
+export type SourceDateRanges = DataSource & {
+    readonly dateRanges: NonEmptyArray<Interval>
+    /** The map's configured default date range if this source has it, or else its last */
+    readonly defaultDateRange: Interval
+}
 
-interface MapVisualizationBase {
+/** A date range of a source. Build it with selectDateRange so dateRange is one of source.dateRanges */
+export type DataSelection = {
+    readonly source: SourceDateRanges
+    readonly dateRange: Interval
+}
+
+export type MapVisualizationData = {
+    readonly sources: Readonly<Record<number, SourceDateRanges>>
+    /** The configured default source, or else the first source */
+    readonly defaultSource: SourceDateRanges
+}
+
+export interface MapVisualization {
     id: MapVisualizationId
     dataset: number
     map_type: MapType
@@ -94,7 +111,10 @@ interface MapVisualizationBase {
     color_domain: number[]
     show_pdf: boolean
     pdf_domain: [number, number] | []
+    /** As configured in the editor; data.defaultSource has the resolved default */
     default_date_range?: Interval
+    /** As configured in the editor; data.defaultSource has the resolved default */
+    default_source?: number
     formatter_type: FormatterType
     legend_formatter_type?: FormatterType
     decimals: number
@@ -102,23 +122,9 @@ interface MapVisualizationBase {
     order: number
     geography_type: GeographyType
     bubble_color: string
+    /** undefined when the dataset has no data */
+    data: MapVisualizationData | undefined
 }
-
-export interface MapVisualizationWithData extends MapVisualizationBase {
-    hasData: true
-    date_ranges_by_source: { [key: number]: NonEmptyArray<Interval> }
-    sources: { [key: number]: DataSource }
-    default_source?: number
-}
-
-export interface MapVisualizationWithoutData extends MapVisualizationBase {
-    hasData: false
-    date_ranges_by_source: Record<number, never>
-    sources: Record<number, never>
-    default_source?: undefined
-}
-
-export type MapVisualization = MapVisualizationWithData | MapVisualizationWithoutData
 
 export interface MapVisualizationJson {
     id: MapVisualizationId
@@ -151,13 +157,46 @@ export interface MapVisualizationJson {
     bubble_color: string
 }
 
+type UnresolvedSource = DataSource & { dateRanges: NonEmptyArray<Interval> }
+
+const resolveDefaults = (
+    sources: Readonly<Record<number, UnresolvedSource>>,
+    defaultSourceId: number | undefined,
+    defaultDateRange: Interval | undefined
+): MapVisualizationData | undefined => {
+    const resolved: Record<number, SourceDateRanges> = {}
+    Object.values(sources).forEach((source) => {
+        resolved[source.id] = {
+            ...source,
+            defaultDateRange:
+                source.dateRanges.find(
+                    (dateRange) =>
+                        defaultDateRange !== undefined && dateRange.equals(defaultDateRange)
+                ) ?? last(source.dateRanges),
+        }
+    })
+    const [first] = Object.values(resolved)
+    if (first === undefined) {
+        return undefined
+    }
+    const defaultSource =
+        (defaultSourceId === undefined ? undefined : resolved[defaultSourceId]) ?? first
+    return { sources: resolved, defaultSource }
+}
+
 export const applyPatch = (draft: MapVisualization, patch: MapVisualizationPatch) => {
-    Object.assign(draft, patch)
-    if (patch.default_end_date && patch.default_start_date) {
+    const { default_start_date: start, default_end_date: end, ...rest } = patch
+    Object.assign(draft, rest)
+    if (start && end) {
         // eslint-disable-next-line no-param-reassign
-        draft.default_date_range = Interval.fromDateTimes(
-            patch.default_start_date,
-            patch.default_end_date
+        draft.default_date_range = Interval.fromDateTimes(start, end)
+    }
+    if (draft.data) {
+        // eslint-disable-next-line no-param-reassign
+        draft.data = resolveDefaults(
+            draft.data.sources,
+            draft.default_source,
+            draft.default_date_range
         )
     }
 }
@@ -165,17 +204,23 @@ export const applyPatch = (draft: MapVisualization, patch: MapVisualizationPatch
 const intervalFromJson = (json: { start_date: string; end_date: string }) =>
     Interval.fromISO(`${json.start_date}/${json.end_date}`)
 
-export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualization => {
-    const dateRangesBySource: { [key: number]: NonEmptyArray<Interval> } = {}
-    Object.entries(json.date_ranges_by_source).forEach(([sourceId, dateRanges]) => {
-        const intervals = dateRanges.map((dateRange) => intervalFromJson(dateRange))
-        if (isNonEmpty(intervals)) {
-            dateRangesBySource[parseInt(sourceId, 10)] = intervals
+const sourcesFromJson = (json: MapVisualizationJson): Record<number, UnresolvedSource> => {
+    const sources: Record<number, UnresolvedSource> = {}
+    Object.entries(json.date_ranges_by_source).forEach(([sourceId, dateRangeJsons]) => {
+        const source = json.sources[parseInt(sourceId, 10)]
+        const dateRanges = dateRangeJsons.map(intervalFromJson)
+        if (source !== undefined && isNonEmpty(dateRanges)) {
+            sources[source.id] = { ...source, dateRanges }
         }
     })
+    return sources
+}
+
+export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualization => {
     const defaultDateRange =
         json.default_date_range === null ? undefined : intervalFromJson(json.default_date_range)
-    const base: MapVisualizationBase = {
+    const defaultSource = json.default_source ?? undefined
+    return {
         id: json.id,
         dataset: json.dataset,
         map_type: json.map_type,
@@ -194,6 +239,7 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
         show_pdf: json.show_pdf,
         pdf_domain: json.pdf_domain,
         default_date_range: defaultDateRange,
+        default_source: defaultSource,
         formatter_type: json.formatter_type,
         legend_formatter_type: json.legend_formatter_type ?? undefined,
         decimals: json.decimals,
@@ -202,79 +248,58 @@ export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualiza
         displayName: json.name ?? json.dataset_name,
         geography_type: json.geography_type,
         bubble_color: json.bubble_color,
-    }
-    if (Object.keys(dateRangesBySource).length === 0) {
-        return {
-            ...base,
-            hasData: false,
-            date_ranges_by_source: {},
-            sources: {},
-            default_source: undefined,
-        }
-    }
-    return {
-        ...base,
-        hasData: true,
-        date_ranges_by_source: dateRangesBySource,
-        sources: json.sources,
-        default_source: json.default_source ?? undefined,
+        data: resolveDefaults(sourcesFromJson(json), defaultSource, defaultDateRange),
     }
 }
 
-export const findSourceDateRanges = (
-    mapVisualization: MapVisualization,
-    source: number | undefined
-): SourceDateRanges | undefined => {
-    if (source === undefined) {
-        return undefined
-    }
-    const dateRanges = mapVisualization.date_ranges_by_source[source]
-    return dateRanges && { id: source, dateRanges }
-}
+/** The preferred date range if the source has it, or else the source's default */
+export const selectDateRange = (
+    source: SourceDateRanges,
+    preferred: Interval | undefined
+): DataSelection => ({
+    source,
+    dateRange:
+        source.dateRanges.find(
+            (dateRange) => preferred !== undefined && dateRange.equals(preferred)
+        ) ?? source.defaultDateRange,
+})
 
-/** The configured default source, or else the first source; undefined if there's no data */
-export const getDefaultSourceDateRanges = (
-    mapVisualization: MapVisualization
-): SourceDateRanges | undefined => {
-    const [first] = Object.keys(mapVisualization.date_ranges_by_source)
-    return (
-        findSourceDateRanges(mapVisualization, mapVisualization.default_source) ??
-        findSourceDateRanges(
-            mapVisualization,
-            first === undefined ? undefined : parseInt(first, 10)
-        )
+/** The preferred source and date range where the map has them, or else its defaults */
+export const selectData = (
+    data: MapVisualizationData,
+    preferred: { source?: number; dateRange?: Interval } = {}
+): DataSelection =>
+    selectDateRange(
+        (preferred.source === undefined ? undefined : data.sources[preferred.source]) ??
+            data.defaultSource,
+        preferred.dateRange
     )
-}
 
 export const getDefaultSelection = (mapVisualization: MapVisualization): MapSelection => {
-    const source = getDefaultSourceDateRanges(mapVisualization)
-    if (source === undefined) {
+    if (mapVisualization.data === undefined) {
         return {
             mapVisualization: mapVisualization.id,
             dataSource: undefined,
             dateRange: undefined,
         }
     }
-    return {
-        mapVisualization: mapVisualization.id,
-        dataSource: source.id,
-        dateRange: mapVisualization.default_date_range ?? last(source.dateRanges),
-    }
+    const { source, dateRange } = selectData(mapVisualization.data)
+    return { mapVisualization: mapVisualization.id, dataSource: source.id, dateRange }
 }
 
 export const getDataQueryParams = (
     mapVisualization: MapVisualization
 ): DataQueryParams[] | undefined => {
-    const selection = getDefaultSelection(mapVisualization)
-    if (selection.dataSource === undefined) {
+    if (mapVisualization.data === undefined) {
         return undefined
     }
+    const { source, dateRange } = selectData(mapVisualization.data)
     return [
         {
             mapVisualization: mapVisualization.id,
-            source: selection.dataSource,
-            startDate: selection.dateRange.start.toISODate(),
-            endDate: selection.dateRange.end.toISODate(),
+            source: source.id,
+            startDate: dateRange.start.toISODate(),
+            endDate: dateRange.end.toISODate(),
         },
     ]
 }

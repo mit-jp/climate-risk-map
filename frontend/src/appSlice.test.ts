@@ -55,6 +55,15 @@ describe('changeMapSelection', () => {
             dateRange: interval(2015, 2015),
         })
     })
+    test('keeps the previous date range when the new map also has it', () => {
+        let state = reducer(stateWithSelection(), changeDateRange(interval(2014, 2014)))
+        state = reducer(state, changeMapSelection(makeMapVisualization({ id: 73 })))
+        expect(firstSelection(state)).toEqual({
+            mapVisualization: 73,
+            dataSource: 12,
+            dateRange: interval(2014, 2014),
+        })
+    })
 })
 
 describe('changeDateRange', () => {

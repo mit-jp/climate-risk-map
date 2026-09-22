@@ -74,7 +74,7 @@ function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Pr
             ) : (
                 <EmptyMapTitle />
             )}
-            {selection && !selection.hasData && (
+            {selection && selection.data === undefined && (
                 <p className={css.noData}>No data available for this map yet.</p>
             )}
             <svg viewBox="0, 0, 1175, 610">
