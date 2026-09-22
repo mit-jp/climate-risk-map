@@ -1,8 +1,9 @@
 use crate::{
-    model::map_visualization::{Creator, Error, Json, JsonPatch, MapVisualization, Patch},
+    dao::DeleteError,
+    model::map_visualization::{Creator, Json, JsonPatch, MapVisualization, Patch},
     AppState,
 };
-use actix_web::{delete, get, patch, post, web, HttpResponse, Responder};
+use actix_web::{delete, get, http::StatusCode, patch, post, web, HttpResponse, Responder};
 use futures::future::try_join;
 use log::error;
 use serde::Deserialize;
@@ -38,20 +39,8 @@ async fn get_map_visualization_model(
         .database
         .data_source
         .by_dataset(map_visualization.dataset);
-    let result = try_join(sources_and_dates, data_sources).await;
-    match result {
-        Err(e) => Err(e),
-        Ok((source_and_dates, data_sources)) => {
-            if data_sources.is_empty() {
-                return Err(sqlx::Error::Decode(Box::new(Error {
-                    message: format!(
-                        "No sources and dates found for map visualization {map_visualization:#?}",
-                    ),
-                })));
-            }
-            Ok(Json::new(map_visualization, source_and_dates, data_sources))
-        }
-    }
+    let (source_and_dates, data_sources) = try_join(sources_and_dates, data_sources).await?;
+    Ok(Json::new(map_visualization, source_and_dates, data_sources))
 }
 
 #[get("/map-visualization/{id}")]
@@ -192,14 +181,251 @@ async fn create(app_state: web::Data<AppState<'_>>) -> impl Responder {
 }
 
 #[delete("/map-visualization/{id}")]
-async fn delete(id: web::Path<i32>, app_state: web::Data<AppState<'_>>) -> impl Responder {
-    let result = app_state
+async fn delete(
+    id: web::Path<i32>,
+    app_state: web::Data<AppState<'_>>,
+) -> Result<HttpResponse, DeleteError> {
+    app_state
         .database
         .map_visualization
         .delete(id.into_inner())
+        .await?;
+    Ok(HttpResponse::Ok().finish())
+}
+
+impl actix_web::error::ResponseError for DeleteError {
+    fn status_code(&self) -> StatusCode {
+        match self {
+            DeleteError::Published(_) => StatusCode::CONFLICT,
+            DeleteError::Database(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        }
+    }
+
+    fn error_response(&self) -> HttpResponse {
+        match self {
+            DeleteError::Published(_) => HttpResponse::Conflict().body(self.to_string()),
+            DeleteError::Database(e) => {
+                error!("{e}");
+                HttpResponse::InternalServerError().finish()
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::init;
+    use crate::controller::data_source_controller;
+    use crate::{dao::Database, AppState};
+    use actix_web::{test, web, App};
+    use sqlx::{PgPool, Row};
+    use std::sync::{Arc, Mutex};
+
+    async fn count(pool: &PgPool, query: &str, id: i32) -> i64 {
+        sqlx::query(query)
+            .bind(id)
+            .fetch_one(pool)
+            .await
+            .unwrap()
+            .get(0)
+    }
+
+    struct Fixture {
+        map_id: i32,
+        category_id: i32,
+    }
+
+    async fn insert_draft(pool: &PgPool) -> Fixture {
+        let dataset_id: i32 = sqlx::query(
+            "INSERT INTO dataset (short_name, name, description, units, geography_type)
+            VALUES ('mapviz_delete_test', 'Mapviz Delete Test', 't', 't', 1) RETURNING id",
+        )
+        .fetch_one(pool)
+        .await
+        .unwrap()
+        .get(0);
+        let map_id: i32 = sqlx::query(
+            "INSERT INTO map_visualization (dataset, map_type, color_palette, scale_type, formatter_type)
+            VALUES ($1, 1, 1, 2, 3) RETURNING id",
+        )
+        .bind(dataset_id)
+        .fetch_one(pool)
+        .await
+        .unwrap()
+        .get(0);
+        let category_id: i32 = sqlx::query("SELECT id FROM data_category LIMIT 1")
+            .fetch_one(pool)
+            .await
+            .unwrap()
+            .get(0);
+        Fixture {
+            map_id,
+            category_id,
+        }
+    }
+
+    async fn publish(pool: &PgPool, fixture: &Fixture) {
+        sqlx::query(
+            "INSERT INTO map_visualization_collection (map_visualization, category, \"order\")
+            VALUES ($1, $2, 99)",
+        )
+        .bind(fixture.map_id)
+        .bind(fixture.category_id)
+        .execute(pool)
+        .await
+        .unwrap();
+    }
+
+    async fn send_delete(pool: &PgPool, map_id: i32) -> actix_web::http::StatusCode {
+        let app_state = web::Data::new(AppState {
+            connections: Mutex::new(0),
+            database: Arc::new(Database::from_pool(pool.clone())),
+        });
+        let app =
+            test::init_service(App::new().app_data(app_state).configure(super::init_editor)).await;
+        let request = test::TestRequest::delete()
+            .uri(&format!("/map-visualization/{map_id}"))
+            .to_request();
+        test::call_service(&app, request).await.status()
+    }
+
+    async fn map_count(pool: &PgPool, map_id: i32) -> i64 {
+        count(
+            pool,
+            "SELECT count(*) FROM map_visualization WHERE id = $1",
+            map_id,
+        )
+        .await
+    }
+
+    async fn collection_count(pool: &PgPool, map_id: i32) -> i64 {
+        count(
+            pool,
+            "SELECT count(*) FROM map_visualization_collection WHERE map_visualization = $1",
+            map_id,
+        )
+        .await
+    }
+
+    #[sqlx::test]
+    async fn delete_draft_map_succeeds(pool: PgPool) {
+        let fixture = insert_draft(&pool).await;
+
+        let status = send_delete(&pool, fixture.map_id).await;
+
+        assert!(status.is_success(), "delete failed with status {}", status);
+        assert_eq!(map_count(&pool, fixture.map_id).await, 0);
+    }
+
+    #[sqlx::test]
+    async fn delete_published_map_is_rejected_with_conflict(pool: PgPool) {
+        let fixture = insert_draft(&pool).await;
+        publish(&pool, &fixture).await;
+
+        let status = send_delete(&pool, fixture.map_id).await;
+
+        assert_eq!(status, actix_web::http::StatusCode::CONFLICT);
+        assert_eq!(map_count(&pool, fixture.map_id).await, 1);
+        assert_eq!(collection_count(&pool, fixture.map_id).await, 1);
+    }
+
+    #[sqlx::test]
+    async fn serves_map_visualization_whose_only_source_was_deleted(pool: PgPool) {
+        let source_id = sqlx::query!(
+            "INSERT INTO data_source (name, description, link)
+             VALUES ('zombie test', 'test source', 'https://example.com')
+             RETURNING id"
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap()
+        .id;
+
+        let dataset_id = sqlx::query!(
+            "INSERT INTO dataset (short_name, name, description, units, geography_type)
+             VALUES ('zombie_test', 'Zombie Test', 't', 't', 1)
+             RETURNING id"
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap()
+        .id;
+
+        let map_visualization_id = sqlx::query!(
+            "INSERT INTO map_visualization
+                 (dataset, map_type, color_palette, scale_type, formatter_type, default_source)
+             VALUES ($1, 1, 1, 2, 3, $2)
+             RETURNING id",
+            dataset_id,
+            source_id
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap()
+        .id;
+
+        sqlx::query!(
+            "INSERT INTO data (dataset, source, start_date, end_date, value, geography_type, id)
+             SELECT $1, $2, '2020-01-01', '2020-12-31', 1.0, geography_type, id
+             FROM geo_id LIMIT 1",
+            dataset_id,
+            source_id
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        sqlx::query!(
+            r#"INSERT INTO map_visualization_collection (map_visualization, category, "order")
+             SELECT $1, MIN(id)::int2, int2(32000) FROM data_category"#,
+            map_visualization_id
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        let app_state = web::Data::new(AppState {
+            connections: Mutex::new(0),
+            database: Arc::new(Database::from_pool(pool.clone())),
+        });
+        let app = test::init_service(
+            App::new()
+                .app_data(app_state)
+                .configure(init)
+                .configure(data_source_controller::init_editor),
+        )
         .await;
-    match result {
-        Err(_) => HttpResponse::InternalServerError().finish(),
-        Ok(_) => HttpResponse::Ok().finish(),
+
+        let request = test::TestRequest::delete()
+            .uri(&format!("/data-source/{source_id}"))
+            .to_request();
+        let status = test::call_service(&app, request).await.status();
+        assert!(status.is_success(), "delete failed: {}", status);
+
+        let request = test::TestRequest::get()
+            .uri("/map-visualization?include_drafts=false&geography_type=1")
+            .to_request();
+        let response = test::call_service(&app, request).await;
+        let status = response.status();
+        assert!(status.is_success(), "expected success, got {}", status);
+        let body: serde_json::Value = test::read_body_json(response).await;
+        let visualization = body
+            .as_object()
+            .unwrap()
+            .values()
+            .find_map(|tab| tab.get(map_visualization_id.to_string()))
+            .expect("visualization with a deleted source should still be listed");
+        assert_eq!(visualization["sources"], serde_json::json!({}));
+        assert_eq!(visualization["default_source"], serde_json::Value::Null);
+
+        let request = test::TestRequest::get()
+            .uri(&format!("/map-visualization/{map_visualization_id}"))
+            .to_request();
+        let status = test::call_service(&app, request).await.status();
+        assert!(
+            status.is_success(),
+            "single visualization endpoint failed: {}",
+            status
+        );
     }
 }

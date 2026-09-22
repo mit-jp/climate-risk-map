@@ -3267,7 +3267,7 @@ __metadata:
     rollup-plugin-visualizer: ^6
     topojson-client: ^3.1.0
     tslib: ^2.3.1
-    typescript: ~5.9.0
+    typescript: ~5.9.3
     uuid: ^8.3.2
     vite: ^7
     vitest: ^4.1.10
@@ -8744,7 +8744,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:~5.9.0":
+"typescript@npm:~5.9.3":
   version: 5.9.3
   resolution: "typescript@npm:5.9.3"
   bin:
@@ -8754,7 +8754,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@~5.9.0#~builtin<compat/typescript>":
+"typescript@patch:typescript@~5.9.3#~builtin<compat/typescript>":
   version: 5.9.3
   resolution: "typescript@patch:typescript@npm%3A5.9.3#~builtin<compat/typescript>::version=5.9.3&hash=14eedb"
   bin:

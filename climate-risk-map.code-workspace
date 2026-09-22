@@ -59,7 +59,7 @@
     ],
     "workbench.colorCustomizations": {
       "activityBar.activeBackground": "#3399ff",
-      "activityBar.activeBorder": "#bf0060",
+      "activityBar.activeBorder": "#15202b",
       "activityBar.background": "#3399ff",
       "activityBar.foreground": "#15202b",
       "activityBar.inactiveForeground": "#15202b99",
@@ -82,7 +82,8 @@
       "activityBarTop.inactiveForeground": "#15202b99",
       "commandCenter.foreground": "#e7e7e7",
       "statusBar.debuggingBackground": "#007fff",
-      "statusBar.debuggingForeground": "#e7e7e7"
+      "statusBar.debuggingForeground": "#e7e7e7",
+      "activityBarTop.activeBorder": "#15202b"
     },
     "peacock.color": "#007fff",
     "jest.disabledWorkspaceFolders": ["backend", ".github"],
