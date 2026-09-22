@@ -1,6 +1,17 @@
 use super::Table;
 use crate::model::map_visualization::{Creator, MapVisualization, Patch};
+use derive_more::Display;
 use sqlx::postgres::PgQueryResult;
+
+/// PostgreSQL SQLSTATE for `foreign_key_violation`.
+const FOREIGN_KEY_VIOLATION: &str = "23503";
+
+#[derive(Debug, Display)]
+pub enum DeleteError {
+    #[display(fmt = "Map visualization {_0} is published. Unpublish it before deleting it.")]
+    Published(i32),
+    Database(sqlx::Error),
+}
 
 macro_rules! select {
     () => {
@@ -166,16 +177,30 @@ impl<'c> Table<'c, MapVisualization> {
         .await
     }
 
-    pub async fn delete(&self, id: i32) -> Result<PgQueryResult, sqlx::Error> {
+    pub async fn delete(&self, id: i32) -> Result<(), DeleteError> {
         sqlx::query!("DELETE FROM map_visualization WHERE id = $1", id)
             .execute(&*self.pool)
             .await
+            .map_err(|e| match &e {
+                // The only foreign key referencing map_visualization is the
+                // collection table, so a violation means the map is published.
+                sqlx::Error::Database(db)
+                    if db.code().as_deref() == Some(FOREIGN_KEY_VIOLATION) =>
+                {
+                    DeleteError::Published(id)
+                }
+                _ => DeleteError::Database(e),
+            })?;
+        Ok(())
     }
 
     pub async fn delete_by_dataset(&self, dataset_id: i32) -> Result<PgQueryResult, sqlx::Error> {
-        sqlx::query!("DELETE FROM map_visualization WHERE dataset = $1", dataset_id)
-            .execute(&*self.pool)
-            .await
+        sqlx::query!(
+            "DELETE FROM map_visualization WHERE dataset = $1",
+            dataset_id
+        )
+        .execute(&*self.pool)
+        .await
     }
 
     pub async fn get_by_dataset(
