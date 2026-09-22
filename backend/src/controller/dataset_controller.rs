@@ -45,7 +45,10 @@ async fn get_all(app_state: web::Data<AppState<'_>>) -> impl Responder {
 }
 
 #[delete("/dataset/{id}")]
-async fn delete(id: web::Path<i32>, app_state: web::Data<AppState<'_>>) -> Result<String, Error> {
+async fn delete(
+    id: web::Path<i32>,
+    app_state: web::Data<AppState<'_>>,
+) -> Result<HttpResponse, Error> {
     let id = id.into_inner();
     // Delete the dataset and everything that references it in one transaction,
     // so a failing step can't leave the dataset partially deleted
@@ -79,7 +82,7 @@ async fn delete(id: web::Path<i32>, app_state: web::Data<AppState<'_>>) -> Resul
         .await
         .map_err(Error)?;
     tx.commit().await.map_err(Error)?;
-    Ok("deleted".to_string())
+    Ok(HttpResponse::Ok().finish())
 }
 
 #[derive(Debug, Display)]
