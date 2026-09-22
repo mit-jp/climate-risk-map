@@ -12,6 +12,10 @@ import {
     MapType,
     MapVisualization,
     MapVisualizationId,
+    resolveSelection,
+    selectDateRange,
+    SourceDateRanges,
+    toMapSelection,
 } from './MapVisualization'
 import { State } from './States'
 import { RootState } from './store'
@@ -129,33 +133,33 @@ export const appSlice = createSlice({
             if (state.tab === undefined) {
                 return
             }
-            state.mapSelections[state.region][state.tab.id][0].dateRange = action.payload
+            const selection = state.mapSelections[state.region][state.tab.id]?.[0]
+            if (selection !== undefined) {
+                selection.dateRange = action.payload.toISODate()
+            }
         },
-        changeDataSource: (state, action: PayloadAction<number>) => {
+        /** Selects a source of the selected map, keeping the date range if the source has it */
+        changeDataSource: (state, action: PayloadAction<SourceDateRanges>) => {
             if (state.tab === undefined) {
                 return
             }
-            state.mapSelections[state.region][state.tab.id][0].dataSource = action.payload
+            const selection = state.mapSelections[state.region][state.tab.id]?.[0]
+            if (selection !== undefined) {
+                const { source, dateRange } = selectDateRange(action.payload, selection.dateRange)
+                selection.dataSource = source.id
+                selection.dateRange = dateRange.toISODate()
+            }
         },
         changeMapSelection: (state, action: PayloadAction<MapVisualization>) => {
             if (state.tab === undefined) {
                 return
             }
-            const selection = state.mapSelections[state.region][state.tab.id][0]
             const mapVisualization = action.payload
-            selection.mapVisualization = mapVisualization.id
-            const possibleDataSources = Object.values(mapVisualization.sources).map((s) => s.id)
-            if (!possibleDataSources.includes(selection.dataSource)) {
-                selection.dataSource = mapVisualization?.default_source ?? possibleDataSources[0]
-            }
-            const possibleDates = mapVisualization.date_ranges_by_source[selection.dataSource] ?? []
-            if (selection.dateRange && !possibleDates.includes(selection.dateRange)) {
-                if (mapVisualization.default_date_range) {
-                    selection.dateRange = mapVisualization.default_date_range
-                } else {
-                    selection.dateRange = possibleDates.at(-1)!
-                }
-            }
+            const selections = state.mapSelections[state.region][state.tab.id] ?? []
+            // keep the previous source and date range when the newly
+            // selected visualization also has them
+            const selection = toMapSelection(resolveSelection(mapVisualization, selections[0]))
+            state.mapSelections[state.region][state.tab.id] = [selection, ...selections.slice(1)]
 
             if (mapVisualization?.map_type === MapType.Bubble) {
                 // don't zoom in to state on bubble map. it's unsupported right now
@@ -301,8 +305,12 @@ const generateMapTransform = (zoomTo: number | undefined, map: GeoMap | undefine
     // topoJson city id: "01260", city id: 1260
     const idLength = { USA: 2, World: 3, EssexMassachusetts: 10 }[map.region]
     const zoomToId = String(zoomTo).padStart(idLength, '0')
+    const zoomToFeature = features[zoomToId]
+    if (zoomToFeature === undefined) {
+        return undefined
+    }
 
-    const bounds = geoPath().bounds(features[zoomToId])
+    const bounds = geoPath().bounds(zoomToFeature)
     const dx = bounds[1][0] - bounds[0][0]
     const dy = bounds[1][1] - bounds[0][1]
     const x = (bounds[0][0] + bounds[1][0]) / 2
