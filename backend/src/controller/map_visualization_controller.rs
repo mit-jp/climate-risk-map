@@ -4,7 +4,6 @@ use crate::{
     AppState,
 };
 use actix_web::{delete, get, http::StatusCode, patch, post, web, HttpResponse, Responder};
-use futures::future::try_join;
 use log::error;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -31,16 +30,12 @@ async fn get_map_visualization_model(
     map_visualization: MapVisualization,
     app_state: &web::Data<AppState<'_>>,
 ) -> Result<Json, sqlx::Error> {
-    let sources_and_dates = app_state
-        .database
-        .source_and_date
-        .by_dataset(map_visualization.dataset);
-    let data_sources = app_state
+    let dated_sources = app_state
         .database
         .data_source
-        .by_dataset(map_visualization.dataset);
-    let (source_and_dates, data_sources) = try_join(sources_and_dates, data_sources).await?;
-    Ok(Json::new(map_visualization, source_and_dates, data_sources))
+        .by_dataset(map_visualization.dataset)
+        .await?;
+    Ok(Json::new(map_visualization, dated_sources))
 }
 
 #[get("/map-visualization/{id}")]
