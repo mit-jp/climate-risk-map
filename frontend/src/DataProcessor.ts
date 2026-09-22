@@ -18,52 +18,24 @@ const normalizeData = (params: Params, totalWeight: number, valueByGeoId: Map<nu
         ? valueByGeoId.map((value) => -1 * value)
         : valueByGeoId
 
-    let normalizedValueByGeoIdNonZero = Map<number, number>(
-        JSON.parse(JSON.stringify(Array.from(normalizedValueByGeoId)))
+    // the nonzero values plus a single 0
+    const sortedValues = [
+        0,
+        ...normalizedValueByGeoId.valueSeq().filter((value) => value !== 0),
+    ].sort((a, b) => a - b)
+
+    if (sortedValues.length === 1) {
+        // every value is 0
+        return normalizedValueByGeoId.map(() => 0)
+    }
+    // every value is in sortedValues, so its percentile is its sorted position
+    return normalizedValueByGeoId.map(
+        (value) => (sortedValues.indexOf(value) / (sortedValues.length - 1)) * weight
     )
-    // eslint-disable-next-line no-restricted-syntax
-    for (const entry of normalizedValueByGeoIdNonZero) {
-        if (entry[1] === 0) {
-            normalizedValueByGeoIdNonZero = normalizedValueByGeoIdNonZero.delete(entry[0])
-        }
-    }
-    normalizedValueByGeoIdNonZero = normalizedValueByGeoIdNonZero.set(0, 0)
-    const valueListNonZero = normalizedValueByGeoIdNonZero
-        .valueSeq()
-        .toArray()
-        .sort((a, b) => a - b)
-
-    const weightedPercentileScale = (value: number) => {
-        if (value === 0) {
-            return 0
-        }
-        // eslint-disable-next-line no-plusplus
-        for (let i = 0, l = valueListNonZero.length; i < l; i++) {
-            if (value <= valueListNonZero[i]) {
-                if (value !== valueListNonZero[i - 1]) {
-                    i +=
-                        (value - valueListNonZero[i - 1]) /
-                        (valueListNonZero[i] - valueListNonZero[i - 1])
-                }
-                return ((i - 1) / (l - 1)) * weight
-            }
-        }
-        return 1
-    }
-    return normalizedValueByGeoId.map((value) => weightedPercentileScale(value))
 }
 
-const intersect = <T>(sets: Set<T>[]) => {
-    if (sets.length > 1) {
-        const firstSet = sets[0]
-        const otherSets = sets.slice(1, sets.length)
-        return firstSet.intersect(...otherSets)
-    }
-    if (sets.length === 1) {
-        return sets[0]
-    }
-    return Set()
-}
+const intersect = <T>([firstSet, ...otherSets]: Set<T>[]): Set<T> =>
+    firstSet?.intersect(...otherSets) ?? Set()
 
 export const getDomain = (
     data: Map<GeoId, number>
