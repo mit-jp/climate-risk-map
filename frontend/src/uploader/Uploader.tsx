@@ -44,7 +44,8 @@ function Error({
     geographyTypes?: GeographyType[]
     geographyType?: number
 }) {
-    const idName = `${geographyTypes?.find((g) => g.id === geographyType)?.name} ID` ?? 'Geo ID'
+    const geographyName = geographyTypes?.find((g) => g.id === geographyType)?.name
+    const idName = geographyName ? `${geographyName} ID` : 'Geo ID'
     const details = (e: UploadError) => {
         switch (e.name) {
             case 'InvalidCsv':
