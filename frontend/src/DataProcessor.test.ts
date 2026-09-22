@@ -222,3 +222,21 @@ test('it filters by geoIds, then normalizes with respect to only those ids', () 
         ])
     )
 })
+
+test('it gives the smallest inverted value the lowest score', () => {
+    expect(
+        DataProcessor({
+            data: DATA,
+            params: [{ mapId: 1, weight: 1, invertNormalized: true }],
+            normalize: true,
+        })
+    ).toEqual(
+        Map([
+            [0, 0],
+            [1, 0.75],
+            [2, 0.5],
+            [3, 0.25],
+            [4, 0],
+        ])
+    )
+})
