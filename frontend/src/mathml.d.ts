@@ -13,6 +13,7 @@ declare global {
             mo: React.HTMLAttributes<Element>
             mn: React.HTMLAttributes<Element>
             mfrac: React.HTMLAttributes<Element>
+            munderover: React.HTMLAttributes<Element>
         }
     }
 }

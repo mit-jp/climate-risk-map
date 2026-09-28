@@ -6,46 +6,41 @@ function CombinatoryScoreFormula() {
             <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
                 <mrow>
                     <msub>
-                        <mi>relative risk</mi>
-                        <mrow>
-                            <mi>m</mi>
-                            <mo>,</mo>
-                            <mi>c</mi>
-                        </mrow>
-                    </msub>
-                    <mo>=</mo>
-                    <msub>
-                        <mi>percentile</mi>
-                        <mrow>
-                            <mi>m</mi>
-                            <mo>,</mo>
-                            <mi>c</mi>
-                        </mrow>
-                    </msub>
-                    <mo>=</mo>
-                    <msub>
-                        <mi>p</mi>
-                        <mrow>
-                            <mi>m</mi>
-                            <mo>,</mo>
-                            <mi>c</mi>
-                        </mrow>
+                        <mi>combinatory risk</mi>
+                        <mi>c</mi>
                     </msub>
                     <mo>=</mo>
                     <mfrac>
                         <mrow>
+                            <munderover>
+                                <mo>&#x2211;</mo>
+                                <mi>m</mi>
+                                <mi>l</mi>
+                            </munderover>
                             <msub>
-                                <mi>rank</mi>
+                                <mi>W</mi>
+                                <mi>m</mi>
+                            </msub>
+                            <msub>
+                                <mi>P</mi>
                                 <mrow>
                                     <mi>m</mi>
                                     <mo>,</mo>
                                     <mi>c</mi>
                                 </mrow>
                             </msub>
-                            <mo>×</mo>
-                            <mn>100</mn>
                         </mrow>
-                        <mi>n</mi>
+                        <mrow>
+                            <munderover>
+                                <mo>&#x2211;</mo>
+                                <mi>m</mi>
+                                <mi>l</mi>
+                            </munderover>
+                            <msub>
+                                <mi>W</mi>
+                                <mi>m</mi>
+                            </msub>
+                        </mrow>
                     </mfrac>
                 </mrow>
             </math>

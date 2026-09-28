@@ -6,6 +6,7 @@ import Header from '../Header'
 import LandingPageNavbar from './LandingPageNavbar'
 import RiskFormula from './RiskFormula'
 import CombinatoryScoreFormula from './CombinatoryScoreFormula'
+import RRSCalcTable from './RRSCalcTable'
 
 function Methodology() {
     return (
@@ -78,6 +79,22 @@ function Methodology() {
                         Where the assigned weight, W_m, for each individual normalized risk metric,
                         p_m,c, selected by the user is a constant value (from 0.1 to 1) across all
                         counties.
+                    </Typography>
+                    <Typography variant="h6" component="p" className={css.subtitle}>
+                        See the table below for a toy example of how individual and combinatory
+                        relative risk scores are produced from input data:
+                    </Typography>
+                    <RRSCalcTable />
+                    <Typography variant="h6" component="p" className={css.subtitle}>
+                        Additional details can be found in{' '}
+                        <a
+                            href="https://doi.org/10.3389/fclim.2023.1100600"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            Schlosser et al., 2023
+                        </a>{' '}
+                        and Rajput, 2026.
                     </Typography>
                 </Container>
             </main>
