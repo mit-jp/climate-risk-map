@@ -1,5 +1,5 @@
 use super::Table;
-use crate::model::data_source::{self, DataSource};
+use crate::model::data_source::{self, DataSource, DatedSource};
 use sqlx::postgres::PgQueryResult;
 
 impl<'c> Table<'c, DataSource> {
@@ -19,15 +19,22 @@ impl<'c> Table<'c, DataSource> {
         .await
     }
 
-    pub async fn by_dataset(&self, id: i32) -> Result<Vec<DataSource>, sqlx::Error> {
+    /// Every (source, date range) pair with data in the dataset
+    pub async fn by_dataset(&self, id: i32) -> Result<Vec<DatedSource>, sqlx::Error> {
         sqlx::query_as!(
-            DataSource,
-            "
-            SELECT DISTINCT source as id, name, description, link
-            FROM data, data_source
-            WHERE dataset = $1
-            AND data_source.id = data.source
-            ",
+            DatedSource,
+            r#"
+            SELECT
+                data_source.id, name, description, link,
+                start_date as "start_date!", end_date as "end_date!"
+            FROM (
+                SELECT DISTINCT source, start_date, end_date
+                FROM data
+                WHERE dataset = $1
+            ) AS source_and_date
+            JOIN data_source ON data_source.id = source_and_date.source
+            ORDER BY data_source.id, start_date, end_date
+            "#,
             id
         )
         .fetch_all(&*self.pool)

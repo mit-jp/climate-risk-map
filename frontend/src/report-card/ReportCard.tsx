@@ -153,9 +153,7 @@ export default function ReportCard() {
     const categoryId = Number(params.category)
     const navigate = useNavigate()
     useEffect(() => {
-        setSelectedRegion(
-            counties && Number(params.countyId) ? counties[Number(params.countyId)] : null
-        )
+        setSelectedRegion(counties?.[Number(params.countyId)] ?? null)
     }, [params, counties])
 
     return (
@@ -171,7 +169,7 @@ export default function ReportCard() {
                 loading={countyList.length === 0 && !states}
                 options={countyList}
                 getOptionLabel={(county) =>
-                    `${county.name}, ${states ? states[stateId(county.id)].name : ''}`
+                    `${county.name}, ${states?.[stateId(county.id)]?.name ?? ''}`
                 }
                 renderInput={(p) => <TextField {...p} label="County" />}
                 onChange={(_, county) => {

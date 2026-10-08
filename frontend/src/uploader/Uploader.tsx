@@ -143,6 +143,9 @@ function Uploader() {
 
     const handleFiles = (files: FileList) => {
         const loadedFile = files[0]
+        if (loadedFile === undefined) {
+            return
+        }
         setFile(loadedFile)
         Papa.parse(loadedFile, {
             header: true,

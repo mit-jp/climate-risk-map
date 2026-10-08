@@ -1,5 +1,5 @@
 use crate::model::color_palette::ColorPalette;
-use crate::model::data::{Data, SourceAndDate};
+use crate::model::data::Data;
 use crate::model::data_category::DataCategory;
 use crate::model::data_source::DataSource;
 use crate::model::dataset::Dataset;
@@ -41,7 +41,6 @@ pub struct Database<'c> {
     pub map_visualization: Arc<Table<'c, MapVisualization>>,
     pub map_visualization_collection: Arc<Table<'c, Collection>>,
     pub data_category: Arc<Table<'c, DataCategory>>,
-    pub source_and_date: Arc<Table<'c, SourceAndDate>>,
     pub data_source: Arc<Table<'c, DataSource>>,
     pub color_palette: Arc<Table<'c, ColorPalette>>,
     pub scale_type: Arc<Table<'c, scale_type::Type>>,
@@ -68,7 +67,6 @@ impl Database<'_> {
             map_visualization: Arc::from(Table::new(pool.clone())),
             map_visualization_collection: Arc::from(Table::new(pool.clone())),
             data_category: Arc::from(Table::new(pool.clone())),
-            source_and_date: Arc::from(Table::new(pool.clone())),
             data_source: Arc::from(Table::new(pool.clone())),
             color_palette: Arc::from(Table::new(pool.clone())),
             scale_type: Arc::from(Table::new(pool.clone())),

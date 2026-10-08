@@ -4,6 +4,11 @@
     width: 100%;
 }
 
+.no-data {
+    text-align: center;
+    font-style: italic;
+}
+
 .data-descriptions {
     display: grid;
     grid-template-columns: 1fr 1fr;

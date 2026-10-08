@@ -16,8 +16,8 @@ import { useGetSubcategoriesQuery } from './MapApi'
 import {
     MapVisualization,
     MapVisualizationId,
-    getDefaultDateRange,
-    getDefaultSource,
+    getDefaultSelection,
+    resolveSelection,
 } from './MapVisualization'
 import { changeWeight, selectSelections, setMapSelections } from './appSlice'
 import { RootState, store } from './store'
@@ -41,6 +41,7 @@ const checkBox = (
     dispatch: typeof store.dispatch
 ) => {
     const selection = selections.find((s) => s.mapVisualization === map.id)
+    const data = selection && resolveSelection(map, selection).data
 
     return (
         <div
@@ -61,9 +62,7 @@ const checkBox = (
                 label={
                     <div className={css.labelMulti}>
                         {map.displayName}
-                        {selection && (
-                            <div className={css.year}>{readable(selection.dateRange)}</div>
-                        )}
+                        {data && <div className={css.year}>{readable(data.dateRange)}</div>}
                     </div>
                 }
                 sx={{
@@ -109,14 +108,13 @@ function MultiDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisua
 
     const onSelectionToggled = (event: ChangeEvent<HTMLInputElement>) => {
         const map = maps[parseInt(event.target.value, 10)]
+        if (map === undefined) {
+            return
+        }
         const { checked } = event.target
         let changedSelections
         if (checked) {
-            changedSelections = selectionMap.set(map.id, {
-                mapVisualization: map.id,
-                dataSource: getDefaultSource(map),
-                dateRange: getDefaultDateRange(map),
-            })
+            changedSelections = selectionMap.set(map.id, getDefaultSelection(map))
         } else {
             changedSelections = selectionMap.delete(map.id)
         }

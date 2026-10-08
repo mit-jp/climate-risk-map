@@ -10,7 +10,6 @@ mod geography_type_dao;
 mod map_visualization_collection_dao;
 mod map_visualization_dao;
 mod scale_type_dao;
-mod source_and_date_dao;
 mod state_dao;
 mod subcategory_dao;
 

@@ -8,7 +8,7 @@ import type { GeometryCollection } from 'topojson-specification'
 import css from './ChoroplethMap.module.css'
 import Color from './Color'
 import { getDomain } from './DataProcessor'
-import { MapVisualization } from './MapVisualization'
+import { MapVisualization, NonEmptyArray } from './MapVisualization'
 import { ZOOM_TRANSITION } from './MapWrapper'
 import StateMap from './StateMap'
 import { TopoJson } from './TopoJson'
@@ -29,7 +29,7 @@ export const massachusettsCities = (map: TopoJson) =>
 
 type Props = {
     map: GeoMap
-    selectedMapVisualizations: MapVisualization[]
+    selectedMapVisualizations: NonEmptyArray<MapVisualization>
     data: Map<GeoId, number>
     detailedView: boolean
     isNormalized: boolean
