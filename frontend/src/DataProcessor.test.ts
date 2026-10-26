@@ -222,3 +222,102 @@ test('it filters by geoIds, then normalizes with respect to only those ids', () 
         ])
     )
 })
+
+test('it reverses the order of inverted values, zero included', () => {
+    expect(
+        DataProcessor({
+            data: DATA,
+            params: [{ mapId: 1, weight: 1, invertNormalized: true }],
+            normalize: true,
+        })
+    ).toEqual(
+        Map([
+            [0, 1],
+            [1, 0.75],
+            [2, 0.5],
+            [3, 0.25],
+            [4, 0],
+        ])
+    )
+})
+
+test('it ranks zero between negative and positive values', () => {
+    expect(
+        DataProcessor({
+            data: Map<number, Data2>([
+                [
+                    5,
+                    [
+                        [0, -10],
+                        [1, -5],
+                        [2, 0],
+                        [3, 5],
+                        [4, 10],
+                    ],
+                ],
+            ]),
+            params: [{ mapId: 5, weight: 1, invertNormalized: false }],
+            normalize: true,
+        })
+    ).toEqual(
+        Map([
+            [0, 0],
+            [1, 0.25],
+            [2, 0.5],
+            [3, 0.75],
+            [4, 1],
+        ])
+    )
+})
+
+test('it counts all zeros as a single value', () => {
+    expect(
+        DataProcessor({
+            data: Map<number, Data2>([
+                [
+                    6,
+                    [
+                        [0, 0],
+                        [1, 0],
+                        [2, 0],
+                        [3, 5],
+                        [4, 10],
+                    ],
+                ],
+            ]),
+            params: [{ mapId: 6, weight: 1, invertNormalized: false }],
+            normalize: true,
+        })
+    ).toEqual(
+        Map([
+            [0, 0],
+            [1, 0],
+            [2, 0],
+            [3, 0.5],
+            [4, 1],
+        ])
+    )
+})
+
+test('it scores data that is all zeros as 0', () => {
+    expect(
+        DataProcessor({
+            data: Map<number, Data2>([
+                [
+                    7,
+                    [
+                        [0, 0],
+                        [1, 0],
+                    ],
+                ],
+            ]),
+            params: [{ mapId: 7, weight: 1, invertNormalized: false }],
+            normalize: true,
+        })
+    ).toEqual(
+        Map([
+            [0, 0],
+            [1, 0],
+        ])
+    )
+})
