@@ -1,0 +1,235 @@
+.page {
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+.stressBackground {
+    background-image: url('./images/STRESS_Screenshot.png');
+    background-size: auto 350%;
+    background-repeat: no-repeat;
+    background-position: bottom -80px left -150px;
+}
+
+.container {
+    width: 100vw;
+    padding: 2rem;
+}
+
+.title {
+    color: #12324a;
+    font-family: 'Tahoma', sans-serif;
+    font-weight: 800;
+    line-height: 1.05;
+    padding: 2rem 0 0.5rem 0;
+}
+
+.subtitle {
+    color: #3c5166;
+    margin-bottom: 2rem;
+    padding: 0 0 1rem 0;
+}
+
+.caption {
+    color: #445a6f;
+    font-size: 0.95rem;
+    font-style: italic;
+    line-height: 1.45;
+    display: flex;
+    justify-content: center;
+}
+
+.rrsTable {
+    border-collapse: collapse;
+}
+
+.rrsTable th,
+.rrsTable td {
+    border: 1px solid #000;
+    padding: 0.75rem;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.faqList {
+    display: grid;
+    gap: 1rem;
+}
+
+.accordion {
+    border-radius: 10px !important;
+}
+
+.rolesList {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2rem;
+}
+
+.roleItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background: none;
+    border: none;
+}
+
+.roleItem:hover {
+    cursor: pointer;
+    background-color: rgba(67, 94, 124, 0.1);
+}
+
+.logoimg {
+    width: 200px;
+    height: 100px;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+
+.aboutUsImg {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 2px solid black;
+    margin: 5px;
+}
+
+.imageRow {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.imageRow .aboutUsImg {
+    width: calc(50% - 5px);
+    margin: 0;
+}
+
+.roleLabel {
+    margin-top: 0.75rem;
+    font-size: 1.3rem !important;
+}
+
+.supportersLogos {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2rem;
+    justify-content: center;
+}
+.sectionBlock {
+    background: linear-gradient(135deg, #f6fbff 0%, #eef5fb 100%);
+    border: 1px solid #d7e4f1;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.githubLink,
+.resourceLink {
+    color: rgb(65, 82, 111);
+    font-weight: 700;
+    text-decoration: none;
+    padding: 10px 0 0 0;
+}
+
+.githubLink:hover,
+.resourceLink:hover {
+    text-decoration: underline;
+}
+
+.guidedTourButton {
+    background-color: rgb(67, 94, 124);
+    text-decoration: none;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    display: inline-block;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.guidedTourButton:hover {
+    background-color: rgb(46, 65, 86);
+}
+
+.resourceList {
+    display: grid;
+    gap: 1.25rem;
+    padding: 0.85rem 0 0 0;
+}
+
+.resourceCard {
+    display: grid;
+    grid-template-columns: 1.7fr 1fr;
+    gap: 1rem;
+    padding: 0.25rem 0 1rem;
+    background: transparent;
+    border-radius: 10px;
+}
+
+.resourceMain {
+    min-width: 0;
+}
+
+.resourceMeta {
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    padding: 0;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+}
+
+.resourceTitle {
+    color: #12324a;
+    margin-bottom: 0.35rem;
+    line-height: 1.25;
+}
+
+.resourceSummary {
+    color: #33495d;
+}
+
+.resourceCitation {
+    color: #445a6f;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+    font-style: italic;
+    line-height: 1.45;
+}
+
+@media (max-width: 900px) {
+    .resourceCard {
+        grid-template-columns: 1fr;
+    }
+
+    .resourceMeta {
+        align-self: start;
+        align-items: flex-start;
+        text-align: left;
+    }
+}
+
+@media (max-width: 600px) {
+    .page {
+        padding: 2rem 1rem 3rem;
+    }
+
+    .card {
+        padding: 2rem;
+        border-radius: 20px;
+    }
+
+    .title {
+        font-size: 2.4rem;
+    }
+
+    .faqList {
+        gap: 0.75rem;
+    }
+}

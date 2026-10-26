@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { TourStep, TourStepData } from './TourStep'
 import TourControls from './TourControls'
@@ -10,6 +11,16 @@ function TourPlanner() {
     const dispatch = useDispatch()
     const isTourActive = useSelector((state: RootState) => state.app.isTourActive)
     const zoomTo = useSelector((rootState: RootState) => rootState.app.zoomTo)
+    const location = useLocation()
+
+    useEffect(() => {
+        const shouldStartTour = new URLSearchParams(location.search).get('tour') === 'true'
+        const hasSeenTour = localStorage.getItem('hasSeenClimateTour')
+
+        if (shouldStartTour || !hasSeenTour) {
+            dispatch(setTourActive(true))
+        }
+    }, [dispatch, location.search])
 
     const TOUR_STEPS: TourStepData[] = [
         {
