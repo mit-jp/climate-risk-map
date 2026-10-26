@@ -93,8 +93,8 @@ function Methodology() {
                             rel="noreferrer"
                         >
                             Schlosser et al., 2023
-                        </a>{' '}
-                        and Rajput, 2026.
+                        </a>
+                        .
                     </Typography>
                 </Container>
             </main>
