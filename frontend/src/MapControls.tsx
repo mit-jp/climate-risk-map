@@ -22,7 +22,7 @@ import { useParams } from 'react-router-dom'
 import COUNTIES from './Counties'
 import { getLegendTitle } from './FullMap'
 import css from './MapControls.module.css'
-import { MapVisualization } from './MapVisualization'
+import { isNonEmpty, MapVisualization } from './MapVisualization'
 import MASSACHUSETTS_CITIES from './MassachusettsCities'
 import NATIONS from './Nations'
 import states from './States'
@@ -42,6 +42,9 @@ import {
 import { RootState } from './store'
 
 const getFilename = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
+    if (!isNonEmpty(selectedMaps)) {
+        return 'map'
+    }
     const unitString = getLegendTitle(selectedMaps, isNormalized)
     if (unitString === 'Mean of selected data') {
         return unitString
@@ -163,7 +166,7 @@ function MapControls({ data, isNormalized, maps }: Props) {
 
     const countyId = useSelector((state: RootState) => state.app.county)
     const geographyType = maps[0]?.geography_type
-    const region = REGION_FOR[geographyType]
+    const region = geographyType === undefined ? undefined : REGION_FOR[geographyType]
     const params = useParams()
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
     const { tabId } = params
@@ -212,6 +215,9 @@ function MapControls({ data, isNormalized, maps }: Props) {
     }
 
     const downloadData = () => {
+        if (region === undefined) {
+            return
+        }
         const sortedData = data?.sortBy((_, id) => id)
         const csv = {
             USA: UsaCsv,

@@ -14,7 +14,7 @@ import {
 } from '../MapApi'
 import { EmptyMapTitle } from '../MapTitle'
 import MapTooltip from '../MapTooltip'
-import { MapVisualization, getDataQueryParams } from '../MapVisualization'
+import { MapVisualization, getDataQueryParams, resolveSelection } from '../MapVisualization'
 import { GeoMap } from '../appSlice'
 import DatasetSelector from './DatasetSelector'
 import { isDrafts } from './Editor'
@@ -34,7 +34,7 @@ type Props = {
 
 function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Props) {
     const queryParams = useMemo(
-        () => (selection ? getDataQueryParams(selection) : undefined),
+        () => (selection ? getDataQueryParams([resolveSelection(selection)]) : undefined),
         [selection]
     )
     const [deleteMap] = useDeleteMapVisualizationMutation()
@@ -42,7 +42,7 @@ function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Pr
     const [unpublish] = useUnpublishMapVisualizationMutation()
     const { data: datasets } = useGetDatasetsQuery(undefined)
     const { data } = useGetDataQuery(queryParams ?? skipToken)
-    const [publishTo, setPublishTo] = useState(tabs[0].id)
+    const [publishTo, setPublishTo] = useState(tabs[0]?.id)
     const processedData = useMemo(
         () =>
             data && selection
@@ -74,6 +74,9 @@ function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Pr
             ) : (
                 <EmptyMapTitle />
             )}
+            {selection && selection.data === undefined && (
+                <p className={css.noData}>No data available for this map yet.</p>
+            )}
             <svg viewBox="0, 0, 1175, 610">
                 {processedData && selection ? (
                     <FullMap
@@ -100,7 +103,7 @@ function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Pr
                     <div className={css.publishArea}>
                         {isDraft && (
                             <Select
-                                value={publishTo}
+                                value={publishTo ?? ''}
                                 onChange={(event) => setPublishTo(event.target.value as number)}
                             >
                                 {tabs.map(({ id, name }) => (
@@ -112,11 +115,13 @@ function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Pr
                         )}
                         <Button
                             className={css.publishButton}
+                            disabled={isDraft && publishTo === undefined}
                             onClick={() => {
-                                const id = {
-                                    map_visualization: selection.id,
-                                    category: isDraft ? publishTo : tab.id,
+                                const category = isDraft ? publishTo : tab.id
+                                if (category === undefined) {
+                                    return
                                 }
+                                const id = { map_visualization: selection.id, category }
                                 isDraft ? publish(id) : unpublish(id)
                             }}
                             variant="contained"

@@ -8,14 +8,11 @@ import { MapVisualization } from './MapVisualization'
 import states from './States'
 import { RootState } from './store'
 
-const getTitle = (selectedMaps: MapVisualization[]) => {
-    if (selectedMaps.length > 1) {
+const getTitle = ([firstMap, ...otherMaps]: MapVisualization[]) => {
+    if (otherMaps.length > 0) {
         return 'Combined data'
     }
-    if (selectedMaps.length === 0) {
-        return ''
-    }
-    return selectedMaps[0].displayName
+    return firstMap?.displayName ?? ''
 }
 
 const getSubtitle = (countyId: number | undefined, region: Region) => {

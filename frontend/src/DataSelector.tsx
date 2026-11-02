@@ -1,7 +1,6 @@
-import { Interval } from 'luxon'
+import { MapVisualization, MapVisualizationId } from './MapVisualization'
 import MultiDataSelector from './MultiDataSelector'
 import SingleDataSelector from './SingleDataSelector'
-import { MapVisualization, MapVisualizationId } from './MapVisualization'
 
 function DataSelector({
     isNormalized,
@@ -17,10 +16,16 @@ function DataSelector({
     )
 }
 
+/**
+ * What the user chose for a map visualization. The source and date range are
+ * preferences that may not exist in the map visualization; resolveSelection
+ * falls back to its defaults where they don't.
+ */
 export type MapSelection = {
     mapVisualization: MapVisualizationId
-    dataSource: number
-    dateRange: Interval
+    dataSource?: number
+    /** ISO interval, e.g. 2015-01-01/2015-12-31 */
+    dateRange?: string
 }
 
 export default DataSelector

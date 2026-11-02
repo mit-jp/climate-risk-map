@@ -1,5 +1,5 @@
 import { format } from 'd3'
-import { FormatterType, MapVisualization } from './MapVisualization'
+import { FormatterType, MapVisualization, NonEmptyArray } from './MapVisualization'
 
 type FormatterParams = {
     type: FormatterType
@@ -65,7 +65,7 @@ export const formatData = (value: number | undefined, params: FormatterParams) =
 }
 
 export const getLegendFormatter = (
-    selectedMaps: MapVisualization[],
+    selectedMaps: NonEmptyArray<MapVisualization>,
     isNormalized: boolean
 ): Formatter => {
     const firstMap = selectedMaps[0]

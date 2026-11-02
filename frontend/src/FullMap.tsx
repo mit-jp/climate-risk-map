@@ -3,10 +3,13 @@ import { ForwardedRef, forwardRef } from 'react'
 import BubbleMap from './BubbleMap'
 import ChoroplethMap from './ChoroplethMap'
 import { getUnitString } from './Formatter'
-import { MapType, MapVisualization } from './MapVisualization'
+import { MapType, MapVisualization, NonEmptyArray } from './MapVisualization'
 import { GeoId, GeoMap } from './appSlice'
 
-export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
+export const getLegendTitle = (
+    selectedMaps: NonEmptyArray<MapVisualization>,
+    isNormalized: boolean
+) => {
     const dataDefinition = selectedMaps[0]
     const unitString = getUnitString({ units: dataDefinition.units, isNormalized })
 
@@ -25,7 +28,7 @@ export enum Aggregation {
 }
 type Props = {
     map: GeoMap
-    selectedMapVisualizations: MapVisualization[]
+    selectedMapVisualizations: NonEmptyArray<MapVisualization>
     data: Map<GeoId, number>
     detailedView: boolean
     isNormalized: boolean
@@ -45,7 +48,7 @@ function FullMap(
     }: Props,
     ref: ForwardedRef<SVGGElement>
 ) {
-    const mapVisualization = selectedMapVisualizations[0]!
+    const mapVisualization = selectedMapVisualizations[0]
     const mapType = mapVisualization.map_type
     const legendTitle = getLegendTitle(selectedMapVisualizations, isNormalized)
     switch (mapType) {

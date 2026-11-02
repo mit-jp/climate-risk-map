@@ -1,12 +1,11 @@
 use super::color_palette::ColorPalette;
-use super::data::SourceAndDate;
-use super::data_source;
+use super::data_source::{DataSource, DatedSource};
 use super::scale_type;
 use chrono::NaiveDate;
 use derive_more::Display;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 #[derive(Debug, Display)]
 pub struct Error {
@@ -37,9 +36,6 @@ pub struct Patch {
     pub invert_normalized: bool,
     pub scale_type: i32,
     pub show_pdf: bool,
-    pub default_start_date: Option<NaiveDate>,
-    pub default_end_date: Option<NaiveDate>,
-    pub default_source: Option<i32>,
     pub formatter_type: i32,
     pub legend_formatter_type: Option<i32>,
     pub decimals: i16,
@@ -64,9 +60,6 @@ impl Patch {
             invert_normalized: patch.invert_normalized,
             scale_type: patch.scale_type.id,
             show_pdf: patch.show_pdf,
-            default_start_date: patch.default_start_date,
-            default_end_date: patch.default_end_date,
-            default_source: patch.default_source,
             formatter_type: patch.formatter_type,
             legend_formatter_type: patch.legend_formatter_type,
             decimals: patch.decimals,
@@ -94,9 +87,6 @@ pub struct JsonPatch {
     pub color_domain: Vec<f64>,
     pub show_pdf: bool,
     pub pdf_domain: Vec<f64>,
-    pub default_start_date: Option<NaiveDate>,
-    pub default_end_date: Option<NaiveDate>,
-    pub default_source: Option<i32>,
     pub formatter_type: i32,
     pub legend_formatter_type: Option<i32>,
     pub decimals: i16,
@@ -155,12 +145,8 @@ pub struct Json {
     pub invert_normalized: bool,
     pub scale_type: scale_type::Type,
     pub color_domain: Vec<f64>,
-    pub date_ranges_by_source: HashMap<i32, Vec<DateRange>>,
-    pub sources: HashMap<i32, data_source::DataSource>,
     pub show_pdf: bool,
     pub pdf_domain: Vec<f64>,
-    pub default_date_range: Option<DateRange>,
-    pub default_source: Option<i32>,
     pub formatter_type: i32,
     pub legend_formatter_type: Option<i32>,
     pub decimals: i16,
@@ -168,32 +154,27 @@ pub struct Json {
     pub order: i16,
     pub geography_type: i32,
     pub bubble_color: String,
+    /// None when the dataset has no data
+    pub data: Option<Data>,
 }
 
 impl Json {
-    pub fn new(
-        map_visualization: MapVisualization,
-        source_and_dates: Vec<SourceAndDate>,
-        data_sources: Vec<data_source::DataSource>,
-    ) -> Json {
-        let mut date_ranges_by_source = HashMap::new();
-        for source_and_date in source_and_dates {
-            let date_range = DateRange::from(&source_and_date);
-            let dates = date_ranges_by_source
-                .entry(source_and_date.source)
-                .or_insert_with(Vec::new);
-            dates.push(date_range);
-        }
+    pub fn new(map_visualization: MapVisualization, dated_sources: Vec<DatedSource>) -> Json {
         let default_date_range = match (
             map_visualization.default_start_date,
             map_visualization.default_end_date,
         ) {
-            (Some(start_date), Some(end_date)) => Option::Some(DateRange {
+            (Some(start_date), Some(end_date)) => Some(DateRange {
                 start_date,
                 end_date,
             }),
-            _ => Option::None,
+            _ => None,
         };
+        let data = Data::new(
+            dated_sources,
+            map_visualization.default_source,
+            default_date_range,
+        );
         Json {
             id: map_visualization.id,
             dataset: map_visualization.dataset,
@@ -216,15 +197,8 @@ impl Json {
                 name: map_visualization.scale_type_name,
             },
             color_domain: map_visualization.color_domain,
-            date_ranges_by_source,
-            sources: data_sources
-                .into_iter()
-                .map(|data_source| (data_source.id, data_source))
-                .collect::<HashMap<i32, data_source::DataSource>>(),
             show_pdf: map_visualization.show_pdf,
             pdf_domain: map_visualization.pdf_domain,
-            default_date_range,
-            default_source: map_visualization.default_source,
             formatter_type: map_visualization.formatter_type,
             legend_formatter_type: map_visualization.legend_formatter_type,
             decimals: map_visualization.decimals,
@@ -232,23 +206,117 @@ impl Json {
             order: map_visualization.order,
             geography_type: map_visualization.geography_type,
             bubble_color: map_visualization.bubble_color,
+            data,
         }
     }
 }
 
-#[derive(FromRow, Deserialize, Serialize, PartialEq, Debug)]
+/// The sources with data in a map visualization's dataset, with the configured defaults
+/// resolved against them so that both are always selectable
+#[derive(Deserialize, Serialize, PartialEq, Debug)]
+pub struct Data {
+    /// The configured default source if it has data, or else the source with the lowest id
+    pub default_source: SourceDateRanges,
+    /// Every other source, ordered by id
+    pub other_sources: Vec<SourceDateRanges>,
+}
+
+impl Data {
+    /// None when there are no dated sources. The default date range belongs to the default
+    /// source, so it's ignored when that source has no data.
+    pub fn new(
+        dated_sources: Vec<DatedSource>,
+        default_source: Option<i32>,
+        default_date_range: Option<DateRange>,
+    ) -> Option<Data> {
+        let mut date_ranges_by_source: BTreeMap<i32, (DataSource, Vec<DateRange>)> =
+            BTreeMap::new();
+        for DatedSource {
+            id,
+            name,
+            description,
+            link,
+            start_date,
+            end_date,
+        } in dated_sources
+        {
+            date_ranges_by_source
+                .entry(id)
+                .or_insert_with(|| {
+                    (
+                        DataSource {
+                            id,
+                            name,
+                            description,
+                            link,
+                        },
+                        Vec::new(),
+                    )
+                })
+                .1
+                .push(DateRange {
+                    start_date,
+                    end_date,
+                });
+        }
+        let mut sources: Vec<SourceDateRanges> = date_ranges_by_source
+            .into_values()
+            .filter_map(|(source, date_ranges)| {
+                let default_date_range =
+                    default_date_range.filter(|_| default_source == Some(source.id));
+                SourceDateRanges::new(source, date_ranges, default_date_range)
+            })
+            .collect();
+        let default_index = default_source
+            .and_then(|id| sources.iter().position(|source| source.source.id == id))
+            .unwrap_or(0);
+        if sources.is_empty() {
+            return None;
+        }
+        let default_source = sources.remove(default_index);
+        Some(Data {
+            default_source,
+            other_sources: sources,
+        })
+    }
+}
+
+/// A source with the date ranges it has data for in a dataset
+#[derive(Deserialize, Serialize, PartialEq, Debug)]
+pub struct SourceDateRanges {
+    #[serde(flatten)]
+    pub source: DataSource,
+    /// Never empty, ordered by start date and then end date
+    pub date_ranges: Vec<DateRange>,
+    /// The map's configured default date range if this is its configured default source and
+    /// it has that date range, or else its last
+    pub default_date_range: DateRange,
+}
+
+impl SourceDateRanges {
+    /// None when date_ranges is empty
+    fn new(
+        source: DataSource,
+        mut date_ranges: Vec<DateRange>,
+        default_date_range: Option<DateRange>,
+    ) -> Option<SourceDateRanges> {
+        date_ranges.sort();
+        date_ranges.dedup();
+        let default_date_range = default_date_range
+            .filter(|date_range| date_ranges.contains(date_range))
+            .or_else(|| date_ranges.last().copied())?;
+        Some(SourceDateRanges {
+            source,
+            date_ranges,
+            default_date_range,
+        })
+    }
+}
+
+#[derive(FromRow, Deserialize, Serialize, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Debug)]
 pub struct DateRange {
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
-}
-
-impl DateRange {
-    pub fn from(source_and_date: &SourceAndDate) -> DateRange {
-        DateRange {
-            start_date: source_and_date.start_date,
-            end_date: source_and_date.end_date,
-        }
-    }
 }
 
 #[cfg(test)]
@@ -257,13 +325,7 @@ mod tests {
 
     use super::*;
 
-    fn get_models(
-        source_ids: Vec<i32>,
-    ) -> (
-        MapVisualization,
-        Vec<SourceAndDate>,
-        Vec<data_source::DataSource>,
-    ) {
+    fn get_models(source_ids: Vec<i32>) -> (MapVisualization, Vec<DatedSource>) {
         (
             MapVisualization {
                 id: 1,
@@ -299,94 +361,173 @@ mod tests {
             },
             source_ids
                 .iter()
-                .map(|&source| SourceAndDate {
-                    source,
-                    start_date: NaiveDate::from_ymd_opt(
-                        2019,
-                        source.try_into().unwrap(),
-                        source.try_into().unwrap(),
-                    )
-                    .unwrap(),
-                    end_date: NaiveDate::from_ymd_opt(
-                        2020,
-                        source.try_into().unwrap(),
-                        source.try_into().unwrap(),
-                    )
-                    .unwrap(),
-                })
-                .collect(),
-            source_ids
-                .iter()
-                .map(|&id| data_source::DataSource {
-                    id,
-                    name: id.to_string(),
-                    description: id.to_string(),
-                    link: id.to_string(),
-                })
+                .map(|&id| dated_source(id, id.try_into().unwrap()))
                 .collect(),
         )
+    }
+
+    fn dated_source(id: i32, month: u32) -> DatedSource {
+        DatedSource {
+            id,
+            name: id.to_string(),
+            description: id.to_string(),
+            link: id.to_string(),
+            start_date: NaiveDate::from_ymd_opt(2019, month, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2020, month, 1).unwrap(),
+        }
+    }
+
+    fn date_range(month: u32) -> DateRange {
+        DateRange {
+            start_date: NaiveDate::from_ymd_opt(2019, month, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2020, month, 1).unwrap(),
+        }
+    }
+
+    fn data(map_visualization: MapVisualization, dated_sources: Vec<DatedSource>) -> Data {
+        Json::new(map_visualization, dated_sources)
+            .data
+            .expect("expected data")
+    }
+
+    fn source_ids(data: &Data) -> Vec<i32> {
+        std::iter::once(&data.default_source)
+            .chain(&data.other_sources)
+            .map(|source| source.source.id)
+            .collect()
     }
 
     #[test]
     fn it_converts_dates_to_range() {
-        let source_id = 1;
-        let (map_visualization, source_and_dates, data_sources) = get_models(vec![source_id]);
+        let (map_visualization, dated_sources) = get_models(vec![1]);
+        let result = data(map_visualization, dated_sources);
 
-        let expected_date_range = DateRange::from(source_and_dates.first().unwrap());
-        let result = Json::new(map_visualization, source_and_dates, data_sources);
-
-        assert_eq!(
-            result.date_ranges_by_source[&source_id][0],
-            expected_date_range
-        )
+        assert_eq!(result.default_source.date_ranges, vec![date_range(1)])
     }
 
     #[test]
-    fn no_default_source_carries_through() {
-        let (map_visualization, source_and_dates, data_sources) = get_models(vec![1, 2]);
-        let result = Json::new(map_visualization, source_and_dates, data_sources);
+    fn without_a_default_source_it_uses_the_first() {
+        let (map_visualization, dated_sources) = get_models(vec![2, 1]);
+        let result = data(map_visualization, dated_sources);
 
-        assert_eq!(result.default_source, None)
+        assert_eq!(source_ids(&result), vec![1, 2])
     }
 
     #[test]
     fn it_uses_default_source_and_date() {
-        let (map_visualization, source_and_dates, data_sources) = get_models(vec![1, 2, 3]);
-        let map_visualization = MapVisualization {
-            default_source: Some(4),
-            default_end_date: NaiveDate::from_ymd_opt(2020, 4, 4),
-            default_start_date: NaiveDate::from_ymd_opt(2019, 4, 4),
-            ..map_visualization
-        };
-        let result = Json::new(map_visualization, source_and_dates, data_sources);
+        let dated_sources = vec![dated_source(1, 1), dated_source(3, 3), dated_source(3, 4)];
+        let result = data(with_defaults(3, 3), dated_sources);
 
-        assert_eq!(result.default_source, Some(4));
-        assert_eq!(
-            result.default_date_range,
-            Some(DateRange {
-                start_date: NaiveDate::from_ymd_opt(2019, 4, 4).unwrap(),
-                end_date: NaiveDate::from_ymd_opt(2020, 4, 4).unwrap(),
-            })
-        )
+        assert_eq!(source_ids(&result), vec![3, 1]);
+        assert_eq!(result.default_source.default_date_range, date_range(3))
     }
 
     #[test]
-    fn it_handles_no_sources() {
-        let (map_visualization, source_and_dates, data_sources) = get_models(vec![]);
-        let result = Json::new(map_visualization, source_and_dates, data_sources);
-
-        assert_eq!(result.default_source, None)
-    }
-
-    #[test]
-    fn no_default_date_carries_through() {
-        let (map_visualization, source_and_dates, data_sources) = get_models(vec![1, 2, 3]);
+    fn it_has_no_data_without_sources() {
+        let (map_visualization, _) = get_models(vec![]);
         let map_visualization = MapVisualization {
             default_source: Some(3),
             ..map_visualization
         };
-        let result = Json::new(map_visualization, source_and_dates, data_sources);
+        let result = Json::new(map_visualization, vec![]);
 
-        assert_eq!(result.default_date_range, None)
+        assert_eq!(result.data, None)
+    }
+
+    #[test]
+    fn without_a_default_date_it_uses_the_last() {
+        let (map_visualization, _) = get_models(vec![]);
+        let dated_sources = vec![dated_source(1, 2), dated_source(1, 1)];
+        let result = data(map_visualization, dated_sources);
+
+        assert_eq!(result.default_source.default_date_range, date_range(2))
+    }
+
+    fn with_defaults(source: i32, month: u32) -> MapVisualization {
+        let (map_visualization, _) = get_models(vec![]);
+        MapVisualization {
+            default_source: Some(source),
+            default_start_date: Some(date_range(month).start_date),
+            default_end_date: Some(date_range(month).end_date),
+            ..map_visualization
+        }
+    }
+
+    #[test]
+    fn it_uses_the_default_date_only_for_the_default_source() {
+        let dated_sources = vec![
+            dated_source(1, 1),
+            dated_source(1, 2),
+            dated_source(2, 1),
+            dated_source(2, 3),
+        ];
+        let result = data(with_defaults(2, 1), dated_sources);
+
+        assert_eq!(result.default_source.source.id, 2);
+        assert_eq!(result.default_source.default_date_range, date_range(1));
+        assert_eq!(result.other_sources[0].default_date_range, date_range(2))
+    }
+
+    #[test]
+    fn it_ignores_the_default_date_when_the_default_source_has_no_data() {
+        let dated_sources = vec![dated_source(1, 1), dated_source(1, 2)];
+        let result = data(with_defaults(9, 1), dated_sources);
+
+        assert_eq!(result.default_source.source.id, 1);
+        assert_eq!(result.default_source.default_date_range, date_range(2))
+    }
+
+    #[test]
+    fn it_ignores_a_default_date_the_default_source_lacks() {
+        let dated_sources = vec![dated_source(1, 1), dated_source(1, 2)];
+        let result = data(with_defaults(1, 5), dated_sources);
+
+        assert_eq!(result.default_source.default_date_range, date_range(2))
+    }
+
+    #[test]
+    fn it_groups_and_sorts_date_ranges_by_source() {
+        let (map_visualization, _) = get_models(vec![]);
+        let dated_sources = vec![dated_source(1, 2), dated_source(2, 3), dated_source(1, 1)];
+        let result = data(map_visualization, dated_sources);
+
+        assert_eq!(
+            result.default_source.date_ranges,
+            vec![date_range(1), date_range(2)]
+        );
+        assert_eq!(result.other_sources[0].date_ranges, vec![date_range(3)]);
+    }
+
+    #[test]
+    fn it_ignores_a_default_source_without_data() {
+        let (map_visualization, dated_sources) = get_models(vec![1, 2]);
+        let map_visualization = MapVisualization {
+            default_source: Some(3),
+            ..map_visualization
+        };
+        let result = data(map_visualization, dated_sources);
+
+        assert_eq!(source_ids(&result), vec![1, 2])
+    }
+
+    #[test]
+    fn it_serializes_each_source_with_its_dates() {
+        let (map_visualization, dated_sources) = get_models(vec![1]);
+        let result = serde_json::to_value(data(map_visualization, dated_sources)).unwrap();
+
+        assert_eq!(
+            result,
+            serde_json::json!({
+                "default_source": {
+                    "id": 1,
+                    "name": "1",
+                    "description": "1",
+                    "link": "1",
+                    "date_ranges": [{ "start_date": "2019-01-01", "end_date": "2020-01-01" }],
+                    "default_date_range": { "start_date": "2019-01-01", "end_date": "2020-01-01" },
+                },
+                "other_sources": [],
+            })
+        )
     }
 }
