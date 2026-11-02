@@ -68,6 +68,7 @@ mod tests {
     use crate::AppState;
     use actix_web::http::StatusCode;
     use actix_web::{test, App};
+    use chrono::NaiveDate;
     use sqlx::PgPool;
     use std::sync::{Arc, Mutex};
 
@@ -99,8 +100,9 @@ mod tests {
 
         let map_visualization_id = sqlx::query!(
             "INSERT INTO map_visualization
-                 (dataset, map_type, color_palette, scale_type, formatter_type, default_source)
-             VALUES ($1, 1, 1, 2, 3, $2)
+                 (dataset, map_type, color_palette, scale_type, formatter_type,
+                  default_source, default_start_date, default_end_date)
+             VALUES ($1, 1, 1, 2, 3, $2, '2020-01-01', '2020-12-31')
              RETURNING id",
             dataset_id,
             source_id
@@ -161,19 +163,23 @@ mod tests {
         .count
     }
 
-    async fn default_source(pool: &PgPool, map_visualization_id: i32) -> Option<i32> {
-        sqlx::query!(
-            "SELECT default_source FROM map_visualization WHERE id = $1",
+    /// The default source and the start of the default date range
+    async fn defaults(
+        pool: &PgPool,
+        map_visualization_id: i32,
+    ) -> (Option<i32>, Option<NaiveDate>) {
+        let row = sqlx::query!(
+            "SELECT default_source, default_start_date FROM map_visualization WHERE id = $1",
             map_visualization_id
         )
         .fetch_one(pool)
         .await
-        .unwrap()
-        .default_source
+        .unwrap();
+        (row.default_source, row.default_start_date)
     }
 
     #[sqlx::test]
-    async fn delete_clears_default_source_and_cascades(pool: PgPool) {
+    async fn delete_clears_defaults_and_cascades(pool: PgPool) {
         let seed = seed(&pool).await;
 
         let status = call_delete(&pool, seed.source_id).await;
@@ -190,9 +196,9 @@ mod tests {
             "data rows for the source should be deleted"
         );
         assert_eq!(
-            default_source(&pool, seed.map_visualization_id).await,
-            None,
-            "map visualization should remain with default_source cleared"
+            defaults(&pool, seed.map_visualization_id).await,
+            (None, None),
+            "map visualization should remain with its defaults cleared"
         );
     }
 
@@ -226,9 +232,9 @@ mod tests {
             "data row deletion should be rolled back"
         );
         assert_eq!(
-            default_source(&pool, seed.map_visualization_id).await,
-            Some(seed.source_id),
-            "default_source should be rolled back"
+            defaults(&pool, seed.map_visualization_id).await,
+            (Some(seed.source_id), NaiveDate::from_ymd_opt(2020, 1, 1)),
+            "defaults should be rolled back"
         );
     }
 }

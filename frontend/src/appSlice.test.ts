@@ -7,11 +7,12 @@ import reducer, {
     setTab,
 } from './appSlice'
 import {
-    dateRangeJson,
     interval,
     isoInterval,
     makeEmptyMapVisualization,
     makeMapVisualization,
+    sourceDateRangesJson,
+    sourceJson,
 } from './test-fixtures'
 
 const tab: Tab = { id: 9, name: 'health', normalized: false, order: 1 }
@@ -90,12 +91,8 @@ describe('changeDateRange', () => {
 describe('changeDataSource', () => {
     const twoSources = makeMapVisualization({
         sources: {
-            12: { id: 12, name: 'Source 12', description: '', link: '' },
-            13: { id: 13, name: 'Source 13', description: '', link: '' },
-        },
-        date_ranges_by_source: {
-            12: [dateRangeJson(2014, 2014), dateRangeJson(2015, 2015)],
-            13: [dateRangeJson(2015, 2015), dateRangeJson(2016, 2016)],
+            default_source: sourceDateRangesJson(sourceJson(12), [2014, 2015]),
+            other_sources: [sourceDateRangesJson(sourceJson(13), [2015, 2016])],
         },
     })
     const source = (id: number) => {

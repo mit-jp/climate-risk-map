@@ -1,5 +1,5 @@
 import { json as loadJson } from 'd3'
-import { DateTime, Interval } from 'luxon'
+import { Interval } from 'luxon'
 import { MapSelection } from './DataSelector'
 import { DataQueryParams, TabId } from './MapApi'
 
@@ -56,9 +56,6 @@ export interface MapVisualizationPatch {
     color_domain: number[]
     show_pdf: boolean
     pdf_domain: [number, number] | []
-    default_start_date?: DateTime
-    default_end_date?: DateTime
-    default_source?: number
     formatter_type: FormatterType
     legend_formatter_type?: FormatterType
     decimals: number
@@ -73,10 +70,10 @@ export const isNonEmpty = <T>(array: T[]): array is NonEmptyArray<T> => array.le
 
 export const last = <T>(array: NonEmptyArray<T>): T => array[array.length - 1] ?? array[0]
 
-/** A source with its date ranges, which the backend guarantees are non-empty */
+/** A source with the date ranges it has data for */
 export type SourceDateRanges = DataSource & {
     readonly dateRanges: NonEmptyArray<Interval>
-    /** The map's configured default date range if this source has it, or else its last */
+    /** The map's configured default date range if this is its default source and has it, or else its last */
     readonly defaultDateRange: Interval
 }
 
@@ -86,7 +83,7 @@ export type DataSelection = {
     readonly dateRange: Interval
 }
 
-export type MapVisualizationData = {
+export type Sources = {
     readonly sources: Readonly<Record<number, SourceDateRanges>>
     /** The configured default source, or else the first source */
     readonly defaultSource: SourceDateRanges
@@ -111,10 +108,6 @@ export interface MapVisualization {
     color_domain: number[]
     show_pdf: boolean
     pdf_domain: [number, number] | []
-    /** As configured in the editor; data.defaultSource has the resolved default */
-    default_date_range?: Interval
-    /** As configured in the editor; data.defaultSource has the resolved default */
-    default_source?: number
     formatter_type: FormatterType
     legend_formatter_type?: FormatterType
     decimals: number
@@ -123,7 +116,21 @@ export interface MapVisualization {
     geography_type: GeographyType
     bubble_color: string
     /** undefined when the dataset has no data */
-    data: MapVisualizationData | undefined
+    data: Sources | undefined
+}
+
+type DateRangeJson = { start_date: string; end_date: string }
+
+type SourceDateRangesJson = DataSource & {
+    /** Ordered by start date and then end date */
+    date_ranges: NonEmptyArray<DateRangeJson>
+    /** One of date_ranges */
+    default_date_range: DateRangeJson
+}
+
+export type SourcesJson = {
+    default_source: SourceDateRangesJson
+    other_sources: SourceDateRangesJson[]
 }
 
 export interface MapVisualizationJson {
@@ -142,12 +149,8 @@ export interface MapVisualizationJson {
     invert_normalized: boolean
     scale_type: ScaleType
     color_domain: number[]
-    date_ranges_by_source: { [key: number]: { start_date: string; end_date: string }[] }
-    sources: { [key: number]: DataSource }
     show_pdf: boolean
     pdf_domain: [number, number] | []
-    default_date_range: { start_date: string; end_date: string } | null
-    default_source: number | null
     formatter_type: FormatterType
     legend_formatter_type: FormatterType | null
     decimals: number
@@ -155,102 +158,63 @@ export interface MapVisualizationJson {
     order: number
     geography_type: GeographyType
     bubble_color: string
-}
-
-type UnresolvedSource = DataSource & { dateRanges: NonEmptyArray<Interval> }
-
-const resolveDefaults = (
-    sources: Readonly<Record<number, UnresolvedSource>>,
-    defaultSourceId: number | undefined,
-    defaultDateRange: Interval | undefined
-): MapVisualizationData | undefined => {
-    const resolved: Record<number, SourceDateRanges> = {}
-    Object.values(sources).forEach((source) => {
-        resolved[source.id] = {
-            ...source,
-            defaultDateRange:
-                source.dateRanges.find(
-                    (dateRange) =>
-                        defaultDateRange !== undefined && dateRange.equals(defaultDateRange)
-                ) ?? last(source.dateRanges),
-        }
-    })
-    const [first] = Object.values(resolved)
-    if (first === undefined) {
-        return undefined
-    }
-    const defaultSource =
-        (defaultSourceId === undefined ? undefined : resolved[defaultSourceId]) ?? first
-    return { sources: resolved, defaultSource }
+    sources: SourcesJson | null
 }
 
 export const applyPatch = (draft: MapVisualization, patch: MapVisualizationPatch) => {
-    const { default_start_date: start, default_end_date: end, ...rest } = patch
-    Object.assign(draft, rest)
-    if (start && end) {
-        // eslint-disable-next-line no-param-reassign
-        draft.default_date_range = Interval.fromDateTimes(start, end)
-    }
-    if (draft.data) {
-        // eslint-disable-next-line no-param-reassign
-        draft.data = resolveDefaults(
-            draft.data.sources,
-            draft.default_source,
-            draft.default_date_range
-        )
-    }
+    Object.assign(draft, patch)
 }
 
-const intervalFromJson = (json: { start_date: string; end_date: string }) =>
+const intervalFromJson = (json: DateRangeJson) =>
     Interval.fromISO(`${json.start_date}/${json.end_date}`)
 
-const sourcesFromJson = (json: MapVisualizationJson): Record<number, UnresolvedSource> => {
-    const sources: Record<number, UnresolvedSource> = {}
-    Object.entries(json.date_ranges_by_source).forEach(([sourceId, dateRangeJsons]) => {
-        const source = json.sources[parseInt(sourceId, 10)]
-        const dateRanges = dateRangeJsons.map(intervalFromJson)
-        if (source !== undefined && isNonEmpty(dateRanges)) {
-            sources[source.id] = { ...source, dateRanges }
-        }
+const sourceFromJson = ({
+    date_ranges: [first, ...rest],
+    default_date_range: defaultDateRange,
+    ...source
+}: SourceDateRangesJson): SourceDateRanges => ({
+    ...source,
+    dateRanges: [intervalFromJson(first), ...rest.map(intervalFromJson)],
+    defaultDateRange: intervalFromJson(defaultDateRange),
+})
+
+const dataFromJson = (json: SourcesJson): Sources => {
+    const defaultSource = sourceFromJson(json.default_source)
+    const sources: Record<number, SourceDateRanges> = { [defaultSource.id]: defaultSource }
+    json.other_sources.forEach((sourceJson) => {
+        sources[sourceJson.id] = sourceFromJson(sourceJson)
     })
-    return sources
+    return { sources, defaultSource }
 }
 
-export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualization => {
-    const defaultDateRange =
-        json.default_date_range === null ? undefined : intervalFromJson(json.default_date_range)
-    const defaultSource = json.default_source ?? undefined
-    return {
-        id: json.id,
-        dataset: json.dataset,
-        map_type: json.map_type,
-        subcategory: json.subcategory ?? undefined,
-        units: json.units,
-        short_name: json.short_name,
-        dataset_name: json.dataset_name,
-        name: json.name ?? undefined,
-        description: json.description,
-        legend_ticks: json.legend_ticks ?? undefined,
-        color_palette: json.color_palette,
-        reverse_scale: json.reverse_scale,
-        invert_normalized: json.invert_normalized,
-        scale_type: json.scale_type,
-        color_domain: json.color_domain,
-        show_pdf: json.show_pdf,
-        pdf_domain: json.pdf_domain,
-        default_date_range: defaultDateRange,
-        default_source: defaultSource,
-        formatter_type: json.formatter_type,
-        legend_formatter_type: json.legend_formatter_type ?? undefined,
-        decimals: json.decimals,
-        legend_decimals: json.legend_decimals ?? undefined,
-        order: json.order,
-        displayName: json.name ?? json.dataset_name,
-        geography_type: json.geography_type,
-        bubble_color: json.bubble_color,
-        data: resolveDefaults(sourcesFromJson(json), defaultSource, defaultDateRange),
-    }
-}
+export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualization => ({
+    id: json.id,
+    dataset: json.dataset,
+    map_type: json.map_type,
+    subcategory: json.subcategory ?? undefined,
+    units: json.units,
+    short_name: json.short_name,
+    dataset_name: json.dataset_name,
+    name: json.name ?? undefined,
+    description: json.description,
+    legend_ticks: json.legend_ticks ?? undefined,
+    color_palette: json.color_palette,
+    reverse_scale: json.reverse_scale,
+    invert_normalized: json.invert_normalized,
+    scale_type: json.scale_type,
+    color_domain: json.color_domain,
+    show_pdf: json.show_pdf,
+    pdf_domain: json.pdf_domain,
+    formatter_type: json.formatter_type,
+    legend_formatter_type: json.legend_formatter_type ?? undefined,
+    decimals: json.decimals,
+    legend_decimals: json.legend_decimals ?? undefined,
+    order: json.order,
+    displayName: json.name ?? json.dataset_name,
+    geography_type: json.geography_type,
+    bubble_color: json.bubble_color,
+    data: json.sources === null ? undefined : dataFromJson(json.sources),
+})
 
 /** The preferred date range if the source has it, or else the source's default */
 export const selectDateRange = (
@@ -266,7 +230,7 @@ export const selectDateRange = (
 
 /** The preferred source and date range where the map has them, or else its defaults */
 const selectData = (
-    data: MapVisualizationData,
+    data: Sources,
     preferred: { dataSource?: number; dateRange?: string } = {}
 ): DataSelection =>
     selectDateRange(

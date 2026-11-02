@@ -81,7 +81,9 @@ impl<'c> Table<'c, DataSource> {
     pub async fn delete_cascading(&self, id: i32) -> Result<(), sqlx::Error> {
         let mut transaction = self.pool.begin().await?;
         sqlx::query!(
-            "UPDATE map_visualization SET default_source = NULL WHERE default_source = $1",
+            "UPDATE map_visualization
+            SET default_source = NULL, default_start_date = NULL, default_end_date = NULL
+            WHERE default_source = $1",
             id
         )
         .execute(&mut transaction)

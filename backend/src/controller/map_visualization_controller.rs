@@ -302,6 +302,114 @@ mod tests {
         .await
     }
 
+    /// Gives the map a default source and date range, and returns its dataset
+    async fn set_defaults(pool: &PgPool, map_id: i32) -> i32 {
+        let source_id: i32 = sqlx::query(
+            "INSERT INTO data_source (name, description, link)
+            VALUES ('patch test', 't', 't') RETURNING id",
+        )
+        .fetch_one(pool)
+        .await
+        .unwrap()
+        .get(0);
+        sqlx::query(
+            "UPDATE map_visualization
+            SET default_source = $1,
+                default_start_date = '2020-01-01',
+                default_end_date = '2020-12-31'
+            WHERE id = $2
+            RETURNING dataset",
+        )
+        .bind(source_id)
+        .bind(map_id)
+        .fetch_one(pool)
+        .await
+        .unwrap()
+        .get(0)
+    }
+
+    async fn send_patch(pool: &PgPool, map_id: i32, dataset: i32) {
+        let app_state = web::Data::new(AppState {
+            connections: Mutex::new(0),
+            database: Arc::new(Database::from_pool(pool.clone())),
+        });
+        let app =
+            test::init_service(App::new().app_data(app_state).configure(super::init_editor)).await;
+        let request = test::TestRequest::patch()
+            .uri("/map-visualization")
+            .set_json(serde_json::json!({
+                "id": map_id,
+                "dataset": dataset,
+                "map_type": 1,
+                "color_palette": { "id": 1, "name": "" },
+                "reverse_scale": false,
+                "invert_normalized": false,
+                "scale_type": { "id": 2, "name": "" },
+                "color_domain": [],
+                "show_pdf": false,
+                "pdf_domain": [],
+                "formatter_type": 3,
+                "decimals": 1,
+                "bubble_color": "black",
+            }))
+            .to_request();
+        let status = test::call_service(&app, request).await.status();
+        assert!(status.is_success(), "patch failed with status {}", status);
+    }
+
+    async fn default_count(pool: &PgPool, map_id: i32) -> i64 {
+        count(
+            pool,
+            "SELECT count(*) FROM map_visualization
+            WHERE id = $1
+                AND default_source IS NOT NULL
+                AND default_start_date IS NOT NULL
+                AND default_end_date IS NOT NULL",
+            map_id,
+        )
+        .await
+    }
+
+    #[sqlx::test]
+    async fn patch_keeps_the_defaults(pool: PgPool) {
+        let fixture = insert_draft(&pool).await;
+        let dataset = set_defaults(&pool, fixture.map_id).await;
+
+        send_patch(&pool, fixture.map_id, dataset).await;
+
+        assert_eq!(default_count(&pool, fixture.map_id).await, 1);
+    }
+
+    #[sqlx::test]
+    async fn patch_clears_the_defaults_when_the_dataset_changes(pool: PgPool) {
+        let fixture = insert_draft(&pool).await;
+        set_defaults(&pool, fixture.map_id).await;
+        let other_dataset: i32 = sqlx::query(
+            "INSERT INTO dataset (short_name, name, description, units, geography_type)
+            VALUES ('mapviz_patch_test', 'Mapviz Patch Test', 't', 't', 1) RETURNING id",
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap()
+        .get(0);
+
+        send_patch(&pool, fixture.map_id, other_dataset).await;
+
+        assert_eq!(
+            count(
+                &pool,
+                "SELECT count(*) FROM map_visualization
+                WHERE id = $1
+                    AND default_source IS NULL
+                    AND default_start_date IS NULL
+                    AND default_end_date IS NULL",
+                fixture.map_id,
+            )
+            .await,
+            1
+        );
+    }
+
     #[sqlx::test]
     async fn delete_draft_map_succeeds(pool: PgPool) {
         let fixture = insert_draft(&pool).await;
@@ -410,8 +518,7 @@ mod tests {
             .values()
             .find_map(|tab| tab.get(map_visualization_id.to_string()))
             .expect("visualization with a deleted source should still be listed");
-        assert_eq!(visualization["sources"], serde_json::json!({}));
-        assert_eq!(visualization["default_source"], serde_json::Value::Null);
+        assert_eq!(visualization.get("data"), Some(&serde_json::Value::Null));
 
         let request = test::TestRequest::get()
             .uri(&format!("/map-visualization/{map_visualization_id}"))

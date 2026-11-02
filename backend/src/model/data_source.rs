@@ -4,7 +4,7 @@ use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
-#[derive(FromRow, Deserialize, Serialize, Debug)]
+#[derive(FromRow, Deserialize, Serialize, PartialEq, Debug)]
 pub struct DataSource {
     pub id: i32,
     pub name: String,

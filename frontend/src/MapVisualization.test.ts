@@ -1,6 +1,4 @@
-import { createNextState } from '@reduxjs/toolkit'
 import {
-    applyPatch,
     getDataQueryParams,
     getDefaultSelection,
     jsonToMapVisualization,
@@ -9,32 +7,22 @@ import {
     resolveSelections,
 } from './MapVisualization'
 import {
-    dateRangeJson,
     interval,
     isoInterval,
     makeEmptyMapVisualization,
     makeMapVisualization,
     makeMapVisualizationJson,
+    sourceDateRangesJson,
+    sourceJson,
 } from './test-fixtures'
 
-const source = (id: number) => ({
-    id,
-    name: `Source ${id}`,
-    description: 'A source for testing',
-    link: '',
-})
-
-/** Two sources: 12 with 2014 and 2015, and 13 with 2010 and 2011 */
-const makeTwoSourceMapVisualization = (
-    overrides: Parameters<typeof makeMapVisualization>[0] = {}
-) =>
+/** Two sources: 12 with 2014 and 2015 and the default, and 13 with 2010 and 2011 */
+const makeTwoSourceMapVisualization = () =>
     makeMapVisualization({
-        sources: { 12: source(12), 13: source(13) },
-        date_ranges_by_source: {
-            12: [dateRangeJson(2014, 2014), dateRangeJson(2015, 2015)],
-            13: [dateRangeJson(2010, 2010), dateRangeJson(2011, 2011)],
+        sources: {
+            default_source: sourceDateRangesJson(sourceJson(12), [2014, 2015]),
+            other_sources: [sourceDateRangesJson(sourceJson(13), [2010, 2011])],
         },
-        ...overrides,
     })
 
 const dataOf = (mapVisualization: MapVisualization) => {
@@ -55,10 +43,12 @@ describe('a map visualization with data', () => {
         })
     })
 
-    test('prefers the configured default source and date range', () => {
-        const withDefaults = makeTwoSourceMapVisualization({
-            default_source: 13,
-            default_date_range: dateRangeJson(2010, 2010),
+    test('uses the default source and date range from the backend', () => {
+        const withDefaults = makeMapVisualization({
+            sources: {
+                default_source: sourceDateRangesJson(sourceJson(13), [2010, 2011], 2010),
+                other_sources: [sourceDateRangesJson(sourceJson(12), [2014, 2015])],
+            },
         })
         expect(getDefaultSelection(withDefaults)).toEqual({
             mapVisualization: 71,
@@ -94,45 +84,30 @@ describe('a map visualization whose dataset has no data rows', () => {
 })
 
 describe('jsonToMapVisualization', () => {
-    test('joins each source with its date ranges', () => {
-        const { sources } = dataOf(jsonToMapVisualization(makeMapVisualizationJson()))
+    test('parses each source with its date ranges', () => {
+        const { sources } = dataOf(makeTwoSourceMapVisualization())
         expect(sources).toEqual({
             12: {
-                ...source(12),
-                name: 'Test source',
-                dateRanges: [interval(2015, 2015)],
+                ...sourceJson(12),
+                dateRanges: [interval(2014, 2014), interval(2015, 2015)],
                 defaultDateRange: interval(2015, 2015),
+            },
+            13: {
+                ...sourceJson(13),
+                dateRanges: [interval(2010, 2010), interval(2011, 2011)],
+                defaultDateRange: interval(2011, 2011),
             },
         })
     })
 
-    test('has no data when there are no sources or date ranges', () => {
-        const mapVisualization = jsonToMapVisualization(
-            makeMapVisualizationJson({ sources: {}, date_ranges_by_source: {} })
-        )
+    test('has no data when the backend sends none', () => {
+        const mapVisualization = jsonToMapVisualization(makeMapVisualizationJson({ sources: null }))
         expect(mapVisualization.data).toBeUndefined()
     })
 
-    test('uses the configured default source', () => {
-        const data = dataOf(makeTwoSourceMapVisualization({ default_source: 13 }))
-        expect(data.defaultSource).toBe(data.sources[13])
-    })
-
-    test('uses the configured default date range only for sources that have it', () => {
-        const data = dataOf(
-            makeTwoSourceMapVisualization({ default_date_range: dateRangeJson(2014, 2014) })
-        )
-        expect(data.sources[12]?.defaultDateRange).toEqual(interval(2014, 2014))
-        expect(data.sources[13]?.defaultDateRange).toEqual(interval(2011, 2011))
-    })
-
-    test('keeps the configured defaults for the editor', () => {
-        const mapVisualization = makeTwoSourceMapVisualization({
-            default_source: 13,
-            default_date_range: dateRangeJson(2010, 2010),
-        })
-        expect(mapVisualization.default_source).toEqual(13)
-        expect(mapVisualization.default_date_range).toEqual(interval(2010, 2010))
+    test('uses the default source from the backend', () => {
+        const data = dataOf(makeTwoSourceMapVisualization())
+        expect(data.defaultSource).toBe(data.sources[12])
     })
 })
 
@@ -196,15 +171,5 @@ describe('getDataQueryParams', () => {
             resolveSelection(makeMapVisualization()),
         ])
         expect(params?.map((param) => param.mapVisualization)).toEqual([71])
-    })
-})
-
-describe('applyPatch', () => {
-    test('resolves the default source from the patch', () => {
-        const mapVisualization = makeTwoSourceMapVisualization()
-        const patched = createNextState(mapVisualization, (draft) => {
-            applyPatch(draft, { ...mapVisualization, default_source: 13 })
-        })
-        expect(dataOf(patched).defaultSource.id).toEqual(13)
     })
 })

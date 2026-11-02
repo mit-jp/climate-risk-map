@@ -136,9 +136,9 @@ impl<'c> Table<'c, Data> {
                 SELECT
                     map_visualization.dataset,
                     dataset.name as dataset_name,
-                    COALESCE(default_source, source) AS source,
-                    COALESCE(default_start_date, start_date) AS start_date,
-                    COALESCE(default_end_date, end_date) AS end_date,
+                    resolved.source,
+                    resolved.start_date,
+                    resolved.end_date,
                     invert_normalized,
                     units,
                     formatter_type,
@@ -147,21 +147,34 @@ impl<'c> Table<'c, Data> {
                     map_visualization,
                     map_visualization_collection,
                     dataset,
-                    (
+                    LATERAL (
+                        -- The defaults as map_visualization::Data::new resolves them: the
+                        -- configured source if it has data, or else the lowest source id,
+                        -- and the configured date range if that source has it, or else its
+                        -- latest
                         SELECT
-                            dataset,
-                            MAX(end_date) AS end_date,
-                            MAX(start_date) AS start_date,
-                            MAX("source") AS source
+                            data.source,
+                            data.start_date,
+                            data.end_date
                         FROM
                             data
-                        GROUP BY
-                            dataset
-                    ) AS cd
+                        WHERE
+                            data.dataset = map_visualization.dataset
+                        ORDER BY
+                            (data.source = map_visualization.default_source) IS TRUE DESC,
+                            data.source,
+                            (
+                                data.source = map_visualization.default_source
+                                AND data.start_date = map_visualization.default_start_date
+                                AND data.end_date = map_visualization.default_end_date
+                            ) IS TRUE DESC,
+                            data.start_date DESC,
+                            data.end_date DESC
+                        LIMIT 1
+                    ) AS resolved
                 WHERE
                     map_visualization_collection.category = $2
                     AND map_visualization.dataset = dataset.id
-                    AND cd.dataset = map_visualization.dataset
                     AND map_visualization_collection.map_visualization = map_visualization.id
                     AND dataset.geography_type = $3
             ) AS entry
@@ -274,9 +287,9 @@ impl<'c> Table<'c, Data> {
                 SELECT
                     map_visualization.dataset,
                     dataset.name as dataset_name,
-                    COALESCE(default_source, source) AS source,
-                    COALESCE(default_start_date, start_date) AS start_date,
-                    COALESCE(default_end_date, end_date) AS end_date,
+                    resolved.source,
+                    resolved.start_date,
+                    resolved.end_date,
                     invert_normalized,
                     units,
                     formatter_type,
@@ -285,21 +298,34 @@ impl<'c> Table<'c, Data> {
                     map_visualization,
                     map_visualization_collection,
                     dataset,
-                    (
+                    LATERAL (
+                        -- The defaults as map_visualization::Data::new resolves them: the
+                        -- configured source if it has data, or else the lowest source id,
+                        -- and the configured date range if that source has it, or else its
+                        -- latest
                         SELECT
-                            dataset,
-                            MAX(end_date) AS end_date,
-                            MAX(start_date) AS start_date,
-                            MAX("source") AS source
+                            data.source,
+                            data.start_date,
+                            data.end_date
                         FROM
                             data
-                        GROUP BY
-                            dataset
-                    ) AS cd
+                        WHERE
+                            data.dataset = map_visualization.dataset
+                        ORDER BY
+                            (data.source = map_visualization.default_source) IS TRUE DESC,
+                            data.source,
+                            (
+                                data.source = map_visualization.default_source
+                                AND data.start_date = map_visualization.default_start_date
+                                AND data.end_date = map_visualization.default_end_date
+                            ) IS TRUE DESC,
+                            data.start_date DESC,
+                            data.end_date DESC
+                        LIMIT 1
+                    ) AS resolved
                 WHERE
                     map_visualization_collection.category = $2
                     AND map_visualization.dataset = dataset.id
-                    AND cd.dataset = map_visualization.dataset
                     AND map_visualization_collection.map_visualization = map_visualization.id
                     AND dataset.geography_type = $3
             ) AS entry
@@ -375,9 +401,21 @@ impl<'c> Table<'c, Data> {
         .await
     }
 
+    /// Also clears the defaults of the dataset's map visualizations, which refer to its data
     pub async fn delete_by_dataset(&self, dataset: i32) -> Result<PgQueryResult, sqlx::Error> {
-        sqlx::query!("DELETE FROM data WHERE dataset = $1", dataset)
-            .execute(&*self.pool)
-            .await
+        let mut transaction = self.pool.begin().await?;
+        sqlx::query!(
+            "UPDATE map_visualization
+            SET default_source = NULL, default_start_date = NULL, default_end_date = NULL
+            WHERE dataset = $1",
+            dataset
+        )
+        .execute(&mut transaction)
+        .await?;
+        let result = sqlx::query!("DELETE FROM data WHERE dataset = $1", dataset)
+            .execute(&mut transaction)
+            .await?;
+        transaction.commit().await?;
+        Ok(result)
     }
 }
