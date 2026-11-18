@@ -6,14 +6,22 @@ import DataDescription from './DataDescription'
 import DataProcessor, { getDomain } from './DataProcessor'
 import DataSourceDescription from './DataSourceDescription'
 import EmptyMap from './EmptyMap'
-import { getLegendFormatter, getUnitString } from './Formatter'
-import FullMap from './FullMap'
+import { getLegendFormatter } from './Formatter'
+import FullMap, { getLegendTitle } from './FullMap'
 import Legend from './Legend'
-import { DataQueryParams, useGetDataQuery } from './MapApi'
+import { useGetDataQuery } from './MapApi'
 import MapControls from './MapControls'
 import MapTitle, { EmptyMapTitle } from './MapTitle'
 import MapTooltip from './MapTooltip'
-import { MapType, MapVisualization, MapVisualizationId } from './MapVisualization'
+import {
+    getDataQueryParams,
+    isNonEmpty,
+    MapType,
+    MapVisualization,
+    MapVisualizationId,
+    NonEmptyArray,
+    resolveSelections,
+} from './MapVisualization'
 import css from './MapWrapper.module.css'
 import Overlays from './Overlays'
 import ProbabilityDensity from './ProbabilityDensity'
@@ -21,19 +29,6 @@ import { clickMap, selectMapTransform, selectSelections, stateId } from './appSl
 import { RootState } from './store'
 
 export const ZOOM_TRANSITION = { transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }
-
-export const getLegendTitle = (selectedMaps: MapVisualization[], isNormalized: boolean) => {
-    const dataDefinition = selectedMaps[0]
-    const unitString = getUnitString({ units: dataDefinition.units, isNormalized })
-
-    if (isNormalized) {
-        if (selectedMaps.some((value) => value.subcategory === 1)) {
-            return selectedMaps.length > 1 ? 'Combined Relative Risk' : 'Relative Risk'
-        }
-        return 'Scaled Value'
-    }
-    return unitString
-}
 
 function getPdfDomain(selectedMaps: MapVisualization[]) {
     const firstSelection = selectedMaps[0]
@@ -70,21 +65,16 @@ function MapWrapper({
     const selections = useSelector(selectSelections)
     const region = useSelector((rootState: RootState) => rootState.app.region)
     const tab = useSelector((state: RootState) => state.app.tab?.name ?? '')
-    const maps = useMemo(() => {
-        return selections
-            .map((selection) => selection.mapVisualization)
-            .map((id) => allMapVisualizations[id])
-            .filter((mapVisualization) => mapVisualization !== undefined)
-    }, [allMapVisualizations, selections])
-    const queryParams: DataQueryParams[] | undefined =
-        Object.entries(selections).length > 0
-            ? selections.map((selection) => ({
-                  mapVisualization: selection.mapVisualization,
-                  source: selection.dataSource,
-                  startDate: selection.dateRange.start.toISODate(),
-                  endDate: selection.dateRange.end.toISODate(),
-              }))
-            : undefined
+    const resolvedSelections = useMemo(
+        () => resolveSelections(allMapVisualizations, selections),
+        [allMapVisualizations, selections]
+    )
+    const maps = useMemo(
+        () => resolvedSelections.map(({ mapVisualization }) => mapVisualization),
+        [resolvedSelections]
+    )
+    // undefined when none of the selected visualizations' datasets have data
+    const queryParams = useMemo(() => getDataQueryParams(resolvedSelections), [resolvedSelections])
     const { data } = useGetDataQuery(queryParams ?? skipToken)
     const mapRef = useRef<SVGGElement>(null)
     const isStateLevelOnlyData = useMemo(() => {
@@ -138,9 +128,8 @@ function MapWrapper({
                 : undefined,
         [data, maps, dataWeights, zoomTo, isNormalized, region, isStateLevelOnlyData]
     )
-    const dataSource =
-        maps[0] && selections[0] ? maps[0].sources[selections[0].dataSource] : undefined
-    const getLegendTicks = (selectedMaps: MapVisualization[], isNormalized: boolean) =>
+    const dataSource = resolvedSelections[0]?.data?.source
+    const getLegendTicks = (selectedMaps: NonEmptyArray<MapVisualization>, isNormalized: boolean) =>
         isNormalized ? undefined : selectedMaps[0].legend_ticks
 
     if (map === undefined) {
@@ -161,6 +150,9 @@ function MapWrapper({
                 ) : (
                     <EmptyMapTitle />
                 )}
+                {maps.length > 0 && queryParams === undefined && (
+                    <p className={css.noData}>No data available for this map yet.</p>
+                )}
                 <svg
                     id="map-svg"
                     version="1.1"
@@ -178,7 +170,7 @@ function MapWrapper({
                         onClick={() => dispatch(clickMap(Number(-1)))}
                         style={{ opacity: 0 }}
                     />
-                    {processedData ? (
+                    {processedData && isNonEmpty(maps) ? (
                         <FullMap
                             ref={mapRef}
                             map={map}
@@ -194,6 +186,7 @@ function MapWrapper({
                     )}
                     <Overlays />
                     {processedData &&
+                        isNonEmpty(maps) &&
                         (() => {
                             // JavaScript goes here
                             const legendTitle = getLegendTitle(maps, isNormalized)

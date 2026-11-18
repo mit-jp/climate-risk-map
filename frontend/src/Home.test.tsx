@@ -32,27 +32,8 @@ const MAP_VISUALIZATIONS: { [key: string]: { [key: string]: MapVisualizationJson
                 name: 'SequentialSqrt',
             },
             color_domain: [4.0, 10.0],
-            date_ranges_by_source: {
-                '12': [
-                    {
-                        start_date: '2015-01-01',
-                        end_date: '2015-12-31',
-                    },
-                ],
-            },
-            sources: {
-                '12': {
-                    id: 12,
-                    name: 'NASA Earth Data',
-                    description:
-                        'We downloaded data for annual 2015. To obtain population weighted PM2.5, we also used the following data: Land Area Data: https://sedac.ciesin.columbia.edu/data/set/gpw-v4-land-water-area-rev11/data-download Population Density for 2015: https://sedac.ciesin.columbia.edu/data/set/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-rev11',
-                    link: 'https://beta.sedac.ciesin.columbia.edu/data/set/aqdh-pm2-5-concentrations-contiguous-us-1-km-2000-2016',
-                },
-            },
             show_pdf: true,
             pdf_domain: [],
-            default_date_range: null,
-            default_source: null,
             formatter_type: 3,
             legend_formatter_type: null,
             decimals: 0,
@@ -60,6 +41,26 @@ const MAP_VISUALIZATIONS: { [key: string]: { [key: string]: MapVisualizationJson
             order: 1,
             geography_type: 1,
             bubble_color: '#000000',
+            sources: {
+                default_source: {
+                    id: 12,
+                    name: 'NASA Earth Data',
+                    description:
+                        'We downloaded data for annual 2015. To obtain population weighted PM2.5, we also used the following data: Land Area Data: https://sedac.ciesin.columbia.edu/data/set/gpw-v4-land-water-area-rev11/data-download Population Density for 2015: https://sedac.ciesin.columbia.edu/data/set/gpw-v4-population-density-adjusted-to-2015-unwpp-country-totals-rev11',
+                    link: 'https://beta.sedac.ciesin.columbia.edu/data/set/aqdh-pm2-5-concentrations-contiguous-us-1-km-2000-2016',
+                    date_ranges: [
+                        {
+                            start_date: '2015-01-01',
+                            end_date: '2015-12-31',
+                        },
+                    ],
+                    default_date_range: {
+                        start_date: '2015-01-01',
+                        end_date: '2015-12-31',
+                    },
+                },
+                other_sources: [],
+            },
         },
     },
 }

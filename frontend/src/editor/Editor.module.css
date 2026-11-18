@@ -76,3 +76,8 @@
     align-items: center;
     margin: 1em 0;
 }
+
+.no-data {
+    text-align: center;
+    font-style: italic;
+}

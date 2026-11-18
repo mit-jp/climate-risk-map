@@ -186,7 +186,8 @@ function TourPlanner() {
     ]
 
     const currentStep = TOUR_STEPS[currentStepNum]
-    const canProceed = () => currentStep.end?.() ?? true
+    const canProceed = () => currentStep?.end?.() ?? true
+    const targetElement = currentStep?.targetElement
 
     useEffect(() => {
         const hasSeenTour = localStorage.getItem('hasSeenClimateTour')
@@ -220,8 +221,8 @@ function TourPlanner() {
     }
 
     useEffect(() => {
-        if (isTourActive) {
-            const element = document.querySelector(currentStep.targetElement)
+        if (isTourActive && targetElement !== undefined) {
+            const element = document.querySelector(targetElement)
             if (element) {
                 element.scrollIntoView({
                     behavior: 'smooth',
@@ -230,15 +231,15 @@ function TourPlanner() {
                 })
             }
         }
-    }, [currentStepNum, isTourActive, currentStep.targetElement])
+    }, [currentStepNum, isTourActive, targetElement])
 
-    if (!isTourActive) {
+    if (!isTourActive || currentStep === undefined) {
         return null
     }
 
     return (
         <>
-            <TourStep stepData={TOUR_STEPS[currentStepNum]} />
+            <TourStep stepData={currentStep} />
             <TourControls
                 currentStep={currentStepNum + 1}
                 totalSteps={TOUR_STEPS.length}

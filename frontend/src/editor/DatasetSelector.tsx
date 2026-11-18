@@ -24,9 +24,6 @@ export default function DatasetSelector({
                 updateMap({
                     ...mapVisualization,
                     dataset: dataset.id,
-                    default_end_date: undefined,
-                    default_start_date: undefined,
-                    default_source: undefined,
                     pdf_domain: [],
                     color_domain: [],
                 })

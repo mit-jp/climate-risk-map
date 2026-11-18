@@ -40,12 +40,10 @@ export const editorSlice = createSlice({
                     const tab = Number(tabId)
                     // set the first map visualization as the selected one if there's not
                     // already one selected or the selection no longer exists
-                    if (
-                        state.selectedMapVisualizationByTab[tab] === undefined ||
-                        !mapVisualizations[state.selectedMapVisualizationByTab[tab]]
-                    ) {
-                        state.selectedMapVisualizationByTab[tab] =
-                            Object.values(mapVisualizations)[0].id
+                    const selected = state.selectedMapVisualizationByTab[tab]
+                    const [first] = Object.values(mapVisualizations)
+                    if ((selected === undefined || !mapVisualizations[selected]) && first) {
+                        state.selectedMapVisualizationByTab[tab] = first.id
                     }
                 })
             }

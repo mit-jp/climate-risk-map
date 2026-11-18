@@ -83,7 +83,8 @@
       "commandCenter.foreground": "#e7e7e7",
       "statusBar.debuggingBackground": "#007fff",
       "statusBar.debuggingForeground": "#e7e7e7",
-      "activityBarTop.activeBorder": "#15202b"
+      "activityBarTop.activeBorder": "#15202b",
+      "statusBar.inactiveBackground": "#007fff"
     },
     "peacock.color": "#007fff",
     "jest.disabledWorkspaceFolders": ["backend", ".github"],
