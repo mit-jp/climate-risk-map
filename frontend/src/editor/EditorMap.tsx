@@ -1,4 +1,3 @@
-import { Button, MenuItem, Select } from '@mui/material'
 import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { useMemo, useRef, useState } from 'react'
 import DataProcessor from '../DataProcessor'
@@ -16,6 +15,7 @@ import { EmptyMapTitle } from '../MapTitle'
 import MapTooltip from '../MapTooltip'
 import { MapVisualization, getDataQueryParams } from '../MapVisualization'
 import { GeoMap } from '../appSlice'
+import { Button, Select } from '../ui'
 import DatasetSelector from './DatasetSelector'
 import { isDrafts } from './Editor'
 import css from './Editor.module.css'
@@ -101,12 +101,12 @@ function EditorMap({ map, selection, detailedView, isNormalized, tab, tabs }: Pr
                         {isDraft && (
                             <Select
                                 value={publishTo}
-                                onChange={(event) => setPublishTo(event.target.value as number)}
+                                onChange={(event) => setPublishTo(Number(event.target.value))}
                             >
                                 {tabs.map(({ id, name }) => (
-                                    <MenuItem key={id} value={id}>
+                                    <option key={id} value={id}>
                                         {name}
-                                    </MenuItem>
+                                    </option>
                                 ))}
                             </Select>
                         )}

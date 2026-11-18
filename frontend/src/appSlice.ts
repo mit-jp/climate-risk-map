@@ -93,7 +93,7 @@ const initialState: AppState = {
     hasSeenTour: localStorage.getItem('hasSeenClimateTour') === 'true',
 }
 
-export const appSlice = createSlice({
+const appSlice = createSlice({
     name: 'app',
     initialState,
     reducers: {

@@ -1,7 +1,8 @@
-import { Button } from '@mui/material'
 import { useDispatch } from 'react-redux'
+import { Button } from '../ui'
 import css from './tour.module.css'
 import { setTourActive } from '../appSlice'
+import TOUR_TARGET from './tourTargets'
 
 function ViewTourButton() {
     const dispatch = useDispatch()
@@ -15,7 +16,7 @@ function ViewTourButton() {
             variant="contained"
             onClick={handleClick}
             className={css.viewTourButton}
-            id="view-tour-button-id"
+            id={TOUR_TARGET.viewTourButton}
         >
             View Tour
         </Button>

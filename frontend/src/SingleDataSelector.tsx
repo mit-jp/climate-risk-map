@@ -1,5 +1,3 @@
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { Accordion, AccordionDetails, AccordionSummary } from '@mui/material'
 import { ChangeEvent } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import css from './DataSelector.module.css'
@@ -53,7 +51,7 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
     const renderMapEntry = (map: MapVisualization) => (
         <div key={map.id}>
             <input
-                className={css.input}
+                className="ui-sr-only"
                 id={map.id.toString()}
                 checked={selection?.mapVisualization === map.id}
                 type="radio"
@@ -99,18 +97,10 @@ function SingleDataSelector({ maps }: { maps: Record<MapVisualizationId, MapVisu
                 subcategories
                     .filter((subcategory) => !isEmpty(subcategory.id))
                     .map((subcategory) => (
-                        <Accordion key={subcategory.id} defaultExpanded={false}>
-                            <AccordionSummary
-                                aria-controls={`subcategory-${subcategory.id}-content`}
-                                id={`subcategory-${subcategory.id}-header`}
-                                expandIcon={<ExpandMoreIcon />}
-                            >
-                                <div className={css.subcategoryTitle}>{subcategory.name}</div>
-                            </AccordionSummary>
-                            <AccordionDetails style={{ padding: 0 }}>
-                                {getDataList((map) => map.subcategory === subcategory.id)}
-                            </AccordionDetails>
-                        </Accordion>
+                        <details key={subcategory.id}>
+                            <summary>{subcategory.name}</summary>
+                            {getDataList((map) => map.subcategory === subcategory.id)}
+                        </details>
                     ))}
             {getDataList((map) => map.subcategory == null)}
             {!shouldShowSubcategories && getDataList((map) => map.subcategory != null)}

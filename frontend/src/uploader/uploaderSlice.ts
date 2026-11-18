@@ -13,7 +13,7 @@ export interface Dataset {
     readonly column: string
 }
 
-export interface DatasetDiff {
+interface DatasetDiff {
     readonly id: string
     readonly name?: string
     readonly units?: string
@@ -120,7 +120,7 @@ const generateMetadata = (
     }
 }
 
-export const uploaderSlice = createSlice({
+const uploaderSlice = createSlice({
     name: 'uploader',
     initialState,
     reducers: {

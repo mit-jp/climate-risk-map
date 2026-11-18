@@ -1,8 +1,7 @@
-import { LoadingButton } from '@mui/lab'
-import { TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
 import { useUpdateDatasetMutation } from '../MapApi'
 import { MapVisualization } from '../MapVisualization'
+import { Button, TextField } from '../ui'
 
 function EditorMapDescription({ selectedMap }: { selectedMap: MapVisualization }) {
     const [updateDataset, { isLoading }] = useUpdateDatasetMutation()
@@ -29,14 +28,9 @@ function EditorMapDescription({ selectedMap }: { selectedMap: MapVisualization }
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={isLoading}
             />
-            <LoadingButton
-                type="submit"
-                loading={isLoading}
-                variant="contained"
-                disabled={noDiff()}
-            >
+            <Button type="submit" loading={isLoading} variant="contained" disabled={noDiff()}>
                 save
-            </LoadingButton>
+            </Button>
         </form>
     )
 }

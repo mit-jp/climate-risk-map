@@ -12,7 +12,7 @@ interface EditorState {
 
 const initialState: EditorState = { selectedMapVisualizationByTab: {} }
 
-export const editorSlice = createSlice({
+const editorSlice = createSlice({
     name: 'editor',
     initialState,
     reducers: {

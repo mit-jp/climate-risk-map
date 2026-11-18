@@ -1,24 +1,36 @@
+/* Year and source pickers nested under a selected metric */
 .sub-selector {
     display: flex;
-    background: #eee;
-    padding: 0 0 0 1em;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--size-4xs);
+    background: var(--color-fill-muted);
+    padding: var(--size-4xs) var(--size-m);
 }
 
-.sub-selector input {
-    display: none;
+.sub-selector p {
+    margin: 0;
+    font-size: var(--size-2xs);
+    color: var(--color-text-muted);
 }
 
+/* the radio itself is .ui-sr-only (accessible but invisible); the
+   label draws the pill and shows the checked state */
 .sub-selector label {
-    display: block;
-    border: 1px;
-    padding: 1em 0.5em 1em 0.5em;
+    padding: var(--control-pad-block) var(--size-4xs);
+    /* keep the text line centered while filling the pointer-adaptive
+       touch-target floor; browsers without lh keep the padding above */
+    padding-block: max(var(--control-pad-block), (var(--target-min) - 1lh) / 2);
+    border-radius: var(--radius);
     cursor: pointer;
+    color: var(--color-text-primary);
 }
 
-.sub-selector label:hover,
-.sub-selector input:checked + label {
-    text-decoration: underline;
+.sub-selector label:hover {
+    background: var(--tint);
 }
-.year-dropdown {
-    margin-left: 1em;
+
+.sub-selector input:checked + label {
+    background: var(--primary);
+    color: var(--color-on-primary);
 }

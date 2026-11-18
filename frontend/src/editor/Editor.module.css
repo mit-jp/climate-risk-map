@@ -4,21 +4,23 @@
 }
 
 #map {
-    margin: 1em;
-    min-width: 500px;
+    margin: var(--size-m);
+    min-width: 31em;
     width: 100%;
 }
 
+/* bottoms of the buttons line up with the labeled text field beside them */
 #title-field {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
+    gap: var(--size-4xs);
 }
 
 #map-options {
     display: flex;
     flex-direction: column;
-    padding: 1em;
-    min-width: 300px;
+    padding: var(--size-m);
+    min-width: 19em;
 }
 
 #map-visualization-list {
@@ -27,52 +29,20 @@
     align-items: center;
 }
 
-#map-options > fieldset {
-    margin: 1em 0;
-}
-
 .publish-button {
-    margin: 1em 0 !important;
+    margin: var(--size-m) 0;
 }
 
 .actions {
-    margin: 1em;
+    margin: var(--size-m);
     display: flex;
     justify-content: space-between;
-}
-
-.actions > * {
-    margin: 0 1em;
-}
-
-.publish-link {
-    display: inline-block;
-    padding: 1em;
-    color: inherit;
-    background-color: #fff6d0;
-    text-decoration: none;
-}
-
-.publish-link:hover {
-    background-color: #fce995;
-}
-
-.delete-tab {
-    font: inherit;
-    border: none;
-    display: inline-block;
-    padding: 1em;
-    color: inherit;
-    background-color: #f7d7d7;
-    cursor: pointer;
-}
-
-.delete-tab:hover {
-    background-color: #f5b0b0;
+    gap: var(--size-m);
 }
 
 .publish-area {
     display: flex;
     align-items: center;
-    margin: 1em 0;
+    gap: var(--size-4xs);
+    margin: var(--size-m) 0;
 }

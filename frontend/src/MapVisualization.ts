@@ -4,12 +4,7 @@ import { MapSelection } from './DataSelector'
 import { DataQueryParams, TabId } from './MapApi'
 
 export type MapVisualizationId = number
-export type ScaleTypeName =
-    | 'Diverging'
-    | 'Sequential'
-    | 'DivergingSymLog'
-    | 'Threshold'
-    | 'SequentialSqrt'
+type ScaleTypeName = 'Diverging' | 'Sequential' | 'DivergingSymLog' | 'Threshold' | 'SequentialSqrt'
 export type ScaleType = { id: number; name: ScaleTypeName }
 export enum FormatterType {
     MONEY = 1,
@@ -144,7 +139,7 @@ export const applyPatch = (draft: MapVisualization, patch: MapVisualizationPatch
 const intervalFromJson = (json: { start_date: string; end_date: string }) =>
     Interval.fromISO(`${json.start_date}/${json.end_date}`)
 
-export const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualization => {
+const jsonToMapVisualization = (json: MapVisualizationJson): MapVisualization => {
     const dateRangesBySource = Object.entries(json.date_ranges_by_source)
         .map(
             ([sourceId, dateRanges]) =>

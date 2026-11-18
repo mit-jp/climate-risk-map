@@ -3,22 +3,8 @@
     display: flex;
 }
 
-.site-overview {
-    background: #eee;
-    padding: 0.25em 1em;
-    margin-bottom: 1em;
-}
-
-.nav-div {
-    display: flex;
-    justify-content: space-between;
-}
-
 @media (max-width: 1000px) {
     .content {
-        flex-direction: column-reverse;
-    }
-    .nav-div {
         flex-direction: column-reverse;
     }
 }

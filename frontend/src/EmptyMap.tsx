@@ -28,8 +28,7 @@ function EmptyMap({ map, transform }: { map: GeoMap; transform?: string }) {
                     // some countries like Northern Cyprus and Kosovo don't have an id, so use the name instead
                     key={map.region === 'USA' ? 'nation' : region.id && region.properties?.name}
                     d={path(region)!}
-                    stroke="white"
-                    fill="#eee"
+                    style={{ stroke: 'var(--color-background)', fill: 'var(--color-fill-muted)' }}
                     strokeLinejoin="round"
                 />
             ))}
