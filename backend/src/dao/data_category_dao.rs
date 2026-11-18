@@ -37,9 +37,19 @@ impl<'c> Table<'c, DataCategory> {
     }
 
     pub async fn delete(&self, id: i32) -> Result<PgQueryResult, sqlx::Error> {
-        sqlx::query!("DELETE FROM data_category WHERE id = $1", id)
-            .execute(&*self.pool)
-            .await
+        let mut transaction = self.pool.begin().await?;
+        // Unpublish the category's map visualizations (the visualizations themselves are kept)
+        sqlx::query!(
+            "DELETE FROM map_visualization_collection WHERE category = $1",
+            id
+        )
+        .execute(&mut transaction)
+        .await?;
+        let result = sqlx::query!("DELETE FROM data_category WHERE id = $1", id)
+            .execute(&mut transaction)
+            .await?;
+        transaction.commit().await?;
+        Ok(result)
     }
 
     pub async fn last_order(&self) -> Result<i16, sqlx::Error> {
