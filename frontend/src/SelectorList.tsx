@@ -1,7 +1,6 @@
-import { Key } from 'react'
 import css from './DataSelector.module.css'
 
-function SelectorList<Item, Id extends Key>({
+function SelectorList<Item, Id extends string | number>({
     items,
     selectedId,
     onClick,

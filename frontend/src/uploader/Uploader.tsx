@@ -49,7 +49,7 @@ function Error({
     const details = (e: UploadError) => {
         switch (e.name) {
             case 'InvalidCsv':
-                return <p>Invalid csv file: {e}</p>
+                return <p>Invalid csv file: {pretty(e)}</p>
             case 'MissingColumn':
                 return (
                     <p>
